@@ -1,0 +1,23 @@
+{
+  "name": "jekyll-wordpress-import-fixes",
+  "version": "0.0.0",
+  "description": "Can be used after running jekyll-import WordPress to apply various fixes to the imported markdown files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "jekyll",
+    "import",
+    "wordpress",
+    "fixes"
+  ],
+  "author": "phil@leggetter.co.uk",
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "~3.0.2",
+    "request": "~2.34.0",
+    "promise": "~5.0.0",
+    "mkpath": "~0.1.0"
+  }
+}

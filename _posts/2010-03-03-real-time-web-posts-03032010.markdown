@@ -1,0 +1,59 @@
+---
+layout: post
+status: publish
+published: true
+title: Real-Time Web Posts 03/03/2010
+author:
+  display_name: Phil Leggetter
+  email: "phil@leggetter.co.uk"
+  url: "http://www.leggetter.co.uk"
+author_email: "phil@leggetter.co.uk"
+author_url: "http://www.leggetter.co.uk"
+excerpt: "I'm doing my best to keep up to speed on any news related to the real-time web. I follow interesting people on Twitter who tweet out links, I subscribe to RSS feeds and I've got <a href=\"http://www.google.com/alerts\">Google Alerts</a> set up on a number of phrases. Since I'm doing all this work I thought it would be a good idea to start sharing it by publishing the findings in an occasional summary blog post. I generally don't like blog posts which just say \"this is an interesting article\" but sometimes, if it raises awareness of good articles, it can be useful. Hopefully it will be.\r\n\r\nI tend to first post the links on the <a href=\"http://www.linkedin.com/groups?&amp;gid=2578818\">Real-Time Web Software and Technologies LinkedIn group</a> so if you are interested on getting the news as I find it, or contributing your own real-time web finds then please join <a href=\"http://www.linkedin.com/groups?&amp;gid=2578818\">the group</a>. Also feel free to <a href=\"http://twitter.com/leggetter\">Tweet at me</a> or <a href=\"http://www.leggetter.co.uk/contact-me\">contact me via the website</a> if you find anything interesting and relevant.\r\n\r\n"
+wordpress_id: 726
+wordpress_url: "http://www.leggetter.co.uk/?p=726"
+date: "2010-03-03 09:12:45 +0000"
+date_gmt: "2010-03-03 09:12:45 +0000"
+categories:
+  - Technology
+  - Real-Time Web Musings
+tags:
+  - real-time web
+  - Social Media
+  - Twitter
+  - Facebook
+  - Real-Time Web News
+  - websockets
+  - html5
+permalink: /2010/03/03/real-time-web-posts-03032010.html
+---
+
+<p>I'm doing my best to keep up to speed on any news related to the real-time web. I follow interesting people on Twitter who tweet out links, I subscribe to RSS feeds and I've got <a href="http://www.google.com/alerts">Google Alerts</a> set up on a number of phrases. Since I'm doing all this work I thought it would be a good idea to start sharing it by publishing the findings in an occasional summary blog post. I generally don't like blog posts which just say "this is an interesting article" but sometimes, if it raises awareness of good articles, it can be useful. Hopefully it will be.</p>
+<p>I tend to first post the links on the <a href="http://www.linkedin.com/groups?&amp;gid=2578818">Real-Time Web Software and Technologies LinkedIn group</a> so if you are interested on getting the news as I find it, or contributing your own real-time web finds then please join <a href="http://www.linkedin.com/groups?&amp;gid=2578818">the group</a>. Also feel free to <a href="http://twitter.com/leggetter">Tweet at me</a> or <a href="/contact-me">contact me via the website</a> if you find anything interesting and relevant.</p>
+<p><a id="more"></a><a id="more-726"></a></p>
+<h2>WebSockets</h2>
+<ul>
+<li><a href="http://www.kaazing.com/blog/?p=317">5 Signs You Need HTML5 Web Sockets (Part 1)</a> - <a href="http://www.kaazing.com/">Kaazing</a> - Part <a href="http://www.kaazing.com/blog/?p=327">2</a>, <a href="http://www.kaazing.com/blog/?p=338">3</a>, <a href="http://www.kaazing.com/blog/?p=346">4</a> and <a href="http://www.kaazing.com/blog/?p=352">5</a> are also available.</li>
+<li><a href="http://blogs.webtide.com/gregw/entry/websocket_chat">WebSocket Chat</a> - A discussion about creating a Chat application using WebSockets - <a href="http://blogs.webtide.com/gregw/">Greg Wilkins</a></li>
+<li><a href="http://blog.caplin.com/2010/03/02/why-we-dont-need-html5-websocket/">Why we don't need HTML5 WebSocket</a> - a discussion on the problems with WebSockets - <a href="http://blog.caplin.com/author/martintcaplincom/">Martin Tyler</a></li>
+</ul>
+<h2>Real-Time Web in action</h2>
+<ul>
+<li><a href="http://nten.org/blog/2010/02/17/social-media-response-disaster-haiti">The Social Media Response to Disaster in Haiti</a> - An article on how real-time web technologies were used in response to the Haiti disaster - Amy Sample Ward, <a href="http://www.netsquared.org/">NetSquared</a></li>
+<li><a href="http://blog.caplin.com/2010/02/24/when-were-you-when-tendulkar-scored-200/">When were you when Tendulkar scored 200?</a> - Ok, this isn't actually an example of Real-Time Web in action. But it should be! This is a great example of where adding a dash of real-time web to your website could actually help you scale (stop users hitting <strong>Refresh</strong>) - <a href="http://blog.caplin.com/author/martintcaplincom/">Martin Tyler</a></li>
+</ul>
+<h2>Real-Time Web technology</h2>
+<ul>
+<li><a href="http://www.web2media.net/laktek/2010/02/16/building-real-time-web-apps-with-rails3/">Building Real-Time web apps with Rails 3</a> - <a href="http://www.web2media.net/laktek/">LakTEK</a></li>
+<li><a href="/2010/02/27/using-real-time-web-software-and-technology-to-distribute-events.html">Using real-time web software and technology to distribute events</a> - <a href="http://www.leggetter.co.uk">Phil Leggetter</a> (that's me)</li>
+<li><a href="http://blogs.computerworld.com/15612/its_not_just_twitter">It's not just Twitter</a> (who use Open Source real-time web technology) - <a href="http://blogs.computerworld.com/user/137">Steven J. Vaughan-Nichols</a></li>
+<li><a href="http://images.businessweek.com/ss/09/08/0806_real_time_web/">The Real-Time Web</a> (a list of web applications that are built on or user Real-Time Web technology - or claim to) - Robert D. Hof (<a href="http://www.businessweek.com/">Business Week</a>)</li>
+<li><a href="http://lightstreamer.blogspot.com/2010/02/lightstreamer-36-is-out.html">Lightstreamer 3.6 is out!</a> - Lightstreamer release new versions of their components including support for Silverlight, Flex AMF, and Bidirectional Web Streaming</li>
+</ul>
+<h2>General News/Discussion</h2>
+<ul>
+<li><a href="http://www.readwriteweb.com/archives/google_adds_myspace_status_updates_to_real-time_search_results.php">Google Now Includes MySpace Status Updates in Real-Time Search Results</a> - <a href="http://www.readwriteweb.com/archives/author/frederic-lardinois.php">Frederic Lardinois</a></li>
+<li><a href="http://www.webpronews.com/topnews/2010/02/24/why-even-local-search-is-becoming-more-real-time">Why Even Local Search is Becoming More Real-Time</a> - <a href="http://www.webpronews.com/user/chris-crum">Chris Crum</a></li>
+<li><a href="http://www.readwriteweb.com/archives/google_takes_first_shot_at_facebook_search_results.php">Google Takes First Shot at Facebook Search Results</a> - <a href="http://www.readwriteweb.com/archives/author/mike-melanson-1.php">Mike Melanson</a></li>
+<li><a href="http://www.cloudave.com/link/sliderocket-brings-the-real-time-web-to-presentations">SlideRocket Brings the Real Time Web to Presentations</a> - <a href="http://www.cloudave.com/author/Ben-Kepes">Ben Kepes</a></li>
+</ul>

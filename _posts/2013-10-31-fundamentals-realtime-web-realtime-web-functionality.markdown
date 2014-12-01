@@ -55,7 +55,9 @@ permalink: /2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html
 <li>Reduce the complexity of your code</li>
 </ul>
 <p>Here's the server code that is executed when new data is available and updates the database:</p>
-<pre><code>&lt;?php
+
+```php
+<?php
 $update = $_POST['update'];
 $data = json_decode($update, true);
 
@@ -68,9 +70,12 @@ if($result) {
   header("HTTP/1.1 201 Created")
 }
 else { header("HTTP/1.1 418 I'm a teapot"); }
-</code></pre>
+```
+
 <p>Here's some JavaScript that polls the server every 5 seconds to see if any new data is available:</p>
-<pre><code>var lastUpdate = new Date();
+
+```js
+var lastUpdate = new Date();
 setInterval(function() {
  $.getJSON('ajax/get_update.php?since=' + lastUpdate, function(data) {
    var items = [];
@@ -83,7 +88,8 @@ setInterval(function() {
  });
  lastUpdate = new Date();
 }, 5*1000);
-</code></pre>
+```
+
 <p>Here's the server code that handles that polling request:</p>
 <pre><code>&lt;?php // get_update.php
 $since = $_GET['since']; // assume format is correct

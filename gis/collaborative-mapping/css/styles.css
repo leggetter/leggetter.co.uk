@@ -1,0 +1,36 @@
+html, body {
+	width: 100%;
+	height: 100%;
+}
+
+.container, #view {
+	width: 100%;
+}
+
+#map {
+	width: 100%;
+	margin-top: 50px;
+}
+
+#toolbar {
+	position: fixed;
+	top: 60px;
+	right: 20px;
+}
+
+.form-webmap {
+	margin: auto;
+	margin-top: 80px;
+	width: 300px;
+	text-align: center;
+}
+
+.example-maps {
+	margin: auto;
+	margin-top: 40px;
+	width: 300px;
+}
+
+.example-maps h3 {
+	text-align: center;
+}

@@ -18,6 +18,7 @@ categories:
 tags:
   - Uncategorized
 permalink: /leggetter-family-tree/
+template: default
 ---
 
 <style type="text/css"> #hideshow    {       cursor:        pointer;       margin-bottom: 10px;       color:         blue;       font-weight:   bold;    } </style>

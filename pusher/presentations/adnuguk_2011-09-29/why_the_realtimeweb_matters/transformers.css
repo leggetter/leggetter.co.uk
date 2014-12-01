@@ -1,0 +1,9 @@
+.slides.template-pusher.transformers article.realtime {
+  background: white url(http://upload.wikimedia.org/wikipedia/en/8/82/Blurr.jpg) 50% 50% no-repeat !important;
+  background-size: 80%;
+}
+
+.slides.template-pusher.transformers article.realtimeweb {
+  background: white url(http://images.wikia.com/transformers/images/a/a0/Insecticons.jpg) bottom right no-repeat !important;
+  background-size: 40%;
+}

@@ -1,0 +1,29 @@
+<html>
+  <head></head>
+  <body>
+    <div id="debug"></div>
+    <script src="http://code.jquery.com/jquery-1.6.3.min.js"></script>
+    <script>
+      function log(msg) {
+        var el = document.createElement("div");
+        var msgText = document.createTextNode(msg);
+        el.appendChild(msgText);
+        document.getElementById("debug").appendChild(el);
+      };
+      
+      $.ajax({
+        url: "stream.php",
+        success: function(data, textStatus, xhr){
+          log("hello");
+          if(xhr.readyState === 3) {
+            log("Buffer size: " + data.length);
+            log("Buffer is now: " + data);
+          }
+          else if(xhr.readyState === 4) {
+            log("Complete: " + data);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

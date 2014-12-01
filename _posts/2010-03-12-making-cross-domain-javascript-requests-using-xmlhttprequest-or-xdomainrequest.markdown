@@ -28,95 +28,90 @@ permalink: /2010/03/12/making-cross-domain-javascript-requests-using-xmlhttprequ
 <a id="more"></a><a id="more-741"></a><br />
 I took the code that I'll use below from this <a href="http://arunranga.com/examples/access-control/">CORS in action page</a> but I couldn't find the code required to make this work in Internet Explorer so I've had to modify things a bit.</p>
 <h2>See it in action</h2>
-<p><script type="text/javascript" src="/js/xss/simple.js"></script></p>
+
+<script type="text/javascript" src="/js/xss/simple.js"></script>
 <form id="controlsToInvoke" action="">
 <p>
-            <input type="button" value="Click to Invoke Another Site" onclick="callOtherDomain()" />
-        </p>
-</p></form>
+  <input type="button" value="Click to Invoke Another Site" onclick="callOtherDomain()" />
+</p>
+</form>
 <div id="textDiv">
-        The information below (when it appears) has been fetched using cross-site XHR.
-    </div>
+  The information below (when it appears) has been fetched using cross-site XHR.
+</div>
+
 <h2>The code</h2>
-<p>[html]<br />
-&lt;script type=&quot;text/javascript&quot;&gt;</p>
-<p>        var isIE8 = window.XDomainRequest ? true : false;<br />
-        var invocation = createCrossDomainRequest();<br />
-        var url = 'http://www.phobos7.co.uk/research/xss/simple.php';        </p>
-<p>        function createCrossDomainRequest(url, handler)<br />
-        {<br />
-            var request;<br />
-            if (isIE8)<br />
-            {<br />
-                request = new window.XDomainRequest();<br />
-            }<br />
-            else<br />
-            {<br />
-                request = new XMLHttpRequest();<br />
-            }<br />
-            return request;<br />
-        }</p>
-<p>        function callOtherDomain()<br />
-        {<br />
-            if (invocation)<br />
-            {<br />
-                if(isIE8)<br />
-                {<br />
-                    invocation.onload = outputResult;<br />
-                    invocation.open(&quot;GET&quot;, url, true);<br />
-                    invocation.send();<br />
-                }<br />
-                else<br />
-                {<br />
-                    invocation.open('GET', url, true);<br />
-                    invocation.onreadystatechange = handler;<br />
-                    invocation.send();<br />
-                }<br />
-            }<br />
-            else<br />
-            {<br />
-                var text = &quot;No Invocation TookPlace At All&quot;;<br />
-                var textNode = document.createTextNode(text);<br />
-                var textDiv = document.getElementById(&quot;textDiv&quot;);<br />
-                textDiv.appendChild(textNode);<br />
-            }<br />
-        }</p>
-<p>        function handler(evtXHR)<br />
-        {<br />
-            if (invocation.readyState == 4)<br />
-            {<br />
-                if (invocation.status == 200)<br />
-                {<br />
-                    outputResult();<br />
-                }<br />
-                else<br />
-                {<br />
-                    alert(&quot;Invocation Errors Occured&quot;);<br />
-                }<br />
-            }<br />
-        }</p>
-<p>        function outputResult()<br />
-        {<br />
-            var response = invocation.responseText;<br />
-            var textDiv = document.getElementById(&quot;textDiv&quot;);<br />
-            textDiv.innerHTML += response;<br />
-        }<br />
-    &lt;/script&gt;</p>
-<p>    &lt;form id=&quot;controlsToInvoke&quot; action=&quot;&quot;&gt;<br />
-        &lt;p&gt;<br />
-            &lt;input type=&quot;button&quot; value=&quot;Click to Invoke Another Site&quot; onclick=&quot;callOtherDomain()&quot; /&gt;<br />
-        &lt;/p&gt;<br />
-    &lt;/form&gt;</p>
-<p>    &lt;div id=&quot;textDiv&quot;&gt;<br />
-        The information below (when it appears) has been fetched using cross-site XHR.<br />
-    &lt;/div&gt;<br />
-[/html]</p>
+
+```
+<script>
+  var isIE8 = window.XDomainRequest ? true : false;
+  var invocation = createCrossDomainRequest();
+  var url = 'http://www.phobos7.co.uk/research/xss/simple.php';
+  function createCrossDomainRequest(url, handler) {
+    var request;
+    if (isIE8) {
+      request = new window.XDomainRequest();
+      }
+      else {
+        request = new XMLHttpRequest();
+      }
+    return request;
+  }
+
+  function callOtherDomain() {
+    if (invocation) {
+      if(isIE8) {
+        invocation.onload = outputResult;
+        invocation.open("GET", url, true);
+        invocation.send();
+      }
+      else {
+        invocation.open('GET', url, true);
+        invocation.onreadystatechange = handler;
+        invocation.send();
+      }
+    }
+    else {
+      var text = "No Invocation TookPlace At All";
+      var textNode = document.createTextNode(text);
+      var textDiv = document.getElementById("textDiv");
+      textDiv.appendChild(textNode);
+    }
+  }
+
+  function handler(evtXHR) {
+    if (invocation.readyState == 4)
+    {
+      if (invocation.status == 200) {
+          outputResult();
+      }
+      else {
+        alert("Invocation Errors Occured");
+      }
+    }
+  }
+
+  function outputResult() {
+    var response = invocation.responseText;
+    var textDiv = document.getElementById("textDiv");
+    textDiv.innerHTML += response;
+  }
+</script>
+<form id="controlsToInvoke" action="">
+    <p>
+        <input type="button" value="Click to Invoke Another Site" onclick="callOtherDomain()" />
+    </p>
+</form>
+<div id="textDiv">
+    The information below (when it appears) has been fetched using cross-site XHR.
+</div>
+```
+
 <p>And this is the code on the server</p>
-<p>[php]<br />
-&lt;?php<br />
-	header('Content-type: text/html');<br />
-    header('Access-Control-Allow-Origin: *');<br />
-	$uri = 'http'. ($_SERVER['HTTPS'] ? 's' : null) .'://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];<br />
-	echo('&lt;p&gt;This information has come from &lt;a href=&quot;' . $uri . '&quot;&gt;' . $uri . '&lt;/a&gt;&lt;/p&gt;');<br />
-?&gt;<br />
-[/php]</p>
+
+```php
+<?php
+  header('Content-type: text/html');
+  header('Access-Control-Allow-Origin: *');
+  $uri = 'http'. ($_SERVER['HTTPS'] ? 's' : null) .'://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+  echo('<p>This information has come from <a href="' . $uri . '">' . $uri . '</a></p>');
+```

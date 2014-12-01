@@ -1,0 +1,46 @@
+﻿<!doctype html>
+<html lang="en" ng-app="collaboriative-mapping">
+  <head>
+
+    <title>Realtime Collaborative Mapping - by Phil Leggetter</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.0/cerulean/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <link rel="stylesheet" type="text/css" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.3/js/esri/css/esri.css" />
+    <script src="http://serverapi.arcgisonline.com/jsapi/arcgis/3.3compact"></script>
+
+    <script src='https://cdn.firebase.com/v0/firebase.js'></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular-resource.min.js"></script>
+    <script src="js/ArcGIS.js"></script>
+  </head>
+  <body>
+
+  <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Realtime Collaborative Mapping</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="http://www.leggetter.co.uk">By Phil Leggetter</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="view" ng-view></div>
+    </div>
+
+  </body>
+</html>

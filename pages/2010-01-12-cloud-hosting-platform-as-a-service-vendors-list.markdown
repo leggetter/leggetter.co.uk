@@ -1,6 +1,7 @@
 ---
 layout: page
 status: publish
+template: default
 published: true
 title: Cloud Hosting - Platform as a Service Vendors List
 author:

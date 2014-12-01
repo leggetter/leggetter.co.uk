@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Realtime Web Apps in the Wild - Phil @leggetter</title>
+
+		<base href="/../" target="_blank">
+
+		<meta name="description" content="Realtime Web Apps in the Wild - Phil @leggetter">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<style>
+			.slides section.present.trans
+			 {
+				background: #1c1e20;
+				background: -moz-radial-gradient(center, circle cover, #555a5f 0%, #1c1e20 100%);
+				background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, #555a5f), color-stop(100%, #1c1e20));
+				background: -webkit-radial-gradient(center, circle cover, #555a5f 0%, #1c1e20 100%);
+				background: -o-radial-gradient(center, circle cover, #555a5f 0%, #1c1e20 100%);
+				background: -ms-radial-gradient(center, circle cover, #555a5f 0%, #1c1e20 100%);
+				background: radial-gradient(center, circle cover, #555a5f 0%, #1c1e20 100%);
+				background-color: #2b2b2b;
+
+				opacity: 0.8 !important;
+			}
+
+			.slides section.present.trans > * {
+				opacity: 1 !important;
+			}
+
+			.slides section.big-quote blockquote {
+				font-size: 2em;
+			}
+
+			.slides section.about {
+				min-height: 500px !important;
+				text-align: left;
+				display: inline-block;
+			}
+
+			.slides section.about img {
+				position: absolute;
+				right: 0;
+				top: 0;
+			}
+
+			.slides section ul {
+				margin-bottom: 30px;
+			}
+
+			html {
+				background: #1c1e20;
+			}
+
+			html.fullbg body {
+				background-position:center;
+				background-size: 100%;
+				background-repeat: no-repeat;
+			}
+
+			html.fullbg.opportunity body {
+				background-image: url('http://foursquare.wpengine.netdna-cdn.com/wp-content/uploads/2010/12/ps_cs_highres1.jpg');
+			}
+
+			html.fullbg.google-analytics body {
+				background-image: url('img/google-analytics.jpg');
+			}
+
+			html.fullbg.caplin-trader body {
+				background-image: url('img/caplin-noir.png');
+			}
+
+			#aliens, #google_aliens {
+				width: 100%;
+				height: 100%;
+
+				min-height: 768px;
+				min-width: 1024px;
+			}
+		</style>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+<!-- Any section element inside of this container is displayed as a slide -->
+<div class="slides">
+
+<!--Realtime-->
+<section>
+
+<section data-markdown class="trans" data-background="http://hackference.co.uk/img/front_banner.jpg">
+<script type="text/template">
+# Realtime Web Apps
+
+### In the Wild
+
+Hackference 2013
+</script>
+</section>
+
+<section data-markdown data-background="img/brjs-bottom-left-logo-on-black.jpg" class="about">
+
+<script type="text/template">
+Phil [@leggetter](https://twitter.com/leggetter)
+
+Developer Evangelist
+
+[Caplin Systems](http://www.caplin.com)
+
+<img src="img/me-n-max-zoo.jpg" />
+</script>
+</section>
+
+</section>
+<!--/Intro -->
+
+<!--Realtime -->
+<section>
+
+<section data-markdown>
+<script type="text/template">
+# Realtime Web
+
+## Background
+</script>
+</section>
+
+<section data-markdown data-background="img/robert-scoble.jpg" class="trans big-quote">
+<script type="text/template">
+> "Is the real-time web a threat to Google search?"
+
+<small><a href="http://scobleizer.com/2009/02/09/is-the-real-time-web-a-threat-to-google-search/">Robert Scoble, Feb 9, 2009</a>
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Instant Discoverability of Data
+</script>
+</section>
+
+<section data-markdown data-background="img/wikipedia.png" class="trans">
+<script type="text/template">
+> The real-time web is a set of technologies and practices that enable users to receive information as soon as it is published by its authors, rather than requiring that they or their software check a source periodically for updates.
+
+<small><a href="http://en.wikipedia.org/wiki/Real-time_web">http://en.wikipedia.org/wiki/Real-time_web</a>
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Instant Delivery of Data
+</script>
+</section>
+
+<section data-markdown data-background="img/nuclear-explosion.jpg">
+<script type="text/template">
+# But it's not really Realtime!
+</script>
+
+<aside class="notes">
+	* Some will argue that realtime web technologies aren't really realtime.
+	* The main thing is that the data related to an event is delivered so it still has context
+</aside>
+</section>
+
+<section data-background="http://i3.kym-cdn.com/photos/images/original/000/173/589/RsLid.jpg">
+
+<aside class="notes">
+* You don't want your users thinking "WAT" when they see the data that's been delivered
+* And you certainly don't want critical systems doing the same.
+</aside>
+</section>
+
+<section data-markdown data-background="green">
+<script type="text/template">
+# Start thinking "Realtime"
+
+### The Evented Web
+
+* System Events
+* User Events
+* Realtime Data
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Push = Convenience
+
+* Phone Calls
+* SMS
+* Push Notifications
+* [Push email](http://en.wikipedia.org/wiki/Push_email)
+* In-App push notifications/alerts
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+### [ITV News](http://news.itv.com)
+
+![](img/itv-news.png)
+</script>
+</section>
+
+<section data-markdown data-background="img/mancity-match-day-centre.png" class="trans">
+<script type="text/template">
+### [Man City Match Day Centre](http://mcfcgeeks.co.uk/2013/08/19/a-new-season-a-new-match-day-centre/)
+</script>
+
+<aside class="notes">
+* Also an example of 2nd screen
+* And you can also see how this ties into betting scenarios
+</aside>
+</section>
+
+<section data-markdown data-state="fullbg google-analytics" class="trans">
+<script type="text/template">
+## [Google Analytics](google.com/analytics/)
+</script>
+
+<aside class="notes">
+* At face value this isn't the most interesting of slides
+* It's taken me a while to work out why this is valuable - to understand why it's more then just a gimick
+* It gives you the opportunity to see the result of doing something - instantly!
+* It gives you the opportunity to react!
+</aside>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Speed = Opportunity
+</script>
+</section>
+
+<section data-state="fullbg opportunity">
+</section>
+
+<section data-markdown data-state="fullbg caplin-trader" class="trans">
+<script type="text/template">
+### [Caplin Trader](http://www.caplin.com/caplin-trader)
+</script>
+
+<aside class="notes">
+* From this UI you can start interacting with trade systems and traders
+* This leads me to the one of the core concepts when using Realtime Web Technologies - Interaction
+</aside>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Interaction = Engagement
+
+### Examples
+
+* Chat
+* Collaboration
+* Games
+</script>
+</section>
+
+</section>
+<!--/Realtime -->
+
+<section data-markdown>
+<script type="text/template">
+# Realtime Web
+
+## Tech Fundamentals
+</script>
+</section>
+
+<!--Connect-->
+<section>
+
+<section data-markdown>
+<script type="text/template">
+# Connect
+</script>
+</section>
+
+<section data-markdown data-state="fullbg" data-background="img/polling-boo.png">
+<script type="text/template">
+# Don't Poll!
+</script>
+</section>
+
+<section data-markdown data-background="img/comet.jpg">
+<script type="text/template">
+# Hacks = Comet!
+
+### HTTP Long-Polling
+### HTTP Streaming
+</script>
+</section>
+
+<!--
+<section data-markdown data-background="">
+<script type="text/template">
+## HTTP Long-Polling
+
+![](img/http-long-polling.png)
+</script>
+</section>
+
+<section data-markdown data-background="">
+<script type="text/template">
+## HTTP Streaming
+
+![](img/http-streaming.png)
+</script>
+</section>
+-->
+
+<section data-markdown data-background="img/w3c.png">
+<script type="text/template">
+# Standards FTW!
+
+* No hacks
+* Not just Web Browsers
+</script>
+</section>
+
+<section data-markdown data-background="green">
+<script type="text/template">
+# Server-Sent Events
+### EventSource API
+</script>
+</section>
+
+<section data-markdown data-background="green">
+<script type="text/template">
+# WebSocket
+
+* A [protocol](http://tools.ietf.org/html/rfc6455) and an API
+* Single bi-directional connection
+* Supports cross domain communication
+* [Browser support](http://caniuse.com/#feat=websockets): Chrome<small>m</small>, FF<small>m</small>, IE10<small>m</small>, Safari<small>m</small>, Opera, Blackberry browser
+(<small><sup>m</sup> = mobile</small>)
+</script>
+</section>
+
+</section>
+<!--/Connect-->
+
+<!--Data-->
+<section>
+
+<section data-markdown data-background="img/binary-code.jpg">
+<script type="text/template">
+# Data
+
+### 3 "Client <-> Server" paradigms
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# PubSub
+
+## Subcribe
+## Publish
+
+</script>
+</section>
+
+<section data-markdown id="aliens">
+<script type="text/template">
+
+<iframe src="examples/google-aliens/aliens.html" id="google_aliens"></iframe>
+
+</script>
+</section>
+
+<section data-markdown id="pusher_twilio">
+<script type="text/template">
+
+## PubSub Example
+
+    var pusher = new Pusher( APP_KEY );
+
+    var channel = pusher.subscribe( CHANNEL_NAME );
+
+    channel.bind( EVENT_NAME, function( data ) ) {
+    	// Handle Update
+    } );
+
+[pushtel.herokuapp.com](http://pushtel.herokuapp.com)
+
+<a href="https://twitter.com/share?text=%23hackbrum2013%20Realtime%20Web%20App%20demo:%20http%3A//pushtel.herokuapp.com" class="twitter-share-button" data-lang="en">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.ge tElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Data Synchronisation
+### Operational Transforms
+
+* e.g. Google Docs
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Data Sync Example
+
+## [j.mp/brumpad](http://j.mp/brumpad)
+
+([local](/examples/firepad))
+
+<a href="https://twitter.com/share?text=%23hackbrum2013%20Realtime%20Web%20App%20demo 2:%20http%3A//www.leggetter.co.uk/pres/r/examples/firepad/" class="twitter-share-button" data-lang="en">Tweet</a>
+
+See [firepad.io](http://firepad.io)
+
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+# Remote Procedure Calls (RPC)
+
+* No demo - sorry!
+
+* Solutions
+	* SignalR
+	* [DNode](https://github.com/substack/dnode)
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+### Basic SignalR Example
+
+#### Server
+
+    public class ChatHub : Hub
+    {
+        public void Send(string name, string message)
+        {
+            // Call the broadcastMessage method to update clients.
+            Clients.All.broadcastMessage(name, message);
+        }
+    }
+
+#### Client
+
+    $.connection.hub.start(); // async
+
+    var chat = $.connection.chatHub;
+
+    chat.client.broadcastMessage = function (name, message) {
+    	// handle message
+    };
+
+    chat.server.send( 'me', 'hello world' );
+</script>
+</section>
+
+</section>
+<!--/Data-->
+
+<!--Using Now-->
+<section>
+
+<section data-markdown data-background="img/sql.png" >
+<script type="text/template">
+# You already have Realtime Data in your Apps!
+</script>
+</section>
+
+<section data-markdown >
+<script type="text/template">
+## Realtime Data = Events
+
+* DB: Create, Update, Delete
+* System Events 
+* User Events
+</script>
+</section>
+
+</section>
+<!--/Using Now-->
+
+<!--Use Cases-->
+<section>
+
+<section data-markdown>
+<script type="text/template">
+# Use Cases
+
+* Live Content
+* Notifications
+* Activity Streams
+* Chat
+* Collaboration
+* Games
+</script>
+</section>
+
+</section>
+<!--/Use Cases-->
+
+<!--Security-->
+<section>
+
+<section data-markdown>
+<script type="text/template">
+# Realtime Web
+
+## Security
+</script>
+</section>
+
+</section>
+<!--/Security-->
+
+<!--Solutions-->
+
+<section>
+
+<section data-markdown>
+<script type="text/template">
+# Realtime Web
+
+## Implementation
+</script>
+</section>
+
+<section data-markdown class="trans" data-background="http://3.bp.blogspot.com/-O-dkHHKj72E/TdzNH5YDgqI/AAAAAAAABfM/nIUTwjL_NR8/s1600/mn01.jpg">
+<script type="text/template">
+# Opinion:
+## Use an existing solution
+### Don't reinvent the wheel
+<small>Unless you've a unique use case</small>
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Why use an existing solution?
+
+* Fallback hacks still required
+* Help from the community
+* Scaling
+* Dedicated teams
+  * Infrastructure
+  * Support
+* Future features  
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Self Hosted
+
+* [Faye](http://faye.jcoglan.com/) (Node.js, Ruby)
+* [SignalR](http://www.asp.net/signalr) (.NET)
+* [Socket.IO](http://socket.io) (Node.js)
+* [SockJS](https://github.com/sockjs/sockjs-client) (Node.js, Erlang, Python, Java...)
+* ...
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Hosted
+
+### PubSub
+
+* [PubNub](http://pubnub.com)
+* [Pusher](http://pusher.com) <small>(who I used to work for)</small>
+* [Realtime.co](http://realtime.co)
+
+### Synchronisation
+
+* [Firebase](http://firebase.com)
+* [Google Drive Realtime API](https://developers.google.com/drive/realtime/realtime-quickstart)
+* [Meteor](http://www.meteor.com)
+* [Simperium](https://simperium.com/)
+
+### More..
+
+<small>More solutions available via [Realtime web tech guide](http://www.leggetter.co.uk/real-time-web-technologies-guide)
+</script>
+</section>
+
+</section>
+
+<!--Future-->
+<section>
+
+<section data-markdown>
+<script type="text/template">
+## Now / Near Future 
+
+* WebHooks
+* WebRTC
+	* Browser support: Chrome<small>m</small>, Firefox<small>m</small>, IE11
+* SPDY/HTTP 2.0
+* Internet of Things
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Internet of Things
+
+* Robots / Drones
+* Arduinos / Raspberry Pi
+* Home Automation
+* **Everything can be connected**
+
+### Examples
+
+* NodeCopter
+* Leap Motion
+* Ninja Blocks
+* ReaDIYmate
+* Smart Things
+* Fundawear...
+</script>
+</section>
+
+</section>
+<!--/Future-->
+
+<!--End-->
+<section>
+
+<section data-markdown>
+<script type="text/template">
+# Conclusion
+
+> The biggest/best/most popular sites on the Internet are using realtime web technology to improve their User Experience. You should too.
+
+<small>Me - just now</small>
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+## Thanks / Questions
+
+Phil [@leggetter](https://twitter.com/leggetter)
+
+[phil@leggetter.co.uk](mailto:phil@leggetter.co.uk)
+
+<a href="http://realtimewebapps.com"><img src="img/realtime-web-apps.jpg" /></a>
+</script>
+</section>
+
+</section>
+<!--/End-->
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

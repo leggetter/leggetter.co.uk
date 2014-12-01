@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    
+    <section class="whos-online">
+      <ul>
+        <li>Nobody here but us chickens</li>
+      </ul>
+    </section>
+    
+    <section id="join">
+      <h2>I'm online!</h2>
+      
+      <form id="imOnline">
+        <label for="username">But who are you?</label>
+        <input type="text" id="username" />
+      </form>
+    </sectiom>
+    
+    <script src="template/js/jquery-1-6-2.min.js"></script>
+    <script src="template/js/pusher.js"></script>
+    <!--script>ALLOW_PUSHER_OVERRIDE = true;</script>
+    <script src="template/js/pusher-test-stub.js"></script-->
+    <script src="template/js/whos-online/presence.js"></script>
+    <script>
+      Pusher.channel_auth_endpoint = 'template/auth/';
+      $(function() {
+        var href = document.location.hash;
+        var presentationName = href.replace('#', "");
+        
+        var ui = new PresPresUI();
+        var presPres = new PresPres(ui, presentationName);
+      });
+    </script>
+    <!--script src="template/js/whos-online/tests.js"></script-->
+  </body>
+</html>

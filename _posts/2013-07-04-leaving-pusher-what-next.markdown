@@ -136,64 +136,60 @@ permalink: /2013/07/04/leaving-pusher-what-next.html
 <p>Then BladeRunnerJS will be of interest to you. Please head on over to <a href="http://bladerunnerjs.org">bladerunnerjs.org</a> and register for the mailing list or follow <a href="https://twitter.com/BladeRunnerJS">@BladeRunnerJS</a> to stay tuned.</p>
 <h3>Goodbye Pusher, hello BladeRunnerJS</h3>
 <p>A final thanks to everybody at Pusher for a fantastic two years. And thanks to Caplin Systems for asking me to help with BladeRunnerJS. It's going to be an awesome ride!</p>
-<p><script src="//cdnjs.cloudflare.com/ajax/libs/jquery.isotope/1.5.25/jquery.isotope.min.js"></script></p>
-<p><script><br />
-(function ($) {<br />
-  $(function() {<br />
-    var rows = $('#stats tr');<br />
-    rows.each(function (i, el) {<br />
-        el = $(el);<br />
-        var cells = el.find('td');<br />
-        var title = cells.eq(0).html();<br />
-        var stat = cells.eq(1).html();<br />
-        var comment = cells.eq(2).html();</p>
-<p>        var itemEl = $('
-<div class="item"></div>
-<p>');<br />
-        var statEl = $('
-<div class="stat">' + stat + '</div>
-<p>');<br />
-        var titleEl = $('
-<div class="title">' + title + '</div>
-<p>');</p>
-<p>        itemEl.attr('title', comment);<br />
-        if (el.attr('class')) {<br />
-            itemEl.addClass(el.attr('class'));<br />
-        }</p>
-<p>        /*itemEl.hover( function() {<br />
-          var el = $(this);<br />
-          if( el.attr('title') ) {<br />
-            el.attr('data-html', el.html() );<br />
-            el.html( el.attr('title') );<br />
-          }<br />
-        },<br />
-        function() {<br />
-          var el = $(this);<br />
-          if( el.attr('title') ) {<br />
-            el.html( el.attr( 'data-html' ) );<br />
-          }<br />
-        } );*/</p>
-<p>        itemEl.append(statEl).append(titleEl);</p>
-<p>        $('#container').append(itemEl);<br />
-    });<br />
-    rows.hide();</p>
-<p>    var $container = $('#container');<br />
-    $container.isotope({<br />
-        itemSelector: '.item',<br />
-        layoutMode: 'fitRows'<br />
-    });<br />
-    $container.isotope('shuffle');</p>
-<p>    $('#shuffle').click(function (e) {<br />
-        $container.isotope('shuffle');<br />
-        $container.isotope('option', {<br />
-            layoutMode: 'fitRows'<br />
-        });<br />
-    });</p>
-<p>    var $items = $container.children();</p>
-<p>    $items.click(function () {<br />
-        $(this).toggleClass('large');<br />
-        $container.isotope('reLayout');<br />
-    });<br />
-  });<br />
-})(jQuery);<br />
-</script></p>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.isotope/1.5.25/jquery.isotope.min.js"></script>
+<script>
+(function ($) {
+  $(function() {
+    var rows = $('#stats tr');
+    rows.each(function (i, el) {
+        el = $(el);
+        var cells = el.find('td');
+        var title = cells.eq(0).html();
+        var stat = cells.eq(1).html();
+        var comment = cells.eq(2).html();
+        var itemEl = $('<div class="stat-item"></div>');
+        var statEl = $('<div class="stat-value">' + stat + '</div>');
+        var titleEl = $('<div class="stat-title">' + title + '</div>');
+        itemEl.attr('title', comment);
+        if (el.attr('class')) {
+            itemEl.addClass(el.attr('class'));
+        }
+        /*itemEl.hover( function() {
+          var el = $(this);
+          if( el.attr('title') ) {
+            el.attr('data-html', el.html() );
+            el.html( el.attr('title') );
+          }
+        },
+        function() {
+          var el = $(this);
+          if( el.attr('title') ) {
+            el.html( el.attr( 'data-html' ) );
+          }
+        } );*/
+        itemEl.append(statEl).append(titleEl);
+        $('#container').append(itemEl);
+    });
+    rows.hide();
+    var $container = $('#container');
+    $container.isotope({
+        itemSelector: '.stat-item',
+        layoutMode: 'fitRows'
+    });
+    $container.isotope('shuffle');
+    $('#shuffle').click(function (e) {
+        $container.isotope('shuffle');
+        $container.isotope('option', {
+            layoutMode: 'fitRows'
+        });
+    });
+    var $items = $container.children();
+    $items.click(function () {
+        $(this).toggleClass('large');
+        $container.isotope('reLayout');
+    });
+  });
+})(jQuery);
+</script>
+<link rel="stylesheet" href="/css/isotope-stats.css" />

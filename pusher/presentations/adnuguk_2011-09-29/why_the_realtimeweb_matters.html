@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+
+<!--
+  Google HTML5 slide template
+
+  Authors: Luke Mahé (code)
+           Marcin Wichary (code and design)
+           
+           Dominic Mazzoni (browser compatibility)
+           Charles Chen (ChromeVox support)
+
+  URL: http://code.google.com/p/html5slides/
+-->
+
+<html>
+  <head>
+    <title>Why the realtime web matters</title>
+
+    <meta charset='utf-8'>
+    <!--script src='http://html5slides.googlecode.com/svn/trunk/slides.js'></script>
+    <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'></script>
+    <script src="http://datejs.googlecode.com/svn/trunk/build/core.js"></script>
+    <script src="http://datejs.googlecode.com/svn/trunk/build/date-en-GB.js"></script-->
+    
+    <!-- offline? -->
+    <!--script src="template/js/date-js/date.js"></script-->
+    <script src='template/html5slides-read-only/slides.js'></script>
+    <script src="template/js/jquery-1-6-2.min.js"></script>
+
+    <script src="template/js/jquery.snippet/jquery.snippet.min.js"></script>
+    <!--script src="http://js.pusherapp.com/1.9/pusher.min.js"></script-->
+
+    <script src="template/js/pusher.js"></script>
+    <!--script>ALLOW_PUSHER_OVERRIDE = true;</script>
+    <script src="template/js/pusher-test-stub.js"></script-->
+
+    <script>
+      if(!Pusher) {
+        var Channel = function(){};
+        Channel.prototype.bind = function(){};
+        var Pusher = function(){};
+        Pusher.fake = true;
+        Pusher.prototype.subscribe = function(){return new Channel();};
+      }
+    
+      $(function(){
+        $(".today").text(new Date().toString().replace(/(20\d\d).*/, "$1"));
+      
+        $("script.example-source").each(function(i, script) {
+          script = $(script);
+          var example = script.siblings(".example");
+          var src = script.html();
+          var match = src.match(/^(\s+)/);
+          var initialSpace = (match?match[0].length:0);
+          var newSrc = "";
+          var lines = src.match(/[^\n]*\n[^\n]*/gi);
+          for(var i = 0, l = lines.length; i < l; ++i) {
+            newSrc += lines[i].substring(initialSpace);
+            if((i+1) < l) {
+              newSrc += "\n";
+            }
+          }
+          example.text(newSrc);
+        });
+        
+        var rateHTML = "<p>Please rate this talk: <a href='http://j.mp/rtw-aberdeen'>http://j.mp/rtw-aberdeen</a></p>"
+        
+        var thanksContent = $("article.intro").clone();
+        thanksContent.find("h3").text("Thanks! Get in touch");
+        $("article.last").html(thanksContent.html() + rateHTML);
+      });
+      
+      Pusher.channel_auth_endpoint = 'template/auth/';
+    </script>
+    
+    <link rel="stylesheet" href="template/styles.css" />
+    <link rel="stylesheet" href="why_the_realtimeweb_matters/styles.css" />
+    <link rel="stylesheet" href="why_the_realtimeweb_matters/transformers.css" />        
+    <link rel="stylesheet" href="template/js/jquery.snippet/jquery.snippet.min.css" />
+    
+    <!-- Too Salesy -->
+    <link rel="stylesheet" href="why_the_realtimeweb_matters/interact/interact.css" />
+    <script src="why_the_realtimeweb_matters/interact/too-salesy.js"></script>
+    
+    <!-- Questions -->
+    <link rel="stylesheet" href="why_the_realtimeweb_matters/interact/jboesch-Gritter/css/jquery.gritter.css" />
+    <script src="why_the_realtimeweb_matters/interact/jboesch-Gritter/js/jquery.gritter.min.js"></script>
+    <script src="why_the_realtimeweb_matters/interact/questions.js"></script>
+       
+  </head>
+
+  <body style='display: none'>
+    
+    
+    <section id="interact">
+      <section class="salesy">
+        <div class="thermometer none">
+          <span class="title">Salesy-o-meter</span>
+          <div class="bulb"></div>
+          <div class="neck"></div>
+          <span class="percent"></span>
+        </div>
+      </section>
+    </section>
+
+    <section class='slides layout-regular template-pusher'>
+      
+      <!-- Your slides (<article>s) go here. Delete or comment out the
+           slides below. -->
+        
+        
+      
+      <article class='biglogo'>
+      </article>
+
+      <article>
+        <h1>
+          Why the realtime web matters
+        </h1>
+        <p>
+          <a href="http://www.leggetter.co.uk/">Phil Leggetter</a>
+          <br>
+          <span class="today"></span>
+        </p>
+      </article>
+      
+      <article class="intro">
+        <h3>Introduction</h3>
+        <ul>
+          <li>Phil Leggetter</li>
+          <li>Developer Evangelist, Pusher</li>
+          <li><a href="http://twitter.com/leggetter">@leggetter</a></li>
+          <li><a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a> | <a href="mailto:phil@pusher.com">phil@pusher.com</a></li>
+          <li><a href="http://www.leggetter.co.uk/">http://www.leggetter.co.uk</a></li>
+          <li>Skype: pleggetter | Tel: +44(0)7867 526993</li>
+        </ul>
+        <ul>
+          <li>Pusher</li>
+          <li><a href="http://pusher.com">http://pusher.com</a></li>
+          <li><a href="http://twitter.com/pusherapp">@pusherapp</a></li>
+          <li><a href="http://blog.pusher.com">http://blog.pusher.com</a></li>
+        </ul>
+          
+      </article>
+      
+      
+      <article class="interact">
+        <h3>
+          An interactive presentation
+        </h3>
+        
+        <ul>
+          <li>I'm not a salesman. If I'm getting too salesy go to: <a href="http://j.mp/rtw-toosalesy">http://j.mp/rtw-toosalesy</a></li>
+          <li>Got a question: Raise your hand, shout out or ask at: <a href="http://j.mp/rtw-question">http://j.mp/rtw-question</a></li>
+        </ul>
+        
+        <section class="notes">
+          
+        </section>
+      </article>
+
+      <article>
+        <h3>
+          Agenda - Why the realtime web matters
+        </h3>
+        <ul>
+          <li>What is realtime?</li>
+          <li>What is the realtime web?</li>
+          <li>Why it matters</li>
+          <li>Technologies of the realtime web</li>
+          <li>WebSockets</li>
+          <li>WebSocket-powered examples</li>
+          <li>Pusher</li>
+          <li class="strike">Building an Interactive &amp; Engaging realtime user experience</li>
+          <li>Q&amp;A</li>
+        </ul>
+        
+        <section class="notes">
+
+        </section>
+        
+      </article>
+      
+      <article class="realtime fill">
+        <h3>
+          What is realtime?
+        </h3>
+        <ul>
+          <li>Events &amp; Data</li>
+          <li>It all depends on context
+            <ul>
+              <li>Tweets</li>
+              <li>Stock quotations and execution</li>
+              <li>Car brakes response</li>
+            </ul>
+          </li>
+          <li>Relevance</li>
+        </ul>
+        
+        <!-- <div class='source white'>
+          Source: <a href="http://wild-facts.com">http://wild-facts.com</a><br />
+          <a href="http://www.youtube.com/watch?v=g9f-6jygRJk">Cute</a>
+        </div> -->
+        
+        <section class="notes">
+          * Slow Loris
+          * Used to be hung-up on this. But now I've decided that it's all about context and keeping things relevant.
+          * If you receive the data and it's still relevant and usable then the delivery time is good enough.
+          * e.g. a tweet 10 seconds after it's been posted
+          * site analytics 10 seconds after a user comes online
+          * Sometimes it's got to be instant:
+            * stock quotes
+            * game moves
+            * alert notifications
+            * break response in a car
+        </section>
+      </article>
+      
+      <article class="realtimeweb realtime-tech">
+        <h3>
+          What is the realtime web?
+        </h3>
+        <ul class="build">
+          <li>Immediate availability of data - Twitter/Social Media</li>
+          <li>Instant delivery of data</li>
+          <li>Publish &amp; Subscribe (PubSub)</li>
+          <li>Notifications (data), Chat, Interaction, Collaboration, Games &amp; more</li>
+          <li>Improved User Experience<br />
+            &amp; User Engagement</li>
+        </ul>
+        
+        <section class="notes">
+          * The immediate availability of data
+            * Searchable, discoverable, data available must faster than we'd seen before
+          * The instant delivery of data
+            * A search isn't just a one-off thing any more. You are registering your interest in something you are making a subscription.
+            * Events signify something has just happened. New data is available.
+            * Technology to achieve this has been around for ages, but it's just gone mainstream.
+          * Pub/Sub to the masses
+          * With this technology we can now offer/build:
+            * Realtime data - financial data, sports data, betting odds, where instant updates matter
+            * Notifications: New tweets, facebook status updates, calendar appointment prompts, users coming online prompt
+            * Customer support chat, user to user chat (facebook chat)
+            * Collaboration: Google Draw, Docs, Spreadsheets
+            * Social media reaction/integration: Tweets, Facebook likes, Blog post notifications, Images from TwitPic or yFrog/ImageShack
+            * Games - whether simple gamification updates or true realtime html5 multiplayer games
+            * All of these can be used to improve the UX and UE
+          * UX/UE improvements
+             * We are constantly trying to improve web applications:
+               * HTML
+               * CSS
+               * JavaScript
+               * realtime communication
+        </section>
+      </article>
+      
+      <article class="site-icons">
+        <h3>
+          Why does it matter?<br />
+          It enhances what we already use the Internet for<br />
+          and makes new things possible.
+        </h3>
+        <p>
+        <ul class="build">
+          <li class="strike">Porn*</li>
+          <li>Search</li>
+          <li>Buying stuff</li>
+          <li class="strike">Trolling*</li>
+          <li>Contributing &amp; Commenting</li>
+          <li>Data, News &amp; Alerts</li>
+          <li>Interacting with others</li>
+          <li>Gaming (multiplayer)</li>
+          <li>Engagement is a <strong>massive</strong><br />part of the User Experience</li>
+        </ul>
+        <small>Image Source: <a href="http://nmap.org/favicon/">http://nmap.org/favicon/</a></small>
+        <section class="notes">
+          * Look & Feel are still very important. But the interactivity and engagement that an app provides is now unbelievably important.
+          * Before all this how often did we sit and look at a web page for longer than a few minutes?
+          * We are really building applications now. Not just web pages string together which we call an application.
+        </section>
+      </article>
+      
+      <article>
+        <h2>
+          Do you agree?
+        </h2>
+        
+        <section class="notes">
+          * Have I missed anything?
+          * Do you agree or disagree?
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          The technologies behind delivering realtime web
+        </h3>
+        <ul>
+          <li>PubSubhubbub, WebHooks, Messages Queues, Key Value Stores, HTTP Polling, HTTP Streaming, Server Sent Events (SSE)</li>
+          <li>Client &amp; Server - focus on server &lt;-&gt; client</li>
+          <li>Roots in finance</li>
+          <li>A bit of history: Frames, HTTP Polling, LiveConnect, Forever-Frame, XMLHttpRequest, Long-Polling, Streaming</li>
+          <li><strong>WebSockets</strong></li>
+          <li>But before we talk about WebSockets...</li>
+        </ul>
+        
+        <section class="notes">
+          * There are amazingly fast backend technologies which enable the realtime web (e.g. realtime messages queues, redis, PubSubHubbub, parallel processing technologies) but they don't deliver it to a client, to the user. We're talking server -> client
+          * As with a lot of things in the past with technology the innovation happened for finance and that sector's requirements and opportunities.
+            * Things are changing.
+        </section>
+        
+      </article>
+      
+      <article class="smaller">
+        <h3>
+          Realtime technologies for .NET
+        </h3>
+        <ul>
+          <li>HTTP Long-Polling/Streaming
+            <ul>
+              <li><a href="http://www.frozenmountain.com">WebSync</a> - Comet integration for IIS</li>
+              <li><a href="http://pokein.com/">Pokein</a></li>
+              <li>Hosted Services</li>
+            </ul>
+          </li>
+          <li>WebSockets
+            <ul>
+              <li><a href="#">WebSocket prototype for .NET &amp; Silverlight</a></li>
+              <li><a href="http://xsockets.net">XSockets</a></li>
+              <li><a href="http://superwebsocket.codeplex.com/">SuperWebSockets</a></li>
+              <li>Hosted Services</li>
+            </ul>
+          </li>
+          <li>Message Queue/In Memory Key/Value Stores/Processing
+            <ul>
+              <li><a href="http://redis.io/clients#C%23">Redis</a></li>
+              <li><a href="https://github.com/ravendb/ravendb">RavenDB</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="http://www.leggetter.co.uk/real-time-technologies-guide">Realtime Technologies Guide</a>
+          </li>
+        </ul>
+        
+      </article>
+      
+      <article class="realtimeweb-tech">
+        <h2>
+          WebSockets
+        </h2>
+        
+        <section class="notes">
+        </section>
+        
+      </article>
+      
+      <article class="websocket-api">
+        <h3>
+          Focus on WebSockets 
+        </h3>
+        <ul>
+          <li>
+            What are they?
+            <ul>
+                <li>API and Protocol standard for bi-directional full-duplex communication between a server &amp; client</li>
+            </ul>
+          </li>
+          <li>Browser support</li>
+          <li>Why/how they can be used now (99% browser coverage)</li>
+          <li>Why it's not just about Web Browsers</li>
+        </ul>
+        
+        <section class="notes">
+          * Browser support
+            * Chrome
+            * Firefox
+            * Opera
+            * IE10 on Windows 8
+            * Flash or Silverlight fallback
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          WebSocket API (JavaScript)
+        </h3>
+        
+        <pre class="example linenums"></pre>
+        
+        <script type="text" class="example-source">
+          var ws = new WebSocket("ws://mywebsocketserver.com:80");
+          ws.onopen = function() {
+            // connection established
+          };
+
+          ws.onmessage = function(data) {
+            ws.send("Yep, got: " + data);
+            
+            ws.close();
+          };
+
+          ws.onclose = function(ev) {};
+          ws.onerror = function() {};
+        </script>
+        
+        <section class="notes">
+          * Browser support
+            * Chrome
+            * Firefox
+            * Opera
+            * IE10 on Windows 8
+            * Flash or Silverlight fallback
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          WebSocket API (.NET Client Libraries)
+        </h3>
+        
+        <ul>
+          <li><a href="http://html5labs.interoperabilitybridges.com/prototypes/websockets/websockets/info">WebSockets @ Microsoft Interoperability Labs</a></li>
+          <li><a href="http://superwebsocket.codeplex.com/">Super WebSockets (in there somewhere)</a></li>
+          <li><a href="https://github.com/sta/websocket-sharp">websocket-sharp</a></li>
+          <li><a href="http://anaida.codeplex.com/">Anaida</a></li>          
+        </ul>
+        
+        <section class="notes">
+        </section>
+        
+      </article>
+      
+      <article class="smaller">
+        <h3>
+          WebSocket API (Microsoft HTML5 Labs)
+        </h3>
+        
+        <pre class="example linenums"></pre>
+        
+        <script type="text" class="example-source">
+          WebSocket ws = new WebSocket("wss://mywebsocketserver.com:443");
+          ws.OnOpen += (sender, e) =>
+          {
+            // connection established
+          };
+          
+          ws.OnData += (sender, e) =>
+          {
+            WebSocketEventArgs evt = (WebSocketEventArgs)e;
+            ws.Send("Yep, got: " + evt.TextData);
+            
+            ws.Close();
+          };
+          
+          ws.OnClose += (sender, e) =>
+          {
+          };
+
+          ws.Open();
+        </script>
+        
+        <section class="notes">
+          * Note: using WSS:// and port 443
+          * Note: Silverlight won't allow connections on these port ranges. Must use 4502-4534
+            * See: http://msdn.microsoft.com/en-us/library/cc645032(v=vs.95).aspx
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          WebSocket-powered examples
+        </h3>
+        
+        <small>Also see: <a href="http://pusher.com/examples">http://pusher.com/examples</a></small>
+        
+        <ul class="gallery">
+          <li><a href="http://www.slideshare.net/">SlideShare<br /><img src="why_the_realtimeweb_matters/examples/slideshare.png" /></a></li>
+          <li><a href="http://get.gaug.es/">Gauges<br /><img src="why_the_realtimeweb_matters/examples/gauges.png" /></a></li>
+          <li><a href="http://getcloudapp.com/">CloudApp<br /><img src="why_the_realtimeweb_matters/examples/cloudapp.png" /></a></li>          
+          <!--li><a href="http://www.pandastream.com/"><img src="why_the_realtimeweb_matters/examples/panda.png" /></a></li-->
+          <li><a href="http://sport.ngin.com/">Sport Ngin<br /><img src="why_the_realtimeweb_matters/examples/sport-ngin-live.png" /></a></li>
+        </ul>
+        
+        <section class="notes">
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          WebSocket-powered examples
+        </h3>
+        <ul class="gallery">
+          <li><a href="http://www.caplin.com/">Caplin Trader</a><br /><a href="why_the_realtimeweb_matters/examples/CaplinTraderBig.png" target="_blank"><img src="why_the_realtimeweb_matters/examples/Noir500.png" /></a></li>
+          <li><a href="http://codr.cc/">Codr.cc<br /><img src="why_the_realtimeweb_matters/examples/codrcc.png" /></a></li>
+          <li><a href="http://voicerally.com/">VoiceRally<br /><img src="why_the_realtimeweb_matters/examples/voicerally_demo.png" /></a></li>
+        </ul>
+        
+        <section class="notes">
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          WebSocket-powered examples - Games
+        </h3>
+        <ul class="gallery">
+          <li><a href="http://rawkets.com/">Rawkets<br /><img src="why_the_realtimeweb_matters/examples/rawkets.png" /></a></li>
+          <li><a href="http://wordsquared.com/">Word<sup>2</sup><br/><img src="why_the_realtimeweb_matters/examples/scrabbly.png" /></a></li>          
+          <li><a href="http://www.isocity.co.uk">Iso City<br/><img src="why_the_realtimeweb_matters/examples/isocity.png" /></a></li>
+          <li><a href="http://kevinrohling.wordpress.com/2011/09/14/world-domination-using-arduinos-and-websockets/">Robot Wars<br/><img src="why_the_realtimeweb_matters/examples/arduinos.jpg" /></a></li>
+        </ul>
+        
+        <section class="notes">
+        </section>
+        
+      </article>
+      
+      <article class="use-cases">
+        <h3>
+          Pusher
+        </h3>
+        <ul>
+          <li>Cloud hosted scalable IaaS/SaaS</li>
+          <li>Realtime messaging service</li>
+          <li>Cross-platform support</li>
+          <li>HTML5 WebSocket powered!</li>
+          <li>Server &amp; Client libraries</li>
+          <li>Awesome community of users</li>
+        </ul>
+        
+        <section class="notes">
+
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          Connecting
+        </h3>
+
+        <pre class="example linenums"></pre>
+        
+        <script type="text" class="example-source">
+          var pusher = new Pusher("APP_KEY");
+          
+          pusher.connection.bind('state_change', function() {
+            // connection state has transitioned
+          });
+          
+          pusher.connection.bind('connected', function() {
+            // we're connected
+          });
+          
+          pusher.disconnect();
+        </script>
+        
+        <section class="notes">
+
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          Subscribing to Channels &amp; Binding to Events
+        </h3>
+
+        <pre class="example linenums"></pre>
+        
+        <script type="text" class="example-source">
+          var pusher = new Pusher("APP_KEY");
+          
+          var salesyChannel = pusher.subscribe('salesy-channel');
+          
+          salesyChannel.bind('new_vote', function(data) {
+            var salesyAmount = data.amount;
+          });
+        </script>
+        
+        <section class="notes">
+
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          Publishing Data from the client
+        </h3>
+        
+        <p>Use with caution</p>
+
+        <pre class="example linenums"></pre>
+        
+        <script type="text" class="example-source">
+          var pusher = new Pusher("APP_KEY");
+          
+          var salesyChannel = pusher.subscribe('private-salesy-channel');
+          salesyChannel.trigger('client-publish-example', {some: data});
+        </script>
+        
+        <section class="notes">
+
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          Publishing Data (Using the .NET API)
+        </h3>
+        
+        <p>See: <a href="http://nuget.org/List/Packages/PusherRESTDotNet">http://nuget.org/List/Packages/PusherRESTDotNet</a></p>
+
+        <pre class="example linenums"></pre>
+        
+        <script type="text" class="example-source">
+          var provider = new PusherProvider(applicationId,
+            applicationKey, applicationSecret);
+            
+          var request = new ObjectPusherRequest("salesy-channel",
+            "new_vote",
+            new
+              {
+                  amount = 5
+              });
+
+          provider.Trigger(request);
+        </script>
+        
+        <section class="notes">
+
+        </section>
+        
+      </article>
+      
+      <article>
+        <h2>
+          Building an Interactive &amp; Engaging realtime user experience with WebSockets &amp; Pusher
+        </h2>
+        
+        <section class="notes">
+          * Tech &amp; Demo
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          Summary: The realtime web is all about:
+        </h3>
+        <ul>
+          <li>Relevance</li>
+          <li>Interaction</li>
+          <li>Engagement</li>
+          <li>Whole host of technologies available...
+            <ul>
+              <li>WebSockets</li>
+            </ul>
+          </li>
+          <li>Build your own Facebook, Twitter or <strong>something better</strong></li>
+        </ul>
+      </article>
+      
+      <article>
+        <h2>
+          Questions &amp; Answers
+        </h2>
+        
+        <section class="notes">
+        </section>
+        
+      </article>
+      
+      <article class="last">
+
+      </article>
+
+    </section>
+
+  </body>
+</html>

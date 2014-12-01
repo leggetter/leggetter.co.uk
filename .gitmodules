@@ -1,0 +1,4 @@
+[submodule "_includes/realtime-web-technologies-guide"]
+	path = _includes/realtime-web-technologies-guide
+	url = https://github.com/leggetter/realtime-web-technologies-guide.git
+	branch = master

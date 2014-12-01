@@ -1,0 +1,24 @@
+{
+  "name": "leggetter.co.uk",
+  "version": "0.0.1",
+  "homepage": "http://www.leggetter.co.uk",
+  "authors": [
+    "leggetter <phil@leggetter.co.uk>"
+  ],
+  "description": "Phil Leggetter's Website",
+  "keywords": [
+    "website",
+    "realtime",
+    "web",
+    "technologies"
+  ],
+  "license": "CC BY 3.0",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

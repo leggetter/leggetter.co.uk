@@ -1,7 +1,11 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<title>{{page.title}} - {{ site.name }}</title>
+	{% if page.title %}
+	<title>{{ page.title }} - {{ site.name }}</title>
+	{% else %}
+	<title>{{ site.name }}</title>
+	{% endif %}
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta name="description" content="{{ post.excerpt | strip_html }}" />
 	<meta name="keywords" content="{{ post.tags }}" />

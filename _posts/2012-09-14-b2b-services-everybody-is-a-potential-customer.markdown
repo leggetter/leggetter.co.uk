@@ -23,6 +23,7 @@ permalink: /2012/09/14/b2b-services-everybody-is-a-potential-customer.html
 ---
 
 <p>It's too broad a statement to say that absolutely everybody is your customer. But, you actually never know if the next person you speak to could be a potential customer so you should treat them that way. Treat them the way you would want to be treated no matter the roles you are currently in. Let me explain.</p>
+
 <h2>The Thank You Economy</h2>
 <p>I'm recently back from a holiday and during that time I picked up the Thank You Ecomony by Gary Vaynerchuk again - I'd read a number of chapters but never got around to completing it. The <a href="http://thankyoueconomybook.com/">Thank You Economy website</a> provides an overview of the idea:</p>
 <blockquote>

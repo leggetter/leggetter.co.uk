@@ -25,7 +25,9 @@ permalink: /2012/10/24/html5devconf-oct-2012-notes-from-the-websocket-panel.html
 ---
 
 <p>On October 16th 2012 I sat on a <a href="http://html5devconf">HTML5DevConf</a> WebSocket panel along with <a href="http://www.igvita.com/">Ilya Grigorik</a> from Google, <a href="https://twitter.com/debergalis">Matt DeBergalis</a> from Meteor and <a href="http://www.twitter.com/pmoskovi">Peter Moskovits</a> from Kaazing - the panel was chaired by <a href="https://twitter.com/frankgreco">Frank Greco</a>, also of Kaazing.</p>
+
 <p>Here are the notes, in a pretty raw format, from the event. A more curated write-up can be found on the <a href="http://blog.pusher.com/2012/10/22/a-realtime-focus-at-html5devconf">Pusher blog</a>.</p>
+
 <h2>Where does WS affect current web infrastructure the most?</h2>
 <ul>
 <li>The potential for many more persistent connection to be held open.</li>

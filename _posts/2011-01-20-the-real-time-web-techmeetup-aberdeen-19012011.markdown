@@ -29,6 +29,7 @@ permalink: /2011/01/20/the-real-time-web-techmeetup-aberdeen-19012011.html
 ---
 
 <p>I did my first ever <a href="http://www.techmeetup.co.uk/">TechMeetup</a> talk yesterday in Aberdeen and my chosen subject, unsurprisingly, was <strong>The Real-Time Web</strong>. We started out discussing what real-time was, then what The Real-Time Web is and when receiving information in real-time mattered. I also went on to cover some of the key real-time web technologies including <strong>HTTP Streaming</strong>, <strong>PubSubHubbub</strong> and <strong>WebSockets</strong> and then on to <strong>real-time web services and platforms</strong>.</p>
+
 <p>A big thanks to <a href="http://twitter.com/#!/aboynejames">@aboynejames</a> for suggesting I do the talk and <a href="http://www.abdn.ac.uk/~csc228/blog/">Bruce Scharlau</a> for inviting me along. I'd also like to thank everybody who attended and made me feel very welcome and certainly seemed interested.</p>
 <h3>Feedback</h3>
 <p>If you where there then please leave a comment letting me know what you thought or just to let me know who you are. If you'd rather email you can get me using <a href="mailto:phil@leggetter.co.uk?subject=Aberdeen TechMeetup">phil@leggetter.co.uk</a>.</p>

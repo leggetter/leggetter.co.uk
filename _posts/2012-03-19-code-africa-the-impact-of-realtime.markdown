@@ -24,6 +24,7 @@ tags:
   - thetimes
   - twilio
 permalink: /2012/03/19/code-africa-the-impact-of-realtime.html
+excerpt: "Over the weekend I attended the Code Africa hack weekend which was organised and hosted by The Times. The event saw developers, designers, journalists and entrepreneurs come together to try and form ideas and build prototypes over one weekend. My main takeaways from the event were a much better understanding of the state of technology in Africa, how technology can be used to help the people living within the continent and how <strong>realtime technologies can be used not only to improve application functionality, but also provide real impact</strong> in demonstrations and presentations."
 ---
 
 <p><img src="http://ebmedia.eventbrite.com/s3-s3/eventlogos/28569369/3090015319-1.jpg" alt="Code Africa logo" align="right" /><br />

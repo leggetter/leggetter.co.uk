@@ -26,6 +26,7 @@ permalink: /2012/02/09/edinburgh-techmeetup-web-browsers-the-realtime-web.html
 ---
 
 <p>I gave a presentation yesterday at Edinburgh <a href="http://techmeetup.co.uk/">techmeetup</a>. A big thanks to <a href="https://twitter.com/daleharvey">Dale Harvey</a> for inviting me to talk and to all the attendees for taking the time to attend, listen and interact. <a href="http://twitter.com/aaronbassett">Aaron Bassett</a> also gave a good talk on Avoiding Integration Hell so I'd recommend you follow him for more info.</p>
+
 <p>Here's a direct link to the <a href="/pres/techmeetup_edi_2012-02-08/">"Web Browsers &amp; the Realtime Web<br />
 the past, present &amp; future" slides</a>.</p>
 <p>And here's the recording of my talk (thanks to <a href="http://twitter.com/MariusCiocanel">Marius Ciocanel</a>):</p>

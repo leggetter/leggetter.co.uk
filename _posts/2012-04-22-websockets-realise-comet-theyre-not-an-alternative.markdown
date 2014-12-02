@@ -23,6 +23,7 @@ tags:
   - Realime Push
   - Realtime browser push
 permalink: /2012/04/22/websockets-realise-comet-theyre-not-an-alternative.html
+excerpt: Comet is an umbrella term for all the old HTTP-based hacks and is a phrase we want to get rid of. WebSockets are where we want to be; browsers and beyond. I’ve been thinking about writing about this frequently used statement for a while, and I’ve seen a few comments and discussions previously about this.
 ---
 
 <p><strong>Update</strong></p>

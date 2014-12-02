@@ -28,6 +28,7 @@ permalink: /2012/05/20/a-year-as-a-developer-evangelist.html
 ---
 
 <p>I can't believe it, but I've now been working for <a href="http://pusher.com">Pusher</a> for a year. It's been an exciting year both in life and in business - and it's great when you spend a lot of the time working on something you are really interested in. So, I thought I'd push out a post covering the things that I've done this year along with a few thoughts.</p>
+
 <h2>A Developer Evangelist?</h2>
 <p>I'm a strong believer that we are much more than a job title and that each person has their own strengths, weaknesses and interests so they should get to work on the things that will most benefit them and through that benefit the company they work for.</p>
 <p><img src="http://distilleryimage10.s3.amazonaws.com/9b70782e894511e192e91231381b3d7a_7.jpg" width="500" /><br />

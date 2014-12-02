@@ -23,6 +23,7 @@ tags:
   - hackathon
   - beckham
 permalink: /2012/07/16/bring-back-beckham-2-a-hackldn-experiment.html
+excerpt: "A couple of weeks ago I attended HackLDN for the 2nd time. The focus of the event is very much to create something with real business potential. I completely understand the reasoning behind that and back the idea. But, if everybody had an idea and everybody wanted to work on their own project, to create a company, then there would be a lot of one-man/woman teams. We need people to go along to have fun and experiment with technologies. These types of people are as important as the 'entrepreneurs'. I decided to pitch Bring Back Beckham (redux) as a fun experiment - not a startup idea. And low and behold I ended up with a team."
 ---
 
 <p><img src="http://f.cl.ly/items/120q37130m2k382p3b2G/bbb-redux.png" width="200" align="right" style="margin: 20px;" alt="Bring Back Beckham banner" /></p>

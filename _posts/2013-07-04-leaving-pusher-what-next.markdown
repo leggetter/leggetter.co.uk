@@ -22,6 +22,8 @@ tags:
   - Developer Evangelism
   - Developer Evangelist
 permalink: /2013/07/04/leaving-pusher-what-next.html
+thumb: /images/thumb/leaving-pusher.png
+excerpt: Around 3 months ago I made the very difficult decision to leave Pusher. After just over 2 years I'm leaving behind what - up until now - has been the best job I've ever had. In this post I'll cover what's been achieved while I've been at Pusher, why I left and what I'm going to be doing next.
 ---
 
 <p>Around 3 months ago I made the very difficult decision to leave <a href="http://pusher.com">Pusher</a>. After just over 2 years I'm leaving behind what - up until now - has been the best job I've ever had.</p>

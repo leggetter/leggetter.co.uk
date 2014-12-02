@@ -23,6 +23,7 @@ tags:
   - FOWA 2013
   - future of web apps
 permalink: /2013/10/28/history-background-benefits-use-cases-realtime.html
+thumb: /images/thumb/web-communication.png
 ---
 
 <p>This is part 1 of a 3 part series on <strong>Choosing your Realtime Web App Tech Stack</strong>. It's based on the talk I recently gave at the Future of Web Apps.</p>

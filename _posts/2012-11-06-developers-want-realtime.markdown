@@ -22,6 +22,8 @@ tags:
   - mashery
   - BAPI2012
 permalink: /2012/11/06/developers-want-realtime.html
+thumb: /images/thumb/developers-want-realtime.png
+excerpt: "I'm on the What Developers Want panel at the Business of APIs Conference London, arranged by Mashery. I'm also giving a lightening talk on my take on What Developers Want. Unsurprisingly I believe they wany the APIs to offer access to their data in Realtime. Here are the details."
 ---
 
 <p>I'm on the "What Developers Want" panel at the <a href="http://apiconference.com/about-2012/london-2012/">Business of APIs Conference London</a>, arranged by <a href="http://www.mashery.com/">Mashery</a>. I'm also giving a lightening talk on my take on "What Developers Want".</p>

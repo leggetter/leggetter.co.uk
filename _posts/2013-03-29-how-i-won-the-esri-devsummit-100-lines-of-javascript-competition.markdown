@@ -25,6 +25,7 @@ tags:
   - angularjs
   - arcgis javascript
 permalink: /2013/03/29/how-i-won-the-esri-devsummit-100-lines-of-javascript-competition.html
+thumb: /images/thumb/realtime-global-collaboration.jpg
 ---
 
 <p><em>First I'd like to emphasise that this is a blog post on <strong>how</strong> and <strong>not why</strong>. The why comes down to the judges. So, thanks Judges! Secondly I'd like to thank <a href="https://twitter.com/robdunfey">Rob Dunfey</a> for the idea and for providing additional motivation - I'll dig deeper into this later. Finally: what am I going to cover? As the title suggests, I want to cover the <strong>how</strong>. What that means is:</em></p>
@@ -38,7 +39,7 @@ permalink: /2013/03/29/how-i-won-the-esri-devsummit-100-lines-of-javascript-comp
 <li><em>Where next?</em></li>
 </ol>
 <h3>The Idea</h3>
-<p>[caption id="attachment_23711" align="alignright" width="287"]<img src="/wp-content/uploads/2013/03/robs-brain-287x300.jpg" alt="Rob&#039;s Brain" width="287" height="300" class="size-medium wp-image-23711" /> Rob's Brain[/caption]</p>
+<p class="alignright size-full"><img src="/wp-content/uploads/2013/03/robs-brain-287x300.jpg" alt="Rob&#039;s Brain" width="287" height="300" class="size-medium wp-image-23711" /><br />Rob's Brain</p>
 <p>I've been friends with <a href="https://twitter.com/robdunfey">Rob Dunfey</a> ever since I worked at ESRI back in 2005. When I worked there my job title became "GIS Consultant" but if I'm honest I was really only ever a Web Developer (<em>that's not a bad thing</em>). Since then we've worked on a couple of projects together - Rob now works as a Geo-Information Consultant at Shell and I'm a "Developer Evangelist" at <a href="http://pusher.com">Pusher</a>. I'm following my passion for <a href="/real-time-web-technologies-guide">Realtime Web Technologies</a> and web development, and Rob is following his passion for GIS.</p>
 <p>However, we do infrequently work on projects together and, to be honest, it's sometimes quite difficult to get Rob to slow down with his ideas about using GIS to solve real problems. One of the things he also sees is the opportunity to use web technologies to solve those problems.</p>
 <p>So, two weeks ago Rob got in touch with me - <em>not to discuss his impending wedding on Monday</em> - but to tell me about the <a href="https://github.com/Esri/100-lines-or-less-js">100 Lines or Less ArcGIS JavaScript Code Challenge</a>!</p>

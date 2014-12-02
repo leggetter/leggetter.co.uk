@@ -4,3 +4,4 @@ pygments: true
 relative_permalinks: false
 paginate: 10
 excerpt_separator: "</p>"
+exclude: wp-content

@@ -21,6 +21,7 @@ tags:
   - Windows Azure Mobile Services
   - Window Azure Web Sites
 permalink: /2013/04/09/windows-mobile-service-realtime-collaborative-todo.html
+thumb: /images/thumb/create-publish-source.png
 ---
 
 <p>Inspired by the first two talks at <a href="http://stacked.thestack.co.uk/">#stacked13</a> by <a href="https://twitter.com/mtaulty">Mike Taulty</a> and then <a href="https://twitter.com/maartenballiauw">Maarten Balliauw</a> I thought I'd jump straight into Windows Azure Mobile Services and build an a <strong>realtime collaborative synchronised todo list</strong>. I'd do this based on the <a href="http://www.windowsazure.com/en-us/develop/mobile/tutorials/get-started-with-data-html/">Get started with data in Mobile Services HTML guide</a>. I would then and host it on a <a href="http://www.windowsazure.com/en-us/home/scenarios/web-sites/">Windows Azure web site</a>.</p>

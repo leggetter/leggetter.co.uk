@@ -28,6 +28,7 @@ thumb: /images/thumb/pic-n-mix.jpg
 ---
 
 <p>Over the past three weeks I've had the opportunity to investigate modern web development tools and I feel a little bit like a kid in a sweet shop. Firstly, I'm excited to be here. Secondly, there's so much to choose from. In the past you may have been able to pick up a selection box containing a few pre-defined dev tool options. Now, there are so many technologies and tools available it's like being in the pic 'n' mix section.</p>
+
 <p><img src="/wp-content/uploads/2013/07/pic-n-mix.jpg" alt="pic-n-mix" width="640" height="349" class="aligncenter size-full wp-image-23921" /><br />
 <small><a href="http://www.flickr.com/photos/20989733@N00/61985179/">source</a></small></p>
 <p>There are so many tools to choose from when undertaking a web development project that it's difficult to know where to get started. How do you approach choosing what's right for your project? How can you really know without trying them all out?</p>

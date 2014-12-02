@@ -977,6 +977,7 @@
 	float: right;
 	margin-left: 20px;
 	max-width: 250px;
+	max-height: 200px;
 }
 
 body.rtw-guide #content h2 {

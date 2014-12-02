@@ -42,6 +42,10 @@ permalink: /real-time-web-technologies-guide/
 
 {% include realtime-web-technologies-guide/guide.md %}
 
+<hr />
+
+{% include disqus.html %}
+
 <script src="/bower_components/contents/dist/contents.min.js"></script>
 <script>
 (function() {

@@ -27,6 +27,7 @@ thumb: /images/thumb/web-communication.png
 ---
 
 <p>This is part 1 of a 3 part series on <strong>Choosing your Realtime Web App Tech Stack</strong>. It's based on the talk I recently gave at the Future of Web Apps.</p>
+
 <ul>
 <li>Part 2: <a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web &amp; Realtime Web Functionality</a></li>
 <li>Part 3: <a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>

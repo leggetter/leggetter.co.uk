@@ -99,7 +99,9 @@
 
 	<script>
 		( function() {
-			$( 'a[href="#contact-me"]' ).smoothScroll();
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
 		} )();
 	</script>
 

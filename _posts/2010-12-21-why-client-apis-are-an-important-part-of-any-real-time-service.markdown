@@ -32,6 +32,7 @@ permalink: /2010/12/21/why-client-apis-are-an-important-part-of-any-real-time-se
 <p>The conversation continued:</p>
 <p><img style="max-width: 800px;" src="/wp-content/uploads/2010/12/leggetter-nickhalstead-conversation1.png" alt="" /></p>
 <p>The main thing here for me is Nick's point that "<strong>you just need a client-side library</strong>". This is an assumption that a lot of services make. Services tend to offer one or a number of server APIs; maybe a REST one and now luckily we are seeing a HTTP Streaming and WebSocket support. That service may then release some example code that can be used to call the web service. I see a number of problems with this mainly when it comes to HTTP Streaming and WebSockets.</p>
+
 <ul>
 <li><a href="http://support.datasift.net/help/kb/rest-api/websocket-streaming">DataSift WebSocket Streaming Docs</a></li>
 <li><a href="http://support.datasift.net/help/kb/rest-api/http-streaming-api">DataSift HTTP Streaming Docs</a></li>

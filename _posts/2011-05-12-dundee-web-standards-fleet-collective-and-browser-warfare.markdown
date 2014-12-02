@@ -30,7 +30,9 @@ permalink: /2011/05/12/dundee-web-standards-fleet-collective-and-browser-warfare
 ---
 
 <p>A couple of nights ago I want to a <a href="http://www.dundeewebstandards.com/">Dundee Web Standards</a> event. The events are organised by <a href="http://twitter.com/#%21/leckie">Chris Leckie</a> and has been running since around October 2010. I've attended once before to see <a href="http://dev.opera.com/author/974138">Chris Mills of Opera</a> give a talk on HTML 5 so this was only my second time at a DWS event which is held once a month at <a href="http://maps.google.co.uk/maps/place?ie=UTF8&amp;q=braes+dundee&amp;fb=1&amp;gl=uk&amp;hq=braes&amp;hnear=Dundee,+Dundee+City&amp;cid=16707175756212399315&amp;z=14">Braes, Perth Road, Dundee</a>.</p>
+
 <div><a href="http://dundeewebstandards.com/"><img class="aligncenter" style="max-width: 800px;" src="/wp-content/uploads/2011/05/dundeewebstandards.png" alt="" width="200" height="104" /></a></div>
+
 <h2>The Fleet Collective</h2>
 <p>Most of us will have heard of <a href="http://www.techhub.com/">TechHub</a> (and variations) and have an idea about what it is; it's a place where you can rent a desk(s), use office facilities and because there will be other like-minded people about the atmosphere will hopefully inspiring and creative. There will also be the opportunity to network and potentially collaborate on projects and potentially reach larger clients that you would on your own.</p>
 <div><a href="http://www.fleetcollective.com/"><img class="aligncenter" style="max-width: 800px;" src="/wp-content/uploads/2011/05/fleetcollective.png" alt="" width="234" height="232" /></a></div>

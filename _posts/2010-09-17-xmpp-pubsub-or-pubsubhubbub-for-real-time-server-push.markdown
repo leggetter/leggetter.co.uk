@@ -28,6 +28,7 @@ permalink: "http://leggetter.posterous.com/xmpp-pubsub-or-pubsubhubbub-for-real-
 <p>In case you hadn't noticed,&nbsp;<a href="http://leggetter.posterous.com/hit-roond-around-the-heed-head-by-a-faash-fis" >when I'm not getting hit by flying trout</a>, I like to think of myself as a bit of <a href="/" >a real-time web guy</a>. However, there's one thing I'd like clarification on, and I'm confident somebody will be able to shed some light on this:</p>
 <p />
 <strong>What are the differences between </strong><a href="http://xmpp.org/extensions/xep-0060.html"><strong>XMPP PubSub</strong></a><strong> and </strong><a href="http://code.google.com/apis/pubsubhubbub/"><strong>PubSubHubbub</strong></a><strong> and in what situations should each be used?</strong></p>
+
 <p />
 I do think I know some details about this but I'd like what I think I know to be confirmed or indeed corrected.</p>
 <p />

@@ -27,6 +27,7 @@ permalink: /2011/04/28/are-net-developers-scared-of-the-tech-community-and-cutti
 
 <p>I'm a .NET guy and I'm excited and interested in cutting edge technologies. I've found the lack of a .NET community (particularly in Scotland) and not seeing enough developers who primarily using Microsoft technologies getting involved with tech communities <em>really</em> frustrating .</p>
 <p>My feeling is that there aren't a lot of regular .NET events or general tech meetups involving .NET. This is for a number of reasons; bad feeling towards Microsoft, difficult access to Microsoft technologies due to cost and Microsoft's undoubted focus on enterprise to name but a few. With the exception of Aberdeen <a href="http://techmeetup.co.uk/">techmeetup</a> (due to all the Oil companies up there) the majority of developers at techmeetup events don't seem to be using Microsoft technologies. That doesn't necessarily mean that there aren't the developers - my feeling is that they just don't go to those sorts of things. Techmeetup Edinburgh, <a href="http://refreshedinburgh.org/">Refresh Edinburgh</a> and Techmeetup Glasgow is full of non-MS guys.</p>
+
 <p>The only .NET events and communities, accessible to me, that I know about are:</p>
 <ul>
 <li><a href="http://www.aberdeendevelopers.co.uk/">Aberdeen .NET User Group</a>, <a href="http://scotalt.net/">Scot ALT.NET</a> (seems pretty inactive)</li>

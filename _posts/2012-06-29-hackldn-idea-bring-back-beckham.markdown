@@ -26,6 +26,7 @@ permalink: /2012/06/29/hackldn-idea-bring-back-beckham.html
 <p><img src="http://bringbackbeckham.com/img/bringbackbeckham_vote_150x144.jpg" align="right" title="Bring Back Beckham" /><br />
 I'm attending <a href="http://hackathonlondon.com/">Hackathon London</a> this weekend. Normally I help each team at the event but don't get too involved in individual projects. This time things might be different.</p>
 <p>In 2006 David Beckham was dropped from the England squad by Steve McClaren. This wasn't a footballing decision, it was to try and stamp his authority on the team and show he was his own man. It massively backfired.</p>
+
 <p>I saw this an an opportunity and created <strong>Bring Back Beckham</strong>. I created the site in a night and after 4 days it had received over 30,000 hits and over 10,000 people had voted for Beckham's inclusion in the England squad. The site had radio and newspaper media coverage and much more - you can read more about it <a href="/2007/03/09/bring-back-beckham.html">here</a>.</p>
 <p>Now, 6 years later David Beckham is again dividing opinion. This time he has been left out of the Team GB football squad for the 2012 Olympics. This is another big opportunity to create an application to gather comment and opinion on this massively hot topic. Here's my pitch - which I did at 5am this morning.</p>
 <p><iframe width="640" height="360" src="http://www.youtube.com/embed/ThJhV9CZAhs" frameborder="0" allowfullscreen></iframe></p>

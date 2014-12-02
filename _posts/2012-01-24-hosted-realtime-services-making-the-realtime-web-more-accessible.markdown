@@ -27,6 +27,7 @@ permalink: /2012/01/24/hosted-realtime-services-making-the-realtime-web-more-acc
 ---
 
 <p>The <strong>real-time web</strong> started off by just being "cool"; a quirky and fun space to be in with lots of "cool" technology. People weren't sure whether it was just a fad, stimulated by hype. The value it delivers in the form of customer engagement, interaction, collaboration and the opportunities it can provide by being real-time is now much clearer, and consequently the benefits of using real-time technologies are beginning to be understood.</p>
+
 <h2>Realtime Web Technology Accessibility</h2>
 <p>One of the problems with real-time technologies over the past 10+ years has been the accessibility. Comet servers were difficult to install, a pain to maintain and upgrade and generally difficult to use due to numerous configuration options and technology quirks, mainly exposed by different web browsers. There have been a number of very important changes have happened over the past few years that now make real-time technologies much more accessible.</p>
 <h3>Web Browser Wars</h3>

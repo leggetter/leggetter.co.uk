@@ -27,6 +27,7 @@ permalink: "http://blog.pusherapp.com/2011/8/3/adding-a-real-time-who-s-shopping
 ---
 
 <p>In our last ASP.NET post, <a href="http://blog.pusher.com/2011/6/25/the-easiest-way-to-add-real-time-functionality-to-an-asp-net-e-commerce-application">The easiest way to add real-time functionality to an ASP.NET e-commerce application</a>, I demonstrated how to add realtime stock level updates and notifications to an ASP.NET e-commerce application. In this post I'm going to show how to add a "Who's shopping?" widget to the same application. The purpose of this widget is to show other users that interest in the product they are viewing is high and that, in combination with the realtime stock levels, will encourage them to make a purchase before the product sells out.</p>
+
 <p>In this tutorial I'll show how to:</p>
 <ul>
 <li>subscribe to a presence channel</li>
@@ -157,7 +158,7 @@ function addMember(member) {
     var timeOnSite = (now - enteredSite);
     var li = $("&lt;li data-user-id='" + member.id + "'&gt;" +
                     member.id + " here for " +
-                    toReadableTime(timeOnSite) + 
+                    toReadableTime(timeOnSite) +
                "&lt;/li&gt;");
     $(".whos-shopping ul").append(li);
 };
@@ -175,7 +176,7 @@ function addMember(member) {
     /* as before */
 };
 
-function removeMember(member) { 
+function removeMember(member) {
     $(".whos-shopping ul li[data-user-id='" + member.id + "']").remove();
 };
 </code></pre>

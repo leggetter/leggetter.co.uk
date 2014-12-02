@@ -21,6 +21,7 @@ tags:
   - jquk
   - api-fanboy
 permalink: /2012/02/19/jquery-uk-2012-event-dont-always-use-jquery.html
+excerpt: "jQuery is a funny thing; it's made JavaScript coding easy for advanced developers and accessible to web designers, and you could even say that the web designer role has very much changed because of it. It's made web interfaces much richer and interactive. But, it's also made us lazy because it's so easy to use. It's time to take a step back and start thinking about best practices. And sometimes that might mean <em>not using</em> jQuery."
 ---
 
 <p><em>I started writing this right after the jQuery UK event but have only just found time to finish it off sitting in Stansted airport at 7am.</em></p>

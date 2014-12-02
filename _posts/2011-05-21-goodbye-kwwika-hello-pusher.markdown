@@ -22,6 +22,7 @@ permalink: /2011/05/21/goodbye-kwwika-hello-pusher.html
 ---
 
 <p>If you follow <a href="http://twitter.com/leggetter">me on Twitter</a> or if I've met up with you in the past few weeks you'll probably know, or have guessed the news. I'm leaving Kwwika, and have joined <a href="http://pusher.com/">Pusher</a>. Whilst it's disappointing to leave a project that I've spent the last one year and three months on behind, the move to Pusher couldn't have happened without it.</p>
+
 <p>My new role as Developer Evangelist at Pusher is the type of role that I've been trying to build for myself for a long time and it's fantastic that <a href="http://twitter.com/maxthelion">Max</a> and <a href="http://twitter.com/dctanner">Damien</a> at Pusher have given me this opportunity. The days that I've enjoyed most over the past year and a bit have been the days when I've been working with others, interacting online, attending events, writing blog posts to gauge opinion and share ideas, and learning from others. This is exactly what I'll be doing in my new job. Awesome!</p>
 <p>[caption id="attachment_15640" align="aligncenter" width="300" caption="Me with co-founder of Pusher, Damien Tanner"]<img class="size-medium wp-image-15640" title="Me with co-founder of Pusher, Damien Tanner" src="/wp-content/uploads/2011/05/damien_phil_pusher-300x224.jpg" alt="Phil Leggetter with co-founder of Pusher, Damien Tanner" width="300" height="224" />[/caption]</p>
 <h3>What is Pusher?</h3>

@@ -25,6 +25,7 @@ permalink: /2011/11/09/the-right-place-at-the-right-time-how-the-real-time-web-i
 
 <p>A couple of hours ago I was on a on the 'The Right Place At The Right Time: How The Real-Time Web Influences The "local" World' panel at the <a href="http://www.localsocialsummit.com/">Local Social Summit</a>. The panel was organised and chaired by <a href="http://twitter.com/#!/sebprovencher">Sebastien Provencher</a> and also included <a href="http://twitter.com/#!/ryanmacjones">RyanMacJones</a>, <a href="http://twitter.com/#!/daveambrose">Dave Ambrose</a> and <a href="http://twitter.com/#!/daveambrose">Stefano Diemmi</a>.</p>
 <p>Here's the information about the panel and my thoughts on the questions that were asked.</p>
+
 <h2>Description</h2>
 <p>The rise of the real-time Web is well documented. Propelled by both the social networking revolution and mobile device ubiquitousness, we're seeing the birth of new user services and business opportunities. In this panel,  we will explore the time element in the local/social Web and will try to discover what kind of content works well in real-time, what are the benefits for consumers and what kind of business models can be deployed to leverage the "time" dimension.</p>
 <h2>Questions</h2>

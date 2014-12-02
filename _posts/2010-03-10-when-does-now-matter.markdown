@@ -27,6 +27,7 @@ permalink: /2010/03/10/when-does-now-matter.html
 <p><strong>Real-Time Web!</strong></p>
 <p><strong>Real-Time Web!</strong></p>
 <p>Like me you may well be fed up of hearing and seeing this term. However, I'm guessing that you'll be fed up for a different reason to me. I'm actually very excited about the real-time web (I'm sure you'll have noticed) but I want to see it used as more than just a buzz term. I want to see real-time used in the true sense of the term - to mean that something has happened within the last few milliseconds. I want it to mean that the tweet you are reading, the picture you are viewing, the status update you are reading, the event you are being notified of is happening <strong>NOW</strong>.</p>
+
 <p>Google no longer takes days to index a web site or find a new blog post. For things like blog posts, new web sites, certain types of news and future events it doesn't really matter if we only find out about them within hours of their availability. But with other things such as live events, breaking news and opportunities, seconds, and sometimes milliseconds, really do matter.</p>
 <p>When does instant real-time matter? When do you need to be informed that something is happening now? When do seconds, or even milliseconds, really matter?</p>
 <p>Here are a few examples that I can think of:</p>

@@ -28,7 +28,10 @@ permalink: /2013/03/29/how-i-won-the-esri-devsummit-100-lines-of-javascript-comp
 thumb: /images/thumb/realtime-global-collaboration.jpg
 ---
 
-<p><em>First I'd like to emphasise that this is a blog post on <strong>how</strong> and <strong>not why</strong>. The why comes down to the judges. So, thanks Judges! Secondly I'd like to thank <a href="https://twitter.com/robdunfey">Rob Dunfey</a> for the idea and for providing additional motivation - I'll dig deeper into this later. Finally: what am I going to cover? As the title suggests, I want to cover the <strong>how</strong>. What that means is:</em></p>
+<p><em>First I'd like to emphasise that this is a blog post on <strong>how</strong> and <strong>not why</strong>. The why comes down to the judges. So, thanks Judges! Secondly I'd like to thank <a href="https://twitter.com/robdunfey">Rob Dunfey</a> for the idea and for providing additional motivation - I'll dig deeper into this later. Finally: what am I going to cover? As the title suggests, I want to cover the <strong>how</strong>.</em></p>
+
+<p>What that means is:</p>
+
 <ol>
 <li><em>The Idea</em></li>
 <li><em>Solving a Real Problem</em></li>

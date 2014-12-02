@@ -24,6 +24,7 @@ permalink: /2011/05/24/notes-on-falsy-values.html
 ---
 
 <p>I spent the majority of last week in Warsaw at <a href="http://falsyvalues.com">Falsy Values</a> where I attended a Games Workshop and a conference day. It was also my first week working as a Developer Evangelist working for <a href="http://pusher.com">Pusher</a>. A big and exciting week all round.</p>
+
 <h3>HTML5 Games Workshop</h3>
 <p>The HTML5 games workshop was ran by <a href="http://twitter.com/kuvos">@kuvos</a> and <a href="http://twitter.com/pornelski">@pornelski</a> and we went through building a game of Tetris and then <a href="http://qfox.nl/weblog/232">Mario</a>. I was very impressed to see what can be achieved with Canvas and the workshop provided a lot of food for thought about the sorts of things that would be really useful to HTML5 games developers. Watch this space, and the <a href="http://blog.pusherapp.com/2011/5/22/pusher-at-falsy-values">Pusher blog</a>.</p>
 <h3>The Keynote</h3>

@@ -61,7 +61,7 @@ permalink: /2012/04/22/websockets-realise-comet-theyre-not-an-alternative.html
 <p>All very HTTP related. <strong>But</strong> the second quote interestingly says <strong>“event driven on both sides”</strong>. This bi-directional communication, backed up by the diagram from the web post (see below), seems to have been lost in the wikipedia entry.</p>
 <p>
 <figure>
-  <img alt="Original Comet diagram by Alex Russell" src="http://infrequently.org/wp-content/Comet.png" /></p>
+  <img alt="Original Comet diagram by Alex Russell" src="/images/Comet.png" /></p>
 <figcaption>Original Comet diagram by Alex Russell. <small><a href="http://infrequently.org/2006/03/comet-low-latency-data-for-the-browser/">source</a></small></figcaption>
 </figure>
 <p>What I’m suggesting is that Comet is a paradigm for realtime bi-directional communication between a server and a client. Initially it used long-lived HTTP connections in addition to a second short-lived connection for command requests (e.g. subscribe) <strong>because it was the only solution</strong>. Comet servers now use WebSockets because they are now available, are better than the HTTP-based alternatives and help Comet (the paradigm) be achieved and finally truly realised in a standardised way.</p>

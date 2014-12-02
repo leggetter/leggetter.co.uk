@@ -31,22 +31,32 @@ All you need to do is add a new custom rule. You can do this via the menu option
 <p class="wp-caption-text">Fiddler Customize Rules option</p>
 </div>
 <p>This will bring up a JScript.NET file (if you don’t like the thought of JScript you can just pretend it’s JavaScript) called <em>CustomRules.js</em>. In that file you will see a number of functions/methods that are called at certain points during an HTTP request or response. The method we are interested in is called <code>OnBeforeResponse</code> and what we want to do is to add the <em>Access-Control-Allow-Origin</em> header to trick the browser/scripting engine into thinking that the resource we are requesting allows the cross domain request.</p>
-<pre class="brush: jscript;">static function OnBeforeResponse(oSession: Session)
+
+```js
+static function OnBeforeResponse(oSession: Session)
 {
 	oSession.oResponse.headers.Add("Access-Control-Allow-Origin", "*");
-}</pre>
+}
+```
+
 <p>The code above will add this header to all HTTP responses. You can of course add an <code>if</code> statement so that the header is only added when a particular condition is matched, such as a responses from <a href="/">http://www.leggetter.co.uk</a>.</p>
-<pre class="brush: jscript;">static function OnBeforeResponse(oSession: Session)
+
+```js
+static function OnBeforeResponse(oSession: Session)
 {
 	if (oSession.HostNameIs("www.leggetter.co.uk"))
 	{
 		oSession.oResponse.headers.Add("Access-Control-Allow-Origin", "*");
 	}
-}</pre>
+}
+```
+
 <p><small>The code snippet above has not been tested</small></p>
 <p>Once you have added your code to the <code>OnBeforeResponse</code> method you can save and close the CustomRules.js file. Fiddler will detect that this file has been modified and compile it in the background so that it can use the new code with each request and response that it processes.</p>
 <p>The next time that Fiddler is processing an HTTP response it will call this method, your code will run, and the <em>Access-Control-Allow-Origin</em> HTTP header added to the response.</p>
-<pre class="brush: plain;">HTTP/1.1 200 OK
+
+```
+HTTP/1.1 200 OK
 Connection: close
 Date: Fri, 19 Mar 2010 11:04:51 GMT
 Server: Microsoft-IIS/6.0
@@ -54,5 +64,7 @@ Content-Type: text/html; charset=utf-8
 Expires: Fri, 19 Mar 2010 11:03:51 GMT
 Cache-Control: no-cache
 Pragma: no-cache
-Access-Control-Allow-Origin: *</pre>
+Access-Control-Allow-Origin: *
+```
+
 <p>For more information on custom rules and generally developing using Fidder see their <a href="http://www.fiddler2.com/Fiddler/dev/">Developer Info section</a>.</p>

@@ -933,6 +933,7 @@
 #content ul,
 #content ol {
 	list-style: inherit;
+	margin-left: 15px;
 }
 
 #content li {
@@ -970,6 +971,12 @@
 	padding: 0px 0px 0px 15px !important;
 	text-align: left !important;
 	background: transparent !important;
+}
+
+#content .post-list-thumb {
+	float: right;
+	margin-left: 20px;
+	max-width: 250px;
 }
 
 body.rtw-guide #content h2 {
@@ -1016,3 +1023,16 @@ h3 {
 
 h4 {
 	font-size: 1.25em;
+}
+
+#content .alignright.size-thumbnail,
+#content .alignright.size-full,
+#content .alignright.size-medium {
+	float: right;
+	margin-left: 20px;
+}
+
+.pagination {
+	text-align: center;
+	font-weight: bold;
+}

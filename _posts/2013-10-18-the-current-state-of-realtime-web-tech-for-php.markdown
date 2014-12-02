@@ -20,6 +20,8 @@ tags:
   - realtime
   - realtime web
 permalink: /2013/10/18/the-current-state-of-realtime-web-tech-for-php.html
+excerpt: I quite frequently see posts on StackOverflow about how to add realtime functionality to a PHP application, or to build a realtime solution with PHP. And I'm increasingly getting emails asking the same. So, here's what I feel the current state of Realtime Web Technology is for PHP.
+thumb: /wp-content/uploads/2013/10/php-logo.png
 ---
 
 <p><a href="/wp-content/uploads/2013/10/php-logo.png"><img src="/wp-content/uploads/2013/10/php-logo.png" alt="PHP Logo" width="150" class="alignright size-full wp-image-24009" /></a></p>

@@ -26,6 +26,8 @@ tags:
   - Future Insights
   - sailsjs
 permalink: /2014/01/19/video-choosing-realtime-web-app-tech-stack.html
+excerpt: "I recently did a short interview with Future Insights. As part of that my talk video from FOWA 2013 was published. In this video taken at FOWA I cover all three parts of the guide on How to Choose your Realtime Web App Tech Stack."
+thumb: /images/thumb/choosing-realtime-web-app-tech-stack-still.png
 ---
 
 <p>I recently did a short <a href="http://www.futureinsights.com/home/choosing-your-real-time-web-app-tech-stack.html/">interview with Future Insights</a>. As part of that my talk from FOWA 2013 was published.</p>

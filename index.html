@@ -13,11 +13,19 @@ layout: default
   </header>
 
   <div class="posts-list">
-    {{ post.excerpt | strip_html }}
+    {% if post.thumb %}
+    <a href="{{ post.url}}" title="{{ post.title }}">
+      <img class="post-list-thumb" src="{{ post.thumb }}" alt="{{ post.title }} preview image" />
+    </a>
+    {% endif %}
+    <p>{{ post.excerpt | strip_html }}</p>
+    <p><a href="{{ post.url }}" title="{{ post.title }}">Read more...</a></p>
   </div>
 
 </article>
 {% endfor %}
+
+<hr />
 
 <div class="pagination">
   {% if paginator.previous_page %}

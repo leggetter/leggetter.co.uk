@@ -30,6 +30,7 @@ tags:
   - sockjs
   - onmessage
 permalink: /2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html
+thumb: /images/thumb/realtime-fundamentals.png
 ---
 
 <p>In part 1 of this 3-part write-up from my talk at FOWA London 2013 I covered the <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a>. In this 2nd part I'm going to provide details on some fundaments about realtime web technology and an overview of the basic types of functionality that they offer.</p>

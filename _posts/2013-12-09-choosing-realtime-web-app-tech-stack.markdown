@@ -26,6 +26,10 @@ tags:
   - meteor
   - realtime web stack
 permalink: /2013/12/09/choosing-realtime-web-app-tech-stack.html
+thumb: /images/thumb/just-use-socket-io-right.png
+excerpt: "In this final part (<em>sorry for the delay</em>) I'm going to cover how you should approach choosing your Realtime Web App Tech Stack. Socket.IO has done an amazing job when it comes to making people aware of realtime web technology. And it's a great solution.</p>
+<p><strong>But, it shouldn't be the default choice when choosing your realtime web solution.</strong></p>
+<p>You should instead take a number of factors into account. Then, if it provides the functionality required to meet your requirements, use it. But there are <strong>lots</strong> of other  fantastic realtime web solutions available that may be a better fit or your application's needs."
 ---
 
 <p>In the previous parts of this three part series I covered:</p>

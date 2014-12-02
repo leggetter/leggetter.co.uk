@@ -18,6 +18,8 @@ categories:
   - thoughts
 tags: []
 permalink: /2013/01/13/reclaiming-twitter.html
+thumb: /wp-content/uploads/2013/01/following-count-0.png
+excerpt: "For a long while now I've not been getting as much out of Twitter as I used to. There's too much information to take in. I've long said that Twitter is throw-away. If you miss something then it doesn't matter. If it's important then I'll see a retweet or pick up the information from somewhere else. <strong>This is wrong</strong>. Just because it's not being retweeted by everybody it doesn't mean it's not a worthwhile update. Just because it doesn't get upvoted on Hacker News it doesn't mean that it's not relevant to me."
 ---
 
 <p>For a long while now I've not been getting as much out of Twitter as I used to. There's too much information to take in.</p>

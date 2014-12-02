@@ -20,6 +20,9 @@ tags:
   - SaaS
   - customer support
 permalink: /2013/06/06/technical-customer-service-is-hard-thoughts-from-converge-conf-2013.html
+thumb: /wp-content/uploads/2013/06/sad_cartoon_circuit_board.jpg
+excerpt: "I've been to quite a few conferences over the last couple of years (46 conferences and events, by my count). Converge Conference was something different. Although a tech conference, the focus in the talks I saw was most definitely on soft skills and experiences, and not really on the tech. This was highly refreshing.
+There were 3 talks in particular that resonated with me."
 ---
 
 <p><img src="/wp-content/uploads/2013/06/sad_cartoon_circuit_board.jpg" alt="sad_cartoon_circuit_board" width="599" height="250" class="alignnone size-full wp-image-23859" /><br />

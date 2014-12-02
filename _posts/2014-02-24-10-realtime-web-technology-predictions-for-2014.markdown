@@ -23,6 +23,7 @@ tags:
   - WebRTC
   - RTCDataChannel
 permalink: /2014/02/24/10-realtime-web-technology-predictions-for-2014.html
+thumb: /wp-content/uploads/2014/02/icon_27467-150x150.png
 ---
 
 <p>Nearly two months in, I thought I'd publish 10 realtime web technology predictions for 2014 based on how it developed in 2013 and the trends I've seen so far this year. I've added two additional <strong>bonus predictions</strong> for good measure.</p>

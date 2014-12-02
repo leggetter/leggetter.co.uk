@@ -23,9 +23,11 @@ tags:
   - art
   - macrobert
 permalink: /2012/08/11/a-geek-in-residence.html
+thumb: /images/thumb/geeks.png
+excerpt: "I can't believe it! I left University to take my first job 11 years ago. During that time I've worked in finance, e-learning, GIS and SEO/digital marketing. Although I've had some interest in these sectors my real interest was just the technology, with a passion for realtime web technologies. I now work for Pusher and can focus almost entirely on realtime web technologies and the application of them. Whilst I'm truly lucky to be able to work day-in day-out on something I'm passionate about, it's always a good idea to gain exposure to new things. New experiences exercise the mind and you never know when those experiences will help with what you normally do."
 ---
 
-<p><img src="http://www.welcometosync.com/wp-content/themes/sync/images/geeks.png" alt="Geeks" align="right" /></p>
+<p><img src="/images/thumb/geeks.png" alt="Geeks" align="right" /></p>
 <p>I can't believe it! I left University to take my first job 11 years ago. During that time I've worked in finance, e-learning, GIS and SEO/digital marketing. Although I've had some interest in these sectors my real interest was just the technology, with a passion for realtime web technologies. I now work for Pusher and can focus almost entirely on realtime web technologies and the application of them. Whilst I'm truly lucky to be able to work day-in day-out on something I'm passionate about, it's always a good idea to gain exposure to new things. New experiences exercise the mind and you never know when those experiences will help with what you normally do.</p>
 <p>After <a href="http://blog.pusher.com/2012/5/3/shakey-has-it-all-realtime-mobile-browser-and-user-audience-engagement">attending Culture Hack Scotland</a> my eyes were opened to a new experience; the focus was still technology, but used in innovate and experimental ways with a focus on 'culture'.</p>
 <h2>Uncultured Me</h2>

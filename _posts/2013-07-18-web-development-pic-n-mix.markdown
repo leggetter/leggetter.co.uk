@@ -24,6 +24,7 @@ tags:
   - mimosa
   - node.js
 permalink: /2013/07/18/web-development-pic-n-mix.html
+thumb: /images/thumb/pic-n-mix.jpg
 ---
 
 <p>Over the past three weeks I've had the opportunity to investigate modern web development tools and I feel a little bit like a kid in a sweet shop. Firstly, I'm excited to be here. Secondly, there's so much to choose from. In the past you may have been able to pick up a selection box containing a few pre-defined dev tool options. Now, there are so many technologies and tools available it's like being in the pic 'n' mix section.</p>

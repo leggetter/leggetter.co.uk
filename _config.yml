@@ -3,5 +3,4 @@ markdown: redcarpet
 pygments: true
 relative_permalinks: false
 paginate: 10
-excerpt_separator: "</p>"
-exclude: wp-content
+excerpt_separator: "\n\n"

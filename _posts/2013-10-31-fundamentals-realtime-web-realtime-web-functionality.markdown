@@ -34,6 +34,7 @@ thumb: /images/thumb/realtime-fundamentals.png
 ---
 
 <p>In part 1 of this 3-part write-up from my talk at FOWA London 2013 I covered the <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a>. In this 2nd part I'm going to provide details on some fundaments about realtime web technology and an overview of the basic types of functionality that they offer.</p>
+
 <ul>
 <li>Part 1: <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
 <li>Part 3: <a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>

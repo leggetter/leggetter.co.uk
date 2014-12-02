@@ -23,10 +23,11 @@ tags:
   - WebRTC
   - RTCDataChannel
 permalink: /2014/02/24/10-realtime-web-technology-predictions-for-2014.html
-thumb: /wp-content/uploads/2014/02/icon_27467-150x150.png
+thumb: /images/thumb/icon_27467-300x300.png
 ---
 
 <p>Nearly two months in, I thought I'd publish 10 realtime web technology predictions for 2014 based on how it developed in 2013 and the trends I've seen so far this year. I've added two additional <strong>bonus predictions</strong> for good measure.</p>
+
 <p><em>Note: I came up with most of this list at the start of the year. I've only just got around to expanding upon the details now.</em></p>
 <p>Before I go into the predictions: if you're interested in realtime technologies then you may be interested in the Realtime APIs panel that I'm putting together with <a href="https://twitter.com/kinlane">Kin Lane</a> as part of the <a href="http://www.apistrategyconference.com/2014Amsterdam/index.php">API Strategy Conference 2014 in Amsterdam</a>.</p>
 <p><a name="all"></a></p>

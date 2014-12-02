@@ -25,6 +25,7 @@ thumb: /images/thumb/create-publish-source.png
 ---
 
 <p>Inspired by the first two talks at <a href="http://stacked.thestack.co.uk/">#stacked13</a> by <a href="https://twitter.com/mtaulty">Mike Taulty</a> and then <a href="https://twitter.com/maartenballiauw">Maarten Balliauw</a> I thought I'd jump straight into Windows Azure Mobile Services and build an a <strong>realtime collaborative synchronised todo list</strong>. I'd do this based on the <a href="http://www.windowsazure.com/en-us/develop/mobile/tutorials/get-started-with-data-html/">Get started with data in Mobile Services HTML guide</a>. I would then and host it on a <a href="http://www.windowsazure.com/en-us/home/scenarios/web-sites/">Windows Azure web site</a>.</p>
+
 <p><strong>Update: <em>Sorry, I haven't renewed my Azure Mobile Services account so the demo is no longer available</em></strong></p>
 <p><img src="/wp-content/uploads/2013/04/realtime-todo.png" alt="realtime-todo" width="800" height="357" class="aligncenter size-full wp-image-23756" /></p>
 <p style="text-decoration: line-through">View the demo</p>

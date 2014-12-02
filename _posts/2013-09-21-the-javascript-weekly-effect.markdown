@@ -25,6 +25,7 @@ thumb: /images/thumb/brjs-google-analytics.png
 ---
 
 <p>On Monday we published our <a href="http://bladerunnerjs.org/2013/09/16/introducing-bladerunnerjs/">first BladeRunnerJS (BRJS) blog post</a>. It provides an overview of what BRJS is, why it was created and why it's being open sourced. We saw a nice spike in traffic and I was thinking about ways I could try to sustain that. I decided not to take any action (e.g. submit for consideration in JavaScript Weekly) for two reasons; we'd publish plenty more posts over the coming weeks and we don't have any source in <a href="https://github.com/bladerunnerjs/brjs">github</a> right now. It would therefore be much better to focus on getting traffic when there's actually a solution that people can download and try out.</p>
+
 <p><strong>Then, on Friday, <a href="http://javascriptweekly.com/archive/148.html">JavaScript Weekly issue 148</a> came out</strong>.</p>
 <h3>The Stats</h3>
 <p>Some stats for 20th - 21st September, covering around a 24 hours period after JavaScript Weekly came out are as follows:</p>

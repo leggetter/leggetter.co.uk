@@ -1,11 +1,11 @@
 ---
 layout: post
 title: "Rejoining Pusher"
-excerpt: "The callback has been invoked, the Promise fulfilled. I'm *super-excited* to be re-joining Pusher to head up evangelism and developer experience."
+excerpt: "The callback has been invoked, the Promise fulfilled. I'm *super-excited* to be rejoining Pusher to head up evangelism and developer experience."
 
 ---
 
-The callback has been invoked, the Promise<sup><small>&#9728;</small></sup> fulfilled. I'm *super-excited* to be re-joining [Pusher](http://pusher.com) to head up evangelism and developer experience.
+The callback has been invoked, the Promise<sup><small>&#9728;</small></sup> fulfilled. I'm *super-excited* to be rejoining [Pusher](http://pusher.com) to head up evangelism and developer experience.
 
 This leaves a BladeRunnerJS Developer Evangelist role vacant so please [get in touch](mailto:phil@leggetter.co.uk) if you're interested.
 

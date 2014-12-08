@@ -11,7 +11,7 @@
 				init );
 
 	function init() {
-		Pusher.channel_auth_endpoint = '/realtime_benchmarks/pusher_auth.php';
+		Pusher.channel_auth_endpoint = 'http://phobos7.co.uk/leggetter/realtime_benchmarks/pusher_auth.php';
 		setTimeout( runBenchmark, 0 );
 	}
 
@@ -55,7 +55,7 @@
 					postData.data = JSON.stringify( result );
 
 					jQuery.ajax( {
-						url: '/realtime_benchmarks/update_result.php',
+						url: 'http://phobos7.co.uk/leggetter/realtime_benchmarks/update_result.php',
 						type: 'post',
 						data: postData
 					});
@@ -76,7 +76,7 @@
 
 				if( jQuery ) {
 					jQuery.ajax( {
-						url: '/realtime_benchmarks/?' + (new Date().getTime()).toString(),
+						url: 'http://phobos7.co.uk/leggetter/realtime_benchmarks/?' + (new Date().getTime()).toString(),
 						type: 'post',
 						data: JSON.stringify( postData ),
 						dataType: 'json',

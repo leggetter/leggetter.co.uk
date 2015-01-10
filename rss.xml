@@ -2,7 +2,8 @@
 layout: none
 ---
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
+                   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>{{ site.name }}</title>
     <description>Phil Leggetter's Blog Posts</description>
@@ -18,6 +19,7 @@ layout: none
       <link>{{ site.base_url }}{{ post.url }}</link>
       <guid isPermaLink="true">{{ site.base_url }}{{ post.url }}</guid>
       <description><![CDATA[{{ post.content }}]]></description>
+      <dc:creator>Phil Leggetter</dc:creator>
       <pubDate>{{ post.date | date: "%a, %d %b %Y %H:%M:%S %z" }}</pubDate>
     </item>
     {% endfor %}

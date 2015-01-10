@@ -7,6 +7,10 @@ layout: none
     <title>{{ site.name }}</title>
     <description>Phil Leggetter's Blog Posts</description>
     <link>{{ site.base_url }}</link>
+    <author>
+      <name>Phil Leggetter</name>
+      <email>phil@leggetter.co.uk</email>
+    </author>
     <atom:link href="{{ site.base_url }}/rss.xml" rel="self" type="application/rss+xml" />
     {% for post in site.posts %}
     <item>

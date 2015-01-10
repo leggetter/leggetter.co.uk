@@ -4,3 +4,5 @@ pygments: true
 relative_permalinks: false
 paginate: 10
 excerpt_separator: "\n\n"
+
+base_url: http://www.leggetter.co.uk

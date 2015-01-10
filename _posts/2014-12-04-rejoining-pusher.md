@@ -15,7 +15,7 @@ This leaves a BladeRunnerJS Developer Evangelist role vacant so please [get in t
 
 When I [left Pusher back in June 2013](http://www.leggetter.co.uk/2013/07/04/leaving-pusher-what-next.html) I said it was the best job I'd ever had. I've enjoyed my time back at Caplin, but I'd still say that the most enjoyment and best sense of achievement I've ever experienced was during my first stint at Pusher. So I'm extremely excited to be rejoining.
 
-<a href="http://pusher.com"><img align="center" src="/images/pusher.png" alt="Pusher logo" style="width: 250px; float: right;" /></a>
+<a href="http://pusher.com"><img align="center" src="http://www.leggetter.co.uk/images/pusher.png" alt="Pusher logo" style="width: 250px; float: right;" /></a>
 
 Some would say *you should never go back*. **I disagree**. My frequent returns to Caplin have proven there are benefits and both myself and Caplin have benefitted from this in the past. Time away can make you aware of what worked and what didn't. You can make sure that you do the things that worked and find alternative solutions for those that didn't. When you step away you see opportunities and benefits that you couldn't see from the inside. I'm very pleased that my contribution to Pusher at the very beginning has legacy, I've maintained a good relationship with everyone there and that [Max](https://twitter.com/maxthelion), [Sylvain](https://twitter.com/copypastaa) and the rest of the team will have me back! If you're interested in joining me at Pusher, [we are hiring](http://pusher.com/jobs#job-positions).
 
@@ -45,7 +45,7 @@ Did I mention I'm excited?!?!
 
 In addition to writing about rejoining Pusher I wanted to share a bit about BladeRunnerJS.
 
-<a href="http://bladerunnerjs.org"><img align="center" src="/wp-content/uploads/2013/07/bladerunner-js.png" style="width: 250px; float: right; padding-left: 20px;" /></a>
+<a href="http://bladerunnerjs.org"><img align="center" src="http://www.leggetter.co.uk/wp-content/uploads/2013/07/bladerunner-js.png" style="width: 250px; float: right; padding-left: 20px;" /></a>
 
 I joined [Caplin](http://www.caplin.com) (for the 4th time) to help them open source and evangelise BladeRunnerJS (BRJS). To help a company with the process of open sourcing, building a brand around an open source product, identifying the USPs and innovation of a product, giving talks and blogging about them has been a rewarding challenge.
 
@@ -62,5 +62,3 @@ It became clear that the *sweet spot* for BladeRunnerJS is Enterprise scale orga
 That alone isn't the only reason I'm moving on. For me the draw of Pusher - and again focusing on Realtime Web Technologies - was just too strong.
 
 If BladeRunnerJS sounds like the sort of challenge you'd like to take on, then Caplin may have a role for you. Please [drop me an email](mailto:phil@leggetter.co.uk) if this interests you.
-
-

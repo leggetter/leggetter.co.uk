@@ -46,7 +46,7 @@ permalink: /real-time-web-technologies-guide/
 
 {% include disqus.html %}
 
-<script src="/bower_components/contents/dist/contents.min.js"></script>
+<script src="/bower_components/contents/dist/contents.js"></script>
 <script>
 (function() {
   var Contents = window.gajus.Contents,
@@ -64,10 +64,13 @@ permalink: /real-time-web-technologies-guide/
   contentsEl.className = "toc";
   tocEl.parentNode.replaceChild(contentsEl, tocEl);
 
-  $( '.toc a' ).smoothScroll( {
-    afterScroll: function( opts ) {
-      window.location.hash = opts.scrollTarget;
-    }
-  } );
+  setTimeout( function() {  
+    $( '.toc a' ).smoothScroll( {
+      afterScroll: function( opts ) {
+        window.location.hash = opts.scrollTarget;
+      }
+    } );
+  }, 500 );
+  
 })();
 </script>

@@ -273,7 +273,7 @@ Contents.articleName = function (element) {
  * @param {HTMLElement} element
  */
 Contents.articleId = function (articleName, element) {
-    return element.id || articleName;
+    return element.name || articleName;
 };
 
 /**
@@ -309,7 +309,7 @@ Contents.uniqueID = function (id, existingIDs) {
         }
     }
 
-    return assignedId;
+    return '_' + assignedId;
 };
 
 /**
@@ -484,9 +484,14 @@ Contents.link = function (guide, article) {
     var guideLink = global.document.createElement('a'),
         articleLink = global.document.createElement('a');
 
-    article.element.id = article.id;
+    // article.element.name = article.id;
+    // console.log( article.id );
+    // article.element.setAttribute( 'name', article.id );
 
-    articleLink.href = '#' + article.id;
+    articleLink.setAttribute( 'name', article.id );
+    article.element.setAttribute( 'id', article.id );
+    
+    article.element.parentNode.insertBefore(articleLink, article.element);
 
     while (article.element.childNodes.length) {
         articleLink.appendChild(article.element.childNodes[0]);

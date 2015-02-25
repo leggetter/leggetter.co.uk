@@ -35,10 +35,10 @@ thumb: /images/thumb/realtime-fundamentals.png
 
 <p>In part 1 of this 3-part write-up from my talk at FOWA London 2013 I covered the <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a>. In this 2nd part I'm going to provide details on some fundaments about realtime web technology and an overview of the basic types of functionality that they offer.</p>
 
-<ul>
-<li>Part 1: <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
-<li>Part 3: <a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>
-</ul>
+* Part 1: <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a>
+* Part 3: <a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a>
+* The FOWA 2013 [Choosing your Realtime Web App Tech Stack video](/2014/01/19/video-choosing-realtime-web-app-tech-stack.html)
+
 <p><img src="/wp-content/uploads/2013/10/realtime-fundamentals.png" alt="" /></p>
 <p>What are the core concepts used in realtime web technologies? What are the fundamental raw technologies?  And, is it possible to break the types of functionality up into categories?</p>
 <p><img src="/wp-content/uploads/2013/10/realtime-connect.png" alt="" /></p>

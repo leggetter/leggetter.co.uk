@@ -33,10 +33,11 @@ excerpt: "In this final part (<em>sorry for the delay</em>) I'm going to cover h
 ---
 
 <p>In the previous parts of this three part series I covered:</p>
-<ul>
-<li>Part 1: <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">Background, Benefits &amp; Use Cases of Realtime</a></li>
-<li>Part 2: <a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web &amp; Realtime Web Functionality</a>.</li>
-</ul>
+
+* Part 1: <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a>
+* Part 2: <a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web &amp; Realtime Web Functionality</a>.
+* The FOWA 2013 [Choosing your Realtime Web App Tech Stack video](/2014/01/19/video-choosing-realtime-web-app-tech-stack.html)
+
 <p>On to part three...</p>
 <p><img src="/wp-content/uploads/2013/11/slide-6-0.png" alt="" /></p>
 <p>In this final part (<em>sorry for the delay</em>) I'm going to cover how you should approach choosing your Realtime Web App Tech Stack.</p>

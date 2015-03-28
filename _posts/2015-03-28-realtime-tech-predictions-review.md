@@ -27,7 +27,7 @@ To the prediction reviews...
 
 > realtime will become a fundamental part of a significant number of new mainstream applications.
 
-<img src="/wp-content/uploads/2014/02/icon_18986-150x150.png" alt="icon_18986" width="150" height="150" style="float:right; margin: 15px;" />
+<img src="http://www.leggetter.co.uk/wp-content/uploads/2014/02/icon_18986-150x150.png" alt="icon_18986" width="150" height="150" style="float:right; margin: 15px;" />
 
 We saw lot's more apps use real-time technology in 2014. 4 of the [top 10 apps listed on time.com](http://time.com/3582114/top-10-apps/) offer realtime experiences including Facebook Rooms, WhatsApp, SnapChat and Uber. The first three are clearly notifications and chat the latter for real-time geolocation of taxis.
 
@@ -47,7 +47,7 @@ Real-time technologies had already made their way into stacks like [Rails](http:
 
 > an increase in the number of frameworks that are built on the foundation of realtime.
 
-<img src="/wp-content/uploads/2014/02/icon_8451-150x150.png" alt="icon_8451" width="150" height="150"  style="float:right; margin: 15px;" />
+<img src="http://www.leggetter.co.uk/wp-content/uploads/2014/02/icon_8451-150x150.png" alt="icon_8451" width="150" height="150"  style="float:right; margin: 15px;" />
 
 From what I saw in 2014 I got this wrong. What I actually saw happen was existing frameworks further establish their dominance.
 
@@ -107,7 +107,7 @@ In addition to these I've also been contacted about [Lowla](https://github.com/l
 
 An interesting point to note in a related space is that PubNub did open up data sync functionality in beta during 2014. But the majority of the links to this feature on PubNub now either redirect or fail.
 
-<a href="http://www.google.co.uk/search?q=pubnub+data&oq=pubnub+data&aqs=chrome..69i57j69i60l2j69i59.1437j0j1&sourceid=chrome&es_sm=119&ie=UTF-8&gws_rd=ssl&safe=strict#safe=strict&q=pubnub+data+sync"><img alt="Where has PubNub Data Sync gone?" src="/images/pubnub-data-sync.png" /></a>
+<a href="http://www.google.co.uk/search?q=pubnub+data&oq=pubnub+data&aqs=chrome..69i57j69i60l2j69i59.1437j0j1&sourceid=chrome&es_sm=119&ie=UTF-8&gws_rd=ssl&safe=strict#safe=strict&q=pubnub+data+sync"><img alt="Where has PubNub Data Sync gone?" src="http://www.leggetter.co.uk/images/pubnub-data-sync.png" /></a>
 
 I'm not sure if this is due to PubNub's full product focus moving to "streams" or a lack of interest in another data sync solution. Does this, combined with the demise of GoInstant, suggest data sync doesn't have the expected demand? I would think [Syncano](http://www.syncano.com/) - a new BaaS - are betting on there still being big demand.
 
@@ -125,7 +125,7 @@ With so many companies and individuals using Socket.IO this was an easy predicti
 
 > In 2014 the usage of realtime web technology and IoT is going to skyrocket.
 
-<img src="/wp-content/uploads/2014/02/icon_28698-150x150.png" alt="icon_28698" width="150" height="150" class="alignright size-thumbnail wp-image-24292">
+<img src="http://www.leggetter.co.uk/wp-content/uploads/2014/02/icon_28698-150x150.png" alt="icon_28698" width="150" height="150" class="alignright size-thumbnail wp-image-24292">
 
 What a year for the Internet of Things! Although I think this year will be even bigger. I don't think I really need to write anything here to justify my opinion that I got this one right. It wasn't a difficult prediction.
 

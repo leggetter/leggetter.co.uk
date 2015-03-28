@@ -69,7 +69,7 @@ Although chat is a collaborative experience that offers significant UX and produ
 
 If I'm entirely honest, before I sat down to write this follow-up post I thought I'd got this one wrong. It's not until you start to look at all the well-known services and APIs that you discover all those that are now offering real-time APIs of some kind; whether it's WebHooks or streaming endpoints.
 
-![Realtime APIs](/images/apps-with-realtime-apis.png)
+![Realtime APIs](http://www.leggetter.co.uk/images/apps-with-realtime-apis.png)
 
 Obviously, some of the examples above have had real-time APIs for a while, whilst some of them are new.
 
@@ -117,7 +117,7 @@ I'm not sure if this is due to PubNub's full product focus moving to "streams" o
 
 With so many companies and individuals using Socket.IO this was an easy prediction. It would seem that [CloudUp being acquired by Automattic](https://en.blog.wordpress.com/2013/09/25/cloudup-joins-the-automattic-family/) was a catalyst for this as Socket.IO is now supported by Automattic and lives under their GitHub organisation.
 
-![Socket.IO revival](/images/socketio-revival.png)
+![Socket.IO revival](http://www.leggetter.co.uk/images/socketio-revival.png)
 
 [Socket.IO v1.0 was released](socket.io/blog/introducing-socket-io-1-0/) in May 2014 and there have been spikes of activity every now and again since then.
 
@@ -135,7 +135,7 @@ SmartThings was [acquired by Samsung](http://blog.smartthings.com/news/smartthin
 
 Ninja Blocks also seem to be doing pretty well with lots of partnerships.
 
-![Ninja Blocks partners](/images/ninja-blocks-partners.png)
+![Ninja Blocks partners](http://www.leggetter.co.uk/images/ninja-blocks-partners.png)
 
 Take a look at the [Ninja Blocks blog](http://blog.ninjablocks.com/).
 
@@ -163,4 +163,4 @@ The real-time technology space is strange in that it's taking a comparatively lo
 
 I may even talk and blog about it. And maybe provide some more predictions... **If you'd like me to talk at your event about Real-Time Technology or write an article, please [get in touch](mailto:phil@leggetter.co.uk?subject=Real-Time Tech Talk or Article).**
 
-![Phil Leggetter speaking at DevWeek 2015](/images/me-devweek-2015.jpg)
+![Phil Leggetter speaking at DevWeek 2015](http://www.leggetter.co.uk/images/me-devweek-2015.jpg)

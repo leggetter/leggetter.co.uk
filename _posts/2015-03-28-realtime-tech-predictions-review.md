@@ -125,6 +125,8 @@ With so many companies and individuals using Socket.IO this was an easy predicti
 
 > In 2014 the usage of realtime web technology and IoT is going to skyrocket.
 
+<img src="/wp-content/uploads/2014/02/icon_28698-150x150.png" alt="icon_28698" width="150" height="150" class="alignright size-thumbnail wp-image-24292">
+
 What a year for the Internet of Things! Although I think this year will be even bigger. I don't think I really need to write anything here to justify my opinion that I got this one right. It wasn't a difficult prediction.
 
 > Some solutions to watch out for include SmartThings, Ninja Blocks and SkyNet.

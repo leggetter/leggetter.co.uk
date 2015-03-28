@@ -91,6 +91,8 @@ As noted at the start of this post, [Nest uses Firebase](https://developer.nest.
 
 The main area I've seen a lot of uptake in the use of hosted services as real-time API infrastructure is for Bitcoin. [Bitstamp](https://www.bitstamp.net/websocket/) and [MtGox](https://en.bitcoin.it/wiki/MtGox/API/Pubnub) are two examples (although links from the second example seem to be broken now).
 
+Then of course there's [Fanout](https://fanout.io) that although this service can help you "Build and scale realtime websites, apps, and APIs" seems well positioned for the the API space - infrastructure for your real-time APIs. Their performance will be a great indicator to see if this predication does *eventually* come true.
+
 Communications API focused companies is another area that will likely start to see existing real-time infrastructure providers being utilised. [Sinch](https://www.sinch.com/) is a good example; they're actually a new company [spun out of Rebtel](http://techcrunch.com/2014/05/14/rebtel-spins-out-sinch-with-12m-in-funding-to-offer-communications-tools-to-developers/) and they use PubNub for signaling within their API.
 
 So, I'm not going to claim this as wholly correct, but there is evidence that this is happening and I believe it will continue to do so.

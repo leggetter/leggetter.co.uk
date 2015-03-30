@@ -7,6 +7,7 @@
 				'http://cdn.hydna.com/1/hydna.js',
 				'http://pubsub.fanout.io/static/json2.js',
 				'/realtime_benchmarks/service-libs/fanout.js',
+				'https://cdn.datamcfly.com/DataMcFly.js',
 				'/realtime_benchmarks/realtime-benchmarks.min.js',
 				init );
 
@@ -29,7 +30,8 @@
 						RealtimeCoService,
 						FirebaseService,
 						HydnaService,
-						FanoutService
+						FanoutService,
+						DataMcFlyService
 				];
 
 		var position = null,

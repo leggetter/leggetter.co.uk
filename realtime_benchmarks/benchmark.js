@@ -21,6 +21,30 @@
 			console.log( msg );
 		}
 	}
+	
+	var geoRequestEl = null;
+	function showGeoLocationRequestReason() {
+		geoRequestEl = document.createElement('div');
+		geoRequestEl.style.position = "fixed";
+		geoRequestEl.style.display = "block";
+		geoRequestEl.style.width = "100%";
+		geoRequestEl.style.textAlign = "center";
+		geoRequestEl.style.padding = "5px";
+		geoRequestEl.style.top = "0px";
+		geoRequestEl.style.border = "1px solid #1E2432";
+		geoRequestEl.style.backgroundColor = "#fff";
+		geoRequestEl.style.color = "#919499";
+		geoRequestEl.innerHTML = "This site would like your geolocation in order to improve the <a href=\"/real-time-web-technologies-guide/realtime-hosted-service-latency/\">Real-Time Hosted Service Latency Statistic</a> it's gathering.";
+		
+		document.body.appendChild(geoRequestEl);
+		
+		document.body.style.marginTop = "20px";	
+	}
+	
+	function hideGeoLocationRequestReason() {
+		document.body.style.marginTop = "0";
+		geoRequestEl.style.display = "none";
+	}
 
 	function runBenchmark(){
 
@@ -38,10 +62,14 @@
 				result = null;
 
 		if ( navigator.geolocation ) {
-			navigator.geolocation.getCurrentPosition( foundGeolocation );
+			navigator.geolocation.getCurrentPosition( foundGeolocation, hideGeoLocationRequestReason );
+			
+			showGeoLocationRequestReason();
 		}
 
 		function foundGeolocation( pos ) {
+			hideGeoLocationRequestReason();
+			
 			position = pos;
 
 			if( !result ) {

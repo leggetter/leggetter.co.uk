@@ -1,13 +1,18 @@
 ---
 layout: post
 title: "2015 Q1 Personal Review"
-excerpt: ""
+excerpt: "I like retrospective-style posts. When writing them I get to look back at the things I've done and am often surprised, pleased and encouraged to improve. I also enjoy reading retrospective posts of others, particularly from those who are doing similar things or those that I look up to and learn from.
 
+Hopefully the majority will forgive the indulgence of a personal retrospective and a few - like me - will find it interesting and useful. If you're considering a developer evangelist role this may provide you with some insight. If you're already working in a similar role then it might be a useful comparison. I'll also do a summary retrospective retro including a few stats, and cover what some my plans are for 2015 Q2."
+
+thumb: /images/2015-q1-retro/stickers.jpg
 ---
 
 I like retrospective-style posts. When writing them I get to look back at the things I've done and am often surprised, pleased and encouraged to improve. I also enjoy reading retrospective posts of others, particularly from those who are doing similar things or those that I look up to and learn from.
 
 Hopefully the majority will forgive the indulgence of a personal retrospective and a few - like me - will find it interesting and useful. If you're considering a developer evangelist role this may provide you with some insight. If you're already working in a similar role then it might be a useful comparison. I'll also do a [summary retrospective](#retro) including a few stats, and cover what some my [plans are for 2015 Q2](#q2-plans).
+
+![Phil Leggetter - Pusher Business card and stickers](/images/2015-q1-retro/stickers.jpg)
 
 So, what have I done in the first quarter of 2015 since [rejoining Pusher](http://www.leggetter.co.uk/2013/07/04/leaving-pusher-what-next.html)?
 

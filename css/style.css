@@ -1041,3 +1041,7 @@ h4 {
 	text-align: center;
 	font-weight: bold;
 }
+
+div.highlight {
+	margin-bottom: 2em;
+}

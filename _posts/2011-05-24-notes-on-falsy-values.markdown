@@ -28,49 +28,60 @@ permalink: /2011/05/24/notes-on-falsy-values.html
 <h3>HTML5 Games Workshop</h3>
 <p>The HTML5 games workshop was ran by <a href="http://twitter.com/kuvos">@kuvos</a> and <a href="http://twitter.com/pornelski">@pornelski</a> and we went through building a game of Tetris and then <a href="http://qfox.nl/weblog/232">Mario</a>. I was very impressed to see what can be achieved with Canvas and the workshop provided a lot of food for thought about the sorts of things that would be really useful to HTML5 games developers. Watch this space, and the <a href="http://blog.pusherapp.com/2011/5/22/pusher-at-falsy-values">Pusher blog</a>.</p>
 <h3>The Keynote</h3>
-<p>[caption id="attachment_16127" align="aligncenter" width="225" caption="Douglas Crockford at Falsy Values - and a Pusher banner!"]<a href="/wp-content/uploads/2011/05/pusher_crockford.jpg"><img class="size-medium wp-image-16127" title="Douglas Crockford at Falsy Values - and a Pusher banner!" src="/wp-content/uploads/2011/05/pusher_crockford-225x300.jpg" alt="Douglas Crockford at Falsy Values - and a Pusher banner!" width="225" height="300" /></a>[/caption]</p>
+<p><a href="/wp-content/uploads/2011/05/pusher_crockford.jpg"><img class="size-medium wp-image-16127" title="Douglas Crockford at Falsy Values - and a Pusher banner!" src="/wp-content/uploads/2011/05/pusher_crockford-225x300.jpg" alt="Douglas Crockford at Falsy Values - and a Pusher banner!" width="225" height="300" /></a></p>
 <p>The morning of the conference day saw a few fuzzy heads from the Pusher party the night before, but they soon cleared as <a href="http://www.crockford.com/">Douglas Crockford</a> delivered the keynote. He covered the good and bad parts of JavaScript and how, as developers, we need to us a combination of head and gut (instinct) when writing code. <a href="http://www.jslint.com/">JSLint</a> got a number of mentions and Douglas stressed the importance of following coding practices. He explained that just because JavaScript lets us do something, it doesn’t mean we should necessarily do it.  Here are a couple of examples:</p>
 <h4>Always use treble equals for comparisons</h4>
-<p>[code lang="js"]<br />
-if(myVar === 0) {<br />
-}<br />
-[/code]</p>
-<p>Many of us already know that double equals can lead to problems. 0 compared with an empty string will evaluate to try, undefined compared with null will evaluate to true and a number of no so obvious examples:</p>
-<p>[code lang="js"]<br />
-&quot;0&quot; == 0 // true<br />
-&quot;00&quot; == false // true<br />
-true == 1 // true<br />
-undefined == null // true<br />
-[/code]</p>
-<p>Therefore Douglas believes it’s best practice to always use treble equals so that the code intent is absolutely clear.</p>
+
+```js
+if(myVar === 0) {
+}
+```
+
+Many of us already know that double equals can lead to problems. 0 compared with an empty string will evaluate to try, undefined compared with null will evaluate to true and a number of no so obvious examples:
+
+```js
+'0' == 0 // true
+'00' == false // true
+true == 1 // true
+undefined == null // true
+```
+
+Therefore Douglas believes it’s best practice to always use treble equals so that the code intent is absolutely clear.
+
 <h4>Put curly brackets after parenthesis</h4>
-<p>[code lang="js"]<br />
-function myFunc() {<br />
-}<br />
-[/code]</p>
+
+```js
+function myFunc() {
+}
+```
+
 <p>This was a hard one to swallow as I like to put my parenthesis on the left - on the next line. However, Douglas provided an example which made me realise that it could be a bad thing.</p>
-<p>[code lang="js"]<br />
-function buildObjectLiteral()<br />
-{<br />
-   return // this returns!<br />
-   {<br />
-      &quot;someProperty&quot;: &quot;hello&quot;<br />
-   };<br />
-}<br />
-[/code]</p>
+
+```js
+function buildObjectLiteral()
+{
+   return // this returns!
+   {
+      'someProperty': '&quot;'hello'
+   };
+}
+```
+
 <p>The interesting thing here is that undefined will be returned because a line break is also ends a statement in JavaScript. I don’t think I would actually ever do this. I would probably assign the object literal to a variable first and then return it. However, if I didn’t follow this rule I might make the above mistake. If it can happen then the easiest way to avoid it is just don’t do it. So, curly brackets now go on the same line – on the right.</p>
 <h3>Do the right thing</h3>
 <p>Douglas explained that he has made some changes to his coding practices recently. A developer had contacted him asking if JSLint should report a problem if it found a switch statement that allowed any code to fall through between cases. Although he had a gut feeling that it was probably not a good thing to do he believed that it would “hardly ever” cause a problem. Some time later the developer got back to Douglas saying he’d found a bug in JSLint. The bug was causes by a switch statement which allowed code to fall through cases. Doug has now formed the opinion that if something can cause a problem, even if it’s unlikely, that the best practice is don’t do it.</p>
-<p>[code lang="js"]<br />
-switch(test)  {<br />
-   case 0:<br />
-      // don’t do it!<br />
-   case 1:<br />
-      break;<br />
-   case 2:<br />
-      break;<br />
-}<br />
-[/code]</p>
+
+```js
+switch(test)  {
+   case 0:
+      // don’t do it!
+   case 1:
+      break;
+   case 2:
+      break;
+}
+```
+
 <h3>When will ECMAScript 6 reach the web browser?</h3>
 <p><a href="http://twitter.com/#%21/dmitrysoshnikov">Dmitry Soshnikov</a> gave a talk on <a href="http://wiki.ecmascript.org/doku.php">ECMAScript 6</a>, codename Harmony. Whilst there seem like some good ideas going to to ES6 the question remains when will anybody actually be able to use it in a web browser? It will probably a be available in <a href="http://nodejs.org/">node.js</a> before it's most browser runtimes. It also sounded like a lot of syntactical things were being drawn from Erlang - not sure about this.</p>
 <p>Slides: <a href="http://www.slideshare.net/dmitrysoshnikov/falsyvalues-dmitry-soshnikov-ecmascript-6">http://www.slideshare.net/dmitrysoshnikov/falsyvalues-dmitry-soshnikov-ecmascript-6</a></p>

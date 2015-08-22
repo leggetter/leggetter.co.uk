@@ -1,0 +1,403 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	
+	<title>The easiest way to add real-time functionality to an ASP.NET e-commerce application - Phil Leggetter - Real-Time Web Software &amp; Developer Evangelist</title>
+	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+
+	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+
+	<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+	<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="/bower_components/jquery-smooth-scroll/jquery.smooth-scroll.min.js"></script>
+	<script src="/js/jquery.dropotron.min.js"></script>
+	<script src="/js/skel.min.js"></script>
+	<script src="/js/skel-layers.min.js"></script>
+	<script src="/js/init.js"></script>
+	<noscript>
+		<link rel="stylesheet" href="/css/skel.css" />
+		<link rel="stylesheet" href="/css/style.css" />
+		<link rel="stylesheet" href="/css/style-desktop.css" />
+	</noscript>
+  <link rel="stylesheet" href="/libs/highlight/styles/solarized_dark.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+</head>
+<body class="right-sidebar ">
+
+	<!-- Header -->
+	<div id="header-wrapper" class="wrapper">
+		<div id="header">
+
+  <!-- Logo -->
+  <div id="logo">
+    <h1><a href="/">Phil Leggetter</a></h1>
+    <p>Head of Developer Evangelism at <a href="http://pusher.com">Pusher</a><br />
+    &amp; Realtime Web Consultant</p>
+  </div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul>
+      <li class="current"><a href="/"><img class="logo-sml" src="/images/leggetter-logo-trans-sml.png" title="Phil Leggetter - Home" alt="Phil Leggetter logo" />Home</a></li>
+      <li>
+        <a href="/real-time-web-technologies-guide/">Realtime Web Guide</a>
+        <ul>
+          <li><a href="/real-time-web-technologies-guide">Realtime Web Technology Guide</a></li>
+          <li><a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
+          <li><a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web & Realtime Web Functionality</a></li>
+          <li><a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>
+          <li><a href="/real-time-web-technologies-guide/developer-tools/">Developer Tools</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-hosted-service-latency/">Realtime Hosted Service Latency Stats</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-data-sources/">Realtime Data Sources</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/">Transport Mechanisms</a></li>
+        </ul>
+      </li>
+      <li><a href="/about-phil-leggetter/">About Phil Leggetter</a>
+        <ul>
+          <li><a href="/leggetter-family-tree">The Unique Name of Leggetter</a></li>
+          <li><a href="/mygoffice">My Goffice</a></li>
+        </ul>
+      </li>
+      <li><a href="#contact-me">Contact Me</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+	</div>
+
+	<!-- Main -->
+	<div class="main-wrapper wrapper style2">
+
+    <div class="title">
+			<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://plus.google.com/115842503466861231289"><i class="fa fa-google-plus-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+		</div>
+
+    <div id="main" class="container">
+      <div class="row 150%">
+        <div class="8u">
+          <div id="content">
+            <h1>The easiest way to add real-time functionality to an ASP.NET e-commerce application</h1>
+<p class="meta">05 Jul 2011</p>
+
+<div class="post">
+<p>While adding realtime functionality to ASP.NET applications has often seemed difficult due to the connection limitations of the IIS platform, it can actually be achieved fairly easily by offloading this component to third party services like Pusher. In this series of posts, I'll get you started with this exciting technology through a number of hands-on tutorials. In the first one we'll build a simple e-commerce application that displays realtime stock levels to the customers.</p>
+
+<p>One of the problems with existing e-commerce solutions can be trying to buy something which, whilst you've been online, has sold out. This can be a big problem for high demand products like gig tickets or sporting events such as the Olympics. A really good way of avoiding this is to show the customers just how fast tickets are selling. The added benefit of this, from a business point of view, is that it can give users that little push they needed to make that purchase. In this tutorial I'll show how to:</p>
+
+<ul>
+<li>establish a connection to Pusher in the view</li>
+<li>subscribe to a product channel</li>
+<li>bind events from this channel to our stock indicator in the view and update the stock level</li>
+<li>send stock level update from our server when someone buys something</li>
+</ul>
+
+<h2>Getting started</h2>
+
+<p>To demonstrate adding real-time functionality to an ASP.NET website I'm going to start with a simple one page e-commerce site which has one product: our cool Pusher t-shirt (Sorry, they're not really for sale. You've got to earn them!). On the product page there is a counter which tells the customer how many t-shirts we have in stock.</p>
+
+<div style="margin:auto; text-align:center;margin-bottom:20px;"><img alt="One-browser" src="http://blog.pusher.com/media/2011/06/27/05/04/29/40/one-browser.jpg?m=resize&amp;o%5Bgeometry%5D=600x300&amp;s=413d474f960a2e7c" /></div>
+
+<p>To start off with our e-commerce website is a simple ASP.NET MVC3 app with:</p>
+
+<ul>
+<li>A <code>StoreController</code> with two actions. One to display the default view and one to handle the "Buy" button being clicked and the stock level being decreased.</li>
+<li>A single <a href="http://weblogs.asp.net/scottgu/archive/2010/07/02/introducing-razor.aspx">Razor</a> view displaying the single product</li>
+<li>Two models; one for the product called <code>ProductModel</code> and one for images called <code>ProductImage</code></li>
+<li>A <code>ProductRepository</code> where we store our products</li>
+</ul>
+
+<h2>Connect to Pusher</h2>
+
+<p>As I've already said, adding real-time functionality is really simple - that's the point! Firstly we have to include the Pusher JavaScript client library. We'll add this to the view for the moment although we might want to make the include part of the site layout in the future.</p>
+
+<p><em>Note: If your e-commerce page was being served up over HTTPS you would include our library over HTTPS too to avoid any browser warnings.</em></p>
+
+<p>Since we are using ASP.NET MVC we've already got jQuery included from the <code>_Layout.cs.html</code> so we can wait until the page has loaded and connect to Pusher. The script include and the code that connects to Pusher looks as follows:</p>
+
+<pre><code>&lt;script src="http://js.pusherapp.com/1.8/pusher.min.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+    $(function() {
+        var pusher = new Pusher("006c79b1fe1700c6c10d");
+    });
+&lt;/script&gt;
+</code></pre>
+
+<h2>Subscribe to the product channel</h2>
+
+<p>Now that we've connected to Pusher we can push events from our StoreController to all connected browsers if any information changes about the product. The main piece of information that customers might want to know about is if the stock level changes. These t-shirts could sell out fast!</p>
+
+<p>We need to choose a channel name to subscribe and publish to and the obvious choice is to use the unique product id for this. We'll also prefix it with <code>product-</code> just so it's really clear that the channels is for a product. We subscribe to this channel on the client as follows getting the product id from the Model that has been bound to the page:</p>
+
+<pre><code>var channel = pusher.subscribe("product-@Model.ProductId");
+</code></pre>
+
+<h2>Bind to stock update events</h2>
+
+<p>Once we've got a channel object we can bind to events on it. We want to be informed when the stock level changes so let's bind to an event called <code>stockUpdated</code>. We'll also expect a JSON object to be passed which represents the <code>ProductModel</code> and will have the same properties on it. That way we can simply update the stock level in the page to match the value on the server by accessing the <code>ProductModel.StockLevel</code> value. We can also update the stock status:</p>
+
+<pre><code>channel.bind("stockUpdated", function(product) {
+    $(".product .stock .level").html(product.StockLevel);
+    $(".product .stock .status").html(product.StockStatus);
+});
+</code></pre>
+
+<h2>Trigger stock update events</h2>
+
+<p>As you can see, this is really easy to do. It's just as easy to trigger the event on the server too. To do this we're going to be using the <a href="https://github.com/grahamscott/pusherrestdotnet">C# REST API library</a> within our <code>StoreController</code>. You can get the PusherRESTDotNet library from <a href="https://github.com/grahamscott/pusherrestdotnet">github</a> or <a href="http://nuget.org/Package/Edit/PusherRESTDotNet/1.0">via NugGet</a>.</p>
+
+<div style="margin:auto;text-align:center;margin-bottom:20px;"><a href="http://nuget.org/Package/Edit/PusherRESTDotNet/1.0"><img alt="Pusher-rest-library-nuget" src="http://blog.pusher.com/media/2011/06/25/14/08/10/392/pusher-rest-library-nuget.jpg?m=resize&amp;o%5Bgeometry%5D=600x300&amp;s=837c6fbf2f053537" /></a></div>
+
+<p>Once we've added our PusherRESTDotNet reference we can add a few lines of code to our <code>StoreController</code> to instantly push any changes in stock level to all connected web browsers viewing our t-shirt page.</p>
+
+<p>The first thing to do is to create a <code>PusherProvider</code> and pass in our Pusher details. In this example we are storing these details in the ASP.NET MVC3 <code>Web.config</code>.</p>
+
+<h3>Web.config</h3>
+
+<pre><code>&lt;configuration&gt;
+  &lt;appSettings&gt;
+    &lt;add key="application_id" value="APP_ID" /&gt;
+    &lt;add key="application_key" value="APP_KEY" /&gt;
+    &lt;add key="application_secret" value="APP_SECRET" /&gt;
+
+    &lt;!-- more settings --&gt;
+  &lt;/appSettings&gt;
+
+  &lt;!-- more config --&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<h3>StoreController.cs</h3>
+
+<pre><code>public class StoreController : Controller
+{
+  private IPusherProvider _provider;
+
+  public StoreController()
+  {
+      string applicationKey = ConfigurationManager.AppSettings["application_key"];
+      string applicaitonSecret = ConfigurationManager.AppSettings["application_secret"];
+      string applicationId = ConfigurationManager.AppSettings["application_id"];
+      _provider = new PusherProvider(applicationId, applicationKey, applicaitonSecret);
+  }
+
+  // more code here...
+}
+</code></pre>
+
+<p>Once we've created our instance of the <code>PusherProvider</code> we can create a <code>PusherObjectRequest</code> to push the <code>ProductModel</code>, with an updated <code>StockLevel</code> following the purchase, to the clients. The serialisation of the model object is handled for us by the PusherRESTDotNet library. The full <code>StoreController.Index</code> HTTP POST handling action looks like this:</p>
+
+<pre><code>[HttpPost]
+public ActionResult Index()
+{
+  bool bought = MvcApplication.ProductRepository.Buy(MvcApplication.BLUE_TSHIRT_ID);
+  var model = MvcApplication.ProductRepository.GetProductById(MvcApplication.BLUE_TSHIRT_ID);
+
+  if (bought)
+  {
+      ViewBag.Info = model.Title + " successfully bought";
+
+      ObjectPusherRequest request = new ObjectPusherRequest("product-" + model.ProductId, "stockUpdated", model);
+      _provider.Trigger(request);
+  }
+  else
+  {
+      ViewBag.Error = "There was a problem buying " + model.Title;
+  }
+
+  return View("Index", model);
+}
+</code></pre>
+
+<p>Now, if you run your application and open two or more windows, as soon as a user in one window clicks the "Buy" button you'll see that the stock level value instantly updates in all other windows.</p>
+
+<div style="margin:auto; text-align:center;margin-bottom:20px;"><iframe src="http://www.screenr.com/embed/kfNs" width="600" height="366" frameborder="0"></iframe><br />
+<small><em>Note: the video looks a little jittery because it was recorded on a VM running on Mac</em></small></div>
+
+<h2>Next time - displaying real-time "Who's shopping" info with Pusher presence</h2>
+
+<p>We now have the stock level indicator changing in real-time. This tells the users that these t-shirts are selling out fast and gives them an added incentive to make that impulse buy. This is a simple yet effective change but there's more we can do. What if we also show the user how many other users are viewing that product at the same time so that they know there is competition for the last few t-shirts? We can do that easily using Pusher's <a href="http://pusher.com/docs/presence">presence</a> functionality and I'll cover that in my next <strong>Real-Time ASP.NET</strong> blog post which will also go into how to add Pusher <a href="http://pusher.com/docs/authenticating_users">user authentication</a> to your ASP.NET web application.</p>
+
+<p>In the meantime you can download the source of the <a href="https://github.com/leggetter/realtime-webstore">Real-Time Web Store from github</a>. The solution contains a project with the basic web store without any real-time Pusher functionality as well as a solution project. Here are some additional things you you might also want to try out:</p>
+
+<ul>
+<li>Changing the form submission when the user clicks "Buy" so that the <code>POST</code> to the <code>Buy</code> action it is made using a <a href="http://api.jquery.com/jQuery.ajax/">jQuery ajax call</a></li>
+<li>Making the change in stock levels more visually interesting. Try adding an <a href="http://jqueryui.com/docs/effect/">effect</a> to the number change or providing a <a href="http://webtoolkit4.me/2009/08/13/jquery-growl-likenotification-systems/">growl-like notification</a></li>
+<li>Changing the CSS - it's not my strong point :-)</li>
+</ul>
+
+</div>
+
+<hr />
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+var disqus_shortname = 'leggetter';
+var disqus_url = 'http://www.leggetter.co.uk/http:/blog.pusherapp.com/2011/6/25/the-easiest-way-to-add-real-time-functionality-to-an-asp-net-e-commerce-application';
+
+
+
+  
+
+var disqus_identifier = '21707 http://www.leggetter.co.uk/?page_id=21707';
+
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+          </div>
+        </div>
+        <div class="4u">
+          <!-- Sidebar -->
+<div id="sidebar">
+
+  <section class="box">
+
+  <form action="http://leggetter.us2.list-manage.com/subscribe/post?u=75fcbc606555d96262c1cd5bd&amp;id=e0524b92e7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+    <header>
+      <h2>Get posts via email</h2>
+    </header>
+    <div class="mc-field-group" style="margin-top: -25px;">
+      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address" style="display:inline-block; margin:0; width: auto;">
+      <input type="submit" value="Go" name="subscribe" id="mc-embedded-subscribe" class="button" style="display:inline-block; min-width: inherit; line-height: 1em;
+      height: 3.1em;
+      vertical-align: top;">
+    </div>
+    <div id="mce-responses" class="clear">
+      <div class="response" id="mce-error-response" style="display:none"></div>
+      <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_75fcbc606555d96262c1cd5bd_e0524b92e7" value=""></div>
+  </form>
+
+  <!--End mc_embed_signup-->
+</section>
+
+
+  <section class="box">
+
+  <img class="avatar grav-hashed grav-hijack" src="http://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="http://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
+  <p>My name is <strong>Phil Leggetter</strong>. I'm Head of Developer Evangelism at <a href="http://pusher.com">Pusher</a>.</p>
+
+  <p>I frequently write articles and give talks on <a href="http://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology. <a href="http://www.leggetter.co.uk/#contact-me">Get in touch</a> if you'd like me to talk at your event or write an article for you. I'm also very interested in developer experience and productivity, APIs and customer service.</p>
+
+  <p>I'm also the co-author of the APress for-beginners title "<a href="http://realtimewebapps.com">Realtime Web Apps</a>".</p>
+
+</section>
+
+
+  <section class="box">
+  <header>
+    <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
+  </header>
+  <div style="text-align: center; margin-top: 10px;">
+    <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20"><img border="0" src="http://www.leggetter.co.uk/wp-content/uploads/2013/04/realtime-web-apps-sml.jpg" scale="0"></a><img src="http://www.assoc-amazon.com/e/ir?t=phillegg-20&amp;l=as2&amp;o=1&amp;a=1430246200" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" scale="0">
+    <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
+  </div>
+</section>
+
+
+</div>
+
+        </div>
+      </div>
+    </div>
+	</div>
+	<!-- /Main -->
+
+	<!-- Footer Wrapper -->
+	<div id="footer-wrapper" class="wrapper">
+		<div class="title">Get In Touch</div>
+		<div id="footer" class="container">
+
+				<!-- Contact -->
+				<a name="contact-me" id="contact-me"></a>
+				<section class="feature-list small">
+					<div class="row">
+	          <div class="-2u 4u">
+	            <section>
+	              <h3 class="icon fa-comment">Social</h3>
+	              <p>
+									<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://plus.google.com/115842503466861231289"><i class="fa fa-google-plus-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+	              </p>
+	            </section>
+	          </div>
+						<div class="-1u 4u">
+							<section>
+								<h3 class="icon fa-envelope">Email</h3>
+								<p>
+									<a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+								</p>
+							</section>
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+			<hr />
+
+			<div id="copyright">
+				<ul>
+					<li>&copy; Phil Leggetter.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- / Footer Wrapper -->
+
+	</div>
+
+	<script>
+		( function() {
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
+		} )();
+	</script>
+
+  <script src="/libs/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+	<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-513034-10', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+	<!-- realtime benchmarks -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>
+	<script src="/realtime_benchmarks/benchmark.js"></script>
+</body>
+</html>
+<!--
+Escape Velocity by HTML5 UP
+html5up.net | @n33co
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->

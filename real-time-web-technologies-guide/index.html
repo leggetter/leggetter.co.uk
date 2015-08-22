@@ -224,7 +224,7 @@
 <h4><a href="http://pusher.com">Pusher</a></h4>
 
 <p><a href="https://pusher.com">
-  <img src="./images/pusher_logo_dark.png" alt="Pusher Logo" />
+  <img src="./images/pusher-logo-dark.png" alt="Pusher Logo" />
 </a></p>
 
 <ul>
@@ -372,55 +372,6 @@
 <li>JavaScript</li>
 </ul>
 
-<h5>Subscribe</h5>
-
-<h6>JavaScript (client)</h6>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">
-var connection = new tambur.Connection(&quot;API_KEY&quot;, &quot;APP_ID&quot;);
-var stream = connection.get_stream(&quot;my_stream&quot;);
-stream.onmessage = function(msg){
-    // handle message
-};
-</code></pre></div>
-<h5>Publish</h5>
-
-<h6>Python (client)</h6>
-<div class="highlight"><pre><code class="language-python" data-lang="python">
-tambur = Tambur(api_key=&#39;API_KEY&#39;, app_id=&#39;APP_ID&#39;, secret=&#39;SECRET&#39;)
-tambur.publish(&#39;my_stream&#39;, &#39;some message&#39;)
-
-</code></pre></div>
-<h5>Modes</h5>
-
-<p>Streams can operate in one or several modes. As an example a stream can enable the &#39;Authentication&#39; mode and therefore receive messages that target an authenticated receiver. Besides the &#39;Authentication&#39; mode Tambur.io supports a &#39;Direct Messaging&#39; mode that allows the subscribers of a stream to communicate directly among each other, as well as a &#39;Presence&#39; mode that automatically publishes presence status of all the stream subscribers.</p>
-
-<h6>Authentication Mode (JavaScript)</h6>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">stream.enable_auth(&quot;AuthToken&quot;);
-stream.onauth = function(msg) {
-    // handle authenticated message
-};
-</code></pre></div>
-<h6>Direct Messaging Mode (JavaScript)</h6>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">stream.enable_direct(&quot;MyUserName&quot;, &quot;DirectToken&quot;);
-stream.ondirect = function(msg) {
-    var sender = msg[0];
-    var content = msg[1];
-    /* reply back */
-    stream.direct_msg(sender, &quot;thanks for the message!&quot;);
-};
-</code></pre></div>
-<h6>Presence Mode (JavaScript)</h6>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">stream.enable_presence(&quot;MyUserName&quot;, &quot;PresenceToken&quot;);
-stream.onpresence = function(notification) {
-    var user = notification[0];
-    var status = notification[1];
-    if (status === &quot;up&quot;) {
-        // subscriber has joined the stream
-    } else {
-        // subscriber has left the stream  
-    }
-};
-</code></pre></div>
 <h4><a href="http://www.frozenmountain.com">WebSync on-demand (by FrozenMountain)</a></h4>
 
 <ul>
@@ -450,23 +401,6 @@ stream.onpresence = function(notification) {
 
 <p><strong><a href="https://www.firebase.com/blog/2014-10-21-firebase-joins-google.html">Acquired by Google</a></strong>. Still active.</p>
 
-<h5>JavaScript (client)</h5>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">var dataRef = new Firebase( &#39;https://my-app.firebaseio.com/&#39; );
-
-dataRef.push( { name: &#39;@leggetter&#39;, text: &#39;Yo from FOWA!&#39; } );
-
-dataRef.on( &#39;child_added&#39;, function(snapshot) {
-  // Add the data
-} );
-
-dataRef.on( &#39;child_changed&#39;, function(snapshot) {
-  // Update the data
-} );
-
-dataRef.on( &#39;child_removed&#39;, function(snapshot) {
-  // Remove the data
-} );
-</code></pre></div>
 <h4><a href="https://developers.google.com/drive/realtime/">Google Drive Realtime API</a></h4>
 
 <blockquote>
@@ -521,38 +455,6 @@ All JavaScript. No server. No sweat.</p>
 <li>Server-side triggers and business logic</li>
 </ul>
 
-<h5>JavaScript (client)</h5>
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">var credentials = {
-    applicationKey: &quot;[YOUR_APPLICATION_KEY]&quot;,
-    authenticationToken: &quot;[USER_TOKEN]&quot;
-}
-
-var storageRef = Realtime.Storage.create(credentials);
-var tableRef = storageRef.table(&quot;chat-messages&quot;);
-
-var chat-msg = {
-    chatid : &quot;My chat room&quot;,
-    timestamp : +new Date(),
-    text : &quot;Hello World&quot;,
-    nickname : &quot;Beavis&quot;
-};
-
-tableRef.push(chat-msg, function() {
-    // item successfully committed to database
-});
-
-tableRef.on(&quot;put&quot;, function(item) {
-    // item was added to the database table
-});
-
-tableRef.on(&quot;update&quot;, function(item) {
-    // item was updated at the database table
-});
-
-tableRef.on(&quot;delete&quot;, function(item) {
-    // item was removed from the database table
-});
-</code></pre></div>
 <h4><a href="https://simperium.com/">simperium</a></h4>
 
 <blockquote>

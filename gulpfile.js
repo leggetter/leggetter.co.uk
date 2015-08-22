@@ -2,18 +2,6 @@ var gulp = require('gulp');
 var gulpsync = require('gulp-sync')(gulp);
 var run = require('gulp-run');
 var ghPages = require('gulp-gh-pages');
-var webserver = require('gulp-webserver');
-
-gulp.task('server', function() {
-  return gulp.src('_site')
-  .pipe(
-    webserver({
-      livereload: true,
-      open: true,
-      port: 8080
-    })
-  );
-});
 
 gulp.task('copy-images', function() {
   return gulp.src('./_includes/realtime-web-technologies-guide/images/**/*')

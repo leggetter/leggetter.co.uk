@@ -1,0 +1,29 @@
+var gulp = require('gulp');
+var run = require('gulp-run');
+var ghPages = require('gulp-gh-pages');
+var webserver = require('gulp-webserver');
+
+gulp.task('default', ['build'], function() {
+  gulp.src('./_includes/realtime-web-technologies-guide/images/**/*')
+    .pipe(gulp.dest('./_site/real-time-web-technologies-guide/images'));
+  gulp.src('_site')
+    .pipe(webserver({
+      livereload: true,
+      open: true,
+      port: 8080
+    }));
+});
+
+gulp.task('copy-images', function() {
+  return gulp.src('./_includes/realtime-web-technologies-guide/images/**/*')
+    .pipe(gulp.dest('./_site/real-time-web-technologies-guide/images'));
+});
+
+gulp.task('build', function() {
+  return run('jekyll build').exec();
+});
+
+gulp.task('deploy', ['build', 'copy-images'], function() {
+  return gulp.src('./_site/**/*')
+    .pipe(ghPages());
+});

@@ -1,0 +1,36 @@
+{
+  "name": "leggetter.co.uk",
+  "version": "1.0.0",
+  "description": "www.leggetter.co.uk website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leggetter/leggetter.co.uk.git"
+  },
+  "keywords": [
+    "website",
+    "jekyll",
+    "leggetter",
+    "real-time",
+    "web",
+    "technology"
+  ],
+  "author": "Pusher <support@pusher.com> (https://pusher.com)",
+  "license": "Creative Commons - Attribution 3.0",
+  "bugs": {
+    "url": "https://github.com/leggetter/leggetter.co.uk/issues"
+  },
+  "homepage": "https://github.com/leggetter/leggetter.co.uk",
+  "private": true,
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-gh-pages": "^0.5.2",
+    "gulp-webserver": "^0.9.1"
+  },
+  "dependencies": {
+    "gulp-run": "^1.6.10"
+  }
+}

@@ -1104,7 +1104,7 @@ a place to discuss and evolve web component best-practices</a></li>
 
 <p><img src="/wp-content/uploads/2013/11/slide-6-2.png" alt="" /></p>
 
-<p>I would certainly recommend using an existing <a href="/real-time-web-technologies-guide">realtime web tech solution</a>. Unless you have a very unique requirement there's no point going through the pain of buliding something from the ground up. If you really want to focus on adding realtime features to your apps then there is more than likely an existing solution that will enable you to start adding those features quickly.</p>
+<p>I would certainly recommend using an existing <a href="/real-time-web-technologies-guide">realtime web tech solution</a>. Unless you have a very unique requirement there's no point going through the pain of building something from the ground up. If you really want to focus on adding realtime features to your apps then there is more than likely an existing solution that will enable you to start adding those features quickly.</p>
 
 <p><img src="/wp-content/uploads/2013/11/slide-6-3.png" alt="" /></p>
 
@@ -1112,7 +1112,7 @@ a place to discuss and evolve web component best-practices</a></li>
 
 <p>If you use an existing solution you get support either from the company you've licensed the software from or/and from any community of developers that also use that product or service.</p>
 
-<p>All software has to be maintained. Do you want to deal with the maintanance of the a realtime web solution as well as your application stack? If you use an existing solution that may be handled for you.</p>
+<p>All software has to be maintained. Do you want to deal with the maintenance of the a realtime web solution as well as your application stack? If you use an existing solution that may be handled for you.</p>
 
 <p>For example, when WebSocket came out <a href="http://pusher.com">Pusher</a> handled all the pain as the WebSocket specification changed during numerous revisions and they managed and supported a number of protocol versions. I know I would rather focus on adding features than dealing with the intricacies of the WebSocket spec.</p>
 
@@ -1218,7 +1218,7 @@ a place to discuss and evolve web component best-practices</a></li>
 
 <p>It may be possible to integrate a self-hosted solution in a tightly coupled way. By that I mean the applicaiton web server handles both the HTTP requests and the persistent connections (e.g. WebSocket and HTTP fallback connections) and the logic for your web apps is integrated with your realtime web functionality.</p>
 
-<p>It's possible that there would be less initial overhead in doing this (but not guaranteed if you're really shoe-horing the functionality in). However, as the project grows the complexity of your codebase will increase and you're highly likely going to start to experience problems caused by this complexity. Realtime vs standard web functionality is a good place to exercise <a href="http://en.wikipedia.org/wiki/Separation_of_concerns">separation of concerns</a> and keep that functionality <a href="http://en.wikipedia.org/wiki/Loose_coupling">loosely coupled</a>.</p>
+<p>It's possible that there would be less initial overhead in doing this (but not guaranteed if you're really shoe-horning the functionality in). However, as the project grows the complexity of your codebase will increase and you're highly likely going to start to experience problems caused by this complexity. Realtime vs standard web functionality is a good place to exercise <a href="http://en.wikipedia.org/wiki/Separation_of_concerns">separation of concerns</a> and keep that functionality <a href="http://en.wikipedia.org/wiki/Loose_coupling">loosely coupled</a>.</p>
 
 <p><img src="/wp-content/uploads/2013/11/slide-6-17.png" alt="" /></p>
 

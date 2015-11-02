@@ -12,6 +12,32 @@
     <atom:link href="http://www.leggetter.co.uk/rss.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title><![CDATA[Getting Started Building Real-Time APIs]]></title>
+      <link>http://www.leggetter.co.uk/2015/11/02/building-real-time-apis.html</link>
+      <guid isPermaLink="true">http://www.leggetter.co.uk/2015/11/02/building-real-time-apis.html</guid>
+      <description><![CDATA[<p><strong>So, you want a real-time API. Where do you start?</strong></p>
+
+<p>You&#39;re convinced of the benefits of a real-time API and know what data you want to make available through it. But you&#39;ve probably got a number of questions playing on your mind:</p>
+
+<ul>
+<li>What method do I use to expose the data? </li>
+<li>Do I increase the allowed polling interval of my REST API? (<em>Please don&#39;t</em>) or offer HTTP Long-Polling, HTTP Streaming and/or WebSocket API endpoints?</li>
+<li>Or should I offer WebHooks?</li>
+<li>What format should my data be in?</li>
+<li>Are there any tools like <a href="https://apiblueprint.org/">API Blueprint</a>, <a href="http://swagger.io/">Swagger</a> or <a href="http://raml.org/">RAML</a> for real-time to help?</li>
+<li>Are there any real-time frameworks built with APIs in mind?</li>
+<li>And how do I go about scaling a real-time API?</li>
+</ul>
+
+<p>In this talk I gave at API Strat Berlin as part of the <a href="http://apidaysberlin2015.apistrat.com/sessions/architecture-microservices/">Architecture, Scalability, and Microservices</a> session, I hope you&#39;ll have a much clearer picture of where to start when building your real-time API.</p>
+
+<iframe width="640" height="360" src="https://www.youtube.com/embed/XXgSFbphW88?start=22" frameborder="0" allowfullscreen></iframe>
+]]></description>
+      <dc:creator>Phil Leggetter</dc:creator>
+      <pubDate>Mon, 02 Nov 2015 00:00:00 +0000</pubDate>
+    </item>
+    
+    <item>
       <title><![CDATA[2015 Q1 Personal Review]]></title>
       <link>http://www.leggetter.co.uk/2015/04/13/first-quarter-back-at-pusher.html</link>
       <guid isPermaLink="true">http://www.leggetter.co.uk/2015/04/13/first-quarter-back-at-pusher.html</guid>

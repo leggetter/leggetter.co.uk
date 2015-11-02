@@ -89,6 +89,47 @@
 <article class="box post">
 
   <header class="style1">
+    <a href="/2009/10/06/response-redirect-in-windows-azure.html">
+      <h2>Response.Redirect in Windows Azure</h2>
+    </a>
+    <div class="post-date">06 Oct 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>I've recently created an application called GetGravatar that allows you to update your Twitter profile picture with your Gravatar. Once I'd set up my Windows Azure custom domain name I decided I wanted the web address for this new service site to be without "www" as seems to be all the rage (to keep the web address short). So, I looked at doing a Response.Redirect to catch any attempts to access my domain with "www" in it. I'm very sure that there are better ways of doing this but I added the following to my Site.master file:
+
+
+    if (Request.Url.ToString().StartsWith("http://www."))
+    {
+        Response.StatusCode = (int)System.Net.HttpStatusCode.MovedPermanently;
+        string responseUrl = Request.Url.ToString().Replace("http://www.", "http://");
+        Response.Redirect(responseUrl, true);
+    }
+
+
+So, if somebody types in http://www.getgravatar.com (see it works) or anything with a "www." in the URL they will be redirected to a non-www page. However, the redirect seemed to go to the correct URL but with port 20000. I've no idea why this is so I had to add a special case in to remove the port.
+
+
+    if (Request.Url.ToString().StartsWith("http://www."))
+    {
+        Response.StatusCode = (int)System.Net.HttpStatusCode.MovedPermanently;
+        string responseUrl = Request.Url.ToString().Replace("http://www.", "http://");
+        responseUrl = responseUrl.Replace(":20000", "");
+        Response.Redirect(responseUrl, true);
+    }
+
+
+I've not read up to see if this is expected but I thought it was quite unexpected and may be of use to somebody else in the future.
+</p>
+    <p><a href="/2009/10/06/response-redirect-in-windows-azure.html" title="Response.Redirect in Windows Azure">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
     <a href="/2009/08/28/windows-azure-503-service-unavailable.html">
       <h2>Windows Azure - 503 Service Unavailable</h2>
     </a>
@@ -367,26 +408,6 @@ I’m sticking with O2 at the moment simply because they offer the best coverage
   Amazon.co.uk Widgets
 </p>
     <p><a href="/2009/05/07/trying-to-upgrade-my-o2-mobile.html" title="Trying to upgrade my O2 mobile">Read more...</a></p>
-  </div>
-
-</article>
-
-<article class="box post">
-
-  <header class="style1">
-    <a href="/2009/04/28/caplin-systems-blog-post-what-is-the-real-time-web.html">
-      <h2>Caplin Systems Blog Post - What is the real-time web?</h2>
-    </a>
-    <div class="post-date">28 Apr 2009</div>
-  </header>
-
-  <div class="posts-list">
-    
-    <p>About a week ago I wrote a blog article at work entitled "What is the real-time web?". I'm seeing even more tweets and posts about the real-time web and I'd love to hear if other people agree with my opinion on what the real-time web is.
-
-View the What is the real-time web? article here.
-</p>
-    <p><a href="/2009/04/28/caplin-systems-blog-post-what-is-the-real-time-web.html" title="Caplin Systems Blog Post - What is the real-time web?">Read more...</a></p>
   </div>
 
 </article>

@@ -30,7 +30,6 @@ gulp.task('deploy', gulpsync.sync(
 gulp.task('default', gulpsync.sync(
   [
     'build',
-    'copy-images',
-    'server'
+    'copy-images'
   ]
 ));

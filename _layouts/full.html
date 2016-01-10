@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	{% if page.title %}
+	<title>{{ page.title }} - {{ site.name }}</title>
+	{% else %}
+	<title>{{ site.name }}</title>
+	{% endif %}
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="description" content="{{ post.excerpt | strip_html }}" />
+	<meta name="keywords" content="{{ post.tags }}" />
+
+	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+
+	<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+	<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="/bower_components/jquery-smooth-scroll/jquery.smooth-scroll.min.js"></script>
+	<script src="/js/jquery.dropotron.min.js"></script>
+	<script src="/js/skel.min.js"></script>
+	<script src="/js/skel-layers.min.js"></script>
+	<script src="/js/init.js"></script>
+	<noscript>
+		<link rel="stylesheet" href="/css/skel.css" />
+		<link rel="stylesheet" href="/css/style.css" />
+		<link rel="stylesheet" href="/css/style-desktop.css" />
+	</noscript>
+  <link rel="stylesheet" href="/libs/highlight/styles/solarized_dark.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+</head>
+<body class="right-sidebar {{ page.page_class }}">
+
+	<!-- Header -->
+	<div id="header-wrapper" class="wrapper">
+		{% include header.html %}
+	</div>
+
+	<!-- Main -->
+	<div class="main-wrapper wrapper style2">
+
+    <div class="title">
+			{% include social_icons.html %}
+		</div>
+
+    <div id="main" class="container">
+      <div class="row 150%">
+        <div class="12u">
+          <div id="content">
+            {{ content }}
+          </div>
+        </div>
+      </div>
+    </div>
+	</div>
+	<!-- /Main -->
+
+	<!-- Footer Wrapper -->
+	<div id="footer-wrapper" class="wrapper">
+		<div class="title">Get In Touch</div>
+		<div id="footer" class="container">
+
+				<!-- Contact -->
+				<a name="contact-me" id="contact-me"></a>
+				<section class="feature-list small">
+					<div class="row">
+	          <div class="-2u 4u">
+	            <section>
+	              <h3 class="icon fa-comment">Social</h3>
+	              <p>
+									{% include social_icons.html %}
+	              </p>
+	            </section>
+	          </div>
+						<div class="-1u 4u">
+							<section>
+								<h3 class="icon fa-envelope">Email</h3>
+								<p>
+									<a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+								</p>
+							</section>
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+			<hr />
+
+			<div id="copyright">
+				<ul>
+					<li>&copy; Phil Leggetter.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- / Footer Wrapper -->
+
+	</div>
+
+	<script>
+		( function() {
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
+		} )();
+	</script>
+
+  <script src="/libs/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+	{% include google_analytics.html %}
+
+	<!-- realtime benchmarks -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>
+	<script src="/realtime_benchmarks/benchmark.js"></script>
+</body>
+</html>
+<!--
+Escape Velocity by HTML5 UP
+html5up.net | @n33co
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->

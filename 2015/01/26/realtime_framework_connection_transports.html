@@ -100,7 +100,7 @@
 
 <p>So, you don&#39;t want to control your warp core safety system using a realtime web framework. But there are still plenty of use cases and some of those can be business critical. You just need to be aware that you&#39;re reliant on network infrastructure (the Internet) that you many not control to relay messages - and have appropriate fallbacks within your system.</p>
 
-<p>You&#39;re probably wondering how fast are these realtime frameworks then? Based on the stats I&#39;ve gathered from six hosted services the average of all those providers is around 380ms from a message being sent to it being delivered. At Pusher we expect delivery in less than 250ms.</p>
+<p>You&#39;re probably wondering how fast are these realtime frameworks then? Based on the stats I&#39;ve gathered from six hosted services the average of all those providers is around 380ms from a message being sent to it being delivered.</p>
 
 <p>The use cases for the technology vary widely but can roughly be broken down in to the following:</p>
 
@@ -147,7 +147,7 @@
 
 <p>A final reason why frameworks and services may still be using HTTP over WebSocket is that you still need polling and at least some sort of long-polling and streaming for those scenarios where a WebSocket connection can&#39;t be established. This means that frameworks or services must have some form of connection management and strategy to support failover between connection transports. Managing the ability to connect over HTTP and WebSocket within a framework, service and supporting libraries can be complex: some opt to stick with HTTP only, although <em>nearly</em> all major services and frameworks now offer WebSocket and HTTP connectivity.</p>
 
-<p>You can find out more about the complexity of multi-transport connection management in our post on <a href="http://blog.pusher.com/pusher-2-0-0-cutting-edge-websockets-with-comprehensive-legacy-support/">adding HTTP fallback</a> to compliment our WebSocket-focused service.</p>
+<p>You can find out more about the complexity of multi-transport connection management in Pusher&#39;s post on <a href="http://blog.pusher.com/pusher-2-0-0-cutting-edge-websockets-with-comprehensive-legacy-support/">adding HTTP fallback</a> to compliment their WebSocket-focused service.</p>
 
 <h2>HTTP Shortcomings</h2>
 
@@ -221,40 +221,119 @@
 
 <p>To summarise, here&#39;s a comparison of where I see each of the realtime connection transports fitting.</p>
 
-<p>Transport | Suitable Message Frequency | Bi-directional Communication | Message Latency | Connection Efficiency | User Experience
---- | --- | --- | --- | --- | ---
-<em>HTTP Polling</em> | Low | No | High | Low | Fine at low message frequency
-<em>HTTP Long-Polling</em> | Medium | No | Medium | Medium | Fine at medium message frequency
-<em>HTTP Streaming</em> | High | No | Low | High | Good for received data. Average for interactive experiences
-<em>WebSocket</em> | High | Yes | Low | High | Good for both receiving data and interactive experiences</p>
+<table class="default"><thead>
+<tr>
+<th>Transport</th>
+<th>Suitable Message Frequency</th>
+<th>Bi-directional Communication</th>
+<th>Message Latency</th>
+<th>Connection Efficiency</th>
+<th>User Experience</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><em>HTTP Polling</em></td>
+<td>Low</td>
+<td>No</td>
+<td>High</td>
+<td>Low</td>
+<td>Fine at low message frequency</td>
+</tr>
+<tr>
+<td><em>HTTP Long-Polling</em></td>
+<td>Medium</td>
+<td>No</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Fine at medium message frequency</td>
+</tr>
+<tr>
+<td><em>HTTP Streaming</em></td>
+<td>High</td>
+<td>No</td>
+<td>Low</td>
+<td>High</td>
+<td>Good for received data. Average for interactive experiences</td>
+</tr>
+<tr>
+<td><em>WebSocket</em></td>
+<td>High</td>
+<td>Yes</td>
+<td>Low</td>
+<td>High</td>
+<td>Good for both receiving data and interactive experiences</td>
+</tr>
+</tbody></table>
 
 <p>You can also look at suitability in terms of well-known applications that you&#39;ll be able to map to their common use cases:</p>
 
-<p>Scenario | HTTP Polling | HTTP Long-Polling | HTTP Streaming | WebSocket
---- | --- | --- | --- | ---
-Facebook Wall | Low | Medium | High | High
-Twitter User Stream | Low | Medium | High | High
-Uber Taxi Tracking | Low | Medium | High | High
-Google Realtime Analytics | Low | Medium | High | High
-WhatsApp | No | Low | Medium | High
-Google Docs | No | Low | Medium | High
-QuizUp (Multiplayer games) | No | Low | Low | High</p>
-
-<h2>How does Pusher Benefit from WebSocket?</h2>
-
-<p>At Pusher we&#39;ve been using WebSocket as our primary connection transport since launch in 2010. We believed then, as we do now that WebSocket is by far the best transport for realtime web communication between client and server. In our case the clients are those of our customers and the server is our hosted service. So, what benefit do we get from WebSocket?</p>
-
-<p>We obviously benefit from an efficient connection. This means that the resource used for us and the clients to maintain the connection is as low as possible.</p>
-
-<p>Pusher is an evented PubSub platform with its own <a href="https://pusher.com/docs/pusher_protocol">protocol</a>. The protocol is used to manage channel subscriptions, connection keep alive (in devices that don&#39;t natively support WebSocket ping-pong), event data messages and presence event messages. In situations where application frequently change subscriptions, users online status changes or where clients are receiving a number of events there can be a lot of information going over the wire. In this situation everybody benefits from the concise underlying WebSocket protocol and the bi-directional communication. </p>
-
-<p><a href="https://pusher.com/docs/client_events">Client events</a> - those triggered by client devices and sent directly via Pusher to other devices - there is a great benefit to the bi-directional connectivity of WebSocket.</p>
+<table class="default"><thead>
+<tr>
+<th>Scenario</th>
+<th>HTTP Polling</th>
+<th>HTTP Long-Polling</th>
+<th>HTTP Streaming</th>
+<th>WebSocket</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Facebook Wall</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Twitter User Stream</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Uber Taxi Tracking</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Google Realtime Analytics</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>WhatsApp</td>
+<td>No</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Google Docs</td>
+<td>No</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+<tr>
+<td>QuizUp (Multiplayer games)</td>
+<td>No</td>
+<td>Low</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+</tbody></table>
 
 <h2>WebSocket Everywhere!</h2>
 
-<p>My - hopefully informed - opinion is that WebSocket is by far the best realtime connection transport. If it weren&#39;t for problems with legacy browsers, firewalls and proxies WebSocket would be the <em>only</em> realtime transport that we would need for use case where realtime really matters. We&#39;re not all that far from making that possible. Based on the stats we have at Pusher this means 90% of connections use WebSocket and the rest use either Flash WebSocket emulation or HTTP.</p>
+<p>My - hopefully informed - opinion is that WebSocket is by far the best realtime connection transport. If it weren&#39;t for problems with legacy browsers, firewalls and proxies WebSocket would be the <em>only</em> realtime transport that we would need for use case where realtime really matters. We&#39;re not all that far from making that possible. Based on the stats that Pusher has this means 90% of connections use WebSocket and the rest use either Flash WebSocket emulation or HTTP.</p>
 
-<p>I&#39;m always open to opinion and feedback on all of this. I&#39;m more than willing to change my opinion based on solid arguments - believe it or not it took time for me to be convinced about the benefits of WebSocket. So, if you&#39;ve any questions then please don&#39;t hesitate to <a href="mailto:phil@pusher.com">get in touch</a>.</p>
+<p>I&#39;m always open to opinion and feedback on all of this. I&#39;m more than willing to change my opinion based on solid arguments - believe it or not it took time for me to be convinced about the benefits of WebSocket. So, if you&#39;ve any questions then please don&#39;t hesitate to <a href="mailto:phil@leggetter.co.uk">get in touch</a>.</p>
+
+<p><a name="additional_reading"></a></p>
 
 <h2>Additional reading</h2>
 

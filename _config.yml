@@ -1,5 +1,7 @@
 name: "Phil Leggetter - Real-Time Web Software &amp; Developer Evangelist"
 markdown: redcarpet
+redcarpet:
+  extensions: ["tables"]
 highlighter: true
 relative_permalinks: false
 paginate: 10

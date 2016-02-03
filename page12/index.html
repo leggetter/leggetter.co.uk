@@ -88,6 +88,24 @@
 <article class="box post">
 
   <header class="style1">
+    <a href="/http:/blog.kwwika.com/a-kwwika-twitter-search-v-searchtwittercom-v">
+      <h2>A Kwwika Twitter search v search.twitter.com v TweetDeck example</h2>
+    </a>
+    <div class="post-date">27 Apr 2010</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>        
+	I&#39;ve just recorded a &quot;Kwwik&quot; demonstration of a Twitter page using the Kwwika service versus the http://search.twitter.com page versus TweetDeck to demonstrate the speed of the Kwwika service.Here&#39;s a link to the SPA 2010 c...</p>
+    <p><a href="/http:/blog.kwwika.com/a-kwwika-twitter-search-v-searchtwittercom-v" title="A Kwwika Twitter search v search.twitter.com v TweetDeck example">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
     <a href="/2010/04/09/a-real-time-web-business-by-product-example.html">
       <h2>A Real-Time Web business by-product example</h2>
     </a>
@@ -270,36 +288,6 @@ View the list
 
 </p>
     <p><a href="/2010/02/09/compiling-a-cloud-hosting-vendor-comparison-list.html" title="Compiling a cloud hosting vendor comparison list">Read more...</a></p>
-  </div>
-
-</article>
-
-<article class="box post">
-
-  <header class="style1">
-    <a href="/2010/02/05/silverlight-uses-xcp-tmp-files-for-web-requests.html">
-      <h2>Silverlight uses XCP tmp files for Web Requests</h2>
-    </a>
-    <div class="post-date">05 Feb 2010</div>
-  </header>
-
-  <div class="posts-list">
-    
-    <p>It would appear that the Silverlight runtime creates a file named XCP*.tmp of around 20MB within a users %temp% directory (where * can be replaced by random characters). This file would appear to be used in some way by the Silverlight runtime for web requests. If you refresh your Silverlight application then this file is cleaned up. However, if your web request is interrupted in some way then the file can be left in your %temp% directory slowly but surely eating up disk space.
-
-This is particularly noticeable and reproducible if you are using the HttpWebRequest class to stream data (for more information on streaming data from Silverlight you can listen to my podcast and read my article in a free MSDN book). You can then reproduce the loss of connection using Fiddler (which seriously rocks and is becoming more and more useful) by right-clicking on the streaming connection and selecting "Abort Session".
-
-[caption id="attachment_695" align="alignnone" width="529" caption="Fiddler - Abort Session"][/caption]
-
-The best solution to resolve this that I've found is to manually invoke the garbage collector whenever you detect the connection loss.
-
-[csharp]
-// Manually invoke Garbage collection
-GC.Collect();
-
-[/csharp]
-</p>
-    <p><a href="/2010/02/05/silverlight-uses-xcp-tmp-files-for-web-requests.html" title="Silverlight uses XCP tmp files for Web Requests">Read more...</a></p>
   </div>
 
 </article>

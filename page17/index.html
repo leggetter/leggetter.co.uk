@@ -88,6 +88,33 @@
 <article class="box post">
 
   <header class="style1">
+    <a href="/2007/12/07/how-to-sign-an-unsigned-dll.html">
+      <h2>How to sign an unsigned DLL</h2>
+    </a>
+    <div class="post-date">07 Dec 2007</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>Taken from: http://forums.microsoft.com/MSDN/showpost.aspx?postid=420884&amp;siteid=1
+
+
+Step 1: Dis-assemble the assembly
+ildasm myTest.dll /out:myTest.il
+Step 2: Re-Assemble using your strong-name key
+ilasm myTest.il /res:myTest.res /dll /key:myTest.snk /out:myTestSN.dll
+This code work perfectly to assign strong name.
+for verification you can use following command,
+sn -vf myTestSN.dll
+</p>
+    <p><a href="/2007/12/07/how-to-sign-an-unsigned-dll.html" title="How to sign an unsigned DLL">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
     <a href="/2007/10/09/loft-apartment-for-sale-in-the-shore-leith-edinburgh.html">
       <h2>Loft Apartment for Sale in The Shore (Leith), Edinburgh</h2>
     </a>
@@ -276,28 +303,6 @@ All these examples exploded onto the scene but haven't really made any major adv
 Maybe it's time for the OS to start setting the data free so that people can actually benefit from the high quality data without paying through the nose - then maybe we'll see some great UK mashups.
 </p>
     <p><a href="/2007/02/05/mapping-apis-are-all-the-rage.html" title="Mapping APIs">Read more...</a></p>
-  </div>
-
-</article>
-
-<article class="box post">
-
-  <header class="style1">
-    <a href="/2007/02/04/how-much-is-your-domain-worth.html">
-      <h2>How much is your domain worth?</h2>
-    </a>
-    <div class="post-date">04 Feb 2007</div>
-  </header>
-
-  <div class="posts-list">
-    
-    <p>I came a across a fun little tool that estimates what your domain is worth. Microsoft.com was worth over $24,000,000 but Leggetter.co.uk was only worth only $36!
-
-Give it a go and see how much your domain comes in at.
-
-Enter Domain Name:   
-</p>
-    <p><a href="/2007/02/04/how-much-is-your-domain-worth.html" title="How much is your domain worth?">Read more...</a></p>
   </div>
 
 </article>

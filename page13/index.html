@@ -88,6 +88,36 @@
 <article class="box post">
 
   <header class="style1">
+    <a href="/2010/02/05/silverlight-uses-xcp-tmp-files-for-web-requests.html">
+      <h2>Silverlight uses XCP tmp files for Web Requests</h2>
+    </a>
+    <div class="post-date">05 Feb 2010</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>It would appear that the Silverlight runtime creates a file named XCP*.tmp of around 20MB within a users %temp% directory (where * can be replaced by random characters). This file would appear to be used in some way by the Silverlight runtime for web requests. If you refresh your Silverlight application then this file is cleaned up. However, if your web request is interrupted in some way then the file can be left in your %temp% directory slowly but surely eating up disk space.
+
+This is particularly noticeable and reproducible if you are using the HttpWebRequest class to stream data (for more information on streaming data from Silverlight you can listen to my podcast and read my article in a free MSDN book). You can then reproduce the loss of connection using Fiddler (which seriously rocks and is becoming more and more useful) by right-clicking on the streaming connection and selecting "Abort Session".
+
+[caption id="attachment_695" align="alignnone" width="529" caption="Fiddler - Abort Session"][/caption]
+
+The best solution to resolve this that I've found is to manually invoke the garbage collector whenever you detect the connection loss.
+
+[csharp]
+// Manually invoke Garbage collection
+GC.Collect();
+
+[/csharp]
+</p>
+    <p><a href="/2010/02/05/silverlight-uses-xcp-tmp-files-for-web-requests.html" title="Silverlight uses XCP tmp files for Web Requests">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
     <a href="/2010/01/03/msdn-e-book-and-podcast.html">
       <h2>MSDN e-book and podcast</h2>
     </a>
@@ -285,27 +315,6 @@ If you'd like to find out a bit more about the code then read on. If you'd rathe
     <p>If you are trying to make a web request from a Silverlight application the first thing the Silverlight runtime will do is request a security policy file (see Network Security Access Restrictions in Silverlight) from the root of the server you are making your web request to. This happens if you are making your request using the HttpWebRequest or WebClient class. If the Silverlight runtime fails to get a security policy file your web request will fail. If your Silverlight application relies on this web request then you are going to need to contact the server owner and get them to add a security file but until then you can use the Fiddler HTTP Proxy to trick the Silverlight runtime into believing that it does have permission to make the request.
 </p>
     <p><a href="/2009/10/30/using-fiddler-to-trick-silverlight-into-allowing-a-crossdomain-web-request.html" title="Using Fiddler to trick Silverlight into allowing a crossdomain Web Request">Read more...</a></p>
-  </div>
-
-</article>
-
-<article class="box post">
-
-  <header class="style1">
-    <a href="/2009/10/29/real-time-rich-internet-applications-rtria.html">
-      <h2>Real-Time Rich Internet Applications (RTRIA)</h2>
-    </a>
-    <div class="post-date">29 Oct 2009</div>
-  </header>
-
-  <div class="posts-list">
-    
-    <p>Real-Time Rich Internet Applications (RTRIAs) are RIAs that consume and display real-time data. They have all the characteristics of an RIA with the added feature that data is being pushed to them in real-time as soon as it becomes available. This is in contrast to the current polling solution employed by most RIAs or other web applications that display updating data.
-
-I mentioned RTRIAs for the first time back in April 2009 in a post called "What is the real-time web" on the Caplin Systems Platformability blog, and since then there has been a real-time web explosion. The "real-time web" is now the buzz phrase around the Internet that everybody is jumping on. Back in April I set up a Google Alert for the term "real-time web". Back then I got maybe one Google Alert a day for this term, probably less. Now, I get at least two dense emails a day from Google with people using the term for all sorts of things; real-time web stats, real-time analytics, real-time search, rssCloud, pubsubhubbub, the list goes on. This is not the real-time web! Whilst some of the things on this list will help  the web become truly real-time (rssCloud and pubsubhubbub may even form the back bone), none of these things give the user a truly real-time web experience.
-
-</p>
-    <p><a href="/2009/10/29/real-time-rich-internet-applications-rtria.html" title="Real-Time Rich Internet Applications (RTRIA)">Read more...</a></p>
   </div>
 
 </article>

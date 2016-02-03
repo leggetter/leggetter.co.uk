@@ -16,7 +16,8 @@
 	{
 		font-family: 'Source Sans Pro', sans-serif;
 		font-weight: 400;
-		color: #919499;
+		color: rgba(0,0,0,0.8);
+		font-size: 21px;
 	}
 
 		body.is-loading *
@@ -111,7 +112,11 @@
 
 	p, ul, ol, dl, table, blockquote, form
 	{
-		margin-bottom: 2em;
+		margin-bottom: 1.5em;
+	}
+	
+	ul > li > ul {
+		margin-bottom: 0;
 	}
 
 	/* Table */

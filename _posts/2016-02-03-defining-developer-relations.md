@@ -54,7 +54,7 @@ However, I'm going to suggest we make two changes to this:
 1. Since developer relations also raises **awareness** of a product to developers, in a more traditional marketing sense, an additional "A" has been prefixed to this acronym.
 2. In some cases developer relations activities may cross over with what some may consider product. To indicate this involvement in **product** a "P" has been added as a suffix.
 
-These additions result in a new **AAARRRP**<sup><a href="#footnote2">2</a></sup> acronym. Instead of thinking of these as just metrics (although how they can be measured should be taken into consideration) think of them as potential goals for your developer relations programme:
+These additions result in a new **AAARRRP**<sup><a href="#footnote2">2</a></sup> acronym. Instead of thinking of these as just metrics (although how they can be measured should be taken into consideration - see [What's the ROI of Developer Relations](https://www.youtube.com/watch?v=I5uinqFfl7w&feature=youtu.be)) think of them as potential goals for your developer relations programme:
 
 * **Awareness** - awareness of the platform and what it does
 * **Acquisition** - sign-up/download/install

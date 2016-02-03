@@ -10,6 +10,13 @@ thumb: /images/devrelometer.png
 
 The number of companies looking to build developer relations teams is on the increase. But what developer relations means to each company tends to differ; some hire advocates and some hire evangelists, some are looking to market to developers and others see devrel as key to capturing feedback and to the success of their product. How do you know the roles and activities that will work best for your company? What's the difference between these job titles?
 
+<div style="background-color: #E5F2F7; font-style: italic; padding: 0 10px;">If you're looking for somebody to set up your developer relations team or help define your developer relations strategy - I'm available, so please <a href="#contact-me">get in touch</a>.</div>
+
+<blockquote class="twitter-tweet" data-lang="en" style="pa"><p lang="en" dir="ltr">I’m leaving Pusher and looking for a new challenge. Please get in touch if you know of anything phil@leggetter.co.uk 🚀</p>&mdash; Phil Leggetter (@leggetter) <a href="https://twitter.com/leggetter/status/685484634835148800">January 8, 2016</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<p style="background-color: red;"></p>
+
 What developer relations should mean to a company really depends on what the company's goals are. For illustrative purposes let's refer to the Google and Twilio developer relations mission statements, but *please remember that a small statement can't fully reflect everything that their teams actually do*.
 
 Google and Twilio missions statements suggest different approaches to developer relations:
@@ -112,34 +119,35 @@ So, how do you define developer relations and what's the best approach for your 
 As an additional way of helping myself and others clarify - or at least suggest - an approach to this ongoing role naming debate I've built the **DevRelOMeter**. Based on the activities you wish your developer relations team to undertake it will suggest whether they will be practicing **Evangelism or Advocacy**.
 
 <section class="devrelometer">
-<header>
-  <h2>DevRelOMeter</h2>
-  <p>Are you practicing - or considering practicing - Developer <strong>Evangelism</strong> or <strong>Advocacy</strong>?</p>
-</header>
-<section class="activities" style="margin-bottom: 0;">
-  <ul id="activities"></ul>
-</section>
+  <header>
+    <h2>DevRelOMeter</h2>
+    <p>Are you practicing - or considering practicing - Developer <strong>Evangelism</strong> or <strong>Advocacy</strong>?</p>
+  </header>
+  <section class="activities" style="margin-bottom: 0;">
+    <ul id="activities"></ul>
+  </section>
 
-<section class="half" style="margin-bottom: 10px;">
-  <div id="gaugeChart" class="epoch gauge-large"></div>
-</section>
-<section class="half" style="margin-bottom: 10px;">
-  <div id="pie" class="epoch"></div>
-</section>
+  <section class="half" style="margin-bottom: 10px;">
+    <div id="gaugeChart" class="epoch gauge-large"></div>
+  </section>
+  <section class="half" style="margin-bottom: 10px;">
+    <div id="pie" class="epoch"></div>
+  </section>
 
-<script src="https://leggetter.github.io/devrelometer/devrelometer.bundle.js"></script>
-<script>
-jQuery(function() {
-  jQuery('#activities li').css('width', '380px');
-});
-</script>
+  <script src="https://leggetter.github.io/devrelometer/devrelometer.bundle.js"></script>
+  <script>
+  jQuery(function() {
+    jQuery('#activities li').css('width', '380px');
+  });
+  </script>
 </section>
 
 You can see a [standlone DevRelOMeter](https://leggetter.github.io/devrelometer/) and the [DevRelOMeter code](https://github.com/leggetter/devrelometer) is also on GitHub.
 
 <small>
-Footnotes:
-<ul>
-  <li><sup><a name="footnote1">1</a></sup> "Any maturity model immediately makes you think companies should be ascending to the top level, but that is not the case and not the intention here"</li>
-  <li><sup><a name="footnote2">2</a></sup> Please let me know if anybody can think of a first goal beginning with Y. Would love the acronym to be YAAARRRP (it's a Hot Fuzz, Simon Pegg movie reference).</li>
-</ul>
+  Footnotes:
+  <ul>
+    <li><sup><a name="footnote1">1</a></sup> "Any maturity model immediately makes you think companies should be ascending to the top level, but that is not the case and not the intention here"</li>
+    <li><sup><a name="footnote2">2</a></sup> Please let me know if anybody can think of a first goal beginning with Y. Would love the acronym to be YAAARRRP (it's a Hot Fuzz, Simon Pegg movie reference).</li>
+  </ul>
+</small>

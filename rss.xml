@@ -72,7 +72,7 @@
 <li>In some cases developer relations activities may cross over with what some may consider product. To indicate this involvement in <strong>product</strong> a &quot;P&quot; has been added as a suffix.</li>
 </ol>
 
-<p>These additions result in a new <strong>AAARRRP</strong><sup><a href="#footnote2">2</a></sup> acronym. Instead of thinking of these as just metrics (although how they can be measured should be taken into consideration) think of them as potential goals for your developer relations programme:</p>
+<p>These additions result in a new <strong>AAARRRP</strong><sup><a href="#footnote2">2</a></sup> acronym. Instead of thinking of these as just metrics (although how they can be measured should be taken into consideration - see <a href="https://www.youtube.com/watch?v=I5uinqFfl7w&amp;feature=youtu.be">What&#39;s the ROI of Developer Relations</a>) think of them as potential goals for your developer relations programme:</p>
 
 <ul>
 <li><strong>Awareness</strong> - awareness of the platform and what it does</li>
@@ -185,6 +185,8 @@
   });
   </script>
 </section>
+
+<p><br style="clear:both;" /></p>
 
 <p>You can see a <a href="https://leggetter.github.io/devrelometer/">standlone DevRelOMeter</a> and the <a href="https://github.com/leggetter/devrelometer">DevRelOMeter code</a> is also on GitHub.</p>
 

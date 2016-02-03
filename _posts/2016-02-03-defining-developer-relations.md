@@ -141,6 +141,7 @@ As an additional way of helping myself and others clarify - or at least suggest 
   });
   </script>
 </section>
+<br style="clear:both;" />
 
 You can see a [standlone DevRelOMeter](https://leggetter.github.io/devrelometer/) and the [DevRelOMeter code](https://github.com/leggetter/devrelometer) is also on GitHub.
 

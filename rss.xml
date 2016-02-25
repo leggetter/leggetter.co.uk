@@ -12,6 +12,82 @@
     <atom:link href="http://www.leggetter.co.uk/rss.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title><![CDATA[Reinventing Communication with Nexmo]]></title>
+      <link>http://www.leggetter.co.uk/2016/02/25/reinventing-communication-at-nexmo.html</link>
+      <guid isPermaLink="true">http://www.leggetter.co.uk/2016/02/25/reinventing-communication-at-nexmo.html</guid>
+      <description><![CDATA[<p>When I <a href="https://twitter.com/leggetter/status/685484634835148800">tweeted my availability</a> back on January 8th 2016 I wasn&#39;t sure if it would have any reach. But thanks to an amazing network of peers, and a popular post on <a href="http://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html">Defining Developer Relations</a>, I&#39;ve ended up having lots of conversations with very smart people about potential opportunities.</p>
+
+<p>As I reflected on the past year, and discussed developer relations with others, it became very clear that I had some criteria for my next role:</p>
+
+<ol>
+<li>Key stakeholder in shaping the developer relations strategy</li>
+<li>Part of that strategy would need to include the ability to provide feedback from developers into the product</li>
+<li>Real-time technologies should still be relevant so that all the work I&#39;ve done to date could (to some degree) be built upon</li>
+</ol>
+
+<p><a href="https://www.nexmo.com"><img src="/images/nexmo.png" alt="Nexmo logo" /></a></p>
+
+<p>So I&#39;m very excited to be joining <a href="https://nexmo.com">Nexmo - a cloud communications platform</a> - as Head of Developer Relations.</p>
+
+<h2> DevRel Team</h2>
+
+<p>Nexmo have had a small developer relations team for quite some time and I&#39;m very much looking forward to working with their long-time Evangelist/Advocate <a href="https://twitter.com/tjlytle">Tim Lytle</a> and iOS DevRel Sidharth Sharma. I&#39;ve known Tim since 2010 so it&#39;s great to finally have the chance to work with him in particular.</p>
+
+<p>One of the reasons I&#39;m joining Nexmo in 2016 is that they are growing their team in order to build better relationships with developers.</p>
+
+<p>With that in mind I&#39;m very pleased that <a href="https://twitter.com/sammachin">Sam Machin</a> will also be joining the developer relations team. Sam has been working with communications technology for years and is always building inspiring prototypes. His <a href="http://sammachin.com/the-10-echo/">$10 Alexa using the Amazon Alexa API + CHIP</a> was a recent highlight.</p>
+
+<h2>DevRel Plans</h2>
+
+<p><img src="/images/plan.jpg" alt="Plan: Laptop and notebook." /></p>
+
+<p>One of my first tasks in this new role is to work with the team to define a developer relations strategy. Since that strategy isn&#39;t fully defined yet I can&#39;t say exactly what the team will be doing.</p>
+
+<p>However, based on the <a href="http://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html">AAARRRP Framework</a> (from the Defining Developer Relations post) and my criteria for a role, I can confidently say that there will be a product and community focus to the activities we undertake.</p>
+
+<p>Nexmo have some amazing customers including Airbnb, Expedia, Fitbit, GitHub and WhatsApp. These customers are using Nexmo because it&#39;s a great service with fantastic products. The job of the developer relations team will include raising awareness of Nexmo&#39;s products within developer communities and work with those communities to make sure these products solve problems for them in the most efficient way possible.</p>
+
+<p>By solving real problems for developers, and by capturing their feedback, it will help Nexmo improve their existing products and build even better products in the future.</p>
+
+<h2>Future Communications Products</h2>
+
+<p>One of the reasons I&#39;m joining Nexmo is that they are a communications platform. They offer APIs that let you build interactive functionality into applications through <a href="https://www.nexmo.com/products/sms/">SMS</a>, <a href="https://www.nexmo.com/products/voice/">Voice</a> and via their <a href="https://www.nexmo.com/products/chat-app/">Chat App</a> integrations with numerous messaging providers such as WeChat and Viber.</p>
+
+<p>In the future Nexmo will also offer other communications focused products that continue to very much align with my real-time technology interests.</p>
+
+<h2>Twilio</h2>
+
+<p>There&#39;s no point in hiding it - we are competing with Twilio.</p>
+
+<p>I started in an evangelist role in 2011. At the time my only developer relations connections were <a href="https://twitter.com/amit">Amit Jotwani</a> (Mashery), <a href="https://twitter.com/timfalls">Tim Falls</a> (SendGrid) and <a href="https://twitter.com/stevegraham">Stevie Graham</a> (Twilio). Stevie was one of the first SaaS product evangelists in the UK (if not Europe) and he lead the charge for Twilio in Europe. Over the years I&#39;ve learnt a lot from him, from Rob Spectre (Director of Evangelism at Twilio), I&#39;ve spoken at TwilioCon and have built a great relationship with folks at Twilio.</p>
+
+<p>Twilio are also the reference when it comes to evangelism for SaaS and beyond.</p>
+
+<p>This is scary and exciting. It&#39;s scary because Nexmo does have a competing <a href="https://www.nexmo.com/#Products">set of communications products (SMS, Voice, 2FA, Chat API etc.)</a> and Twilio have an existing awareness within many developer communities. But it&#39;s also really exciting because if developer relations can help Nexmo it&#39;ll demonstrate the value of DevRel far beyond the communications API space.</p>
+
+<p>It&#39;s pretty obvious that we&#39;re going to have to approach developer relations differently. I&#39;m particularly excited about that.</p>
+
+<h2>Transparency</h2>
+
+<p>One of the things I will do is share the approach we take to Developer Relations at Nexmo. One of my mottos is &quot;Learn. Create. Share.&quot; and I see sharing this process as important as sharing ideas on technology.</p>
+
+<p><img src="/images/share.jpg" alt="Phil Leggetter sharing ideas at BattleHack Tokyo. Learn. Create. Share" /></p>
+
+<p>I&#39;m doing this now, I&#39;ll do this with our initial planning phase and the use of the AAARRRP framework, into the ways we improve existing and new products based on developer feedback, to the metrics we gather and how we&#39;ve measured the success of DevRel. I&#39;m very much looking forward to planning our alpha/beta product programmes.</p>
+
+<p>From the conversations that I&#39;ve had over the past two month I&#39;m hopeful that sharing these stories will be of interest to other companies and individuals involved in Developer Relations.</p>
+
+<p>Please do let me know if there&#39;s anything you&#39;d specifically like me to share. Always happy to jump on a call too.</p>
+
+<h2>Getting in touch</h2>
+
+<p>You can always reach me on my personal email, but for anything Nexmo related please reach out via <a href="mailto:leggetter@nexmo.com">leggetter@nexmo.com</a>.</p>
+]]></description>
+      <dc:creator>Phil Leggetter</dc:creator>
+      <pubDate>Thu, 25 Feb 2016 00:00:00 +0000</pubDate>
+    </item>
+    
+    <item>
       <title><![CDATA[Defining Developer Relations]]></title>
       <link>http://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html</link>
       <guid isPermaLink="true">http://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html</guid>

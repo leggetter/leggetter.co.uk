@@ -16,33 +16,35 @@ As I reflected on the past year, and discussed developer relations with others, 
 
 <a href="https://www.nexmo.com"><img src="{{ page.thumb }}" alt="Nexmo logo" /></a>
 
-So I'm very excited to be joining [Nexmo - a cloud communications platform](https://nexmo.com) - as Head of Developer Relations.
+So I'm very excited to be joining [Nexmo - a cloud communications platform](https://nexmo.com) - as Head of Developer Relations. Nexmo are a global communications company with offices all over the world. Their head office in London, UK.
 
 ## DevRel Team
 
-Nexmo have had a small developer relations team for quite some time and I'm very much looking forward to working with their long-time Evangelist/Advocate [Tim Lytle](https://twitter.com/tjlytle) and iOS DevRel Sidharth Sharma. I've known Tim since 2010 so it's great to finally have the chance to work with him in particular.
+Nexmo have had a small developer relations team for quite some time and I'm very much looking forward to working with their long-time Evangelist/Advocate [Tim Lytle](https://twitter.com/tjlytle) and iOS DevRel Sidharth Sharma who is presently part-time, but hopefully moving to full-time soon. I've known Tim since 2010 so it's great to finally have the chance to work with him in particular.
 
 One of the reasons I'm joining Nexmo in 2016 is that they are growing their team in order to build better relationships with developers.
 
-With that in mind I'm very pleased that [Sam Machin](https://twitter.com/sammachin) will also be joining the developer relations team. Sam has been working with communications technology for years and is always building inspiring prototypes. His [$10 Alexa using the Amazon Alexa API + CHIP](http://sammachin.com/the-10-echo/) was a recent highlight.
+With that in mind I'm very pleased that [Sam Machin](https://twitter.com/sammachin) will also be joining the developer relations team. Sam has been working with communications technologies for years and is always building inspiring prototypes. His [$10 Alexa using the Amazon Alexa API + CHIP](http://sammachin.com/the-10-echo/) was a recent highlight.
+
+As well as Sid joining us full-time in the near future we also hope to be growing the team further during 2016.
 
 ## DevRel Plans
 
 <img src="/images/plan.jpg" alt="Plan: Laptop and notebook." />
 
-One of my first tasks in this new role is to work with the team to define a developer relations strategy. Since that strategy isn't fully defined yet I can't say exactly what the team will be doing.
+One of my first tasks in this new role is to work with the team to define a developer relations strategy. Since that strategy isn't fully defined yet (today is my first day) I can't say exactly what the team will be doing.
 
 However, based on the [AAARRRP Framework](http://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html) (from the Defining Developer Relations post) and my criteria for a role, I can confidently say that there will be a product and community focus to the activities we undertake.
 
-Nexmo have some amazing customers including Airbnb, Expedia, Fitbit, GitHub and WhatsApp. These customers are using Nexmo because it's a great service with fantastic products. The job of the developer relations team will include raising awareness of Nexmo's products within developer communities and work with those communities to make sure these products solve problems for them in the most efficient way possible.
+Nexmo have some amazing customers including Airbnb, Expedia, Fitbit, GitHub, Snapchat and WhatsApp. These customers are using Nexmo because it's a great service with fantastic products. The job of the developer relations team will include raising awareness of Nexmo's products within developer communities and work with those communities to make sure these products solve problems for them in the most efficient way possible.
 
 By solving real problems for developers, and by capturing their feedback, it will help Nexmo improve their existing products and build even better products in the future.
 
 ## Future Communications Products
 
-One of the reasons I'm joining Nexmo is that they are a communications platform. They offer APIs that let you build interactive functionality into applications through [SMS](https://www.nexmo.com/products/sms/), [Voice](https://www.nexmo.com/products/voice/) and via their [Chat App](https://www.nexmo.com/products/chat-app/) integrations with numerous messaging providers such as WeChat and Viber.
+Nexmo is a communications platform and that naturally aligns with my technology and use case interests. They offer APIs that let you build interactive functionality into applications through [SMS](https://www.nexmo.com/products/sms/), [Voice](https://www.nexmo.com/products/voice/) and via their [Chat App](https://www.nexmo.com/products/chat-app/) integrations with numerous messaging providers such as WeChat and Viber.
 
-In the future Nexmo will also offer other communications focused products that continue to very much align with my real-time technology interests.
+In the future Nexmo will also offer other communications focused products that continue to furtehr align with my real-time technology interests.
 
 ## Twilio
 
@@ -52,17 +54,17 @@ I started in an evangelist role in 2011. At the time my only developer relations
 
 Twilio are also the reference when it comes to evangelism for SaaS and beyond.
 
-This is scary and exciting. It's scary because Nexmo does have a competing [set of communications products (SMS, Voice, 2FA, Chat API etc.)](https://www.nexmo.com/#Products) and Twilio have an existing awareness within many developer communities. But it's also really exciting because if developer relations can help Nexmo it'll demonstrate the value of DevRel far beyond the communications API space.
+This is scary and exciting. It's scary because Nexmo does have a competing [set of communications products (SMS, Voice, 2FA, Chat API etc.)](https://www.nexmo.com/#Products) and Twilio have an existing awareness within many developer communities. But it's also really exciting because if developer relations can help Nexmo I believe it will demonstrate the value of DevRel in the communications API space and beyond.
 
 It's pretty obvious that we're going to have to approach developer relations differently. I'm particularly excited about that.
 
 ## Transparency
 
-One of the things I will do is share the approach we take to Developer Relations at Nexmo. One of my mottos is "Learn. Create. Share." and I see sharing this process as important as sharing ideas on technology.
+One of the things I will do is share the approach we take to Developer Relations at Nexmo. One of my mottos is **Learn. Create. Share.** and I see sharing this process as important as sharing ideas on technology.
 
 <img src="/images/share.jpg" alt="Phil Leggetter sharing ideas at BattleHack Tokyo. Learn. Create. Share" />
 
-I'm doing this now, I'll do this with our initial planning phase and the use of the AAARRRP framework, into the ways we improve existing and new products based on developer feedback, to the metrics we gather and how we've measured the success of DevRel. I'm very much looking forward to planning our alpha/beta product programmes.
+I'm sharing right now, I'll do this with our initial planning phase and the use of the AAARRRP framework, into the ways we improve existing and new products based on developer feedback, to the metrics we gather and how we've measured the success of DevRel. I'm very much looking forward to planning our alpha/beta product programmes.
 
 From the conversations that I've had over the past two month I'm hopeful that sharing these stories will be of interest to other companies and individuals involved in Developer Relations.
 

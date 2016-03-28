@@ -9,7 +9,7 @@ gulp.task('copy-images', function() {
 });
 
 gulp.task('build', function() {
-  return run('jekyll build').exec();
+  return run('bundle exec jekyll build').exec();
 });
 
 gulp.task('gh-pages', function() {

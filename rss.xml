@@ -12,6 +12,64 @@
     <atom:link href="http://www.leggetter.co.uk/rss.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title><![CDATA[What is Real-Time?]]></title>
+      <link>http://www.leggetter.co.uk/2016/04/22/what-is-realtime.html</link>
+      <guid isPermaLink="true">http://www.leggetter.co.uk/2016/04/22/what-is-realtime.html</guid>
+      <description><![CDATA[<p><small>This was originally written by me and published on the <a href="https://blog.pusher.com/what-is-real-time/">Pusher blog</a></small></p>
+
+<p><strong>What is Real-Time?</strong> – it’s a question that is asked a lot. It’s a fundamental question that I’m sure many are curious to get a definition for. And many a developer that’s worked with embedded systems may have even been annoyed when they hear “real-time” in the context of the Web or the Internet applications. So, to clarify things once and for all let’s address the question of “What is Real-Time?” and apply it to the context of Web and Internet applications.</p>
+
+<p>There are three types of real-time system and application classification: hard, firm, and soft.</p>
+
+<h2>Hard real-time</h2>
+
+<blockquote>
+<p>Hard Real-Time: missing a deadline is a total system failure.</p>
+</blockquote>
+
+<p>In Star Trek, the Starship Enterprise uses a warp core as the main energy reactor. The safety system for the warp core needs to identify potential problems within a finite amount of time. If it doesn’t then it’s <a href="http://en.memory-alpha.org/wiki/Saucer_separation">saucer separation</a> time, or worse!</p>
+
+<p>That is, the time between a problem occurring within the warp core and the safety system knowing about it has a <strong>hard deadline</strong> or there is a significant system failure. That’s <strong>Hard Real-Time</strong>.</p>
+
+<p>You wouldn’t use <a href="http://www.leggetter.co.uk/real-time-web-technologies-guide/">real-time web technologies</a> as part of the Enterprise safety system. But you might use them in a hard real-time system if the deadline is sufficiently long and if the real-time technology offers some form of guaranteed delivery (simple receipt acknowledgement may suffice).</p>
+
+<h2>Firm real-time</h2>
+
+<blockquote>
+<p>Firm Real-Time – infrequent deadline misses are tolerable, but may degrade the system’s quality of service. The usefulness of a result is zero after its deadline.</p>
+</blockquote>
+
+<p>Trading and betting systems are good examples of firm real-time systems. The important thing with these systems is that they are aware that messages may arrive outside of the deadlines and offer appropriate logic to deal with it. For example, if a user executes a trade on a given price you can’t absolutely guarantee that the “trade now” message will hit the trading system by the deadline so you need a mechanism to inform the user that a firm deadline was missed.</p>
+
+<h2>Soft real-time</h2>
+
+<blockquote>
+<p>Soft Real-Time – the usefulness of a result degrades after its deadline, thereby degrading the system’s quality of service.</p>
+</blockquote>
+
+<p>The majority of real-time applications that we use fall into this category. Twitter, Facebook, any form of real-time chat, Google Docs, Uber and many more. Quite how much the “usefulness degrades” and what impact that has really depends on the application. A delayed document update in Google Docs reduces the user experience and can potentially result in duplicate/wasted effort. Missed Uber taxi position updates might result in a delayed journey or extra effort required to locate the exact taxi position.</p>
+
+<h2>How does this apply to Real-Time Web, Mobile and IoT Applications?</h2>
+
+<p>Classifying your real-time apps – Web, Mobile, IoT or Star Trek systems – as hard, soft or firm is worthwhile for a couple of reasons. Firstly, you will be in a better position to explain yourself when confronted by folks who have a strong opinion about the use of “real-time” in applications. Secondly, and most importantly, it’ll make you think about the deadlines you should impose on the real-time data within your systems and how the applications that use that data should behave.</p>
+
+<p>If you are building a real-time application and using the Internet as your communication network then you can really only think in terms of <strong>firm</strong> or <strong>soft</strong> real-time apps.</p>
+
+<h2>“What is Real-Time?” Answered! Where next?</h2>
+
+<p>Now that we’ve clarified and classified the types of real-time and addressed the “What is Real-Time?” question we can finally move on to things like <em>discovering the real-time data</em> within our systems and apps and then <em>understanding the potential uses of that real-time data</em> to increase our knowledge of what are applications are doing <em>right now</em> and building real-time features that improve our product.</p>
+
+<!--
+Now that we’ve clarified and classified the types of real-time and addressed the “What is Real-Time?” question we can finally move on to things like [discovering the real-time data](http://www.leggetter.co.uk/2016/04/23/discovering-realtime-data-in-your-apps.html) within our systems and apps and then [understanding the potential uses of that real-time data](http://www.leggetter.co.uk/2016/04/24/use-cases-for-your-realtime-data.html) to increase our knowledge of what are applications are doing _right now_ and building real-time features that improve our product.
+-->
+
+<p><small>Quoted definitions are taken from the <a href="https://en.wikipedia.org/wiki/Real-time_computing">Real-Time Computing entry</a> on Wikipedia</small></p>
+]]></description>
+      <dc:creator>Phil Leggetter</dc:creator>
+      <pubDate>Fri, 22 Apr 2016 00:00:00 +0100</pubDate>
+    </item>
+    
+    <item>
       <title><![CDATA[Reinventing Communication with Nexmo]]></title>
       <link>http://www.leggetter.co.uk/2016/02/25/reinventing-communication-at-nexmo.html</link>
       <guid isPermaLink="true">http://www.leggetter.co.uk/2016/02/25/reinventing-communication-at-nexmo.html</guid>

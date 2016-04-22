@@ -88,6 +88,52 @@
 <article class="box post">
 
   <header class="style1">
+    <a href="/2009/01/31/drag-drop-bug-in-jquery-ui-153.html">
+      <h2>Drag Drop bug in JQuery UI 1.5.3</h2>
+    </a>
+    <div class="post-date">31 Jan 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>JQuery UI Update - 31/01/2009 @ 17:15
+
+Richard Worth just got in touch with me via twitter to let me know that JQuery UI 1.5.3 is only compatible with JQuery 1.2.6.
+
+The bug is not in jQuery UI 1.5.3, but just that 1.5.3 is only compatible with 1.2.6. Only 1.6rc5+ is compatible with jQuery 1.3
+
+Therefore to use JQuery with JQuery UI from the Google Ajax Libraries hosted service you need to do one of the following:
+
+Script includes
+
+&lt;script type="text/javascript"
+             src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"&gt;
+&lt;/script&gt;
+&lt;script type="text/javascript"
+             src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.5.3/jquery-ui.jss"&gt;
+&lt;/script&gt;
+
+Google Library loading
+
+google.load("jquery", "1.2.6");
+google.load("jqueryui", "1.5.3");
+
+---
+
+JQuery seems to be the most active of the JavaScript libraries at the moment so I decided to use it for a little project. I've also decided to use the Google AJAX Libraries APIs hosted service to serve up the JavaScript files. At present Google is hosting JQuery UI version 1.5.3. After a bit of investigation I've determined that there is a bug in the Drag  and Drop functionality in this version. It would appear that the "drop" function is not fired when you try to drop a draggable element on a droppable zone. I verified this by changing the JQuery UI version to the 1.6 RC that the JQuery UI droppable demo is using at the moment. When I did this the drag and drop functionality worked as expected.
+
+
+
+This may be a know issue but I thought a small post on the matter might save other people a bit of time. I did have a look at raising a bug but there appears to be a bug in the bug tracking system.
+</p>
+    <p><a href="/2009/01/31/drag-drop-bug-in-jquery-ui-153.html" title="Drag Drop bug in JQuery UI 1.5.3">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
     <a href="/2008/12/10/problem-solving-lessons-relearnt.html">
       <h2>Problem solving lessons relearnt</h2>
     </a>
@@ -293,26 +339,6 @@ Liberator Free Edition comes with a comprehensive client library for integrating
 
 </p>
     <p><a href="/2008/05/20/how-to-install-caplin-systems-liberator-free-edition-on-windows.html" title="How to install Caplin Systems' Liberator Free Edition on Windows">Read more...</a></p>
-  </div>
-
-</article>
-
-<article class="box post">
-
-  <header class="style1">
-    <a href="/2008/05/17/synaptics-scrolling-not-working.html">
-      <h2>Synaptics scrolling not working</h2>
-    </a>
-    <div class="post-date">17 May 2008</div>
-  </header>
-
-  <div class="posts-list">
-    
-    <p>I've just updated my Synaptics touchpad drivers and after a restart the scrolling no longer worked. I did the obvious, check the settings and "do a google" but could not find the solution anywhere. I then went back to the settings and then noticed a sub-settings option for the touchpad in the Device Settings tab. Select Synaptics TouchPad and then click the Settings...  button. A further properties dialog will appear with a Virtual Scrolling option. Select this option and then enable your scrolling.
-
-
-</p>
-    <p><a href="/2008/05/17/synaptics-scrolling-not-working.html" title="Synaptics scrolling not working">Read more...</a></p>
   </div>
 
 </article>

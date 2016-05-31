@@ -50,8 +50,8 @@ small {
 }
 
 /** don't put margins on internal lists */
-#content ul.toc ul,
-#content ol.toc ol {
+#content ul ul,
+#content ol ol {
 	margin-bottom: 0 !important;
 }
 

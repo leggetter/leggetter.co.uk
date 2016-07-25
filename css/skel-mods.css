@@ -185,3 +185,8 @@ div.highlight {
     padding: 0em 0 !important;
   }
 }
+
+#mce-EMAIL, 
+#mc-embedded-subscribe {
+  font-size: 0.8em;
+}

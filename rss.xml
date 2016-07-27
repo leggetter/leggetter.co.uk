@@ -66,7 +66,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p><small>Quoted definitions are taken from the <a href="https://en.wikipedia.org/wiki/Real-time_computing">Real-Time Computing entry</a> on Wikipedia</small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 22 Apr 2016 00:00:00 +0100</pubDate>
+      <pubDate>Fri, 22 Apr 2016 00:00:00 -0400</pubDate>
     </item>
     
     <item>
@@ -144,7 +144,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p>You can always reach me on my personal email, but for anything Nexmo related please reach out via <a href="mailto:leggetter@nexmo.com">leggetter@nexmo.com</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 25 Feb 2016 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 25 Feb 2016 00:00:00 -0500</pubDate>
     </item>
     
     <item>
@@ -327,7 +327,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 </small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 03 Feb 2016 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 03 Feb 2016 00:00:00 -0500</pubDate>
     </item>
     
     <item>
@@ -351,7 +351,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p>I&#39;d love to hear your feedback on this real-time fundamentals series. So don&#39;t hesitate to <a href="mailto:phil@leggetter.co.uk?subject=real-time%20data%20series">get in touch</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 18 Dec 2015 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 18 Dec 2015 00:00:00 -0500</pubDate>
     </item>
     
     <item>
@@ -377,7 +377,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <iframe width="640" height="360" src="https://www.youtube.com/embed/XXgSFbphW88?start=22" frameborder="0" allowfullscreen></iframe>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 02 Nov 2015 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 02 Nov 2015 00:00:00 -0500</pubDate>
     </item>
     
     <item>
@@ -590,7 +590,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p><strong>~Learn. Create. Share~</strong></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 13 Apr 2015 00:00:00 +0100</pubDate>
+      <pubDate>Mon, 13 Apr 2015 00:00:00 -0400</pubDate>
     </item>
     
     <item>
@@ -786,7 +786,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p><img src="http://www.leggetter.co.uk/images/me-devweek-2015.jpg" alt="Phil Leggetter speaking at DevWeek 2015"></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 28 Mar 2015 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 28 Mar 2015 00:00:00 -0400</pubDate>
     </item>
     
     <item>
@@ -1053,7 +1053,7 @@ A Quantum Leap in Scalability for the Web</a></li>
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 26 Jan 2015 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 26 Jan 2015 00:00:00 -0500</pubDate>
     </item>
     
     <item>
@@ -1121,7 +1121,7 @@ A Quantum Leap in Scalability for the Web</a></li>
 <p>If BladeRunnerJS sounds like the sort of challenge you&#39;d like to take on, then Caplin may have a role for you. Please <a href="mailto:phil@leggetter.co.uk">drop me an email</a> if this interests you.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 04 Dec 2014 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 04 Dec 2014 00:00:00 -0500</pubDate>
     </item>
     
     <item>
@@ -1141,7 +1141,7 @@ A Quantum Leap in Scalability for the Web</a></li>
 <iframe width="640" height="360" src="//www.youtube.com/embed/E2GhY9NaDkQ?rel=0" frameborder="0" allowfullscreen=""></iframe>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 29 Sep 2014 00:00:00 +0100</pubDate>
+      <pubDate>Mon, 29 Sep 2014 00:00:00 -0400</pubDate>
     </item>
     
     <item>
@@ -1327,7 +1327,7 @@ a place to discuss and evolve web component best-practices</a></li>
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 06 Aug 2014 00:00:00 +0100</pubDate>
+      <pubDate>Wed, 06 Aug 2014 00:00:00 -0400</pubDate>
     </item>
     
     <item>
@@ -10409,7 +10409,7 @@ tags:
 <div class="highlight"><pre><code class="language-csharp" data-lang="csharp">string tempPath = System.IO.Path.GetTempPath();
 </code></pre></div>]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 02 Feb 2007 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 02 Feb 2007 00:00:00 -0500</pubDate>
     </item>
     
     <item>

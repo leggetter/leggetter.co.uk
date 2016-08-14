@@ -84,6 +84,40 @@
 <article class="box post">
 
   <header class="style1">
+    <a href="/2010/08/04/master-does-not-have-a-definition-for-viewdata-asp-net-mvc2.html">
+      <h2>Master does not have a definition for ViewData (ASP.NET MVC2)</h2>
+    </a>
+    <div class="post-date">04 Aug 2010</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>I'm building an ASP.NET MVC2 web application and I was trying to access ViewData in my Site.Master page and I kept getting "master does not have a definition for ViewData".
+
+[code lang="xml"]&lt;%= ViewData[&quot;topic&quot;] %&gt;[/code]
+
+The simple answer was that my Master Page was not an ASP.NET MVC2 master page. Somehow I had a standard master page.
+
+So, all I did was swap the existing page declaration
+
+[code lang="xml"]&lt;%@ Master Language=&quot;C#&quot; AutoEventWireup=&quot;true&quot; CodeBehind=&quot;Site.Master.cs&quot; Inherits=&quot;HubSubscriber.Views.Shared.Site&quot; %&gt;[/code]
+
+With an ASP.NET MVC2 declaration:
+
+[code lang="xml"]&lt;%@ Master Language=&quot;C#&quot; Inherits=&quot;System.Web.Mvc.ViewMasterPage&quot; %&gt;[/code]
+
+And bingo! ViewData was now accessible from my master page.
+
+This post on Passing Data to View Master Pages may also be useful.
+</p>
+    <p><a href="/2010/08/04/master-does-not-have-a-definition-for-viewdata-asp-net-mvc2.html" title="Master does not have a definition for ViewData (ASP.NET MVC2)">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
     <a href="/http:/blog.kwwika.com/the-death-of-f5-ah-i-get-it">
       <h2>The death of "F5" Ah, I get it!</h2>
     </a>
@@ -247,29 +281,6 @@ Find out more about the Kwwika World ...</p>
     <p>        
 	This video shows a chat application built using the Kwwika JavaScript API and a chat application built using the Kwwika Silverlight API. Both applications can communicate with each other in real-time using the Kwwika service.We&#39;ll releas...</p>
     <p><a href="/http:/blog.kwwika.com/kwwika-silverlight-api-chat-example" title="Kwwika Silverlight API - Chat Example">Read more...</a></p>
-  </div>
-
-</article>
-
-<article class="box post">
-
-  <header class="style1">
-    <a href="/2010/05/10/kwwika-silverlight-api-chat-example-2.html">
-      <h2>Kwwika Silverlight API - Chat Example</h2>
-    </a>
-    <div class="post-date">10 May 2010</div>
-  </header>
-
-  <div class="posts-list">
-    
-    <p>
-    This video shows a chat application built using the Kwwika JavaScript API and a chat application built using the Kwwika Silverlight API. Both applications can communicate with each other in real-time using the Kwwika service.
-
-We&#39;ll release the source code for both applications in the very near future.
-
-
-</p>
-    <p><a href="/2010/05/10/kwwika-silverlight-api-chat-example-2.html" title="Kwwika Silverlight API - Chat Example">Read more...</a></p>
   </div>
 
 </article>

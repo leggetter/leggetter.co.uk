@@ -12,6 +12,157 @@
     <atom:link href="http://www.leggetter.co.uk/rss.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title><![CDATA[Discovering the Real-Time Data in Your Apps]]></title>
+      <link>http://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html</link>
+      <guid isPermaLink="true">http://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html</guid>
+      <description><![CDATA[<p><small>Originally written by me and published on the <a href="https://blog.pusher.com/real-time-data-discovery-in-your-apps/">Pusher blog</a></small></p>
+
+<p>Real-time notifications, data visualisation, communication, collaboration… Whether the aim is to improve user experience or to facilitate the management of your infrastructure, the ability to collect, process, and deliver data in real-time is critical.</p>
+
+<p>Every application has real-time data, but turning this data into useful functionality requires three steps:</p>
+
+<ol>
+<li> Identify the points within a system where it can be found.</li>
+<li> Know how to make it accessible to other systems and applications.</li>
+<li> Understand how to consume and use the data within an application in order to build real-time features.</li>
+</ol>
+
+<p>During this series of posts on <strong>real-time data discovery</strong> I’ll show you how to identify the real-time data within your apps, give you some examples of what you can do with that data and finally I’ll provide some examples of how to do it. This series is based on a talk I’ve given so there’s also a “You have real-time data” screencast that we’ll share with the final post.</p>
+
+<p>In this first edition I’ll prove to you that you do have real-time data in your apps and tell you where you can find it. If you’re asking yourself “What is Real-Time?” in the context of real-time web and Internet apps then first take a look at the <a href="http://www.leggetter.co.uk/2016/04/22/what-is-realtime.html">What is Real-Time?</a> post.</p>
+
+<p>With the background out of the way, let’s find that real-time data!</p>
+
+<h2>Where do you find Real-Time Data?</h2>
+
+<p>Back in 2011 Mike Brevoort gave a number of talks with the title <strong>The Evented Web</strong>. In those talks he covered things like WebHooks, Comet and <a href="https://en.wikipedia.org/wiki/WebSocket">WebSocket</a>. But in reviewing the <a href="http://www.slideshare.net/brevoortm/the-evented-web">slides</a> from these talks recently there were two that really stood out.</p>
+
+<p><img src="http://www.leggetter.co.uk/images/call-you-406x300.png" alt="2011 Mike Brevoort - the Evented Web slide">
+<small><a href="http://www.slideshare.net/brevoortm/the-evented-web">2011 Mike Brevoort – the Evented Web</a></small></p>
+
+<p>This slide makes two very important points that are as relevant in 2015 as they were in 2011.</p>
+
+<blockquote>
+<p>When something happens</p>
+</blockquote>
+
+<p>Something happening in a system is an <strong>event</strong>. An event is likely to have an associated data payload that contains information about what just happened.</p>
+
+<blockquote>
+<p>I’ll just call you</p>
+</blockquote>
+
+<p>Instead of having to ask a system to see if anything has happened, the system will instead tell the interested parties about it. It will <strong>push</strong> the event and associated data to other systems.</p>
+
+<p>A few slides later Mike depicts a change taking place (in code) and the update being pushed to GitHub. GitHub then notifies a number of interested parties about that change; Jenkins CI for build, Boxcar for Push Notifications, Jira to resolve an issue and GAE for some custom functionality. These events are all triggered by a <strong>change</strong>.</p>
+
+<p><img src="http://www.leggetter.co.uk/images/github-webhooks-403x300.png" alt="GitHub, WebHooks, Interactions &amp; Events - 2011 Mike Brevoort - the Evented Web">
+<small><a href="http://www.slideshare.net/brevoortm/the-evented-web">2011 Mike Brevoort – the Evented Web</a></small></p>
+
+<p>What these slides tell us is that if you can identify the events within your systems then you you’ve found real-time data. Additionally they tell us that events are caused by <strong>changes in data</strong> (in this case the code) and <strong>interactions</strong> (the push of the code to GitHub).</p>
+
+<h2>Events – Changing Data</h2>
+
+<p>Applications are data-driven. They create data, display data, allow data to be updated and, in some cases, deleted. These operations are often referred to as <a href="https://en.wikipedia.org/wiki/Create,_read,_update_and_delete">CRUD</a> which stands for <strong>C</strong>reate, <strong>R</strong>ead, <strong>U</strong>pdate and <strong>D</strong>elete and it’s quite easy to find these within your applications.</p>
+
+<p>Of course, database interactions are also system interactions. But databases contain… well… data and any interaction with such a system has the high probability of representing a change in data. So it’s worth showing some specific examples.</p>
+
+<p>Firstly you can look for any SQL statements:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">INSERT INTO activities ...
+
+UPDATE activities WHERE ...
+
+</code></pre></div>
+<p>NoSQL document interactions such as this <a href="https://www.mongodb.org">MongoDB</a> example:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">var insertDocument = function(db, callback) {
+   db.collection(&#39;activities&#39;).insertOne( {
+      &quot;text&quot; : &quot;Phil is talking&quot;
+   }, function(err, result) {
+  });
+};
+
+</code></pre></div>
+<p>Or any interactions with an <a href="http://en.wikipedia.org/wiki/Object-relational_mapping">ORM (Object Relational Mapper)</a></p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">Activity a = repository.GetActivity(10);
+a.text = &quot;Phil is still talking&quot;;
+p.save();
+
+</code></pre></div>
+<h2>Events – System Interactions</h2>
+
+<p>Next let’s take a look at some other, more generic, system interactions.</p>
+
+<h3>Web Endpoints</h3>
+
+<p>Something that all web apps will have is a web endpoint. Whether to serve HTML content to users or as part of a Web API, each interaction represents an event with an associated data payload. Whether it’s Sinatra, Rails, Express, SailsJS, Flask, Django, Laravel, Silex, ASP.NET MVC … all of these frameworks provide ways of defining routes and web endpoints. Each interaction produces real-time data.</p>
+
+<p>With Sinatra:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">post &#39;/interact&#39; do
+  # endpoint called
+end
+
+</code></pre></div>
+<p>Or Express:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">app.post(&#39;/interact&#39;, function(req, res) {
+  // endpoint called
+});
+
+</code></pre></div>
+<h3>Requests &amp; Responses</h3>
+
+<p>If any web endpoint interaction is an interaction event then so is any request and response.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">var request = require(&#39;request&#39;);
+
+var url = &#39;https://www.leggetter.co.uk&#39;;
+request(url, function (error, response, body) {
+  // response
+});
+
+</code></pre></div>
+<p>The request event data has a URL and the potential for some payload depending on the type of request. The response event provides the result data. All real-time data as it happens.</p>
+
+<h3>Logging</h3>
+
+<p>We log information about what’s going on within our applications as it happens. We log it because it has some use. Not only historically, but also – for certain log levels – the instant that the log entry is created.</p>
+
+<p>In Ruby using <code>logger</code>:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">require &#39;logger&#39;
+$LOG = Logger.new(&#39;log_file.log&#39;, &#39;monthly&#39;)   
+$LOG.debug(&quot;I&#39;m logging stuff!&quot;)
+
+</code></pre></div>
+<p>In Node using <code>winston</code>:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
+winston.log(&#39;critical&#39;, errorEventPayload)
+
+</code></pre></div>
+<p>If we’re logging at <code>critical</code> then surely there’s much more value in getting that data now – in real-time – than there is grepping the logs after the event.</p>
+
+<h3>Many more system interactions</h3>
+
+<p>Web endpoints, request/response, logging, CRON jobs, incoming email… how about any form of I/O? Systems interactions are events that take place with a data payload that in some cases should be instantly distributed and exposed by other systems to use right away.</p>
+
+<p>What other types of interaction are there?</p>
+
+<h3>User Interactions</h3>
+
+<p>User interaction events and associated data payload represent real-time data. A user navigating a website is ultimately a browser interacting with a web endpoint. But there is additional data associated with that interaction; the user data. In a SPA (Single Page App) a user navigating views, clicking the UI, moving the mouse, touching the screen, dragging, typing; each an interaction, each with not only the action data, but also the user data to give much richer context.</p>
+
+<p>When users communicate with each other it is a clear real-time interaction – <em>@mentioning</em> being a good example. However, other actions like commenting on a post is an action where other users may want to know about that comment quickly in order to change the experience into a conversation. A user updating data that others are interested in becomes an event that results in user-to-user interactions.</p>
+
+<h2>You Have Real-Time Data</h2>
+
+<p>Real-time data discovery in your apps is actually pretty easy. If you weren’t convinced that you had real-time data within your apps when you started reading this blog post, I hope you are now. If you have events in your web apps, there are changes in data, or there are any interactions between components and systems then <strong>you do have real-time data</strong>. And now you know where you can find it!</p>
+
+<h2>Coming soon…</h2>
+
+<p>In the next post of this series I’ll provide example of what you can do with the real-time data that you already have; from using the data to understanding what’s going on in your systems right now to building awesome real-time features for your users.</p>
+]]></description>
+      <dc:creator>Phil Leggetter</dc:creator>
+      <pubDate>Sun, 14 Aug 2016 00:00:00 +0100</pubDate>
+    </item>
+    
+    <item>
       <title><![CDATA[What is Real-Time?]]></title>
       <link>http://www.leggetter.co.uk/2016/04/22/what-is-realtime.html</link>
       <guid isPermaLink="true">http://www.leggetter.co.uk/2016/04/22/what-is-realtime.html</guid>
@@ -66,7 +217,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p><small>Quoted definitions are taken from the <a href="https://en.wikipedia.org/wiki/Real-time_computing">Real-Time Computing entry</a> on Wikipedia</small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 22 Apr 2016 00:00:00 -0400</pubDate>
+      <pubDate>Fri, 22 Apr 2016 00:00:00 +0100</pubDate>
     </item>
     
     <item>
@@ -144,7 +295,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p>You can always reach me on my personal email, but for anything Nexmo related please reach out via <a href="mailto:leggetter@nexmo.com">leggetter@nexmo.com</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 25 Feb 2016 00:00:00 -0500</pubDate>
+      <pubDate>Thu, 25 Feb 2016 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -327,7 +478,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 </small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 03 Feb 2016 00:00:00 -0500</pubDate>
+      <pubDate>Wed, 03 Feb 2016 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -351,7 +502,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p>I&#39;d love to hear your feedback on this real-time fundamentals series. So don&#39;t hesitate to <a href="mailto:phil@leggetter.co.uk?subject=real-time%20data%20series">get in touch</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 18 Dec 2015 00:00:00 -0500</pubDate>
+      <pubDate>Fri, 18 Dec 2015 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -377,7 +528,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <iframe width="640" height="360" src="https://www.youtube.com/embed/XXgSFbphW88?start=22" frameborder="0" allowfullscreen></iframe>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 02 Nov 2015 00:00:00 -0500</pubDate>
+      <pubDate>Mon, 02 Nov 2015 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -590,7 +741,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p><strong>~Learn. Create. Share~</strong></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 13 Apr 2015 00:00:00 -0400</pubDate>
+      <pubDate>Mon, 13 Apr 2015 00:00:00 +0100</pubDate>
     </item>
     
     <item>
@@ -786,7 +937,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p><img src="http://www.leggetter.co.uk/images/me-devweek-2015.jpg" alt="Phil Leggetter speaking at DevWeek 2015"></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 28 Mar 2015 00:00:00 -0400</pubDate>
+      <pubDate>Sat, 28 Mar 2015 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -1053,7 +1204,7 @@ A Quantum Leap in Scalability for the Web</a></li>
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 26 Jan 2015 00:00:00 -0500</pubDate>
+      <pubDate>Mon, 26 Jan 2015 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -1121,7 +1272,7 @@ A Quantum Leap in Scalability for the Web</a></li>
 <p>If BladeRunnerJS sounds like the sort of challenge you&#39;d like to take on, then Caplin may have a role for you. Please <a href="mailto:phil@leggetter.co.uk">drop me an email</a> if this interests you.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 04 Dec 2014 00:00:00 -0500</pubDate>
+      <pubDate>Thu, 04 Dec 2014 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -1141,7 +1292,7 @@ A Quantum Leap in Scalability for the Web</a></li>
 <iframe width="640" height="360" src="//www.youtube.com/embed/E2GhY9NaDkQ?rel=0" frameborder="0" allowfullscreen=""></iframe>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 29 Sep 2014 00:00:00 -0400</pubDate>
+      <pubDate>Mon, 29 Sep 2014 00:00:00 +0100</pubDate>
     </item>
     
     <item>
@@ -1327,7 +1478,7 @@ a place to discuss and evolve web component best-practices</a></li>
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 06 Aug 2014 00:00:00 -0400</pubDate>
+      <pubDate>Wed, 06 Aug 2014 00:00:00 +0100</pubDate>
     </item>
     
     <item>
@@ -10409,7 +10560,7 @@ tags:
 <div class="highlight"><pre><code class="language-csharp" data-lang="csharp">string tempPath = System.IO.Path.GetTempPath();
 </code></pre></div>]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 02 Feb 2007 00:00:00 -0500</pubDate>
+      <pubDate>Fri, 02 Feb 2007 00:00:00 +0000</pubDate>
     </item>
     
     <item>

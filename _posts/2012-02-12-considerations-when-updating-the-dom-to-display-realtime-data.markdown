@@ -26,7 +26,7 @@ permalink: /2012/02/12/considerations-when-updating-the-dom-to-display-realtime-
 
 <p>For many web developers a script tag referencing in the jQuery library is one of the first elements to be added to any web page - it's even in some web framework templates by default. So, a good first test is to time how long it takes for jQuery to update an element a number of times.</p>
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
 
 <pre><code class="js" data-code='testDefinitions_jQueryNoCache'></code></pre>
 
@@ -156,13 +156,13 @@ $(function() {
 <p>The important thing is that you will know better than anybody else the sort of data that is going to be pushed into your app and it does with it. Balance performance and maintainability within your application and make decisions about how you are going to deal with updating the DOM based on that.</p>
 <p>If your application gets infrequent updates then you'll be fine using jQuery all the time. If your app gets a lot of realtime data streamed to it, maybe it's a trading application, then you'll need to fine-tune your app.</p>
 
-<script src="http://leggetter.github.com/script-cdn/jqplot/1.0.0b2/jquery.jqplot.min.js"></script>
-<script src="http://leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.canvasTextRenderer.min.js"></script>
-<script src="http://leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
-<script src="http://leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
-<script src="http://leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.barRenderer.min.js"></script>
-<script src="http://leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.categoryAxisRenderer.min.js"></script>
-<link type="text/css" rel="stylesheet" href="http://leggetter.github.com/script-cdn/jqplot/1.0.0b2/jquery.jqplot.min.css" />
+<script src="//leggetter.github.com/script-cdn/jqplot/1.0.0b2/jquery.jqplot.min.js"></script>
+<script src="//leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.canvasTextRenderer.min.js"></script>
+<script src="//leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+<script src="//leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script src="//leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.barRenderer.min.js"></script>
+<script src="//leggetter.github.com/script-cdn/jqplot/1.0.0b2/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+<link type="text/css" rel="stylesheet" href="//leggetter.github.com/script-cdn/jqplot/1.0.0b2/jquery.jqplot.min.css" />
 
 <script>
 $(function() {

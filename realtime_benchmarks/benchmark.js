@@ -1,11 +1,11 @@
 (function() {
 
-	head.js('http://cdn.pubnub.com/pubnub.min.js',
-				'http://js.pusher.com/2.1/pusher.min.js',
+	head.js('https://cdn.pubnub.com/pubnub.min.js',
+				'https://js.pusher.com/2.1/pusher.min.js',
 				'https://messaging-public.realtime.co/js/2.1.0/ortc.js',
 				'https://cdn.firebase.com/js/client/1.0.17/firebase.js',
-				'http://cdn.hydna.com/1/hydna.js',
-				'http://d7d63e3a.fanoutcdn.com/bayeux/static/faye-browser-min.js',
+				'https://cdnjs.cloudflare.com/ajax/libs/hydna/1.0.1/hydna.min.js',
+				'https://d7d63e3a.fanoutcdn.com/bayeux/static/faye-browser-min.js',
 				'https://cdn.datamcfly.com/DataMcFly.js',
 				'/realtime_benchmarks/realtime-benchmarks.min.js',
 				init );

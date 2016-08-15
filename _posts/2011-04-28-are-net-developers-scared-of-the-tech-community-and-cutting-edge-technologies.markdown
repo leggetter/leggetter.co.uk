@@ -6,11 +6,11 @@ title: Are .NET developers scared of the tech community and cutting edge technol
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 12598
-wordpress_url: "http://www.leggetter.co.uk/?p=12598"
+wordpress_url: "https://www.leggetter.co.uk/?p=12598"
 date: "2011-04-28 14:32:09 +0100"
 date_gmt: "2011-04-28 13:32:09 +0100"
 categories:

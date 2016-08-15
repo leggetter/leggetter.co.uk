@@ -6,9 +6,9 @@ title: Google Adsense could easily be better
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\t\r\nI was just looking at my web stats and was presented with a Chrome advertisement at the top of the page. But I&#039;m already using Chrome so what&#039;s the point in showing me an advert for it. That&#039;s just a wasted advert impression.Goo..."
 wordpress_id: 1894
 wordpress_url: "http://leggetter.posterous.com/google-adsense-could-easily-be-better"

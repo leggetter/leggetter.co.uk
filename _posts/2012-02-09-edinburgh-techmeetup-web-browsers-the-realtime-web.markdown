@@ -6,11 +6,11 @@ title: "Edinburgh Techmeetup, Web Browsers & the Realtime Web"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 22601
-wordpress_url: "http://www.leggetter.co.uk/?p=22601"
+wordpress_url: "https://www.leggetter.co.uk/?p=22601"
 date: "2012-02-09 10:48:33 +0000"
 date_gmt: "2012-02-09 10:48:33 +0000"
 categories:

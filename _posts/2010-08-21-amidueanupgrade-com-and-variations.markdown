@@ -6,9 +6,9 @@ title: AmIDueAnUpgrade.com (and variations)
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\t\r\nJust had a little idea for a website/web application that allows you to check when you are due to upgrade your mobile phone and a few other things. Something probably exists but here are a few ideas:Enter the details of your mobile phone co..."
 wordpress_id: 1379
 wordpress_url: "http://leggetter.posterous.com/amidueanupgradecom-and-variations"

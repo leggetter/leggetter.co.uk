@@ -6,11 +6,11 @@ title: "The Right Place At The Right Time: How The Real-Time Web Influences The 
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 22012
-wordpress_url: "http://www.leggetter.co.uk/?p=22012"
+wordpress_url: "https://www.leggetter.co.uk/?p=22012"
 date: "2011-11-09 17:09:37 +0000"
 date_gmt: "2011-11-09 17:09:37 +0000"
 categories:

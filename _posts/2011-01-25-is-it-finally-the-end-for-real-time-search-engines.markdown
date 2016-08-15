@@ -6,9 +6,9 @@ title: Is It Finally the End for Real-time Search Engines?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<a href=\"http://www.flickr.com/photos/blakespot/4011035061/\"><img class=\"imgRight\" src=\"http://blog.programmableweb.com/wp-content/stopwatch.jpg\" alt=\"Real-time\" width=\"100\" height=\"75\" /></a>During the past four months we've seen not one but two well known real-time search engines disappear. First there was <a href=\"http://www.oneriot.com/\">OneRiot</a>, which in October 2010 <a href=\"http://blog.oneriot.com/post/1299059218/oneriot-officially-launches-advertising-network-for-the\">decided to focus on advertising</a>. More recently, <a href=\"http://blog.programmableweb.com/2011/01/24/collecta-drops-its-real-time-search-api/\">Collecta closed it's real-time search engine and API</a> to focus on alternative real-time products. Digging further into real-time search offerings you will also discover that <a href=\"http://www.crowdeye.com/\">crowdeye</a> has also decided to pull its real-time search engine. This now appears to leave <a href=\"http://topsy.com/\">Topsy</a>, a OneRiot partner, and of course Google as the main players focusing on building a real-time search destination. Does this trend signal the end for all real-time search engines or just that their focus has been wrong?"
 wordpress_id: 5896
 wordpress_url: "http://blog.programmableweb.com/?p=17796"

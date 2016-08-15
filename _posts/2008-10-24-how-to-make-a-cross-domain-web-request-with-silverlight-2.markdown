@@ -6,12 +6,12 @@ title: How to make a cross domain web request with SilverLight 2
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "To make a cross domain web request with SilverLight 2 really isn't that tough. I did have some problems with RC0 but I have no idea why. I just tried writing a little app to do this and it worked straight away.\r\n"
 wordpress_id: 60
-wordpress_url: "http://www.leggetter.co.uk/?p=60"
+wordpress_url: "https://www.leggetter.co.uk/?p=60"
 date: "2008-10-24 12:16:18 +0100"
 date_gmt: "2008-10-24 12:16:18 +0100"
 categories:
@@ -54,7 +54,7 @@ private void RequestButton_Click(object sender, RoutedEventArgs e)<br />
     try<br />
     {<br />
         // Create and being making the request/getting the response<br />
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("http://www.leggetter.co.uk/"));<br />
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("https://www.leggetter.co.uk/"));<br />
         request.BeginGetResponse(HandleResponse, request);<br />
     }<br />
     catch (Exception ex)<br />

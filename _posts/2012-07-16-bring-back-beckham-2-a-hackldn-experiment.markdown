@@ -6,11 +6,11 @@ title: "Bring Back Beckham 2 - A #HackLDN experiment"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23402
-wordpress_url: "http://www.leggetter.co.uk/?p=23402"
+wordpress_url: "https://www.leggetter.co.uk/?p=23402"
 date: "2012-07-16 14:42:49 +0100"
 date_gmt: "2012-07-16 13:42:49 +0100"
 categories:

@@ -6,11 +6,11 @@ title: "Web Development Pic 'n' Mix"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23919
-wordpress_url: "http://www.leggetter.co.uk/?p=23919"
+wordpress_url: "https://www.leggetter.co.uk/?p=23919"
 date: "2013-07-18 01:21:42 +0100"
 date_gmt: "2013-07-18 00:21:42 +0100"
 categories:

@@ -6,11 +6,11 @@ title: "Ideas for #APIHackathon"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 22721
-wordpress_url: "http://www.leggetter.co.uk/?p=22721"
+wordpress_url: "https://www.leggetter.co.uk/?p=22721"
 date: "2012-02-18 11:33:40 +0000"
 date_gmt: "2012-02-18 11:33:40 +0000"
 categories:

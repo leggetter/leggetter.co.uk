@@ -6,9 +6,9 @@ title: "Want to try out the Kwwika API but don't want to register?"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tWe're try to get more and more people using Kwwika and we feel that registering is maybe a barrier to entry. So, we've decided to give everybody access to our service. The only caveat is that we've just enabled access from your local develop..."
 wordpress_id: 879
 wordpress_url: "http://blog.kwwika.com/want-to-try-out-the-kwwika-api-but-dont-want"

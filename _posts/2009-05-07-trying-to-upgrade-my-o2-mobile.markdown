@@ -6,11 +6,11 @@ title: Trying to upgrade my O2 mobile
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 170
-wordpress_url: "http://www.leggetter.co.uk/?p=170"
+wordpress_url: "https://www.leggetter.co.uk/?p=170"
 date: "2009-05-07 19:01:47 +0100"
 date_gmt: "2009-05-07 18:01:47 +0100"
 categories:

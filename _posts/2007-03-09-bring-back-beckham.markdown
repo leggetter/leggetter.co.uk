@@ -6,12 +6,12 @@ title: "Bring Back Beckham!"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "Back in October 2006 I had an idea for a website. I tend to come up with a variety of ideas for things, most of which I add a .com to the end of. This time my idea was based around the fact that the England football team were in terrible form having drawn 0-0 with Macedonia and that Steve McClaren, the England manager, was refusing to pick England's, and the world's, most recognised footballer, David Beckham.\r\n\r\n"
 wordpress_id: 16
-wordpress_url: "http://www.leggetter.co.uk/2007/03/09/bring-back-beckham.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/03/09/bring-back-beckham.html"
 date: "2007-03-09 12:46:12 +0000"
 date_gmt: "2007-03-09 11:46:12 +0000"
 categories:

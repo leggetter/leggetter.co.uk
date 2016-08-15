@@ -6,12 +6,12 @@ title: "My reply to: Which is the worst Transformer?"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "I follow <a title=\"Chris Garrett\" href=\"http://www.chrisg.com/\">Chris Garrett</a> on Twitter and he posted a link to a <a title=\"The worst Transformer\" href=\"http://www.carrentals.co.uk/blog/worst-transformer.html\">blog post about Which is the worst Transformer?</a>. As a kid I really liked The Transformers and felt compelled to defend some of them. I posted what is about to follow as a partly tongue-in-cheek comment but it's been \"awaiting moderation\" for hours so I just thought I'd dump it in my blog. I'm pretty sure that Chris will agree with me about Soundwave as he's got <a title=\"Chris Garratt's desk\" href=\"http://qik.com/video/965299\">the toy on his desk</a>.\r\n\r\nThe original blog post: <a title=\"The worst Transformer\" href=\"http://www.carrentals.co.uk/blog/worst-transformer.html\">Which is the worst Transformer? Blog post</a>\r\n\r\n"
 wordpress_id: 120
-wordpress_url: "http://www.leggetter.co.uk/?p=120"
+wordpress_url: "https://www.leggetter.co.uk/?p=120"
 date: "2009-02-03 00:10:21 +0000"
 date_gmt: "2009-02-02 23:10:21 +0000"
 categories:

@@ -6,11 +6,11 @@ title: " XBox 360 Power supply interfering with WIFI"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 5
-wordpress_url: "http://www.leggetter.co.uk/2007/01/25/xbox-360-power-supply-interfering-with-wifi.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/01/25/xbox-360-power-supply-interfering-with-wifi.html"
 date: "2007-01-25 23:26:14 +0000"
 date_gmt: "2007-01-25 22:26:14 +0000"
 categories:

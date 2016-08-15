@@ -6,11 +6,11 @@ title: "Book review: Juggle! Rethink work, reclaim your life"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 257
-wordpress_url: "http://www.leggetter.co.uk/?p=257"
+wordpress_url: "https://www.leggetter.co.uk/?p=257"
 date: "2009-08-05 23:43:07 +0100"
 date_gmt: "2009-08-05 22:43:07 +0100"
 categories:

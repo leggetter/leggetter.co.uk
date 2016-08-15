@@ -5,7 +5,7 @@ excerpt: "Back in February 2014 I wrote a list of 10 predictions for realtime we
 
 ---
 
-Back in February 2014 I wrote a list of [10 predictions for realtime web technologies in 2014](http://www.leggetter.co.uk/2014/02/24/10-realtime-web-technology-predictions-for-2014.html) (well, it was 10 and 2 bonus items). In this blog post - sorry it's not 1 year on - I'll review those predictions and provide my thoughts on whether they were correct or not.
+Back in February 2014 I wrote a list of [10 predictions for realtime web technologies in 2014](https://www.leggetter.co.uk/2014/02/24/10-realtime-web-technology-predictions-for-2014.html) (well, it was 10 and 2 bonus items). In this blog post - sorry it's not 1 year on - I'll review those predictions and provide my thoughts on whether they were correct or not.
 
 Here's how I feel I did with the 10 predictions:
 
@@ -19,7 +19,7 @@ Before I dive in I wanted to cover my two highlights of 2014.
 
 The biggest news of the year in the real-time space was [Google's acquisition of Firebase](https://www.firebase.com/blog/2014-10-21-firebase-joins-google.html). I didn't predict this publicly, but I did actually ask [James Tamplin](https://twitter.com/jamestamplin) about this when I've met up with him in the past. I thought this was a possibility after Nest, who use Firebase for their API, was [acquired by Google](https://investor.google.com/releases/2014/0113.html) for $3.2 Billion. I personally also think that mobile is a big part of Google's decision since mobile developers tend not to want to deal with any infrastructure. Since Firebase offers login, persistence and security rules mobile devs don't have to. This will get developers onto the Google Cloud Platform which Firebase is - or probably will be - incorporated into.
 
-On a personal note I was very pleased to have [rejoined Pusher](http://www.leggetter.co.uk/2014/12/04/rejoining-pusher.html). Although I'd [spoken at FOWA](http://www.leggetter.co.uk/2014/01/19/video-choosing-realtime-web-app-tech-stack.html), Hackference ([2015 is coming](http://2015.hackference.co.uk/)) and [Scotch on the Rocks 2014](http://lanyrd.com/2014/sotr/sctqhm/#link-zczb) about real-time technologies and written [an article on Socket.IO](http://www.creativebloq.com/web-design/build-real-time-app-socketio-11514083) for .NET magazine I was really missing being part of the real-time technology scene. It's great to be a part of it again and it's great to be back at [Pusher](https://pusher.com).
+On a personal note I was very pleased to have [rejoined Pusher](https://www.leggetter.co.uk/2014/12/04/rejoining-pusher.html). Although I'd [spoken at FOWA](https://www.leggetter.co.uk/2014/01/19/video-choosing-realtime-web-app-tech-stack.html), Hackference ([2015 is coming](http://2015.hackference.co.uk/)) and [Scotch on the Rocks 2014](http://lanyrd.com/2014/sotr/sctqhm/#link-zczb) about real-time technologies and written [an article on Socket.IO](http://www.creativebloq.com/web-design/build-real-time-app-socketio-11514083) for .NET magazine I was really missing being part of the real-time technology scene. It's great to be a part of it again and it's great to be back at [Pusher](https://pusher.com).
 
 To the prediction reviews...
 
@@ -27,7 +27,7 @@ To the prediction reviews...
 
 > realtime will become a fundamental part of a significant number of new mainstream applications.
 
-<img src="http://www.leggetter.co.uk/wp-content/uploads/2014/02/icon_18986-150x150.png" alt="icon_18986" width="150" height="150" style="float:right; margin: 15px;" />
+<img src="https://www.leggetter.co.uk/wp-content/uploads/2014/02/icon_18986-150x150.png" alt="icon_18986" width="150" height="150" style="float:right; margin: 15px;" />
 
 We saw lot's more apps use real-time technology in 2014. 4 of the [top 10 apps listed on time.com](http://time.com/3582114/top-10-apps/) offer realtime experiences including Facebook Rooms, WhatsApp, SnapChat and Uber. The first three are clearly notifications and chat the latter for real-time geolocation of taxis.
 
@@ -47,7 +47,7 @@ Real-time technologies had already made their way into stacks like [Rails](http:
 
 > an increase in the number of frameworks that are built on the foundation of realtime.
 
-<img src="http://www.leggetter.co.uk/wp-content/uploads/2014/02/icon_8451-150x150.png" alt="icon_8451" width="150" height="150"  style="float:right; margin: 15px;" />
+<img src="https://www.leggetter.co.uk/wp-content/uploads/2014/02/icon_8451-150x150.png" alt="icon_8451" width="150" height="150"  style="float:right; margin: 15px;" />
 
 From what I saw in 2014 I got this wrong. What I actually saw happen was existing frameworks further establish their dominance.
 
@@ -69,7 +69,7 @@ Although chat is a collaborative experience that offers significant UX and produ
 
 If I'm entirely honest, before I sat down to write this follow-up post I thought I'd got this one wrong. It's not until you start to look at all the well-known services and APIs that you discover all those that are now offering real-time APIs of some kind; whether it's WebHooks or streaming endpoints.
 
-![Realtime APIs](http://www.leggetter.co.uk/images/apps-with-realtime-apis.png)
+![Realtime APIs](https://www.leggetter.co.uk/images/apps-with-realtime-apis.png)
 
 Obviously, some of the examples above have had real-time APIs for a while, whilst some of them are new.
 
@@ -107,7 +107,7 @@ In addition to these I've also been contacted about [Lowla](https://github.com/l
 
 An interesting point to note in a related space is that PubNub did open up data sync functionality in beta during 2014. But the majority of the links to this feature on PubNub now either redirect or fail.
 
-<a href="http://www.google.co.uk/search?q=pubnub+data&oq=pubnub+data&aqs=chrome..69i57j69i60l2j69i59.1437j0j1&sourceid=chrome&es_sm=119&ie=UTF-8&gws_rd=ssl&safe=strict#safe=strict&q=pubnub+data+sync"><img alt="Where has PubNub Data Sync gone?" src="http://www.leggetter.co.uk/images/pubnub-data-sync.png" /></a>
+<a href="http://www.google.co.uk/search?q=pubnub+data&oq=pubnub+data&aqs=chrome..69i57j69i60l2j69i59.1437j0j1&sourceid=chrome&es_sm=119&ie=UTF-8&gws_rd=ssl&safe=strict#safe=strict&q=pubnub+data+sync"><img alt="Where has PubNub Data Sync gone?" src="https://www.leggetter.co.uk/images/pubnub-data-sync.png" /></a>
 
 I'm not sure if this is due to PubNub's full product focus moving to "streams" or a lack of interest in another data sync solution. Does this, combined with the demise of GoInstant, suggest data sync doesn't have the expected demand? I would think [Syncano](http://www.syncano.com/) - a new BaaS - are betting on there still being big demand.
 
@@ -117,7 +117,7 @@ I'm not sure if this is due to PubNub's full product focus moving to "streams" o
 
 With so many companies and individuals using Socket.IO this was an easy prediction. It would seem that [CloudUp being acquired by Automattic](https://en.blog.wordpress.com/2013/09/25/cloudup-joins-the-automattic-family/) was a catalyst for this as Socket.IO is now supported by Automattic and lives under their GitHub organisation.
 
-![Socket.IO revival](http://www.leggetter.co.uk/images/socketio-revival.png)
+![Socket.IO revival](https://www.leggetter.co.uk/images/socketio-revival.png)
 
 [Socket.IO v1.0 was released](socket.io/blog/introducing-socket-io-1-0/) in May 2014 and there have been spikes of activity every now and again since then.
 
@@ -125,7 +125,7 @@ With so many companies and individuals using Socket.IO this was an easy predicti
 
 > In 2014 the usage of realtime web technology and IoT is going to skyrocket.
 
-<img src="http://www.leggetter.co.uk/wp-content/uploads/2014/02/icon_28698-150x150.png" alt="icon_28698" width="150" height="150" class="alignright size-thumbnail wp-image-24292">
+<img src="https://www.leggetter.co.uk/wp-content/uploads/2014/02/icon_28698-150x150.png" alt="icon_28698" width="150" height="150" class="alignright size-thumbnail wp-image-24292">
 
 What a year for the Internet of Things! Although I think this year will be even bigger. I don't think I really need to write anything here to justify my opinion that I got this one right. It wasn't a difficult prediction.
 
@@ -135,7 +135,7 @@ SmartThings was [acquired by Samsung](http://blog.smartthings.com/news/smartthin
 
 Ninja Blocks also seem to be doing pretty well with lots of partnerships.
 
-![Ninja Blocks partners](http://www.leggetter.co.uk/images/ninja-blocks-partners.png)
+![Ninja Blocks partners](https://www.leggetter.co.uk/images/ninja-blocks-partners.png)
 
 Take a look at the [Ninja Blocks blog](http://blog.ninjablocks.com/).
 
@@ -163,4 +163,4 @@ The real-time technology space is strange in that it's taking a comparatively lo
 
 I may even talk and blog about it. And maybe provide some more predictions... **If you'd like me to talk at your event about Real-Time Technology or write an article, please [get in touch](mailto:phil@leggetter.co.uk?subject=Real-Time Tech Talk or Article).**
 
-![Phil Leggetter speaking at DevWeek 2015](http://www.leggetter.co.uk/images/me-devweek-2015.jpg)
+![Phil Leggetter speaking at DevWeek 2015](https://www.leggetter.co.uk/images/me-devweek-2015.jpg)

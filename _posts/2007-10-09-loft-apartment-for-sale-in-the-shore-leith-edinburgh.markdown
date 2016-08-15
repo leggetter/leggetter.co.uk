@@ -6,11 +6,11 @@ title: "Loft Apartment for Sale in The Shore (Leith), Edinburgh"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 33
-wordpress_url: "http://www.leggetter.co.uk/2007/10/09/loft-apartment-for-sale-in-the-shore-leith-edinburgh.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/10/09/loft-apartment-for-sale-in-the-shore-leith-edinburgh.html"
 date: "2007-10-09 13:22:11 +0100"
 date_gmt: "2007-10-09 12:22:11 +0100"
 categories:

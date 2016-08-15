@@ -6,12 +6,12 @@ title: "HP/Compaq nw9440: the purchase, review, problems and solutions"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
-excerpt: "In June 2006 I started working as a self employed software consultant. To mark this momentous occasion I decided to buy myself a shiny new laptop (<a href=\"http://www.leggetter.co.uk/2007/05/22/linkstation-nas-folder-share-with-windows-vista.html\">as mentioned in an earlier post</a>). After a reasonable amount of searching, including asking those I know who are knowledgeable about such things, I plumped for the <a href=\"http://h10010.www1.hp.com/wwpc/uk/en/sm/WF06b/21675-283229-283229-283229-12434682-12401250-78003215.html\">HP/Compaq nw9440</a>.\r\n\r\n"
+author_url: "https://www.leggetter.co.uk"
+excerpt: "In June 2006 I started working as a self employed software consultant. To mark this momentous occasion I decided to buy myself a shiny new laptop (<a href=\"https://www.leggetter.co.uk/2007/05/22/linkstation-nas-folder-share-with-windows-vista.html\">as mentioned in an earlier post</a>). After a reasonable amount of searching, including asking those I know who are knowledgeable about such things, I plumped for the <a href=\"http://h10010.www1.hp.com/wwpc/uk/en/sm/WF06b/21675-283229-283229-283229-12434682-12401250-78003215.html\">HP/Compaq nw9440</a>.\r\n\r\n"
 wordpress_id: 31
-wordpress_url: "http://www.leggetter.co.uk/2007/09/11/hpcompaq-nw9440-the-purchase-review-problems-and-solutions.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/09/11/hpcompaq-nw9440-the-purchase-review-problems-and-solutions.html"
 date: "2007-09-11 12:11:37 +0100"
 date_gmt: "2007-09-11 11:11:37 +0100"
 categories:

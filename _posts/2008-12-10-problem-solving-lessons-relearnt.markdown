@@ -6,12 +6,12 @@ title: Problem solving lessons relearnt
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
-excerpt: "I've had one of those days. I set out early this morning aware that I had a tough task ahead of me at work. By the end of the day I've made very little progress.\r\n<p style=\"text-align: center;\"><img class=\"size-medium wp-image-75 alignnone\" title=\"Thinking...\" src=\"http://www.leggetter.co.uk/wp-content/uploads/2008/12/chimpanzee_thinking_poster-234x300.jpg\" alt=\"\" width=\"234\" height=\"300\" /></p>\r\n\r\n\_\r\n\r\n\_The silly thing is that I know exactly what mistakes I've made today that have hindered my progress and what's worse, I've made the same mistakes before.\r\n<h2>"
+author_url: "https://www.leggetter.co.uk"
+excerpt: "I've had one of those days. I set out early this morning aware that I had a tough task ahead of me at work. By the end of the day I've made very little progress.\r\n<p style=\"text-align: center;\"><img class=\"size-medium wp-image-75 alignnone\" title=\"Thinking...\" src=\"https://www.leggetter.co.uk/wp-content/uploads/2008/12/chimpanzee_thinking_poster-234x300.jpg\" alt=\"\" width=\"234\" height=\"300\" /></p>\r\n\r\n\_\r\n\r\n\_The silly thing is that I know exactly what mistakes I've made today that have hindered my progress and what's worse, I've made the same mistakes before.\r\n<h2>"
 wordpress_id: 74
-wordpress_url: "http://www.leggetter.co.uk/?p=74"
+wordpress_url: "https://www.leggetter.co.uk/?p=74"
 date: "2008-12-10 23:06:16 +0000"
 date_gmt: "2008-12-10 22:06:16 +0000"
 categories:

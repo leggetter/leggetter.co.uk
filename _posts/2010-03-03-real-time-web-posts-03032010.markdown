@@ -6,12 +6,12 @@ title: Real-Time Web Posts 03/03/2010
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
-excerpt: "I'm doing my best to keep up to speed on any news related to the real-time web. I follow interesting people on Twitter who tweet out links, I subscribe to RSS feeds and I've got <a href=\"http://www.google.com/alerts\">Google Alerts</a> set up on a number of phrases. Since I'm doing all this work I thought it would be a good idea to start sharing it by publishing the findings in an occasional summary blog post. I generally don't like blog posts which just say \"this is an interesting article\" but sometimes, if it raises awareness of good articles, it can be useful. Hopefully it will be.\r\n\r\nI tend to first post the links on the <a href=\"http://www.linkedin.com/groups?&amp;gid=2578818\">Real-Time Web Software and Technologies LinkedIn group</a> so if you are interested on getting the news as I find it, or contributing your own real-time web finds then please join <a href=\"http://www.linkedin.com/groups?&amp;gid=2578818\">the group</a>. Also feel free to <a href=\"http://twitter.com/leggetter\">Tweet at me</a> or <a href=\"http://www.leggetter.co.uk/contact-me\">contact me via the website</a> if you find anything interesting and relevant.\r\n\r\n"
+author_url: "https://www.leggetter.co.uk"
+excerpt: "I'm doing my best to keep up to speed on any news related to the real-time web. I follow interesting people on Twitter who tweet out links, I subscribe to RSS feeds and I've got <a href=\"http://www.google.com/alerts\">Google Alerts</a> set up on a number of phrases. Since I'm doing all this work I thought it would be a good idea to start sharing it by publishing the findings in an occasional summary blog post. I generally don't like blog posts which just say \"this is an interesting article\" but sometimes, if it raises awareness of good articles, it can be useful. Hopefully it will be.\r\n\r\nI tend to first post the links on the <a href=\"http://www.linkedin.com/groups?&amp;gid=2578818\">Real-Time Web Software and Technologies LinkedIn group</a> so if you are interested on getting the news as I find it, or contributing your own real-time web finds then please join <a href=\"http://www.linkedin.com/groups?&amp;gid=2578818\">the group</a>. Also feel free to <a href=\"http://twitter.com/leggetter\">Tweet at me</a> or <a href=\"https://www.leggetter.co.uk/contact-me\">contact me via the website</a> if you find anything interesting and relevant.\r\n\r\n"
 wordpress_id: 726
-wordpress_url: "http://www.leggetter.co.uk/?p=726"
+wordpress_url: "https://www.leggetter.co.uk/?p=726"
 date: "2010-03-03 09:12:45 +0000"
 date_gmt: "2010-03-03 09:12:45 +0000"
 categories:
@@ -45,7 +45,7 @@ permalink: /2010/03/03/real-time-web-posts-03032010.html
 <h2>Real-Time Web technology</h2>
 <ul>
 <li><a href="http://www.web2media.net/laktek/2010/02/16/building-real-time-web-apps-with-rails3/">Building Real-Time web apps with Rails 3</a> - <a href="http://www.web2media.net/laktek/">LakTEK</a></li>
-<li><a href="/2010/02/27/using-real-time-web-software-and-technology-to-distribute-events.html">Using real-time web software and technology to distribute events</a> - <a href="http://www.leggetter.co.uk">Phil Leggetter</a> (that's me)</li>
+<li><a href="/2010/02/27/using-real-time-web-software-and-technology-to-distribute-events.html">Using real-time web software and technology to distribute events</a> - <a href="https://www.leggetter.co.uk">Phil Leggetter</a> (that's me)</li>
 <li><a href="http://blogs.computerworld.com/15612/its_not_just_twitter">It's not just Twitter</a> (who use Open Source real-time web technology) - <a href="http://blogs.computerworld.com/user/137">Steven J. Vaughan-Nichols</a></li>
 <li><a href="http://images.businessweek.com/ss/09/08/0806_real_time_web/">The Real-Time Web</a> (a list of web applications that are built on or user Real-Time Web technology - or claim to) - Robert D. Hof (<a href="http://www.businessweek.com/">Business Week</a>)</li>
 <li><a href="http://lightstreamer.blogspot.com/2010/02/lightstreamer-36-is-out.html">Lightstreamer 3.6 is out!</a> - Lightstreamer release new versions of their components including support for Silverlight, Flex AMF, and Bidirectional Web Streaming</li>

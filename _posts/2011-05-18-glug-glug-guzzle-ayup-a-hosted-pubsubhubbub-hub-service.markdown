@@ -6,9 +6,9 @@ title: "Glug, Glug: Guzzle Ayup a Hosted PubSubHubbub Hub Service"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "PubSubHubbub has become the standard protocol for real-time RSS and Atom feed subscription and delivery. But not everybody wants to host their own PubSubHubbub hub in the same way that hardly anybody hosts their own website, and why cloud services in general have become so popular. Guzzle Ayup has entered the market to offer a [...]"
 wordpress_id: 15057
 wordpress_url: "http://blog.programmableweb.com/?p=19415"

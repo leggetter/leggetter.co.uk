@@ -6,9 +6,9 @@ title: "Looking for a C# (ASP.NET MVC), jQuery &amp; Real-Time Web Contractor"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tI&#039;m very hopeful that I&#039;ll be looking to hire a contractor very soon and I thought I would post this to get a feeling for who is out there and interested. The skills I&#039;m looking for are as follows:EssentialC#Advanced JavaScriptTD..."
 wordpress_id: 9274
 wordpress_url: "http://leggetter.posterous.com/looking-for-a-c-javascript-real-time-web-cont"

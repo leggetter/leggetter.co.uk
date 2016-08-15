@@ -6,9 +6,9 @@ title: "Google doesn't always get it right"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tHere's an interesting example where Google really isn't returning the most relevant information.\r\n\r\nSearch for \"real-time web\" and realtime3w.com gets returned in 9th position. All they have is a slightly relevant URL.\r\n\r\nMaybe this is actually ..."
 wordpress_id: 1897
 wordpress_url: "http://leggetter.posterous.com/google-doesnt-always-get-it-right"

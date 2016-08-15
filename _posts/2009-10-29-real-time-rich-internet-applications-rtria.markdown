@@ -6,12 +6,12 @@ title: Real-Time Rich Internet Applications (RTRIA)
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<strong>Real-Time Rich Internet Applications</strong> (<strong>RTRIA</strong>s) are <a href=\"http://en.wikipedia.org/wiki/Rich_Internet_application\">RIA</a>s that consume and display real-time data. They have all the characteristics of an RIA with the added feature that data is being pushed to them in real-time as soon as it becomes available. This is in contrast to the current polling solution employed by most RIAs or other web applications that display updating data.\r\n\r\nI mentioned <strong>RTRIA</strong>s for the first time back in April 2009 in a post called \"<a href=\"http://blog.caplin.com/2009/04/20/what-is-the-real-time-web/\">What is the real-time web</a>\" on the Caplin Systems Platformability blog, and since then there has been a real-time web explosion. The \"real-time web\" is now <strong>the</strong> buzz phrase around the Internet that everybody is jumping on. Back in April I set up a <a href=\"http://www.google.com/alerts\">Google Alert</a> for the term \"real-time web\". Back then I got maybe one Google Alert a day for this term, probably less. Now, I get at least two dense emails a day from Google with people using the term for all sorts of things; real-time web stats, real-time analytics, real-time search, <a href=\"http://rsscloud.org/\">rssCloud</a>, <a href=\"http://code.google.com/p/pubsubhubbub/\">pubsubhubbub</a>, the list goes on. <em>This is not the real-time web!</em> Whilst some of the things on this list will help \_the web become <em>truly real-time</em> (rssCloud and pubsubhubbub may even form the back bone), none of these things give the user a truly real-time web experience.\r\n\r\n"
 wordpress_id: 456
-wordpress_url: "http://www.leggetter.co.uk/?p=456"
+wordpress_url: "https://www.leggetter.co.uk/?p=456"
 date: "2009-10-29 10:15:06 +0000"
 date_gmt: "2009-10-29 10:15:06 +0000"
 categories:

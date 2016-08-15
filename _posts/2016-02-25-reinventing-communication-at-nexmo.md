@@ -6,7 +6,7 @@ thumb: /images/nexmo.png
 
 ---
 
-When I [tweeted my availability](https://twitter.com/leggetter/status/685484634835148800) back on January 8th 2016 I wasn't sure if it would have any reach. But thanks to an amazing network of peers, and a popular post on [Defining Developer Relations](http://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html), I've ended up having lots of conversations with very smart people about potential opportunities.
+When I [tweeted my availability](https://twitter.com/leggetter/status/685484634835148800) back on January 8th 2016 I wasn't sure if it would have any reach. But thanks to an amazing network of peers, and a popular post on [Defining Developer Relations](https://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html), I've ended up having lots of conversations with very smart people about potential opportunities.
 
 As I reflected on the past year, and discussed developer relations with others, it became very clear that I had some criteria for my next role:
 
@@ -34,7 +34,7 @@ As well as Sid joining us full-time in the near future we also hope to be growin
 
 One of my first tasks in this new role is to work with the team to define a developer relations strategy. Since that strategy isn't fully defined yet (today is my first day) I can't say exactly what the team will be doing.
 
-However, based on the [AAARRRP Framework](http://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html) (from the Defining Developer Relations post) and my criteria for a role, I can confidently say that there will be a product and community focus to the activities we undertake.
+However, based on the [AAARRRP Framework](https://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html) (from the Defining Developer Relations post) and my criteria for a role, I can confidently say that there will be a product and community focus to the activities we undertake.
 
 Nexmo have some amazing customers including Airbnb, Expedia, Fitbit, GitHub, Snapchat and WhatsApp. These customers are using Nexmo because it's a great service with fantastic products. The job of the developer relations team will include raising awareness of Nexmo's products within developer communities and work with those communities to make sure these products solve problems for them in the most efficient way possible.
 

@@ -6,11 +6,11 @@ title: "HTML5DevConf - Oct 2012: Notes from the WebSocket panel"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23505
-wordpress_url: "http://www.leggetter.co.uk/?p=23505"
+wordpress_url: "https://www.leggetter.co.uk/?p=23505"
 date: "2012-10-24 10:14:29 +0100"
 date_gmt: "2012-10-24 09:14:29 +0100"
 categories:

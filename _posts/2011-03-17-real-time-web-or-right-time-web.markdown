@@ -6,9 +6,9 @@ title: Real-Time Web or Right-Time Web?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<img src=\"http://blog.programmableweb.com/wp-content/pull-push.jpg\" alt=\"\" width=\"75\" height=\"75\" class=\"imgRight\" />Real-time and the real-time web continue to be a hot topic of conversation but is the term \"real-time\" getting used correctly? When we talk about real-time technology are we truly describing what the technology is delivering or is it being used and abused as just another marketing buzz word? Can we class any of the current technology solutions as truly real-time and can other solutions be defined in any other way? Is it too late to save \"real-time\" or will it forever be lost to marketing?"
 wordpress_id: 9294
 wordpress_url: "http://blog.programmableweb.com/?p=18560"

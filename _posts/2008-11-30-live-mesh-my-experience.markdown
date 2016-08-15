@@ -6,11 +6,11 @@ title: Live Mesh - my experience
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 63
-wordpress_url: "http://www.leggetter.co.uk/?p=63"
+wordpress_url: "https://www.leggetter.co.uk/?p=63"
 date: "2008-11-30 23:52:22 +0000"
 date_gmt: "2008-11-30 22:52:22 +0000"
 categories:

@@ -6,12 +6,12 @@ title: MSDN e-book and podcast
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
-excerpt: "A few months back I wrote an article for the UK MSDN Flash newsletter. That article is now available in a <a href=\"http://www.leggetter.co.uk/2010/01/03/msdn-e-book-and-podcast.html#ebook\">free e-book</a> and my <a href=\"http://www.leggetter.co.uk/2010/01/03/msdn-e-book-and-podcast.html#podcast\">podcast</a> interview about the article with <a href=\"http://blogs.msdn.com/ericnel/\">Eric Nelson</a> is now also available.\r\n"
+author_url: "https://www.leggetter.co.uk"
+excerpt: "A few months back I wrote an article for the UK MSDN Flash newsletter. That article is now available in a <a href=\"https://www.leggetter.co.uk/2010/01/03/msdn-e-book-and-podcast.html#ebook\">free e-book</a> and my <a href=\"https://www.leggetter.co.uk/2010/01/03/msdn-e-book-and-podcast.html#podcast\">podcast</a> interview about the article with <a href=\"http://blogs.msdn.com/ericnel/\">Eric Nelson</a> is now also available.\r\n"
 wordpress_id: 629
-wordpress_url: "http://www.leggetter.co.uk/?p=629"
+wordpress_url: "https://www.leggetter.co.uk/?p=629"
 date: "2010-01-03 17:38:17 +0000"
 date_gmt: "2010-01-03 17:38:17 +0000"
 categories:

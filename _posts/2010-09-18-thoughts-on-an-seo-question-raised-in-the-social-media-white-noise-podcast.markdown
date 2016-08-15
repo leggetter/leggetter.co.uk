@@ -6,9 +6,9 @@ title: Thoughts on an SEO question raised in the Social Media White Noise podcas
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tFirst, it's worth having a listen to the Social Media White Noise Podcast episode.You can also view my comment on that page but since I wrote quite a bit I thought I'd copy it here: \r\n I've an opinion about the SEO point. Part of that is base..."
 wordpress_id: 1866
 wordpress_url: "http://leggetter.posterous.com/thoughts-on-an-seo-question-raised-in-the-soc"

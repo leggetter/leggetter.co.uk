@@ -6,11 +6,11 @@ title: .NET Obfuscators
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 53
-wordpress_url: "http://www.leggetter.co.uk/?p=53"
+wordpress_url: "https://www.leggetter.co.uk/?p=53"
 date: "2008-06-26 22:45:32 +0100"
 date_gmt: "2008-06-26 21:45:32 +0100"
 categories:

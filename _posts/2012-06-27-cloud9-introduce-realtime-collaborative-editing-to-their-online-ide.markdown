@@ -6,11 +6,11 @@ title: Cloud9 introduce realtime collaborative editing to their online IDE
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23376
-wordpress_url: "http://www.leggetter.co.uk/?p=23376"
+wordpress_url: "https://www.leggetter.co.uk/?p=23376"
 date: "2012-06-27 23:37:53 +0100"
 date_gmt: "2012-06-27 22:37:53 +0100"
 categories:

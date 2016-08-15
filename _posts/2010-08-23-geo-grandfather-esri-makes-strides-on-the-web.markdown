@@ -6,9 +6,9 @@ title: Geo Grandfather ESRI Makes Strides on the Web
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<a href=\"http://www.programmableweb.com/api/esri-arcgis-javascript\"><img src=\"http://www.programmableweb.com/images/apis/at869.png\" alt=\"ESRI ArcGIS JavaScript\" class=\"imgRight\" /></a>Most of the time we write about mapping, it admittedly includes Google Maps (we list over <a href=\"http://www.programmableweb.com/api/google-maps/mashups\">2000 Google Maps mashups</a>). However, <a href=\"http://esri.com/\">ESRI</a>, the biggest supplier of geographic tools for the enterprise, has made huge strides this year with its tools, including its own web mapping platform, <a href=\"http://www.programmableweb.com/api/esri-arcgis-javascript\">ESRI ArcGIS JavaScript API</a>."
 wordpress_id: 1410
 wordpress_url: "http://blog.programmableweb.com/?p=14267"

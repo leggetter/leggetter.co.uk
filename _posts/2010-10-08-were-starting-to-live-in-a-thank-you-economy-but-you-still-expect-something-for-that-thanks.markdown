@@ -6,9 +6,9 @@ title: "We're starting to live in a Thank You Economy but you still expect somet
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tI'm looking forward to Gary Vaynerchuk's new book called The Thank You Economy. I know what's going to be in it. But, I'm still going to buy it. This is the point that Gary will make in the book.\r\n\r\n\r\n\r\n\r\nI know what Gary means by \"The Thank You ..."
 wordpress_id: 1905
 wordpress_url: "http://leggetter.posterous.com/were-starting-to-live-in-a-thank-you-economy"

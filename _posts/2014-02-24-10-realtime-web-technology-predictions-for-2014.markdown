@@ -6,11 +6,11 @@ title: 10 Realtime Web Technology Predictions for 2014
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 24278
-wordpress_url: "http://www.leggetter.co.uk/?p=24278"
+wordpress_url: "https://www.leggetter.co.uk/?p=24278"
 date: "2014-02-24 08:54:30 +0000"
 date_gmt: "2014-02-24 08:54:30 +0000"
 categories:

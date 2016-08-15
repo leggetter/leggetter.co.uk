@@ -6,12 +6,12 @@ title: Colonsay Holiday 2008
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
-excerpt: "I've been back at work a week now after my holiday on <a title=\"Colonsay\" href=\"http://www.colonsay.org.uk/\">Colonsay</a> and I still think that I could have done with another week on this beautiful Scottish Isle.\r\n\r\n<a href=\"http://www.leggetter.co.uk/wp-content/uploads/2008/06/suc31237.jpg\"><img class=\"aligncenter size-medium wp-image-47\" title=\"Jo and I on a hill on Colonsay\" src=\"http://www.leggetter.co.uk/wp-content/uploads/2008/06/suc31237-300x225.jpg\" alt=\"\" width=\"300\" height=\"225\" /></a>\r\n"
+author_url: "https://www.leggetter.co.uk"
+excerpt: "I've been back at work a week now after my holiday on <a title=\"Colonsay\" href=\"http://www.colonsay.org.uk/\">Colonsay</a> and I still think that I could have done with another week on this beautiful Scottish Isle.\r\n\r\n<a href=\"https://www.leggetter.co.uk/wp-content/uploads/2008/06/suc31237.jpg\"><img class=\"aligncenter size-medium wp-image-47\" title=\"Jo and I on a hill on Colonsay\" src=\"https://www.leggetter.co.uk/wp-content/uploads/2008/06/suc31237-300x225.jpg\" alt=\"\" width=\"300\" height=\"225\" /></a>\r\n"
 wordpress_id: 46
-wordpress_url: "http://www.leggetter.co.uk/?p=46"
+wordpress_url: "https://www.leggetter.co.uk/?p=46"
 date: "2008-06-25 00:39:20 +0100"
 date_gmt: "2008-06-24 23:39:20 +0100"
 categories:

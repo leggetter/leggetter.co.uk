@@ -6,9 +6,9 @@ title: A Kwwika Twitter search v search.twitter.com v TweetDeck example
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tI&#39;ve just recorded a &quot;Kwwik&quot; demonstration of a Twitter page using the Kwwika service versus the http://search.twitter.com page versus TweetDeck to demonstrate the speed of the Kwwika service.Here&#39;s a link to the SPA 2010 c..."
 wordpress_id: 826
 wordpress_url: "http://blog.kwwika.com/a-kwwika-twitter-search-v-searchtwittercom-v"

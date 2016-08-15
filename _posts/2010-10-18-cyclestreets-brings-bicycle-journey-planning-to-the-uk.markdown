@@ -6,9 +6,9 @@ title: CycleStreets Brings Bicycle Journey Planning to the UK
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<a href=\"http://www.programmableweb.com/api/cyclestreets\"><img alt=\"CycleStreets\" src=\"http://www.programmableweb.com/images/apis/at2251.png\" class=\"imgRight\" /></a>Cycling in the UK is not only a popular past time but and also a real commuting choice. The UK has numerous defined cycle routes and many towns and cities have designated cycling lanes and more recently London introduced a <a href=\"http://www.tfl.gov.uk/roadusers/cycling/14808.aspx\">cycling scheme</a> fondly referred to as Boris' Bikes after the current Mayor of London. Since more and more people are using a bicycle as a preferred method of transport, and with cyclists having a different selection of routes, on top of the ordinary street network, than alternative transportation methods, it makes sense for there to be a need for a bicycle journey planning web application and API."
 wordpress_id: 1919
 wordpress_url: "http://blog.programmableweb.com/?p=16170"

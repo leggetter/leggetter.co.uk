@@ -6,11 +6,11 @@ title: Why client APIs are an important part of any real-time service
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 3863
-wordpress_url: "http://www.leggetter.co.uk/?p=3863"
+wordpress_url: "https://www.leggetter.co.uk/?p=3863"
 date: "2010-12-21 17:53:20 +0000"
 date_gmt: "2010-12-21 17:53:20 +0000"
 categories:

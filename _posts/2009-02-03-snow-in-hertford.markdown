@@ -6,11 +6,11 @@ title: Snow in Hertford
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 155
-wordpress_url: "http://www.leggetter.co.uk/?p=155"
+wordpress_url: "https://www.leggetter.co.uk/?p=155"
 date: "2009-02-03 00:36:49 +0000"
 date_gmt: "2009-02-03 00:36:49 +0000"
 categories:

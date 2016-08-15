@@ -6,12 +6,12 @@ title: Using Fiddler to help develop cross domain capable JavaScript web applica
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "This post is going to be short and sweet. &ldquo;Short&rdquo; because Fiddler makes working around this problem so simple. And &ldquo;Sweet&rdquo; because I think this is really powerful and will allow you to develop applications that show why cross domain access, in some situations, should be allowed. In my last..."
 wordpress_id: 758
-wordpress_url: "http://www.leggetter.co.uk/?p=758"
+wordpress_url: "https://www.leggetter.co.uk/?p=758"
 date: "2010-03-19 10:50:01 +0000"
 date_gmt: "2010-03-19 10:50:01 +0000"
 categories:
@@ -39,7 +39,7 @@ static function OnBeforeResponse(oSession: Session)
 }
 ```
 
-<p>The code above will add this header to all HTTP responses. You can of course add an <code>if</code> statement so that the header is only added when a particular condition is matched, such as a responses from <a href="/">http://www.leggetter.co.uk</a>.</p>
+<p>The code above will add this header to all HTTP responses. You can of course add an <code>if</code> statement so that the header is only added when a particular condition is matched, such as a responses from <a href="/">https://www.leggetter.co.uk</a>.</p>
 
 ```js
 static function OnBeforeResponse(oSession: Session)

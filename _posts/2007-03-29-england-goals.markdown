@@ -6,12 +6,12 @@ title: England Goals
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "With the reasonable success of <a href=\"http://www.bringbackbeckham.com\" title=\"Recall David Beckham to the England Squad\">Bring Back Beckham!</a> I decided to push forward with my next project. The idea behind <a href=\"http://www.englandgoals.com\" title=\"England Goals\">England Goals</a> was to create a site that lists all the goals scored by the England football team and use the increase in the number of goals that can be found on external video sites to my advantage by embedding these user uploaded videos as content.\r\n\r\n"
 wordpress_id: 18
-wordpress_url: "http://www.leggetter.co.uk/2007/03/29/england-goals.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/03/29/england-goals.html"
 date: "2007-03-29 10:04:16 +0100"
 date_gmt: "2007-03-29 09:04:16 +0100"
 categories:

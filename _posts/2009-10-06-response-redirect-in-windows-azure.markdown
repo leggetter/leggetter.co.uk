@@ -6,11 +6,11 @@ title: Response.Redirect in Windows Azure
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 356
-wordpress_url: "http://www.leggetter.co.uk/?p=356"
+wordpress_url: "https://www.leggetter.co.uk/?p=356"
 date: "2009-10-06 22:21:13 +0100"
 date_gmt: "2009-10-06 21:21:13 +0100"
 categories:

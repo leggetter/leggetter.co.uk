@@ -6,9 +6,9 @@ title: NASDAQ Continues the Data as a Service Trend
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<img src=\"http://blog.programmableweb.com/wp-content/nasdaq_logo1_opt.png\" class=\"imgRight\" />Over the past few months at PW we've noticed steady increase in the number of mentions of <a href=\"http://en.wikipedia.org/wiki/Data_as_a_Service\">Data as a Service</a> (DaaS) and this trend looks to continue. Our <a href=\"http://blog.programmableweb.com/2010/08/26/data-as-a-service-pricing-models-for-the-future-of-data/\">first post</a> on the subject was by a guest author Pete Soderling who introduced us to the concept and discussed pricing models. Then we continued the theme by posting about a <a href=\"http://blog.programmableweb.com/2010/10/26/stock-data-api-hints-at-future-of-data-as-a-service/\">partnership between a stock data site and an open data platform</a>, working together to deliver a stock historical data API. The latest big move in this area sees NASDAQ creating a Data-On-Demand service accessible through a Web API."
 wordpress_id: 2130
 wordpress_url: "http://blog.programmableweb.com/?p=16529"

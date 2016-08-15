@@ -6,9 +6,9 @@ title: Kwwika Silverlight API - Chat Example
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tThis video shows a chat application built using the Kwwika JavaScript API and a chat application built using the Kwwika Silverlight API. Both applications can communicate with each other in real-time using the Kwwika service.We&#39;ll releas..."
 wordpress_id: 824
 wordpress_url: "http://blog.kwwika.com/kwwika-silverlight-api-chat-example"

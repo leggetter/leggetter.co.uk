@@ -6,9 +6,9 @@ title: WeBuyAnyCar.com shock and scare tactics leads to negative brand equity
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tSelling your used car\r\n\r\nWe own a 53 Reg Peugeot 206 and are thinking of an upgrade. I'm not really into cars - I just use them to get from A to B. I'm not really all that fond of the idea of selling privately although I know that it's probabl..."
 wordpress_id: 1326
 wordpress_url: "http://leggetter.posterous.com/webuyanycarcom-shock-and-scare-tactics-leads"

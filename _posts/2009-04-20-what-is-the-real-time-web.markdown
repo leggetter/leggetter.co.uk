@@ -6,9 +6,9 @@ title: What is the “real-time web”?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "Are we really seeing the real-time web? The phrase &ldquo;real-time web&rdquo; has been streaming its way around the Internet for a while now. It&rsquo;s presently being used to describe information being available in search results as soon as it has been published by its author. Examples of this are Twitter..."
 wordpress_id: 1416
 wordpress_url: "http://blog.caplin.com/?p=89"

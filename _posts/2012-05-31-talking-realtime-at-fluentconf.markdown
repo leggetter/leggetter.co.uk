@@ -6,11 +6,11 @@ title: Talking Realtime at FluentConf
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23284
-wordpress_url: "http://www.leggetter.co.uk/?p=23284"
+wordpress_url: "https://www.leggetter.co.uk/?p=23284"
 date: "2012-05-31 08:32:09 +0100"
 date_gmt: "2012-05-31 07:32:09 +0100"
 categories:

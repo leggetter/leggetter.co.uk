@@ -6,11 +6,11 @@ title: The unique name of Leggetter
 author:
   display_name: admin
   email: "phil@phobos7.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@phobos7.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 6
-wordpress_url: "http://www.leggetter.co.uk/leggetter-family-tree/"
+wordpress_url: "https://www.leggetter.co.uk/leggetter-family-tree/"
 date: "2007-01-25 23:50:07 +0000"
 date_gmt: "2007-01-25 23:50:07 +0000"
 categories:
@@ -28,8 +28,8 @@ template: default
 <p>The information here isn't entirely correct nor, I'm guessing, is it completely up to date but it does provide some interesting information.</p>
 
 <p>To find somebody in the tree simply right-click and select "Find" from the menu that appears.</p>
-<p><applet code="zaluc.geneo.Geneo.class" codebase="." archive="http://www.leggetter.co.uk/geneo.jar" name="InPageTree" id="InPageTree" height="400" width="450"></p>
-<param name="Source" value="http://www.leggetter.co.uk/0001tree.gen"></param>
+<p><applet code="zaluc.geneo.Geneo.class" codebase="." archive="https://www.leggetter.co.uk/geneo.jar" name="InPageTree" id="InPageTree" height="400" width="450"></p>
+<param name="Source" value="https://www.leggetter.co.uk/0001tree.gen"></param>
 <param name="Width" value="500"></param>
 <param name="Height" value="450"></param>
 <param name="Background" value="006699"></param>

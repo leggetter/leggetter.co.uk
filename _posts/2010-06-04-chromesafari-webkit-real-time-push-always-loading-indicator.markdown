@@ -6,9 +6,9 @@ title: Chrome/Safari (webkit) + real-time push = always loading indicator
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "With real-time push becoming mainstream more and more developers are going to start adding real-time push to their website. One minor user experience hurdle still to be fully solved for webkit based browsers is the \"always loading indicator\" which can appear if a streaming connection has been established to a push server or service. This indicator appears due to the streaming connection that has been established between JavaScript in the web browser, using an <a href=\"https://developer.mozilla.org/en/xmlhttprequest\">XMLHttpRequest object</a>, where you are effectively continually loading, or waiting, for content from the push server.\r\n"
 wordpress_id: 822
 wordpress_url: "http://blog.kwwika.com/chromesafari-webkit-real-time-push-always-loa"

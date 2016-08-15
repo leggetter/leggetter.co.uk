@@ -6,12 +6,12 @@ title: A new look for Google
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "Google is slowly moving away from its simple basic colour look to a new - but still simple - Web 2.0 look.\r\n\r\n"
 wordpress_id: 26
-wordpress_url: "http://www.leggetter.co.uk/2007/05/17/a-new-look-for-google.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/05/17/a-new-look-for-google.html"
 date: "2007-05-17 09:15:32 +0100"
 date_gmt: "2007-05-17 08:15:32 +0100"
 categories:

@@ -6,12 +6,12 @@ title: Using real-time web software and technology to distribute events
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
-excerpt: "I've just come across <a href=\"http://stage.vambenepe.com/\">William Vambenepe's blog</a> and an article called \"<a href=\"http://stage.vambenepe.com/archives/1284\">Waiting for events (in Cloud APIs)</a>\"\_where he discusses how an event system is missing from cloud vendor APIs.\r\n\r\n<img class=\"size-full wp-image-720 alignleft\" title=\"Notification - event\" src=\"http://www.leggetter.co.uk/wp-content/uploads/2010/02/notification_event.jpg\" alt=\"\" width=\"216\" height=\"216\" /> With my interest in Comet I straight away thought of this as a solution to the notification requirement and it's interesting that the article goes on to talk about subscription management and then moves on to thinking about the delivery mechanism which are all key aspects of a good comet implementation:\r\n<blockquote cite=\"http://stage.vambenepe.com/archives/1284\">How do you deliver notifications? Do you keep HTTP connections open through tricks similar to how self-updating web pages work (e.g. COMET, long polling and soon WebSockets)? Or do you just provide a listener endpoint to which the notifier tries to connect (which, in the case of public cloud deployments, means you need to have a publicly-addressable listener, but hopefully not on the same Cloud infrastructure). Do you use XMPP? AMQP? Email? Can I have you hold my events and let me come pull them?</blockquote>\r\n"
+author_url: "https://www.leggetter.co.uk"
+excerpt: "I've just come across <a href=\"http://stage.vambenepe.com/\">William Vambenepe's blog</a> and an article called \"<a href=\"http://stage.vambenepe.com/archives/1284\">Waiting for events (in Cloud APIs)</a>\"\_where he discusses how an event system is missing from cloud vendor APIs.\r\n\r\n<img class=\"size-full wp-image-720 alignleft\" title=\"Notification - event\" src=\"https://www.leggetter.co.uk/wp-content/uploads/2010/02/notification_event.jpg\" alt=\"\" width=\"216\" height=\"216\" /> With my interest in Comet I straight away thought of this as a solution to the notification requirement and it's interesting that the article goes on to talk about subscription management and then moves on to thinking about the delivery mechanism which are all key aspects of a good comet implementation:\r\n<blockquote cite=\"http://stage.vambenepe.com/archives/1284\">How do you deliver notifications? Do you keep HTTP connections open through tricks similar to how self-updating web pages work (e.g. COMET, long polling and soon WebSockets)? Or do you just provide a listener endpoint to which the notifier tries to connect (which, in the case of public cloud deployments, means you need to have a publicly-addressable listener, but hopefully not on the same Cloud infrastructure). Do you use XMPP? AMQP? Email? Can I have you hold my events and let me come pull them?</blockquote>\r\n"
 wordpress_id: 719
-wordpress_url: "http://www.leggetter.co.uk/?p=719"
+wordpress_url: "https://www.leggetter.co.uk/?p=719"
 date: "2010-02-27 11:08:36 +0000"
 date_gmt: "2010-02-27 11:08:36 +0000"
 categories:

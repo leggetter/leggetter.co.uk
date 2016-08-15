@@ -6,11 +6,11 @@ title: "The Real-Time Web: TechMeetup Aberdeen - 19/01/2011"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 5479
-wordpress_url: "http://www.leggetter.co.uk/?p=5479"
+wordpress_url: "https://www.leggetter.co.uk/?p=5479"
 date: "2011-01-20 12:51:26 +0000"
 date_gmt: "2011-01-20 12:51:26 +0000"
 categories:

@@ -6,11 +6,11 @@ title: Mapping APIs
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 10
-wordpress_url: "http://www.leggetter.co.uk/2007/02/05/mapping-apis-are-all-the-rage.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/02/05/mapping-apis-are-all-the-rage.html"
 date: "2007-02-05 21:31:59 +0000"
 date_gmt: "2007-02-05 20:31:59 +0000"
 categories:

@@ -6,11 +6,11 @@ title: Developers Want Realtime
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23525
-wordpress_url: "http://www.leggetter.co.uk/?p=23525"
+wordpress_url: "https://www.leggetter.co.uk/?p=23525"
 date: "2012-11-06 14:56:13 +0000"
 date_gmt: "2012-11-06 14:56:13 +0000"
 categories:

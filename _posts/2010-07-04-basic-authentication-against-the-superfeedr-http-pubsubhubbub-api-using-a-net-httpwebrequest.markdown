@@ -6,9 +6,9 @@ title: Basic Authentication against the Superfeedr HTTP PubSubHubbub API using a
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tIt would appear that setting the Credentials property of a HttpWebRequest still leads to authentication failure against the Superfeedr HTTP PubSubHubbub API. This might be because the way the HttpWebRequest works is that it first waits to be..."
 wordpress_id: 984
 wordpress_url: "http://blog.kwwika.com/basic-authentication-against-the-superfeedr-h"

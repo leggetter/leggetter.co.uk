@@ -17,7 +17,7 @@ Every application has real-time data, but turning this data into useful function
 
 During this series of posts on **real-time data discovery** I’ll show you how to identify the real-time data within your apps, give you some examples of what you can do with that data and finally I’ll provide some examples of how to do it. This series is based on a talk I’ve given so there’s also a “You have real-time data” screencast that we’ll share with the final post.
 
-In this first edition I’ll prove to you that you do have real-time data in your apps and tell you where you can find it. If you’re asking yourself “What is Real-Time?” in the context of real-time web and Internet apps then first take a look at the [What is Real-Time?](http://www.leggetter.co.uk/2016/04/22/what-is-realtime.html) post.
+In this first edition I’ll prove to you that you do have real-time data in your apps and tell you where you can find it. If you’re asking yourself “What is Real-Time?” in the context of real-time web and Internet apps then first take a look at the [What is Real-Time?](https://www.leggetter.co.uk/2016/04/22/what-is-realtime.html) post.
 
 With the background out of the way, let’s find that real-time data!
 
@@ -25,7 +25,7 @@ With the background out of the way, let’s find that real-time data!
 
 Back in 2011 Mike Brevoort gave a number of talks with the title **The Evented Web**. In those talks he covered things like WebHooks, Comet and [WebSocket](https://en.wikipedia.org/wiki/WebSocket). But in reviewing the [slides](http://www.slideshare.net/brevoortm/the-evented-web) from these talks recently there were two that really stood out.
 
-![2011 Mike Brevoort - the Evented Web slide](http://www.leggetter.co.uk/images/call-you-406x300.png)
+![2011 Mike Brevoort - the Evented Web slide](https://www.leggetter.co.uk/images/call-you-406x300.png)
 <small>[2011 Mike Brevoort – the Evented Web](http://www.slideshare.net/brevoortm/the-evented-web)</small>
 
 This slide makes two very important points that are as relevant in 2015 as they were in 2011.
@@ -40,7 +40,7 @@ Instead of having to ask a system to see if anything has happened, the system wi
 
 A few slides later Mike depicts a change taking place (in code) and the update being pushed to GitHub. GitHub then notifies a number of interested parties about that change; Jenkins CI for build, Boxcar for Push Notifications, Jira to resolve an issue and GAE for some custom functionality. These events are all triggered by a **change**.
 
-![GitHub, WebHooks, Interactions & Events - 2011 Mike Brevoort - the Evented Web](http://www.leggetter.co.uk/images/github-webhooks-403x300.png)
+![GitHub, WebHooks, Interactions & Events - 2011 Mike Brevoort - the Evented Web](https://www.leggetter.co.uk/images/github-webhooks-403x300.png)
 <small>[2011 Mike Brevoort – the Evented Web](http://www.slideshare.net/brevoortm/the-evented-web)</small>
 
 What these slides tell us is that if you can identify the events within your systems then you you’ve found real-time data. Additionally they tell us that events are caused by **changes in data** (in this case the code) and **interactions** (the push of the code to GitHub).

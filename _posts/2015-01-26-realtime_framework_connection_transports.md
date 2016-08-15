@@ -46,7 +46,7 @@ Even when the `XMLHttpRequest` object arrived it didn't help because it started 
 
 So we hacked! And hacked! And worked around the imposed limitations.. And this is why HTTP-based solutions like HTTP-Streaming and HTTP Long-Polling are traditionally hacks; they worked around protocol and browser limitations and restrictions; they did this in inconsistent ways and played on browser quirks to achieve the desired server-push functionality.
 
-*Note: If you're also interested in a higher level background about how realtime went mainstream take a look at the [History, Background, Benefits & Use Cases of Realtime](http://www.leggetter.co.uk/2013/10/28/history-background-benefits-use-cases-realtime.html) part of my realtime web tech guide.*
+*Note: If you're also interested in a higher level background about how realtime went mainstream take a look at the [History, Background, Benefits & Use Cases of Realtime](https://www.leggetter.co.uk/2013/10/28/history-background-benefits-use-cases-realtime.html) part of my realtime web tech guide.*
 
 ## Why still use HTTP transports?
 
@@ -255,5 +255,5 @@ I'm always open to opinion and feedback on all of this. I'm more than willing to
 * [HTML5 Web Sockets:
 A Quantum Leap in Scalability for the Web](http://www.websocket.org/quantum.html)
 * [Long-Polling doesn't totally suck](http://blog.fanout.io/2013/03/04/long-polling-doesnt-totally-suck/)
-* [Realtime Web Technology Guide](http://www.leggetter.co.uk/real-time-web-technologies-guide)
-* [Choosing Your Realtime Web App Technology Stack](http://www.leggetter.co.uk/2013/12/09/choosing-realtime-web-app-tech-stack.html)
+* [Realtime Web Technology Guide](https://www.leggetter.co.uk/real-time-web-technologies-guide)
+* [Choosing Your Realtime Web App Technology Stack](https://www.leggetter.co.uk/2013/12/09/choosing-realtime-web-app-tech-stack.html)

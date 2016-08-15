@@ -7,7 +7,7 @@ var fixConfig = {
   jekyllDir:__dirname + '/../../',
   inputDir: __dirname + '/../../_org_posts/',
   pluginDir: __dirname + '/plugins/',
-  baseUrl: 'http://www.leggetter.co.uk',
+  baseUrl: 'https://www.leggetter.co.uk',
   postDir: '_posts/', // relative to jekyllDir
   postEncoding: 'utf-8'
 };

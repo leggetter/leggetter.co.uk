@@ -6,9 +6,9 @@ title: Twitter Badges and Awards - What badges can you think of?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tOne of the reasons FourSquare is popular is because you can get awards or badges for your check-ins. Would it be of interest to anybody if you could get badges for your tweets? Some ideas for badges: The stalker badge - following more than X..."
 wordpress_id: 1779
 wordpress_url: "http://leggetter.posterous.com/twitter-badges-and-awards-what-badges-can-you"

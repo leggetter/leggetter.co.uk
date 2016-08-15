@@ -6,11 +6,11 @@ title: Realtime Data Sources
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23979
-wordpress_url: "http://www.leggetter.co.uk/?page_id=23979"
+wordpress_url: "https://www.leggetter.co.uk/?page_id=23979"
 date: "2013-09-28 08:10:20 +0100"
 date_gmt: "2013-09-28 07:10:20 +0100"
 categories: []

@@ -6,9 +6,9 @@ title: "Le Grest & Co. 58 Fairfield Street SW18"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tWe live in a flat that was previously occupied by Jo's Grandparents. One of the things we do occasionally is sort out a room or cupboard. Today I'm tidying up a room for a friend to move in whilst he's finishing his University course.\r\nI've a..."
 wordpress_id: 1374
 wordpress_url: "http://leggetter.posterous.com/le-grest-co-58-fairfield-street-sw18"

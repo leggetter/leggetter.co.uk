@@ -6,11 +6,11 @@ title: Defining the Kwwika API
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 773
-wordpress_url: "http://www.leggetter.co.uk/?p=773"
+wordpress_url: "https://www.leggetter.co.uk/?p=773"
 date: "2010-04-02 12:34:48 +0100"
 date_gmt: "2010-04-02 11:34:48 +0100"
 categories:

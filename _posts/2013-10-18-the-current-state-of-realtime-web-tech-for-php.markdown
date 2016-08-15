@@ -6,11 +6,11 @@ title: The current state of Realtime Web Tech for PHP
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 24005
-wordpress_url: "http://www.leggetter.co.uk/?p=24005"
+wordpress_url: "https://www.leggetter.co.uk/?p=24005"
 date: "2013-10-18 09:24:15 +0100"
 date_gmt: "2013-10-18 08:24:15 +0100"
 categories:

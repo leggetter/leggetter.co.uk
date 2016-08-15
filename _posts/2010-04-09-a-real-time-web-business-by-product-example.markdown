@@ -6,12 +6,12 @@ title: A Real-Time Web business by-product example
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "Ian Sanders recently posted a great thought provoking <a href=\"http://scrambledup.blogspot.com/2010/04/what-are-your-business-by-products.html\">blog article about business by-products</a>. I won't go into detail, Ian's post does that, but it's basically about finding value in things that aren't your key business focus but what you just have to do, day to day, in order to run your business or do your job.\r\n\r\nI've just this minute finished a Skype chat with a work colleague. As I was having the chat I realised that the conversation we were having had real value. It was a really good question to be asking and that if I didn't record this conversation now that I'd probably lose it and the potential value would be lost.\r\n\r\n"
 wordpress_id: 790
-wordpress_url: "http://www.leggetter.co.uk/?p=790"
+wordpress_url: "https://www.leggetter.co.uk/?p=790"
 date: "2010-04-09 12:40:39 +0100"
 date_gmt: "2010-04-09 11:40:39 +0100"
 categories:

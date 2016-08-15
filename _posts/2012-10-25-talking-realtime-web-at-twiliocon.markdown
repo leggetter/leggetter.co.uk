@@ -6,9 +6,9 @@ title: Talking Realtime Web at TwilioCon
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "A couple of days after the WebSockets panel at HTML5DevConf in San Francisco I gave a talk at TwilioCon. We were asked to try and cover a big topic and focus on a few key points. Since the conference was for Twilio, a telephony cloud service, we want..."
 wordpress_id: 23514
 wordpress_url: "http://blog.pusherapp.com/2012/10/25/talking-realtime-web-at-twiliocon"

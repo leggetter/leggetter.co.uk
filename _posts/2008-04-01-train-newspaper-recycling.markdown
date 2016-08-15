@@ -6,11 +6,11 @@ title: Train newspaper recycling
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 38
-wordpress_url: "http://www.leggetter.co.uk/2008/04/01/train-newspaper-recycling.html"
+wordpress_url: "https://www.leggetter.co.uk/2008/04/01/train-newspaper-recycling.html"
 date: "2008-04-01 20:06:48 +0100"
 date_gmt: "2008-04-01 19:06:48 +0100"
 categories:

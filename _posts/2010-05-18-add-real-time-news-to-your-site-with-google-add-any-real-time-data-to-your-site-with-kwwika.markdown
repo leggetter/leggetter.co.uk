@@ -6,9 +6,9 @@ title: Add real-time news to your site with Google. Add any real-time data to yo
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tIt's been\_revealed\_that Google are going to release a version of their API that supports Real-Time news push. Real-time push technology has been around for ages and there are a number of technologies that allow you to host your own real-ti..."
 wordpress_id: 823
 wordpress_url: "http://blog.kwwika.com/add-real-time-news-to-your-site-with-google-a"

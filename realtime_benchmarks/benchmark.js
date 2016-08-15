@@ -11,8 +11,8 @@
 				init );
 
 	function init() {
-		Pusher.channel_auth_endpoint = 'http://phobos7.co.uk/leggetter/realtime_benchmarks/pusher_auth.php';
-		setTimeout( runBenchmark, 0 );
+		// Pusher.channel_auth_endpoint = 'https://realtime-latency-stats.herokuapp.com/pusher-auth';
+		// setTimeout( runBenchmark, 0 );
 	}
 
 	function log( msg ) {
@@ -84,7 +84,7 @@
 					postData.data = JSON.stringify( result );
 
 					jQuery.ajax( {
-						url: 'http://phobos7.co.uk/leggetter/realtime_benchmarks/update_result.php',
+						url: 'https://realtime-latency-stats.herokuapp.com/update-results',
 						type: 'post',
 						data: postData
 					});
@@ -105,7 +105,7 @@
 
 				if( jQuery ) {
 					jQuery.ajax( {
-						url: 'http://phobos7.co.uk/leggetter/realtime_benchmarks/?' + (new Date().getTime()).toString(),
+						url: 'https://realtime-latency-stats.herokuapp.com/results' + (new Date().getTime()).toString(),
 						type: 'post',
 						data: JSON.stringify( postData ),
 						dataType: 'json',

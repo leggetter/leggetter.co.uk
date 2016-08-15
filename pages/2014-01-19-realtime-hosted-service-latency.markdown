@@ -59,8 +59,8 @@ permalink: /real-time-web-technologies-guide/realtime-hosted-service-latency/
 <h2>Full Historical Stats</h2>
 <p>I've been collecting latency stats for some of the services since <strong>Sun Oct 28 2012 12:52:01 GMT+0000 (GMT)</strong>. Over time I plan to have a look at these and do some analysis.</p>
 
-<script src="http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
-<script src="http://realtime-latency-stats.herokuapp.com/realtime/client.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"></script>
-<script src="http://leggetter.github.io/realtime-benchmarks-reporting/public/reporter.js"></script>
-<link href="http://leggetter.github.io/realtime-benchmarks-reporting/public/styles.css" rel="stylesheet" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
+<script src="//realtime-latency-stats.herokuapp.com/realtime/client.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"></script>
+<script src="//leggetter.github.io/realtime-benchmarks-reporting/public/reporter.js"></script>
+<link href="//leggetter.github.io/realtime-benchmarks-reporting/public/styles.css" rel="stylesheet" />

@@ -6,9 +6,9 @@ title: Kwwika support for webOS
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tWe&#039;ve got a potential client interested in using Kwwika on HP webOS so we&#039;ve been working with them to test the Kwwika JavaScript library on a platform that we&#039;ve not been directly targeting.\_After a problem glitch with the 64bi..."
 wordpress_id: 3553
 wordpress_url: "http://blog.kwwika.com/kwwika-support-for-webos"

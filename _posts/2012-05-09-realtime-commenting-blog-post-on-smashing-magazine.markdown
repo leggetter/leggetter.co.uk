@@ -6,11 +6,11 @@ title: Realtime Commenting blog post on Smashing Magazine
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23247
-wordpress_url: "http://www.leggetter.co.uk/?p=23247"
+wordpress_url: "https://www.leggetter.co.uk/?p=23247"
 date: "2012-05-09 14:51:50 +0100"
 date_gmt: "2012-05-09 13:51:50 +0100"
 categories:

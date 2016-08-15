@@ -6,12 +6,12 @@ title: Bing.com round table
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "On Monday between 19:00 and 21:00 I'm going to a <a title=\"Bing.com\" href=\"http://www.bing.com/\">Bing</a> roundtable (round table) in London. The event is being organise by Colin Mercer and is described as:\r\n<blockquote>a small round-table event to discuss Bing and since we saw your recent tweet regarding comparative search results between Bing and Google, we thought that you might be interested in coming along. The idea would be to get your initial thoughts and you'll get an update on the future steps for Bing which are being developed specifically for the UK. During the session you’ll have the chance to talk with Microsoft representatives and other people from social media like yourself, who have expressed some early opinion.</blockquote>\r\n"
 wordpress_id: 213
-wordpress_url: "http://www.leggetter.co.uk/?p=213"
+wordpress_url: "https://www.leggetter.co.uk/?p=213"
 date: "2009-06-27 10:56:53 +0100"
 date_gmt: "2009-06-27 09:56:53 +0100"
 categories:

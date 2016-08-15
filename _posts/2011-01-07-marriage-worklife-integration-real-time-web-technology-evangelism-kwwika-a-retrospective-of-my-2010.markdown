@@ -6,11 +6,11 @@ title: "Marriage, Work/life integration, real-time web technology evangelism & K
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 4560
-wordpress_url: "http://www.leggetter.co.uk/?p=4560"
+wordpress_url: "https://www.leggetter.co.uk/?p=4560"
 date: "2011-01-07 02:20:26 +0000"
 date_gmt: "2011-01-07 02:20:26 +0000"
 categories:

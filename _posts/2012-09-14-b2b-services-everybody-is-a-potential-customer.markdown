@@ -6,11 +6,11 @@ title: "B2B services: everybody is a potential customer"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23466
-wordpress_url: "http://www.leggetter.co.uk/?p=23466"
+wordpress_url: "https://www.leggetter.co.uk/?p=23466"
 date: "2012-09-14 12:44:44 +0100"
 date_gmt: "2012-09-14 11:44:44 +0100"
 categories:

@@ -6,9 +6,9 @@ title: Should Cloud APIs Focus on Client Libraries More Than Endpoints?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 7066
 wordpress_url: "http://blog.programmableweb.com/?p=17946"
 date: "2011-02-03 08:00:47 +0000"

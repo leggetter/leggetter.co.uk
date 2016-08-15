@@ -6,9 +6,9 @@ title: "The death of \"F5\" Ah, I get it!"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tI recently did an interview about Kwwika with Jane Adams for Innovation Focus Scotland. We chatted about what Kwwika offered, what our costing model is (or will be),\_what competition we have and how we will differ from that competition. I a..."
 wordpress_id: 995
 wordpress_url: "http://blog.kwwika.com/the-death-of-f5-ah-i-get-it"

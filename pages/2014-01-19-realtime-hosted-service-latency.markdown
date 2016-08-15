@@ -6,11 +6,11 @@ title: Realtime Hosted Service Latency Stats
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 24271
-wordpress_url: "http://www.leggetter.co.uk/?page_id=24271"
+wordpress_url: "https://www.leggetter.co.uk/?page_id=24271"
 date: "2014-01-19 17:03:00 +0000"
 date_gmt: "2014-01-19 17:03:00 +0000"
 categories: []
@@ -19,7 +19,7 @@ permalink: /real-time-web-technologies-guide/realtime-hosted-service-latency/
 ---
 
 <p>This page will show both historical and current latency for a number of Realtime Hosted Services.</p>
-<p>The latency is collected and calculated using the code in the <a href="https://github.com/leggetter/realtime-benchmarks">realtime benchmarks repository</a>. The benchmarks are executed on every client which navigates to any page on <a href="http://www.leggetter.co.uk">www.leggetter.co.uk</a>. Latency is calculated based on the round-trip time from triggering an event from the client and then receiving that message back. Therefore the current latency that you will see (on the left, after the benchmarks have completed) is the latency from your web browser <em>right now</em>.</p>
+<p>The latency is collected and calculated using the code in the <a href="https://github.com/leggetter/realtime-benchmarks">realtime benchmarks repository</a>. The benchmarks are executed on every client which navigates to any page on <a href="https://www.leggetter.co.uk">www.leggetter.co.uk</a>. Latency is calculated based on the round-trip time from triggering an event from the client and then receiving that message back. Therefore the current latency that you will see (on the left, after the benchmarks have completed) is the latency from your web browser <em>right now</em>.</p>
 
 <h3>The Stats</h3>
 <p>Please remember that you are only seeing latency for the last few benchmark tests. If the last few visitors to my site were on mobile on a 2G connection or in some remote geographic location then the latency will be very high. If you really want to test latency then I recommend you take a look at the <a href="https://github.com/leggetter/realtime-benchmarks">realtime benchmarks repository</a> and <strong>run the tests in your own controlled environment</strong>.</p>

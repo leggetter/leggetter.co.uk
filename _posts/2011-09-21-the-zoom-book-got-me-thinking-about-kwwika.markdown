@@ -6,11 +6,11 @@ title: "The Zoom! book got me thinking about Kwwika"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 21797
-wordpress_url: "http://www.leggetter.co.uk/?p=21797"
+wordpress_url: "https://www.leggetter.co.uk/?p=21797"
 date: "2011-09-21 16:50:48 +0100"
 date_gmt: "2011-09-21 15:50:48 +0100"
 categories:

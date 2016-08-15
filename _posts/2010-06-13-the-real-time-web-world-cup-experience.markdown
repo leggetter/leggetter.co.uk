@@ -6,9 +6,9 @@ title: The Real-Time Web World Cup Experience
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tA number big players have come up with pages or applications in an attempt to draw World Cup fans into either combining using a laptop whilst watching the live games on television or using the application as their main view into the World Cu..."
 wordpress_id: 857
 wordpress_url: "http://blog.kwwika.com/the-real-time-web-world-cup-experience"

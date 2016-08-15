@@ -6,9 +6,9 @@ title: Hit roond (around) the heed (head) by a faash (fish)
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tI was out with my friend. We&#039;d had a couple of pints at the Taychreggan and decided to head into Broughty Ferry, near Dundee. On the way along Dundee Road I got hit, around the head, with a fish. It hurt. It wasn&#039;t a small fish. It&amp;#..."
 wordpress_id: 1781
 wordpress_url: "http://leggetter.posterous.com/hit-roond-around-the-heed-head-by-a-faash-fis"

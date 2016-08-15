@@ -6,11 +6,11 @@ title: Master does not have a definition for ViewData (ASP.NET MVC2)
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 1126
-wordpress_url: "http://www.leggetter.co.uk/?p=1126"
+wordpress_url: "https://www.leggetter.co.uk/?p=1126"
 date: "2010-08-04 12:05:28 +0100"
 date_gmt: "2010-08-04 11:05:28 +0100"
 categories:

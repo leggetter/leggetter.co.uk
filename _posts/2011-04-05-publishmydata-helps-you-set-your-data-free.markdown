@@ -6,9 +6,9 @@ title: PublishMyData Helps You Set Your Data Free
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<img src=\"http://blog.programmableweb.com/wp-content/publishmydata.jpg\" alt=\"\" width=\"150\" height=\"35\" class=\"imgRight\" />The number of “as a Service” types continues to grow and we are even seeing services that help you build your own service. PublishMyData falls into this category as it offers Infrastructure as a Service (IaaS) which enables you to offer your Data as a Service (DaaS). The company's focus is to help those with data share it in a standard format and in an accessible way."
 wordpress_id: 9363
 wordpress_url: "http://blog.programmableweb.com/?p=18909"

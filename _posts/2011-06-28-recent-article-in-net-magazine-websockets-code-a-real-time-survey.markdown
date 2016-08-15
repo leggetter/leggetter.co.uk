@@ -6,11 +6,11 @@ title: "Recent article in .net magazine: WebSockets - Code a real-time survey"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 20597
-wordpress_url: "http://www.leggetter.co.uk/?p=20597"
+wordpress_url: "https://www.leggetter.co.uk/?p=20597"
 date: "2011-06-28 23:14:35 +0100"
 date_gmt: "2011-06-28 22:14:35 +0100"
 categories:

@@ -6,12 +6,12 @@ title: Microsoft Bing.com round table thoughts
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
-excerpt: "A couple of days ago I blogged that I was going to attend a <a href=\"http://www.leggetter.co.uk/2009/06/27/bing-com-round-table.html\">Microsoft bing round table</a>. I've now attended and here are the key points and interesting facts that I took from the event. You can also <a href=\"http://search.twitter.com/search?q=%23meetbing\">search for #meetbing</a> on twitter for relevant tweets.\r\n"
+author_url: "https://www.leggetter.co.uk"
+excerpt: "A couple of days ago I blogged that I was going to attend a <a href=\"https://www.leggetter.co.uk/2009/06/27/bing-com-round-table.html\">Microsoft bing round table</a>. I've now attended and here are the key points and interesting facts that I took from the event. You can also <a href=\"http://search.twitter.com/search?q=%23meetbing\">search for #meetbing</a> on twitter for relevant tweets.\r\n"
 wordpress_id: 225
-wordpress_url: "http://www.leggetter.co.uk/?p=225"
+wordpress_url: "https://www.leggetter.co.uk/?p=225"
 date: "2009-07-01 20:07:02 +0100"
 date_gmt: "2009-07-01 19:07:02 +0100"
 categories:

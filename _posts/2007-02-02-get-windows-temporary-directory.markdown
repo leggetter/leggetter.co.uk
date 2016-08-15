@@ -5,11 +5,11 @@ title: "C# - Get Windows Temporary Directory"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 8
-wordpress_url: "http://www.leggetter.co.uk/2007/02/02/get-windows-temporary-directory.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/02/02/get-windows-temporary-directory.html"
 date: "2007-02-02 10:25:48 +0000"
 date_gmt: "2007-02-02 09:25:48 +0000"
 categories:

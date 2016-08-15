@@ -6,11 +6,11 @@ title: "System.Security.SecurityException: That assembly does not allow partiall
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 268
-wordpress_url: "http://www.leggetter.co.uk/?p=268"
+wordpress_url: "https://www.leggetter.co.uk/?p=268"
 date: "2009-08-26 00:51:12 +0100"
 date_gmt: "2009-08-25 23:51:12 +0100"
 categories:

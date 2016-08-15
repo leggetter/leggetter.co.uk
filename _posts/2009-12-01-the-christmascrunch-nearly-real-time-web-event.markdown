@@ -6,12 +6,12 @@ title: The ChristmasCrunch nearly real-time web event
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "On the 15th of December I’m going to the <a href=\"http://eu.techcrunch.com/2009/11/06/techcrunch-europe-christmascrunch-its-a-realtime-holiday/\">ChristmasCrunch</a>. It looks like a really good event with Iain Dodsworth and James Whittaker of <a href=\"http://tweetdeck.com/\">TweetDeck</a> giving the keynote on “Where the biggest realtime desktop application goes next” (I know where I'm hoping it goes. See below). Other presentations include Jenni Lees of <a href=\"http://festbuzz.com/\">Festbuzz</a>, Marco Kaiser of <a href=\"http://seesmic.com/\">Seesmic</a>, Mario Menti of <a href=\"http://twitterfeed.com/\">Twitterfeed</a>, Mark Rock of <a href=\"http://audioboo.fm/\">AudioBoo</a>, Nick Halstead of <a href=\"http://tweetmeme.com/\">Tweetmeme</a>, Daniel Tenner of <a href=\"https://www.woobius.com/\">Woobius</a>, Willian Fischer of <a href=\"http://www.twitterjobsearch.com/\">Twitter Jobsearch</a> and Tim Morgan of <a href=\"http://mintdigital.com/\">Mint Digital</a>. And if that’s not enough there’s also a startup pitch (<a href=\"http://leggetter.posterous.com/is-the-startup-pitch-the-only-way\">startup pitches - grrrr...</a>) and an after party.\r\n\r\nMy main interest in this event is to see if anybody is going to start delivering a “truly real-time” experience to users. Will TweetDeck still be making <a href=\"http://en.wikipedia.org/wiki/Pull_technology\">polling requests</a> to the various services it uses to check if any more data is available or will they move to using <a href=\"http://en.wikipedia.org/wiki/Push_technology\">PUSH technology</a>? Are other companies going to start adopting PUSH to give the user a <strong>truly real-time web experience</strong>?\r\n\r\n"
 wordpress_id: 580
-wordpress_url: "http://www.leggetter.co.uk/?p=580"
+wordpress_url: "https://www.leggetter.co.uk/?p=580"
 date: "2009-12-01 22:07:37 +0000"
 date_gmt: "2009-12-01 22:07:37 +0000"
 categories:

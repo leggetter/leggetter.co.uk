@@ -6,9 +6,9 @@ title: Who Curates the Real-Time Web?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<a href=\"http://www.flickr.com/photos/blakespot/4011035061/\"><img src=\"http://blog.programmableweb.com/wp-content/stopwatch.jpg\" alt=\"Real-time\" width=\"100\" height=\"75\" class=\"imgRight\" /></a><a href=\"http://schedule.sxsw.com/\">SXSW</a> was the source of a flood of real-time information on the web. Information flowed from attendees using social media tools to share what was being discussed, their thoughts and their experiences. This information was amplified further by the information be re-shared (retweeted on Twitter) and by other opinions being expressed about all things SXSW. But how is it that you ensure you don't miss an important piece of information from within your social media connections or even outside of your normal social media circles? From an earlier <a href=\"http://blog.programmableweb.com/2011/02/15/cadmus-offers-algorithmic-twitter-feed-curation/\">post on Cadmus</a>, an algorithmic Twitter feed service, you may be aware of the idea of curation - filtering content to ensure that you don't miss the most relevant information. But who performs this curation and what roles do technology have in the process?"
 wordpress_id: 9354
 wordpress_url: "http://blog.programmableweb.com/?p=18775"

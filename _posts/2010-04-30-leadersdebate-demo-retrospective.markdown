@@ -6,9 +6,9 @@ title: "#LeadersDebate demo retrospective"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tFollowing on from the first #LeadersDebate demo blog post we thought it would be good to look back on how we built the demo, how it performed on the two debate evenings and determine what worked and what did not.\r\n\_\r\nWe'd hoped to be able to ..."
 wordpress_id: 825
 wordpress_url: "http://blog.kwwika.com/leadersdebate-demo-retrospective"

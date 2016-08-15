@@ -6,9 +6,9 @@ title: jQuery Real-Time Push Kwwika Plugin v0.1 released
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tKwwika already makes it really easy to add real-time push functionality to any web page or website but we've gone a little bit further to try to make it even easier\_by writing a small but powerful jQuery plugin.\r\n\_\r\nThe jQuery Real-Time Push..."
 wordpress_id: 865
 wordpress_url: "http://blog.kwwika.com/jquery-real-time-push-kwwika-plugin-v01-relea"

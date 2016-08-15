@@ -6,9 +6,9 @@ title: Migrating ASP.NET Membership users from one database to another
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "\n        \n\tThe\_Configuring a Website that Uses Application Services page does cover\_Copying User Accounts from Development to Production but doesn&#039;t go into all that much detail. It really skips over the topic and starts talking about the Applica..."
 wordpress_id: 1917
 wordpress_url: "http://leggetter.posterous.com/migrating-aspnet-membership-users-from-one-da"

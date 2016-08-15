@@ -6,9 +6,9 @@ title: XMPP PubSub or PubSubHubbub for real-time server push?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 1853
 wordpress_url: "http://leggetter.posterous.com/xmpp-pubsub-or-pubsubhubbub-for-real-time-ser"
 date: "2010-09-17 09:32:00 +0100"

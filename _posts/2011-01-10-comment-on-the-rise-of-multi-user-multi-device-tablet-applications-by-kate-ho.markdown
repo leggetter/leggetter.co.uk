@@ -6,11 +6,11 @@ title: "Comment on The Rise of Multi-user, Multi-device Tablet Applications by K
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 4813
-wordpress_url: "http://www.leggetter.co.uk/?p=4813"
+wordpress_url: "https://www.leggetter.co.uk/?p=4813"
 date: "2011-01-10 10:07:38 +0000"
 date_gmt: "2011-01-10 10:07:38 +0000"
 categories:

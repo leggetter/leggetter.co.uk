@@ -6,9 +6,9 @@ title: Bookmarking sections of podcasts
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tJust listening to the&nbsp;Social Media White Noise&nbsp;podcast and really enjoying it.&nbsp;\r\nI got distracted by something else and then tuned back into the podcast. They were talking about taking digital media consumption away from the co..."
 wordpress_id: 1648
 wordpress_url: "http://leggetter.posterous.com/bookmarking-sections-of-podcasts"

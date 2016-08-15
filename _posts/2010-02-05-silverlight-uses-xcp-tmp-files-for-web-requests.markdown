@@ -6,11 +6,11 @@ title: Silverlight uses XCP tmp files for Web Requests
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 691
-wordpress_url: "http://www.leggetter.co.uk/?p=691"
+wordpress_url: "https://www.leggetter.co.uk/?p=691"
 date: "2010-02-05 13:41:48 +0000"
 date_gmt: "2010-02-05 13:41:48 +0000"
 categories:

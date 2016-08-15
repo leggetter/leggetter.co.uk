@@ -14,7 +14,7 @@ Hopefully the majority will forgive the indulgence of a personal retrospective a
 
 ![Phil Leggetter - Pusher Business card and stickers](/images/2015-q1-retro/stickers.jpg)
 
-So, what have I done in the first quarter of 2015 since [rejoining Pusher](http://www.leggetter.co.uk/2013/07/04/leaving-pusher-what-next.html)?
+So, what have I done in the first quarter of 2015 since [rejoining Pusher](https://www.leggetter.co.uk/2013/07/04/leaving-pusher-what-next.html)?
 
 * 6 Talks
   * [Large Scale JS @ FED London in January](#fed-london)
@@ -51,7 +51,7 @@ You can watch the talk [Large Scale JS App talk](https://www.youtube.com/watch?v
 
 <a href="https://leggetter.github.io/realtime-tech-stack/fwd2-2015/"><img src="https://leggetter.github.io/realtime-tech-stack/fwd2-2015/img/realtime-web-solutions-updated.png" alt="10 Minute Guide to Choosing Your Real-time Framework Slides" style="width: 300px; float: right; margin: 20px;"/></a>
 
-Back in 2013 I spoke at FOWA about [How to Choose Your Real-Time Web App Tech Stack](http://www.leggetter.co.uk/2014/01/19/video-choosing-realtime-web-app-tech-stack.html). It's a talk that I've only given once and for those that give talks relatively frequently you'll know it's great to be able to reuse talks. Not just because so much time an effort goes into creating talks, but also because you get to incrementally improve the talk the more you give it.
+Back in 2013 I spoke at FOWA about [How to Choose Your Real-Time Web App Tech Stack](https://www.leggetter.co.uk/2014/01/19/video-choosing-realtime-web-app-tech-stack.html). It's a talk that I've only given once and for those that give talks relatively frequently you'll know it's great to be able to reuse talks. Not just because so much time an effort goes into creating talks, but also because you get to incrementally improve the talk the more you give it.
 
 So, I took the talk at [ForwardJS 2](http://forwardjs.com/forward2) in San Franciso as an opportunity to look back at the 2013 talk, revise and condense the information into a [10 minute guide on choosing a real-time framework](https://leggetter.github.io/realtime-tech-stack/fwd2-2015/).
 
@@ -88,7 +88,7 @@ For probably the last time, I spoke about building Large-Scale JS apps. Since th
 
 <a href="https://leggetter.github.io/web-components-now/devweek-2015/"><img src="/images/2015-q1-retro/using-web-components.png" alt="Phil Leggetter - Using Web Components Now Slides" style="width: 300px; float: right; margin: 20px;"/></a>
 
-Having spent over a year evangelising building componentised web apps I'm naturally excited to see where Web Components are taking us. I started looking into Web Components in more detail when I wrote up [The State of the Componentised Web](http://www.leggetter.co.uk/2014/08/06/state-componentised-web.html) in August 2014. I'm particularly interested in the software engineering benefits of building JavaScript applications out of components. How they naturally encourage encapsulation, re-use, functional cohesion and functional separation of concerns within apps.
+Having spent over a year evangelising building componentised web apps I'm naturally excited to see where Web Components are taking us. I started looking into Web Components in more detail when I wrote up [The State of the Componentised Web](https://www.leggetter.co.uk/2014/08/06/state-componentised-web.html) in August 2014. I'm particularly interested in the software engineering benefits of building JavaScript applications out of components. How they naturally encourage encapsulation, re-use, functional cohesion and functional separation of concerns within apps.
 
 <blockquote class="twitter-tweet" lang="en" align="center"><p>Watching <a href="https://twitter.com/leggetter">@leggetter</a> talking Web Components at <a href="https://twitter.com/hashtag/DevWeek2015?src=hash">#DevWeek2015</a> <a href="http://t.co/DPrlcXV429">pic.twitter.com/DPrlcXV429</a></p>&mdash; Mike Elsmore (@ukmadlz) <a href="https://twitter.com/ukmadlz/status/580665346895532032">March 25, 2015</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
@@ -151,7 +151,7 @@ Since Pusher are partners we'll need to give an API pitch. So I've spent some ti
 
 I love writing blog posts and tutorials so I'm disappointed to have only written one post per month over the last three months.
 
-We recently made SSL available on all plans so I was involved in some of the planning behind that and wrote the [SSL Everywhere announcement post](https://blog.pusher.com/ssl-everywhere/). I also wrote up my [thoughts on PHP UK 2015](https://blog.pusher.com/php-2015-pragmatic-progressive-open/), that I mentioned earlier. Finally I eventually got around to writing up a [Review of Realtime Web Tech Predictions from 2014](http://www.leggetter.co.uk/2015/03/28/realtime-tech-predictions-review.html) which was long overdue.
+We recently made SSL available on all plans so I was involved in some of the planning behind that and wrote the [SSL Everywhere announcement post](https://blog.pusher.com/ssl-everywhere/). I also wrote up my [thoughts on PHP UK 2015](https://blog.pusher.com/php-2015-pragmatic-progressive-open/), that I mentioned earlier. Finally I eventually got around to writing up a [Review of Realtime Web Tech Predictions from 2014](https://www.leggetter.co.uk/2015/03/28/realtime-tech-predictions-review.html) which was long overdue.
 
 As well as this I've been fortunate to get to review and provide feedback on a number of Pusher blog posts. My favourites are [How We Built AtomPair, Our Realtime Collaboration Plugin For Atom.IO](https://blog.pusher.com/how-we-built-atom-pair/) by [Jamie Patel](https://twitter.com/jamiepatel), the [Pusher at BattleHack 2015 announcement](https://blog.pusher.com/pusher-battlehack-2015/) and most recently [Porting the Pusher integration tests to Haskell](https://blog.pusher.com/porting-the-pusher-integration-tests-to-haskell/) by [Will Sewell](https://twitter.com/willsewell_) which was a great learning experience.
 
@@ -164,7 +164,7 @@ As well as this I've been fortunate to get to review and provide feedback on a n
 * 7 trips & 22 nights away (25% of the quarter)
 * ~15.5k miles travelled (16 flights, 23 Taxis, 1 train journey, 2 bus journeys)
 
-Getting up to speed when starting a new job take time. Going back to a similar job is a different experience. But Pusher is a different company to the one I [left back on 2013](http://www.leggetter.co.uk/2013/07/04/leaving-pusher-what-next.html) so it took a little bit of time to get into the swing of things again.
+Getting up to speed when starting a new job take time. Going back to a similar job is a different experience. But Pusher is a different company to the one I [left back on 2013](https://www.leggetter.co.uk/2013/07/04/leaving-pusher-what-next.html) so it took a little bit of time to get into the swing of things again.
 
 Travel-wise, I'm relatively happy. I don't think I'd want to be away from home more than 25% of the time. Especially since I've two kids of 3.5 years and 6 months who I want to be there for.
 

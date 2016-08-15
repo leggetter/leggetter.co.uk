@@ -6,11 +6,11 @@ title: "Fundamentals of the Realtime Web & Realtime Web Functionality"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 24059
-wordpress_url: "http://www.leggetter.co.uk/?p=24059"
+wordpress_url: "https://www.leggetter.co.uk/?p=24059"
 date: "2013-10-31 16:26:41 +0000"
 date_gmt: "2013-10-31 16:26:41 +0000"
 categories:

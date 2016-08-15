@@ -6,9 +6,9 @@ title: Real-time News Reader Shows Off Push-to-Browser
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<a href=\"http://www.programmableweb.com/api/superfeedr\"><img src=\"http://www.programmableweb.com/images/apis/at1987.png\" alt=\"Superfeedr API\" class=\"imgRight\" /></a>\r\n<a href=\"http://www.programmableweb.com/api/kwwika\"><img src=\"http://www.programmableweb.com/images/apis/at2394.png\" alt=\"Kwwika API\" class=\"imgRight\" /></a>With the real-time web being claimed by some to be one of the core components of Web 3.0 it's unsurprising that we are seeing more <a href=\"http://www.programmableweb.com/apitag/?q=realtime\">real-time APIs</a> and real-time mashups being developed. One mashup has just been created using Kwwika and Superfeedr to demonstrate how two real-time platforms can be integrated to create a <a href=\"http://superfeedr.kwwika.com/\">real-time news reader application</a>."
 wordpress_id: 1466
 wordpress_url: "http://blog.programmableweb.com/?p=14457"

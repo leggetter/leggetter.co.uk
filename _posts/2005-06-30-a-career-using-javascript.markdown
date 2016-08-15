@@ -6,11 +6,11 @@ title: A Career Using JavaScript
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 62
-wordpress_url: "http://www.leggetter.co.uk/?p=62"
+wordpress_url: "https://www.leggetter.co.uk/?p=62"
 date: "2005-06-30 08:05:01 +0100"
 date_gmt: "2005-06-30 07:05:01 +0100"
 categories:

@@ -2,9 +2,9 @@
 <script type="text/javascript">
 /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
 var disqus_shortname = 'leggetter';
-var disqus_url = 'http://www.leggetter.co.uk{{ page.url }}';
+var disqus_url = 'https://www.leggetter.co.uk{{ page.url }}';
 {% assign disqus_identifier = page.url %}
-{% capture old_disqus_identifier %}{{ page.wordpress_id }} http://www.leggetter.co.uk/?page_id={{ page.wordpress_id }}{% endcapture %}
+{% capture old_disqus_identifier %}{{ page.wordpress_id }} https://www.leggetter.co.uk/?page_id={{ page.wordpress_id }}{% endcapture %}
 {% if page.wordpress_id %}
   {% assign disqus_identifier = old_disqus_identifier %}
 {% endif %}

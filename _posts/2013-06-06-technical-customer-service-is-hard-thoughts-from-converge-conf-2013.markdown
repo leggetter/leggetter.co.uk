@@ -6,11 +6,11 @@ title: Technical Customer Service is hard - thoughts from Converge Conf 2013
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23840
-wordpress_url: "http://www.leggetter.co.uk/?p=23840"
+wordpress_url: "https://www.leggetter.co.uk/?p=23840"
 date: "2013-06-06 14:57:20 +0100"
 date_gmt: "2013-06-06 13:57:20 +0100"
 categories:

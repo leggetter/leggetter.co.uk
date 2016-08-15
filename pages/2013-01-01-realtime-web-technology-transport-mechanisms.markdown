@@ -6,11 +6,11 @@ title: Realtime Web Technology Transport Mechanisms
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23606
-wordpress_url: "http://www.leggetter.co.uk/?page_id=23606"
+wordpress_url: "https://www.leggetter.co.uk/?page_id=23606"
 date: "2013-01-01 15:18:55 +0000"
 date_gmt: "2013-01-01 15:18:55 +0000"
 categories: []

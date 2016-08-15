@@ -6,11 +6,11 @@ title: A year as a Developer Evangelist
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23259
-wordpress_url: "http://www.leggetter.co.uk/?p=23259"
+wordpress_url: "https://www.leggetter.co.uk/?p=23259"
 date: "2012-05-20 00:04:18 +0100"
 date_gmt: "2012-05-19 23:04:18 +0100"
 categories:
@@ -60,14 +60,14 @@ permalink: /2012/05/20/a-year-as-a-developer-evangelist.html
 <ul>
 <li>Started at Pusher
 <ul>
-<li><a href="/2011/05/21/goodbye-kwwika-hello-pusher.html">http://www.leggetter.co.uk/2011/05/21/goodbye-kwwika-hello-pusher.html</a><br />
+<li><a href="/2011/05/21/goodbye-kwwika-hello-pusher.html">https://www.leggetter.co.uk/2011/05/21/goodbye-kwwika-hello-pusher.html</a><br />
 <img src="/wp-content/uploads/2011/05/damien_phil_pusher-300x224.jpg" alt="" /></li>
 </ul>
 </li>
 <li>Attended Falsy Values in Warsaw
 <ul>
 <li><a href="http://blog.pusher.com/2011/5/22/pusher-at-falsy-values">http://blog.pusher.com/2011/5/22/pusher-at-falsy-values</a></li>
-<li><a href="/2011/05/24/notes-on-falsy-values.html">http://www.leggetter.co.uk/2011/05/24/notes-on-falsy-values.html</a><br />
+<li><a href="/2011/05/24/notes-on-falsy-values.html">https://www.leggetter.co.uk/2011/05/24/notes-on-falsy-values.html</a><br />
 <img src="/wp-content/uploads/2011/05/pusher_crockford-225x300.jpg" alt="" /></li>
 </ul>
 </li>
@@ -87,7 +87,7 @@ permalink: /2012/05/20/a-year-as-a-developer-evangelist.html
 </li>
 <li>Created Realtime Web Technology Guide:
 <ul>
-<li><a href="/real-time-web-technologies-guide">http://www.leggetter.co.uk/real-time-web-technologies-guide</a></li>
+<li><a href="/real-time-web-technologies-guide">https://www.leggetter.co.uk/real-time-web-technologies-guide</a></li>
 </ul>
 </li>
 </ul>
@@ -126,7 +126,7 @@ permalink: /2012/05/20/a-year-as-a-developer-evangelist.html
 </li>
 <li>Article published in .net magazine. The article is now available online too.
 <ul>
-<li><a href="/2011/06/28/recent-article-in-net-magazine-websockets-code-a-real-time-survey.html">http://www.leggetter.co.uk/2011/06/28/recent-article-in-net-magazine-websockets-code-a-real-time-survey.html</a><br />
+<li><a href="/2011/06/28/recent-article-in-net-magazine-websockets-code-a-real-time-survey.html">https://www.leggetter.co.uk/2011/06/28/recent-article-in-net-magazine-websockets-code-a-real-time-survey.html</a><br />
 <img src="/wp-content/uploads/2011/06/start.png" alt="" /></li>
 </ul>
 </li>
@@ -203,7 +203,7 @@ permalink: /2012/05/20/a-year-as-a-developer-evangelist.html
 <li>Attended the Local Social Summit and was on the Realtime Web panel discussion
 <ul>
 <li><a href="http://www.localsocialsummit.com/lss/the-right-time-how-the-real-rime-web-influences-the-local-world-panel-teaser-lss11/">http://www.localsocialsummit.com/lss/the-right-time-how-the-real-rime-web-influences-the-local-world-panel-teaser-lss11/</a></li>
-<li><a href="/2011/11/09/the-right-place-at-the-right-time-how-the-real-time-web-influences-the-local-world.html">http://www.leggetter.co.uk/2011/11/09/the-right-place-at-the-right-time-how-the-real-time-web-influences-the-local-world.html</a></li>
+<li><a href="/2011/11/09/the-right-place-at-the-right-time-how-the-real-time-web-influences-the-local-world.html">https://www.leggetter.co.uk/2011/11/09/the-right-place-at-the-right-time-how-the-real-time-web-influences-the-local-world.html</a></li>
 </ul>
 </li>
 <li>Gave a talk on the Realtime Web at Developer Developer Developer Dundee (DunDDD) with <a href="http://twitter.com/garyshort">Gary Short</a>
@@ -248,7 +248,7 @@ permalink: /2012/05/20/a-year-as-a-developer-evangelist.html
 <ul>
 <li>Gave a talk at Edinburgh TechMeetup "Web Browsers &amp; the Realtime Web"
 <ul>
-<li><a href="/2012/02/09/edinburgh-techmeetup-web-browsers-the-realtime-web.html">http://www.leggetter.co.uk/2012/02/09/edinburgh-techmeetup-web-browsers-the-realtime-web.html</a></li>
+<li><a href="/2012/02/09/edinburgh-techmeetup-web-browsers-the-realtime-web.html">https://www.leggetter.co.uk/2012/02/09/edinburgh-techmeetup-web-browsers-the-realtime-web.html</a></li>
 <li><a href="http://www.slideshare.net/leggetter/web-browsers-the-realtime-web">http://www.slideshare.net/leggetter/web-browsers-the-realtime-web</a></li>
 <li></li>
 </ul>
@@ -258,12 +258,12 @@ permalink: /2012/05/20/a-year-as-a-developer-evangelist.html
 <ul>
 <li>Attended jQuery UK conference in Oxford
 <ul>
-<li><a href="/2012/02/19/jquery-uk-2012-event-dont-always-use-jquery.html">http://www.leggetter.co.uk/2012/02/19/jquery-uk-2012-event-dont-always-use-jquery.html</a></li>
+<li><a href="/2012/02/19/jquery-uk-2012-event-dont-always-use-jquery.html">https://www.leggetter.co.uk/2012/02/19/jquery-uk-2012-event-dont-always-use-jquery.html</a></li>
 </ul>
 </li>
 <li>Attended Guardian Hackday
 <ul>
-<li><a href="/2012/02/18/ideas-for-apihackathon.html">http://www.leggetter.co.uk/2012/02/18/ideas-for-apihackathon.html</a></li>
+<li><a href="/2012/02/18/ideas-for-apihackathon.html">https://www.leggetter.co.uk/2012/02/18/ideas-for-apihackathon.html</a></li>
 <li><a href="http://blog.pusher.com/2012/2/21/epic-pusher-hacks-at-the-guardian-london">http://blog.pusher.com/2012/2/21/epic-pusher-hacks-at-the-guardian-london</a></li>
 <li><img src="http://developer.pearson.com/sites/default/files/pictures/120218PhilPusher.png" alt="" /><br />
 <small>Photo by Dan Murphy from Pearson (<a href="http://developer.pearson.com/blog/apigee-hackathon-guardian">Source</a>)</small></li>
@@ -277,7 +277,7 @@ permalink: /2012/05/20/a-year-as-a-developer-evangelist.html
 <li>Attended Code Africa hack weekend at The Times
 <ul>
 <li><a href="http://blog.pusher.com/2012/3/21/pusher-at-code-africa">http://blog.pusher.com/2012/3/21/pusher-at-code-africa</a></li>
-<li><a href="/2012/03/19/code-africa-the-impact-of-realtime.html">http://www.leggetter.co.uk/2012/03/19/code-africa-the-impact-of-realtime.html</a><br />
+<li><a href="/2012/03/19/code-africa-the-impact-of-realtime.html">https://www.leggetter.co.uk/2012/03/19/code-africa-the-impact-of-realtime.html</a><br />
 <img src="http://farm8.staticflickr.com/7230/6931655746_ca68009a9f_z.jpg" alt="" /><br />
 <small>Photo by <a href="http://www.flickr.com/photos/iliasbartolini/">Ilias Bartolini</a></small></li>
 </ul>

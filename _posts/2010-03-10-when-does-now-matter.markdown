@@ -6,11 +6,11 @@ title: When does NOW matter?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 736
-wordpress_url: "http://www.leggetter.co.uk/?p=736"
+wordpress_url: "https://www.leggetter.co.uk/?p=736"
 date: "2010-03-10 12:31:42 +0000"
 date_gmt: "2010-03-10 12:31:42 +0000"
 categories:

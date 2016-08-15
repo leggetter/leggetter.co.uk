@@ -6,9 +6,9 @@ title: Kwwika Powered Real-Time Opta Sports Cricket Widget
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tOver the past couple of weeks we've been involved in developing a Real-Time Cricket widget. It's been a collaboration, with Opta Sports providing the data, Kwwika powering the real-time client push as well as doing a bit of dev on data archi..."
 wordpress_id: 3712
 wordpress_url: "http://blog.kwwika.com/kwwika-powered-real-time-opta-sports-cricket"

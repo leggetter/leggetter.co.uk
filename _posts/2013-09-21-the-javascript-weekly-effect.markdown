@@ -6,11 +6,11 @@ title: The JavaScript Weekly Effect
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 23957
-wordpress_url: "http://www.leggetter.co.uk/?p=23957"
+wordpress_url: "https://www.leggetter.co.uk/?p=23957"
 date: "2013-09-21 17:51:40 +0100"
 date_gmt: "2013-09-21 16:51:40 +0100"
 categories:

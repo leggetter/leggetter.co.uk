@@ -6,9 +6,9 @@ title: Kwwika World Cup 2010 Real-Time Push Web App - Apple iPad competition
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\t\r\n\r\n\r\n\r\nTo celebrate the start of the World Cup 2010 in South\_Africa we're very excited to announce our\_Kwwika World Cup 2010 Real-Time Push Web App - Apple iPad competition\_sponsored by TellyLinks.com.\r\n\r\nFind out more about the\_Kwwika World ..."
 wordpress_id: 855
 wordpress_url: "http://blog.kwwika.com/kwwika-world-cup-2010-real-time-push-web-app"

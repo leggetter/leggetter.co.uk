@@ -6,11 +6,11 @@ title: Linkstation NAS Folder share with Windows Vista
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 30
-wordpress_url: "http://www.leggetter.co.uk/2007/05/22/linkstation-nas-folder-share-with-windows-vista.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/05/22/linkstation-nas-folder-share-with-windows-vista.html"
 date: "2007-05-22 22:32:59 +0100"
 date_gmt: "2007-05-22 21:32:59 +0100"
 categories:

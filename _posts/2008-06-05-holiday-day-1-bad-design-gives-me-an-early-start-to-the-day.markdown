@@ -6,12 +6,12 @@ title: "Holiday - Day 1: Bad design gives me an early start to the day"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "I was awoken on the first day of my holiday to a clattering sound and my girlfriend exclaiming \"I can't get the top drawer open\".  I turned over and looked at the clock. It read 05:50! Something within the drawer has risen high enough so that when you try to open it it catches and the drawer can't open.\r\n\r\n<img src=\"http://www.underconsideration.com/speakup/archives/droog_chest.jpg\" title=\"Actually most the drawers in the image don't have the annoying cavity\" alt=\"Actually most the drawers in the image don't have the annoying cavity\" align=\"right\" border=\"0\" height=\"259\" width=\"204\" />\r\n\r\nI then had to spend 30 minutes taking the whole set of drawers apart with a screwdriver to get this drawer open. I don't know how many times I've come across this same problem but still the design of drawers, and more to the point their casing, stays the same. The drawer cavity always has space above the actual drawer to allow things within the drawer to move into this space and then catch when you try and open the drawer.\r\n\r\nMy point here is that this has proven time and time again to be bad design with flaws yet this design does not change. The same problem can be seen in other engineering designs including software.\r\n"
 wordpress_id: 45
-wordpress_url: "http://www.leggetter.co.uk/2008/06/05/holiday-day-1-bad-design-gives-me-an-early-start-to-the-day.html"
+wordpress_url: "https://www.leggetter.co.uk/2008/06/05/holiday-day-1-bad-design-gives-me-an-early-start-to-the-day.html"
 date: "2008-06-05 08:49:20 +0100"
 date_gmt: "2008-06-05 08:49:20 +0100"
 categories:

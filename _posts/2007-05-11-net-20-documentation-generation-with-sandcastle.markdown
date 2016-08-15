@@ -6,12 +6,12 @@ title: .NET 2.0 Documentation Generation with Sandcastle
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "I've been aware of Microsoft's documentation generation system called Sandcastle for a while now but only recently have I had a chance to use it.\r\n\r\n<a href=\"http://www.sandcastledocs.com/Wiki%20Pages/Home.aspx\" title=\"Microsoft Sandcastle\"><img src=\"http://www.codeplex.com/SHFB/Project/FileDownload.aspx?DownloadId=2696\" title=\"Microsoft Sandcastle\" alt=\"Microsoft Sandcastle\" border=\"0\" height=\"138\" width=\"141\" /></a>\r\n\r\nWith <a href=\"http://ndoc.sourceforge.net/\">NDoc</a> all but dead (see <a href=\"http://www.kynosarges.de/NDoc.html\">NDoc 2.0 Alpha</a>) Sandcastle is now one of very few free alternatives that I could find to generate documentation from my coding comments. However, it did take a bit of searching and playing around to get things working.\r\n\r\n"
 wordpress_id: 21
-wordpress_url: "http://www.leggetter.co.uk/2007/05/11/net-20-documentation-generation-with-sandcastle.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/05/11/net-20-documentation-generation-with-sandcastle.html"
 date: "2007-05-11 13:02:59 +0100"
 date_gmt: "2007-05-11 12:02:59 +0100"
 categories:

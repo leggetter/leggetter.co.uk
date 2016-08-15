@@ -6,12 +6,12 @@ title: How does Google Real-Time Search work?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "On or around the 12th of December 2009 Google released a feature they are calling \"real-time search\".\r\n<blockquote cite=\"http://googleblog.blogspot.com/2009/12/relevance-meets-real-time-web.html\">Our real-time search enables you to discover breaking news the moment it's happening, even if it's not the popular news of the day, and even if you didn't know about it beforehand.</blockquote>\r\nAlthough I'd still argue that we're not seeing the real-time web with this solution I thought I'd go in to a bit of detail about how Google are\_achieving\_this HTTP polling solution.\r\n\r\n<h2>Summary</h2>\r\n<ul>\r\n<li>Google are consuming and indexing real-time data from multiple social networks</li>\r\n<li>It's not real-time HTTP PUSH yet, it's HTTP PULL using a polling interval</li>\r\n<li>The polling interval seems to vary but this needs to be confirmed.</li>\r\n<li>The polling result returns an encoded JSON response containing the next request to be made and the HTML of any new results. These results are injected into the \"Latest results\" section of the page</li>\r\n<li>The HTML returned is quite verbose and could be refined</li>\r\n<li>87% from a sample of 30 polled requests returned no new results meaning the request was a waste of resources</li>\r\n</ul>\r\n"
 wordpress_id: 600
-wordpress_url: "http://www.leggetter.co.uk/?p=600"
+wordpress_url: "https://www.leggetter.co.uk/?p=600"
 date: "2009-12-12 14:18:20 +0000"
 date_gmt: "2009-12-12 14:18:20 +0000"
 categories:

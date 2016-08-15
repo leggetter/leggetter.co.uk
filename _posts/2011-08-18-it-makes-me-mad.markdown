@@ -6,11 +6,11 @@ title: "It makes me mad!"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 21736
-wordpress_url: "http://www.leggetter.co.uk/?p=21736"
+wordpress_url: "https://www.leggetter.co.uk/?p=21736"
 date: "2011-08-18 10:57:44 +0100"
 date_gmt: "2011-08-18 09:57:44 +0100"
 categories:

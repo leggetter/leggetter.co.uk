@@ -6,9 +6,9 @@ title: Government invests £200m in technology centres but no mention of Softwar
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tI just saw a tweet by @mhawksey\_linking to a government announcement: More than £200m will be invested by the Government in a network of elite Technology and Innovation Centres to drive growth in the UK’s most high-tech industries, it wa..."
 wordpress_id: 1922
 wordpress_url: "http://leggetter.posterous.com/government-invests-200m-in-technology-centres"

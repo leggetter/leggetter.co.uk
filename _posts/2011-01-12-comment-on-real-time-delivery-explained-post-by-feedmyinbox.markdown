@@ -6,11 +6,11 @@ title: Comment on Real-Time Delivery Explained post by feedmyinbox
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 4936
-wordpress_url: "http://www.leggetter.co.uk/?p=4936"
+wordpress_url: "https://www.leggetter.co.uk/?p=4936"
 date: "2011-01-12 13:46:22 +0000"
 date_gmt: "2011-01-12 13:46:22 +0000"
 categories:

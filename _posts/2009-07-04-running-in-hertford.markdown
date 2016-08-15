@@ -6,12 +6,12 @@ title: Running in Hertford
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "My girlfriend was out at the Take That concert at Wembley so I was left on my own this Saturday afternoon. Not knowing what to do with myself as the evening approached I decided to go for a run. Normally I find running quite difficult. As I run my mind tends to concentrate on my breathing which puts me off the run. The difference today was that I went exploring.\r\n"
 wordpress_id: 236
-wordpress_url: "http://www.leggetter.co.uk/?p=236"
+wordpress_url: "https://www.leggetter.co.uk/?p=236"
 date: "2009-07-04 22:19:05 +0100"
 date_gmt: "2009-07-04 21:19:05 +0100"
 categories:

@@ -6,9 +6,9 @@ title: Kwwika-Superfeedr real-time demo available
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tOver the past few weeks we've been dabbling with first creating a PUbSubHubbub Subscriber and then building a cool real-time demo which integrates the real-time feed goodness from Superfeedr&nbsp;with the real-time client push wickedness of ..."
 wordpress_id: 1222
 wordpress_url: "http://blog.kwwika.com/kwwika-superfeedr-real-time-demo-available"

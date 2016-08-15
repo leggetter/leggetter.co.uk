@@ -6,11 +6,11 @@ title: Hosted realtime services - making the realtime web more accessible
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 22151
-wordpress_url: "http://www.leggetter.co.uk/?p=22151"
+wordpress_url: "https://www.leggetter.co.uk/?p=22151"
 date: "2012-01-24 09:05:11 +0000"
 date_gmt: "2012-01-24 09:05:11 +0000"
 categories:

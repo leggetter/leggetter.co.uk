@@ -6,12 +6,12 @@ title: "Sunday Lunch Review - The White Horse Hotel, Hertingfordbury"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "Jo and I have decided that we are going to start going for Sunday lunch and are going to keep a list of where we've been and what we thought of it. What better place to keep a note of this than on a blog. Here's our first effort at a review.\r\n\r\n"
 wordpress_id: 107
-wordpress_url: "http://www.leggetter.co.uk/?p=107"
+wordpress_url: "https://www.leggetter.co.uk/?p=107"
 date: "2009-02-01 20:18:35 +0000"
 date_gmt: "2009-02-01 19:18:35 +0000"
 categories:

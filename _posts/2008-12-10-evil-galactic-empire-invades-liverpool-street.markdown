@@ -6,12 +6,12 @@ title: Evil Galactic Empire invades Liverpool Street?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<h2>I remember Darth Vader being much taller!</h2>\r\n<img src=\"http://farm4.static.flickr.com/3094/3096893735_a1b7c8489f.jpg?v=0\" alt=\"Darth Vader\" />\r\n\r\nIf you look very carefully you can also see an x-wing fighter pilot and C3PO in the background. R2D2 was hanging around somewhere too.\r\n\r\n"
 wordpress_id: 66
-wordpress_url: "http://www.leggetter.co.uk/?p=66"
+wordpress_url: "https://www.leggetter.co.uk/?p=66"
 date: "2008-12-10 09:00:57 +0000"
 date_gmt: "2008-12-10 08:00:57 +0000"
 categories:

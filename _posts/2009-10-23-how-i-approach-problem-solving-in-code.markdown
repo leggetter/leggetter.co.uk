@@ -6,12 +6,12 @@ title: How I approach problem solving in code?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "Recently I was posed the following question:\r\n<blockquote>Write a piece of code that prints all odd integer numbers between 1 and 99</blockquote>\r\nThis really isn't a difficult question but it still requires some thought. When I'm posed with any question I like to break things down into their constituent parts.\r\n\r\nHere's the process I went through:\r\n\r\nOkay, so I'll define two variables for a start and end value and there's going to have to be a loop.\r\n[csharp]int startValue = 1;\r\nint endValue = 99;\r\nfor(int i = startValue;\r\n     i &amp;lt;= endValue;\r\n     i++)\r\n{\r\n   // work out if &quot;i&quot; is an odd number\r\n}[/csharp]\r\nNow, for the odd number detection. And... after a few umms and errrs ... I'm going to have to mod 2 (<code>%2</code>) the current value of <code>i</code> to work out if the value is odd. More ... umms and errs. Okay, I've finally worked out that if something mod 2 is not equal to 0 it's clearly an odd number. This took me longer than it should have but never mind. Once I've detected if <code>i</code> is an odd number I'll then put the odd number into a list for use later.\r\n[csharp]\r\nint startValue = 1;\r\nint endValue = 99;\r\nIList&lt;int&gt; oddValues = new List&amp;lt;int&amp;gt;();\r\nfor(int i = startValue;\r\n     i &amp;lt;= endValue;\r\n     i++)\r\n{\r\n   if(i%2 != 0)\r\n   {\r\n      oddValues.Add(i);\r\n   }\r\n}\r\n[/csharp]\r\nThose of you that are good at these little puzzles, or just think this is way too easy, might already be screaming at me about one of the following:\r\n<ul>\r\n\t<li>Why are you using a <code>IList<int></code>, why don't you just print the value?</li>\r\n\t<li>Odd numbers are always 2 apart so why aren't you just increment <code>i</code> by 2 using <code>i+=2</code>?</li>\r\n</ul>\r\n"
 wordpress_id: 382
-wordpress_url: "http://www.leggetter.co.uk/?p=382"
+wordpress_url: "https://www.leggetter.co.uk/?p=382"
 date: "2009-10-23 18:44:57 +0100"
 date_gmt: "2009-10-23 17:44:57 +0100"
 categories:

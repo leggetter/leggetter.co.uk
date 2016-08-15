@@ -6,9 +6,9 @@ title: "Collecta Gets Dispensed: Was It Solving a Hard Enough Problem?"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<a href=\"http://www.programmableweb.com/api/collecta\"><img src=\"http://www.programmableweb.com/images/apis/at1703.png\" alt=\"Collecta\" class=\"imgRight\" /></a>At the beginning of 2011 we reported that <a href=\"http://blog.programmableweb.com/2011/01/24/collecta-drops-its-real-time-search-api/\">Collect had decided to drop it's API</a> in order to change their offering to something more profitable. But now ReadWriteWeb have\_reported <a href=\"http://www.readwriteweb.com/archives/the_lights_go_out_at_collecta_real_time_search.php\">the disappointing demise of Collecta</a>. This has the potential of being the first big failure of a well funded real-time web focused company, so questions need to be asked about why this happened and why Collecta weren't successful. Back in January of this year we asked \"<a href=\"http://blog.programmableweb.com/2011/01/25/is-it-finally-the-end-for-real-time-search-engines/\">Is It Finally the End for Real-time Search Engines?\"</a> and it now looks like that very question is being raised again."
 wordpress_id: 17312
 wordpress_url: "http://blog.programmableweb.com/2011/06/01/collecta-gets-dispensed-were-they-solving-a-hard-enough-problem/"

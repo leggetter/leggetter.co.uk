@@ -6,9 +6,9 @@ title: What came before WebSockets?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: With the arrival of WebSockets we finally have a standardised technology for true realtime bi-directional communication between a server and a web browser (or any other client). When we were creating our What are WebSockets?  page we decided to write u...
 wordpress_id: 21760
 wordpress_url: "http://blog.pusherapp.com/2011/8/10/what-came-before-websockets"

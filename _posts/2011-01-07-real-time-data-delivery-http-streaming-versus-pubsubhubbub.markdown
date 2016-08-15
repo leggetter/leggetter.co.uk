@@ -6,9 +6,9 @@ title: "Real-time Data Delivery: HTTP Streaming Versus PubSubHubbub"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<a href=\"http://www.flickr.com/photos/blakespot/4011035061/\"><img class=\"imgRight\" src=\"http://blog.programmableweb.com/wp-content/stopwatch.jpg\" alt=\"Real-time\" width=\"100\" height=\"75\" /></a>There are a number of ways of delivering data in real-time but until recently it has looked like <a href=\"http://code.google.com/apis/pubsubhubbub/\">PubSubHubbub</a>, with the backing of Google, was going to be the preferred method. However, the past couple of weeks have seen a couple of interesting developments which could indicate that the developer community may actually prefer HTTP Streaming."
 wordpress_id: 4581
 wordpress_url: "http://blog.programmableweb.com/?p=17440"

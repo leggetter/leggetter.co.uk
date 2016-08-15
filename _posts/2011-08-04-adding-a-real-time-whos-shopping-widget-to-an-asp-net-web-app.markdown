@@ -6,9 +6,9 @@ title: "Adding a real-time &quot;Who's shopping?&quot; widget to an ASP.NET Web 
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 21703
 wordpress_url: "http://blog.pusherapp.com/2011/8/3/adding-a-real-time-who-s-shopping-widget-to-an-asp-net-web-app"
 date: "2011-08-04 01:00:00 +0100"

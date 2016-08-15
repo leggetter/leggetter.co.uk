@@ -6,11 +6,11 @@ title: Anybody fancy a real-time web workshop?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 800
-wordpress_url: "http://www.leggetter.co.uk/?p=800"
+wordpress_url: "https://www.leggetter.co.uk/?p=800"
 date: "2010-05-04 12:33:33 +0100"
 date_gmt: "2010-05-04 11:33:33 +0100"
 categories:
@@ -34,4 +34,4 @@ permalink: /2010/05/04/anybody-fancy-a-real-time-web-workshop.html
 <p>Edinburgh or Dundee during the week beginning Monday 10 May 2010.</p>
 <p><strong>Anyway, please give me a shout if you are interested. Or if you would be interested but don't have that much time to spare maybe we can do a shortened version.</strong></p>
 <p><a href="mailto:phil@kwwika.com">phil@kwwika.com</a></p>
-<p><a href="/contact-me">http://www.leggetter.co.uk/contact-me</a>/</p>
+<p><a href="/contact-me">https://www.leggetter.co.uk/contact-me</a>/</p>

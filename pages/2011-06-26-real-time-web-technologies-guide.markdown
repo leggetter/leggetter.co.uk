@@ -8,11 +8,11 @@ title: Real-Time Web Technologies Guide
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 20290
-wordpress_url: "http://www.leggetter.co.uk/?page_id=20290"
+wordpress_url: "https://www.leggetter.co.uk/?page_id=20290"
 date: "2011-06-26 12:19:20 +0100"
 date_gmt: "2011-06-26 11:19:20 +0100"
 categories: []

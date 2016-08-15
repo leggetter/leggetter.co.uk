@@ -6,9 +6,9 @@ title: The easiest way to add real-time functionality to an ASP.NET e-commerce a
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "While adding realtime functionality to ASP.NET applications has often seemed difficult due to the connection limitations of the IIS platform, it can actually be achieved fairly easily by offloading this component to third party services like Pusher. In..."
 wordpress_id: 21707
 wordpress_url: "http://blog.pusherapp.com/2011/6/25/the-easiest-way-to-add-real-time-functionality-to-an-asp-net-e-commerce-application"

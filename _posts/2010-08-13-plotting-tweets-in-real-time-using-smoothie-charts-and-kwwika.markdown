@@ -6,9 +6,9 @@ title: Plotting tweets in real-time using Smoothie Charts and Kwwika
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tI noticed a tweet today about real-time JavaScript charts and couldn't resist having a play. The charts are call Smoothie Charts and have been developed by Joe Walnes. You can read the blog post where he announced the release of them here.\r\n\r\n..."
 wordpress_id: 1324
 wordpress_url: "http://blog.kwwika.com/plotting-tweets-in-real-time-using-smoothie-c"

@@ -6,12 +6,12 @@ title: Using Fiddler to trick Silverlight into allowing a crossdomain Web Reques
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "If you are trying to make a web request from a Silverlight application the first thing the Silverlight runtime will do is request a security policy file (see <a href=\"http://msdn.microsoft.com/en-us/library/cc645032(VS.95).aspx\">Network Security Access Restrictions in Silverlight</a>) from the root of the server you are making your web request to. This happens if you are making your request using the <a href=\"http://msdn.microsoft.com/en-us/library/system.net.httpwebrequest(VS.95).aspx\">HttpWebRequest</a> or <a href=\"http://msdn.microsoft.com/en-us/library/system.net.webclient(VS.95).aspx\">WebClient</a> class. If the Silverlight runtime fails to get a security policy file your web request will fail. If your Silverlight application relies on this web request then you are going to need to contact the server owner and get them to add a security file but until then you can use the <a href=\"http://www.fiddler2.com/fiddler2/\">Fiddler HTTP Proxy</a> to trick the Silverlight runtime into believing that it does have permission to make the request.\r\n"
 wordpress_id: 425
-wordpress_url: "http://www.leggetter.co.uk/?p=425"
+wordpress_url: "https://www.leggetter.co.uk/?p=425"
 date: "2009-10-30 11:06:06 +0000"
 date_gmt: "2009-10-30 11:06:06 +0000"
 categories:
@@ -31,11 +31,11 @@ permalink: /2009/10/30/using-fiddler-to-trick-silverlight-into-allowing-a-crossd
 <small>If you want to skip the explanation you can jump <a href="#screencast">straight to the screencast</a></small></p>
 <h2>How Silverlight makes a web request</h2>
 <p>If you were making a web request from Silverlight to download the following page:</p>
-<p><code>http://www.leggetter.co.uk/2009/10/23/how-i-approach-problem-solving-in-code.html</code></p>
+<p><code>https://www.leggetter.co.uk/2009/10/23/how-i-approach-problem-solving-in-code.html</code></p>
 <p>The Silverlight runtime would first request</p>
-<p><code>http://www.leggetter.co.uk/clientaccesspolicy.xml</code></p>
+<p><code>https://www.leggetter.co.uk/clientaccesspolicy.xml</code></p>
 <p>If this request fails it will then request</p>
-<p><code>http://www.leggetter.co.uk/crossdomain.xml</code></p>
+<p><code>https://www.leggetter.co.uk/crossdomain.xml</code></p>
 <p>If both of these requests fail (return a 404 HTTP status) the Silverlight runtime will not allow you to make your web request. *</p>
 <p><small>* Note: The web request failure due to a failure to download a security policy file can manifest itself in a number of ways. I'll try to remember to put a post up about this later.</small></p>
 <p>The clientaccesspolicy.xml file is Microsoft's own security policy file. The crossdomain.xml file is used by Adobe Flash but is also supported by Silverlight. For more information see <a href="http://help.adobe.com/en_US/ActionScript/3.0_ProgrammingAS3/WS5b3ccc516d4fbf351e63e3d118a9b90204-7e08.html#WS366737CC-0BD3-47b4-8292-569FB3AA276B">master-policy file</a>.</p>

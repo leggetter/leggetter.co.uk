@@ -6,11 +6,11 @@ title: "DDD Scotland 2011 - Maybe .NET developers aren't scared of the tech comm
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 14013
-wordpress_url: "http://www.leggetter.co.uk/?p=14013"
+wordpress_url: "https://www.leggetter.co.uk/?p=14013"
 date: "2011-05-09 21:42:50 +0100"
 date_gmt: "2011-05-09 20:42:50 +0100"
 categories:

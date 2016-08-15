@@ -6,9 +6,9 @@ title: Client Push Services Open Up Real-Time to Everyone
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<a href=\"http://www.flickr.com/photos/blakespot/4011035061/\"><img src=\"http://blog.programmableweb.com/wp-content/stopwatch.jpg\" alt=\"Real-time\" width=\"100\" height=\"75\" class=\"imgRight\" /></a>The number of services offering <a href=\"http://www.programmableweb.com/apitag/?q=realtime\">real-time APIs</a> is slowly but surely expanding and it looks like we're going to have to add quite a few more. Since the start of the year a new type of service has started to appear--client push services, which help developers include real-time updates in their web apps."
 wordpress_id: 1782
 wordpress_url: "http://blog.programmableweb.com/?p=15331"

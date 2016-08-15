@@ -6,11 +6,11 @@ title: Kwwika Silverlight API - Chat Example
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 1249
-wordpress_url: "http://www.leggetter.co.uk/2010/05/10/kwwika-silverlight-api-chat-example-2.html"
+wordpress_url: "https://www.leggetter.co.uk/2010/05/10/kwwika-silverlight-api-chat-example-2.html"
 date: "2010-05-10 18:30:49 +0100"
 date_gmt: "2010-05-10 17:30:49 +0100"
 categories:

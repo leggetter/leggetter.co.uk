@@ -6,12 +6,12 @@ title: "Whinge of the Week: Elephant.co.uk - bad experience"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "I was recently in an <a href=\"http://en.wikipedia.org/wiki/Road_traffic_collision\" title=\"Road Traffic Accident\">RTA</a>. I've only once before been in a car accident but this time my car was quite badly damaged and the damage was judged to be \"borderline\". This means that the cost of fixing the car is in the same region as the car value. In this case a decision has to be made on whether the car will be fixed and this is done by \"<em><strong><a href=\"http://www.elephant.co.uk\" title=\"Elephant.co.uk car insurance\">elephant.co.uk</a> engineers</strong></em>\" viewing the damage either via video link (yeah, right!) or, as I was told, digital images (much more likely). Once this has been done the insurance agency will make a decision on whether the car is <em><strong>written-off </strong></em>/<em><strong> a total loss</strong></em>. If it is <em><strong>written-off</strong></em> /<em><strong> a total loss</strong></em> then your car won't be fixed and the insurance agency will make you an offer for your car. So, in effect the insurance agency is buying the car off you.\r\n\r\n"
 wordpress_id: 7
-wordpress_url: "http://www.leggetter.co.uk/2007/01/29/elephantcouk-bad-experience.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/01/29/elephantcouk-bad-experience.html"
 date: "2007-01-29 23:19:38 +0000"
 date_gmt: "2007-01-29 22:19:38 +0000"
 categories:

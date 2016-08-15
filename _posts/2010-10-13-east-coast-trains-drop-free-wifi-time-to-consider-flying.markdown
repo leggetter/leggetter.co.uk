@@ -6,9 +6,9 @@ title: East Coast Trains drop free WIFI. Time to consider flying?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "\n        \n\t\n\nWIFI is absolutely essential for those working on the move. This is one reason why free WIFI is popping up all over the place. Cafes, public places with nearby shops and even petrol stations (service stations) are offering free WIFI as a w..."
 wordpress_id: 1913
 wordpress_url: "http://leggetter.posterous.com/east-coast-trains-drop-free-wifi-time-to-cons"

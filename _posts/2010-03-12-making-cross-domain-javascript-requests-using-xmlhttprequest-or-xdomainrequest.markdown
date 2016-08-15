@@ -6,12 +6,12 @@ title: Making cross domain JavaScript requests using XMLHttpRequest or XDomainRe
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "Cross domain requests (also known as <a href=\"http://www.w3.org/TR/access-control/\">Cross Origin Resource Sharing</a>) can be made using JavaScript without trickery, as far as I can tell, in <strong>Firefox 3.5</strong>, <strong>Safari</strong>,<strong> Google Chrome</strong> and <strong>Internet Explorer 8</strong>. This is done with all browsers except IE8 using a standard <a href=\"http://www.w3.org/TR/XMLHttpRequest/\">XMLHttpRequest</a> object. The only\_thing required to notify the browser that JavaScript is allowed to make this request is for the server to send a <a href=\"http://www.w3.org/TR/2008/WD-access-control-20080912/#access-control-allow-origin\">Access-Control-Allow-Origin</a> response header. Internet Explorer 8 uses an object called <a href=\"http://msdn.microsoft.com/en-us/library/cc288060(VS.85).aspx\">XDomainRequest</a> and requires the same HTTP header. If the value of the header is * then requests are allowed from all domains. You can be more restrictive if required.\r\n"
 wordpress_id: 741
-wordpress_url: "http://www.leggetter.co.uk/?p=741"
+wordpress_url: "https://www.leggetter.co.uk/?p=741"
 date: "2010-03-12 18:19:23 +0000"
 date_gmt: "2010-03-12 18:19:23 +0000"
 categories:

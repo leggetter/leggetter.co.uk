@@ -6,11 +6,11 @@ title: JavaScript namespace utility
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 21748
-wordpress_url: "http://www.leggetter.co.uk/?p=21748"
+wordpress_url: "https://www.leggetter.co.uk/?p=21748"
 date: "2011-08-23 17:09:24 +0100"
 date_gmt: "2011-08-23 16:09:24 +0100"
 categories:

@@ -6,9 +6,9 @@ title: "Google realtime search isn't real-time"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\t\r\nGoogle have released a real-time search site aimed at showing search results as it happens. The disappointing thing is that although I&#039;m sure that the results are instantly updated on the server they are not instantly updated in the web..."
 wordpress_id: 1538
 wordpress_url: "http://leggetter.posterous.com/google-realtime-search-isnt-real-time"

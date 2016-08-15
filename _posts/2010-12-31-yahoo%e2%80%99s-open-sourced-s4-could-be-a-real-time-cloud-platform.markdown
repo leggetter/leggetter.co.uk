@@ -6,9 +6,9 @@ title: Yahoo’s Open Sourced S4 Could be a Real-time Cloud Platform
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "<img class=\"imgRight\" src=\"http://blog.programmableweb.com/wp-content/s4.png\" alt=\"Yahoo! S4\" width=\"188\" height=\"30\" />In a world where real-time data streams are becoming much more common, and with the volume of that data continuing to increase, it makes sense that a framework would be developed to increase the ease at which that data can be processed. <a href=\"http://s4.io/\">Yahoo! S4</a> isn't the first such framework to be concieved, or even open sourced, but it is likely to massively increase awareness that such frameworks exist, what problems they may help solve and get developers thinking about how they could use the technology and potentially increase the likelihood of somebody moving S4-like capabilities into the cloud and offering it as as service."
 wordpress_id: 4221
 wordpress_url: "http://blog.programmableweb.com/?p=16860"

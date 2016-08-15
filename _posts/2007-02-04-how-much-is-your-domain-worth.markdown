@@ -6,11 +6,11 @@ title: How much is your domain worth?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 9
-wordpress_url: "http://www.leggetter.co.uk/2007/02/04/how-much-is-your-domain-worth.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/02/04/how-much-is-your-domain-worth.html"
 date: "2007-02-04 14:57:21 +0000"
 date_gmt: "2007-02-04 13:57:21 +0000"
 categories:

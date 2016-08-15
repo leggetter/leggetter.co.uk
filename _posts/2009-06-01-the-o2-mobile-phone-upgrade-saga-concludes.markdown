@@ -6,11 +6,11 @@ title: The O2 Mobile Phone Upgrade saga concludes
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 193
-wordpress_url: "http://www.leggetter.co.uk/?p=193"
+wordpress_url: "https://www.leggetter.co.uk/?p=193"
 date: "2009-06-01 22:01:41 +0100"
 date_gmt: "2009-06-01 21:01:41 +0100"
 categories:

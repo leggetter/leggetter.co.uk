@@ -6,11 +6,11 @@ title: Choosing your Realtime Web App Tech Stack
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 24239
-wordpress_url: "http://www.leggetter.co.uk/?p=24239"
+wordpress_url: "https://www.leggetter.co.uk/?p=24239"
 date: "2013-12-09 10:57:37 +0000"
 date_gmt: "2013-12-09 10:57:37 +0000"
 categories:

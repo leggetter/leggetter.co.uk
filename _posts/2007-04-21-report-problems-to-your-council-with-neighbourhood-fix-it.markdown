@@ -6,11 +6,11 @@ title: Report problems to your council with Neighbourhood Fix It
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 20
-wordpress_url: "http://www.leggetter.co.uk/2007/04/21/report-problems-to-your-council-with-neighbourhood-fix-it.html"
+wordpress_url: "https://www.leggetter.co.uk/2007/04/21/report-problems-to-your-council-with-neighbourhood-fix-it.html"
 date: "2007-04-21 13:30:25 +0100"
 date_gmt: "2007-04-21 12:30:25 +0100"
 categories:

@@ -19,7 +19,7 @@ In Star Trek, the Starship Enterprise uses a warp core as the main energy reacto
 
 That is, the time between a problem occurring within the warp core and the safety system knowing about it has a **hard deadline** or there is a significant system failure. That’s **Hard Real-Time**.
 
-You wouldn’t use [real-time web technologies](http://www.leggetter.co.uk/real-time-web-technologies-guide/) as part of the Enterprise safety system. But you might use them in a hard real-time system if the deadline is sufficiently long and if the real-time technology offers some form of guaranteed delivery (simple receipt acknowledgement may suffice).
+You wouldn’t use [real-time web technologies](https://www.leggetter.co.uk/real-time-web-technologies-guide/) as part of the Enterprise safety system. But you might use them in a hard real-time system if the deadline is sufficiently long and if the real-time technology offers some form of guaranteed delivery (simple receipt acknowledgement may suffice).
 
 ## Firm real-time
 
@@ -44,7 +44,7 @@ If you are building a real-time application and using the Internet as your commu
 Now that we’ve clarified and classified the types of real-time and addressed the “What is Real-Time?” question we can finally move on to things like *discovering the real-time data* within our systems and apps and then *understanding the potential uses of that real-time data* to increase our knowledge of what are applications are doing _right now_ and building real-time features that improve our product.
 
 <!--
-Now that we’ve clarified and classified the types of real-time and addressed the “What is Real-Time?” question we can finally move on to things like [discovering the real-time data](http://www.leggetter.co.uk/2016/04/23/discovering-realtime-data-in-your-apps.html) within our systems and apps and then [understanding the potential uses of that real-time data](http://www.leggetter.co.uk/2016/04/24/use-cases-for-your-realtime-data.html) to increase our knowledge of what are applications are doing _right now_ and building real-time features that improve our product.
+Now that we’ve clarified and classified the types of real-time and addressed the “What is Real-Time?” question we can finally move on to things like [discovering the real-time data](https://www.leggetter.co.uk/2016/04/23/discovering-realtime-data-in-your-apps.html) within our systems and apps and then [understanding the potential uses of that real-time data](https://www.leggetter.co.uk/2016/04/24/use-cases-for-your-realtime-data.html) to increase our knowledge of what are applications are doing _right now_ and building real-time features that improve our product.
 -->
 
 <small>Quoted definitions are taken from the [Real-Time Computing entry](https://en.wikipedia.org/wiki/Real-time_computing) on Wikipedia</small>

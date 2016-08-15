@@ -13,9 +13,9 @@ This leaves a BladeRunnerJS Developer Evangelist role vacant so please [get in t
 
 ## Rejoining Pusher
 
-When I [left Pusher back in June 2013](http://www.leggetter.co.uk/2013/07/04/leaving-pusher-what-next.html) I said it was the best job I'd ever had. I've enjoyed my time back at Caplin, but I'd still say that the most enjoyment and best sense of achievement I've ever experienced was during my first stint at Pusher. So I'm extremely excited to be rejoining.
+When I [left Pusher back in June 2013](https://www.leggetter.co.uk/2013/07/04/leaving-pusher-what-next.html) I said it was the best job I'd ever had. I've enjoyed my time back at Caplin, but I'd still say that the most enjoyment and best sense of achievement I've ever experienced was during my first stint at Pusher. So I'm extremely excited to be rejoining.
 
-<a href="http://pusher.com"><img align="center" src="http://www.leggetter.co.uk/images/pusher.png" alt="Pusher logo" style="width: 250px; float: right;" /></a>
+<a href="http://pusher.com"><img align="center" src="https://www.leggetter.co.uk/images/pusher.png" alt="Pusher logo" style="width: 250px; float: right;" /></a>
 
 Some would say *you should never go back*. **I disagree**. My frequent returns to Caplin have proven there are benefits and both myself and Caplin have benefitted from this in the past. Time away can make you aware of what worked and what didn't. You can make sure that you do the things that worked and find alternative solutions for those that didn't. When you step away you see opportunities and benefits that you couldn't see from the inside. I'm very pleased that my contribution to Pusher at the very beginning has legacy, I've maintained a good relationship with everyone there and that [Max](https://twitter.com/maxthelion), [Sylvain](https://twitter.com/copypastaa) and the rest of the team will have me back! If you're interested in joining me at Pusher, [we are hiring](http://pusher.com/jobs#job-positions).
 
@@ -45,7 +45,7 @@ Did I mention I'm excited?!?!
 
 In addition to writing about rejoining Pusher I wanted to share a bit about BladeRunnerJS.
 
-<a href="http://bladerunnerjs.org"><img align="center" src="http://www.leggetter.co.uk/wp-content/uploads/2013/07/bladerunner-js.png" style="width: 250px; float: right; padding-left: 20px;" /></a>
+<a href="http://bladerunnerjs.org"><img align="center" src="https://www.leggetter.co.uk/wp-content/uploads/2013/07/bladerunner-js.png" style="width: 250px; float: right; padding-left: 20px;" /></a>
 
 I joined [Caplin](http://www.caplin.com) (for the 4th time) to help them open source and evangelise BladeRunnerJS (BRJS). To help a company with the process of open sourcing, building a brand around an open source product, identifying the USPs and innovation of a product, giving talks and blogging about them has been a rewarding challenge.
 
@@ -53,7 +53,7 @@ One of the great things about Caplin is you get to work with a bunch of friendly
 
 One of the things I've particularly enjoyed about this time is that it's allowed me to take on a product owner role as well as one of evangelist. Providing input into a product is one of the things I really enjoy about the evangelist role. The level of impact you have on a product as an evangelist really depends on the company. But I feel I've positively influenced the present and future BRJS.
 
-A big challenge when open sourcing and evangelising BRJS is that it's not a simple product. It does a lot of things "out of the box" that could be achieved gluing a number of other tools together. The belief is that Caplin's customers want to be productive from day one - the first line of code you write should be feature code - and BRJS does make that possible. But what this means is that in order to evangelise BRJS you need to convince others about a large number of concepts and ideas. Don't get me wrong, you can still evangelise smaller topics like the [general issues](http://bladerunnerjs.org/blog/large-scale-complex-javascript-apps/) that you'll come across when building [large complex front-end web apps](http://www.youtube.com/watch?v=0Y2xKMJtRCk), about [testing strategies with large JS apps](http://vimeo.com/70637558) and about [componentised web apps](http://www.leggetter.co.uk/2014/08/06/state-componentised-web.html).
+A big challenge when open sourcing and evangelising BRJS is that it's not a simple product. It does a lot of things "out of the box" that could be achieved gluing a number of other tools together. The belief is that Caplin's customers want to be productive from day one - the first line of code you write should be feature code - and BRJS does make that possible. But what this means is that in order to evangelise BRJS you need to convince others about a large number of concepts and ideas. Don't get me wrong, you can still evangelise smaller topics like the [general issues](http://bladerunnerjs.org/blog/large-scale-complex-javascript-apps/) that you'll come across when building [large complex front-end web apps](http://www.youtube.com/watch?v=0Y2xKMJtRCk), about [testing strategies with large JS apps](http://vimeo.com/70637558) and about [componentised web apps](https://www.leggetter.co.uk/2014/08/06/state-componentised-web.html).
 
 But, in order to appreciate BRJS you really need to *think at scale*. You need to understand that your application will be large; will have a very big codebase, will have a codebase that's around for a long time, will be contributed to by multiple developers working across multiple teams and needs to have an architecture that supports complex component interactions and technological change. As I said, it's a challenging task.
 

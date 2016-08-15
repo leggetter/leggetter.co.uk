@@ -6,11 +6,11 @@ title: "Goodbye Kwwika. Hello Pusher!"
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 15639
-wordpress_url: "http://www.leggetter.co.uk/?p=15639"
+wordpress_url: "https://www.leggetter.co.uk/?p=15639"
 date: "2011-05-21 13:15:17 +0100"
 date_gmt: "2011-05-21 12:15:17 +0100"
 categories:

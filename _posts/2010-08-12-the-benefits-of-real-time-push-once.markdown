@@ -6,9 +6,9 @@ title: The benefits of Real-Time Push-Once
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 excerpt: "        \r\n\tThere's so much excitement about real-time push technologies that quite often, in fact almost always, the benefits of using push are overlooked, forgotten, or simply not known. The technology excites programmers who want to use it, want to k..."
 wordpress_id: 1325
 wordpress_url: "http://blog.kwwika.com/the-benefits-of-real-time-push-once"

@@ -6,11 +6,11 @@ title: Dundee Web Standards - Fleet Collective and Browser Warfare
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 14393
-wordpress_url: "http://www.leggetter.co.uk/?p=14393"
+wordpress_url: "https://www.leggetter.co.uk/?p=14393"
 date: "2011-05-12 19:36:08 +0100"
 date_gmt: "2011-05-12 18:36:08 +0100"
 categories:

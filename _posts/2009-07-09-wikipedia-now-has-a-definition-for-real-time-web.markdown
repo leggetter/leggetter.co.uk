@@ -6,11 +6,11 @@ title: Wikipedia now has a definition for Real-Time Web
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 251
-wordpress_url: "http://www.leggetter.co.uk/?p=251"
+wordpress_url: "https://www.leggetter.co.uk/?p=251"
 date: "2009-07-09 15:43:23 +0100"
 date_gmt: "2009-07-09 14:43:23 +0100"
 categories:

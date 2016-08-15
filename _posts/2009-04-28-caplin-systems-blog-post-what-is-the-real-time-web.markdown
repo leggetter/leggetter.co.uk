@@ -6,11 +6,11 @@ title: Caplin Systems Blog Post - What is the real-time web?
 author:
   display_name: Phil Leggetter
   email: "phil@leggetter.co.uk"
-  url: "http://www.leggetter.co.uk"
+  url: "https://www.leggetter.co.uk"
 author_email: "phil@leggetter.co.uk"
-author_url: "http://www.leggetter.co.uk"
+author_url: "https://www.leggetter.co.uk"
 wordpress_id: 167
-wordpress_url: "http://www.leggetter.co.uk/?p=167"
+wordpress_url: "https://www.leggetter.co.uk/?p=167"
 date: "2009-04-28 16:27:40 +0100"
 date_gmt: "2009-04-28 15:27:40 +0100"
 categories:

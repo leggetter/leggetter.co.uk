@@ -1,6 +1,6 @@
 var isIE8 = window.XDomainRequest ? true : false;
 var invocation = createCrossDomainRequest();
-var url = 'http://www.phobos7.co.uk/research/xss/simple.php';        
+var url = 'https://leggetter-cors.herokuapp.com/';        
 
 function createCrossDomainRequest(url, handler)
 {

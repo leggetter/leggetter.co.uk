@@ -8237,7 +8237,7 @@ I took the code that I'll use below from this <a href="http://arunranga.com/exam
 <div class="highlight"><pre><code class="language-text" data-lang="text">&lt;script&gt;
   var isIE8 = window.XDomainRequest ? true : false;
   var invocation = createCrossDomainRequest();
-  var url = &#39;http://www.phobos7.co.uk/research/xss/simple.php&#39;;
+  var url = &#39;https://leggetter-cors.herokuapp.com/&#39;;
   function createCrossDomainRequest(url, handler) {
     var request;
     if (isIE8) {

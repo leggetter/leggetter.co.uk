@@ -5,9 +5,7 @@ excerpt: "In this final post in the real-time data series we’ll cover the how:
 
 ---
 
-<small>This was originally written by me and published on the [Pusher blog](https://blog.pusher.com/how-to-describe-publish-consume-real-time-data/)</small>
-
-In the first post in the series we covered [discovering real-time data](https://blog.pusher.com/real-time-data-discovery-in-your-apps/) within your systems and applications. In part two we went through the [use cases for your real-time data](https://blog.pusher.com/using-your-real-time-data-features/). In this final section we’ll cover **the how**: how to describe, publish & consume real-time data from your systems and expose the data so that you can build real-time features.
+In the first post in the series we covered [discovering real-time data](https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html) within your systems and applications. In part two we went through the [use cases for your real-time data](https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html). In this final section we’ll cover **the how**: how to describe, publish & consume real-time data from your systems and expose the data so that you can build real-time features.
 
 The main steps we’re going to cover are doing the following with the real-time event data:
 
@@ -53,8 +51,6 @@ We’re querying the `players` table, ordering the result `desc`ending by points
 
 In a more traditional database these could be considered [triggers](https://en.wikipedia.org/wiki/Database_trigger). The main things are that it’s _evented_ and that it nicely separates the updating code from the changefeed (trigger) handling code. The asynchronous nature of this code allows it to be executed outside of the incoming event thread/context or in a different process. This is just one example and there may be other solutions allow you to achieve similar functionality.
 
-If you’re interested in RethinkDB checkout our post on [Using RethinkDB with the Evented Web](http://www.sitepoint.com/adapting-rethinkdb-for-the-evented-web-with-pusher/).
-
 ## Describing Real-Time Data
 
 Systems, applications, and developers building real-time applications and features need a way of registering their interest in data. One of the simplest and most commonly used approaches to this is provide a name or identifier for the data that can be used when registering interest. Publish-Subscribe fits very well here, where data is identified by a `channel`, `topic` or `subject`.
@@ -76,7 +72,7 @@ For more complex data it’s probably best to name the channel based on the anal
 
 Once you’ve described your data you need a mechanism for distributing that data to interested parties (we’ll cover how those parties register their interest in the next section).
 
-In the following example using the [node-orm2](https://github.com/dresende/node-orm2) ORM package and the [Pusher HTTP Node library](https://github.com/pusher/pusher-http-node) we’ll see how this can be achieved for a simple data change:
+In the following example using the [node-orm2](https://github.com/dresende/node-orm2) ORM package and the Socket.IO we’ll see how this can be achieved for a simple data change:
 
 ```
 Activity.create(
@@ -84,18 +80,18 @@ Activity.create(
   function(err, activity) {
     if(err) throw err;
 
-    pusher.trigger('activities', 'created', activity);
+    io.of('/activities').emit('created', activity);
   });
 
 ```
 
-In this code a new activity has been created so we’ve triggered an event called `created` on the `activities` channel passing the newly created `activity` as the event data payload.
+In this code a new activity has been created so we’ve triggered an event called `created` on the `activities` namespace passing the newly created `activity` as the event data payload.
 
 ```
 Activity.get(activityId, function (err, activity) {
   activity.text = "Phil is still talking";
   activity.save(function (err) {
-    pusher.trigger('activities', 'updated', activity);
+    io.of('/activities').emit('updated', activity);
   });
 });
 
@@ -117,33 +113,34 @@ function top5pointsUpdated(cursor) {
   cursor.each(function(err, item) {
     top5.push(item);
   });
-  pusher.trigger('top-5-players', 'updated', top5)
+  io.of('/top-5-players').emit('updated', top5)
 });
 
 ```
 
 _Note: In the above code we know the function passed to `cursor.each` called synchronously_
 
-In the above code we’ve implemented the `top5pointsUpdated` function. It loops over the updated result, adds those results to an array and triggers and event via Pusher. The name of the channel is `top-5-players`, since that’s the query being made and clearly identifies what the data is. The name of the event is `updated` since the result value has been updated.
+In the above code we’ve implemented the `top5pointsUpdated` function. It loops over the updated result, adds those results to an array and triggers and event via Socket.IO. The name of the channel is `top-5-players`, since that’s the query being made and clearly identifies what the data is. The name of the event is `updated` since the result value has been updated.
 
-In this example we’re using RethinkDB for the processing and analysis, and Pusher for the publishing of the data. Other solutions will offer similar abstractions to help you process and then publish your real-time data.
+In this example we’re using RethinkDB for the processing and analysis, and Socket.IO for the publishing of the data. Other solutions will offer similar abstractions to help you process and then publish your real-time data.
 
-For completeness, here are some of the examples of publishing data for the other scenarios that were mentioned in the [discovering real-time data](https://blog.pusher.com/real-time-data-discovery-in-your-apps/) blog post.
+For completeness, here are some of the examples of publishing data for the other scenarios that were mentioned in the [discovering real-time data](https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html) blog post.
 
 ### Web Endpoints
 
-In this example using the [Pusher Ruby HTTP library](https://github.com/pusher/pusher-http-ruby) the code triggers an event any time the `/interact` web endpoint is accessed. It then triggers an event on the `endpoints` channel with an event name of `new_interactions`. The event data is the parameters that are used when accessing the endpoint.
+In this example using the [Socket.IO](https://socket.io) the code triggers an event any time the `/interact` web endpoint is accessed. It then triggers an event on the `endpoints` channel with an event name of `new_interactions`. The event data is the parameters that are used when accessing the endpoint.
 
-```
-post '/interact' do
-  Pusher.trigger('endpoints', 
-                 'new_interaction',
-                 {
-                   endpoint:'interact'
-                   post_data: params
-                 })
-end
-
+```js
+app.post('/interact', function (req, res) {
+  io.of('/endpoints',
+        'new_interaction',
+        {
+          endpoint:'interact'
+          post_data: params
+        });
+        
+  res.status(200)
+})
 ```
 
 You could create some middleware that intercepts web requests and instead share the endpoint that was interacted with along with the HTTP parameters as the event data. Using this you could build a real-time analytics dashboard.
@@ -152,10 +149,10 @@ You could create some middleware that intercepts web requests and instead share 
 
 Setting up a request:
 
-```
+```js
 var request = require('request');
 var url = 'http://www.google.com';
-pusher.trigger('web-request', 'outgoing', {url: url});
+io.of('web-request').emit('outgoing', {url: url});
 
 ```
 
@@ -164,19 +161,15 @@ Making the request, handling the response and sharing the data:
 ```
 request(url, function (error, response, body) {
   if(error) {
-    pusher.trigger('web-request',
-                   'incoming-error',
-                   {url: url, error: error});
+    io.of('/web-request').emit('incoming-error', {url: url, error: error});
   } else {
-    pusher.trigger('web-request',
-                   'incoming-success',
-                   {url: url, body: body});
+    io.of('/web-request').emit('incoming-success', {url: url, body: body});
   }
 });
 
 ```
 
-This example may be useful for some kind of real-time analytics, but could also be useful if you wanted to make a call to a process to kick-off the request and then let you real-time framework – Pusher in this case – inform you when the result is ready (background process completion notifications). In the code above we’ve used the event names, `incoming-error` or `incoming-error`, to identify if the request was successful or not. This separation also makes it clear that the event data we get for each will be different.
+This example may be useful for some kind of real-time analytics, but could also be useful if you wanted to make a call to a process to kick-off the request and then let you real-time framework – Socket.IO in this case – inform you when the result is ready (background process completion notifications). In the code above we’ve used the event names, `incoming-error` or `incoming-error`, to identify if the request was successful or not. This separation also makes it clear that the event data we get for each will be different.
 
 ### Logging
 
@@ -186,56 +179,59 @@ Logging for custom system analytics:
 var winston = require('winston');
 function log(level, data) {
   winston.log(level, data);
-  pusher.trigger('logging', level, data);
+  io.of('/logging').emit(level, data);
 }
 log('info', {'some': 'data' });
 
 ```
 
-This example just uses a `log` function wrapper to both log using [Winston](https://github.com/winstonjs/winston) and also trigger an event via Pusher. In real life you may instead create a `realtime-log-listener` and configure your logging to use that. In this example the channel is hard-coded to `logging` and the event name is the log level. But it could be that using the level as the channel name (e.g. `logging-{level}`) may be a nicer approach to partition the data.
+This example just uses a `log` function wrapper to both log using [Winston](https://github.com/winstonjs/winston) and also emit an event via Socket.IO. In real life you may instead create a `realtime-log-listener` and configure your logging to use that. In this example the channel is hard-coded to `logging` and the event name is the log level. But it could be that using the level as the channel name (e.g. `logging-{level}`) may be a nicer approach to partition the data.
 
 ## Consuming & Using Real-Time Data
 
-Now that it’s clear how the data is published, how do you go about consuming that data within an application? Well, we’ve covered how we identify and describe the data earlier so we use that mechanism for consuming the data. Again, we’ll show an Evented Publish-Subscribe example using the Pusher libraries.
+Now that it’s clear how the data is published, how do you go about consuming that data within an application? Well, we’ve covered how we identify and describe the data earlier so we use that mechanism for consuming the data. Again, we’ll show an Evented Publish-Subscribe example using Socket.IO.
 
 First, let’s take a look at the code for publishing the data from the server:
 
 ```
-pusher.trigger('activities', 'created', activity);
-pusher.trigger('activities', 'updated', activity);
-pusher.trigger('activities', 'deleted', activity);
+var activities = io.of('/activities')
+activities.emit('created', activity);
+activities.emit('updated', activity);
+activities.emit('deleted', activity);
 
 ```
 
-The corresponding code uses the [Pusher JavaScript library](https://github.com/pusher/pusher-js) in the client (the consumer) to identify the data (using channels) and then register interest in what’s happening to the data (using events):
+The corresponding code uses the [Socket.IO](https://socket.io) in the client (the consumer) to identify the data (using namespaces) and then register interest in what’s happening to the data (using events):
 
 ```
-var channel = pusher.subscribe('activities');
+var activities = io('/activities');
 
-channel.bind('created', function(activity) {
+activities.bind('created', function(activity) {
   // Add to the UI
 });
 
-channel.bind('updated', function(activity) {
+activities.bind('updated', function(activity) {
   // Update the UI
 });
 
-channel.bind('deleted', function(activity) {
+activities.bind('deleted', function(activity) {
   // Remove from the UI
 });
 
 ```
 
-First we `subscribe` to the `activities` channel and then we bind to each event we’re interested in (`created`, `updated` and `deleted`). In each case we have as separate callback to handle each of those events which nicely separates our code into functional blocks.
+First we reference to the `activities` namespace using `io('/activities')` and then we bind to each event we’re interested in (`created`, `updated` and `deleted`). In each case we have as separate callback to handle each of those events which nicely separates our code into functional blocks.
 
 The code really speaks for itself due to its simplicity. Although the activities example is used here I’m sure you can see how it maps to the web endpoints, requests/responses and logging examples that have been shown earlier.
 
 ## Conclusion
 
-This post has discussed whether you need to analyse and process your real-time data and where you should do that. We’ve then looked at the importance of describing your data and how you can do that. Finally we’ve provided examples of publishing and then consuming your real-time data. From there it’s really up to you to start adding the real-time features – that were covered in the [real-time features and use cases](https://blog.pusher.com/using-your-real-time-data-features/) post – to your applications.
+This post has discussed whether you need to analyse and process your real-time data and where you should do that. We’ve then looked at the importance of describing your data and how you can do that. Finally we’ve provided examples of publishing and then consuming your real-time data. From there it’s really up to you to start adding the real-time features – that were covered in the [real-time features and use cases](https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html) post – to your applications.
 
-In this series we’ve covered [identifying the real-time data](https://blog.pusher.com/real-time-data-discovery-in-your-apps/) with your apps and systems, the [real-time features](https://blog.pusher.com/using-your-real-time-data-features/) you can build with your data and in this post we’ve covered **how to describe, publish & consume real-time data**.
+In this series we’ve covered [identifying the real-time data](https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html) with your apps and systems, the [real-time features](https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html) you can build with your data and in this post we’ve covered **how to describe, publish & consume real-time data**.
 
 If you’re interested in digging into this a bit further I’ve recorded a screencast that covers some of the information from these posts entitled [You have real-time data. You just don’t know it.](https://www.youtube.com/watch?v=rk5Jm1IHxlI). You can also find out more about strategies for dealing real-time data and real-time development best practices in a talk I gave at FOWA London, [Tools, Tips & Techniques for Developing Real-Time Apps](https://www.youtube.com/watch?v=KPEcK4zFuyw).
 
-I’m really pleased to have finally put together a series on some of the fundamentals of building real-time apps. I’d love to hear your thoughts and experiences on the topics I’ve covered and more. So please [get in touch](mailto:phil@pusher.com).
+I’m really pleased to have finally put together a series on some of the fundamentals of building real-time apps. I’d love to hear your thoughts and experiences on the topics I’ve covered and more. So please [get in touch](mailto:phil@leggetter.co.uk).
+
+<small>This was originally written by me and published on the [Pusher blog](https://blog.pusher.com/how-to-describe-publish-consume-real-time-data/)</small>

@@ -5,8 +5,6 @@ excerpt: "Real-time notifications, data visualisation, communication, collaborat
 
 ---
 
-<small>Originally written by me and published on the [Pusher blog](https://blog.pusher.com/real-time-data-discovery-in-your-apps/)</small>
-
 Real-time notifications, data visualisation, communication, collaboration… Whether the aim is to improve user experience or to facilitate the management of your infrastructure, the ability to collect, process, and deliver data in real-time is critical.
 
 Every application has real-time data, but turning this data into useful functionality requires three steps:
@@ -17,7 +15,7 @@ Every application has real-time data, but turning this data into useful function
 
 During this series of posts on **real-time data discovery** I’ll show you how to identify the real-time data within your apps, give you some examples of what you can do with that data and finally I’ll provide some examples of how to do it. This series is based on a talk I’ve given so there’s also a “You have real-time data” screencast that we’ll share with the final post.
 
-In this first edition I’ll prove to you that you do have real-time data in your apps and tell you where you can find it. If you’re asking yourself “What is Real-Time?” in the context of real-time web and Internet apps then first take a look at the [What is Real-Time?](https://www.leggetter.co.uk/2016/04/22/what-is-realtime.html) post.
+In this first edition I’ll prove to you that you do have real-time data in your apps and tell you where you can find it. If you’re asking yourself “What is Real-Time?” in the context of real-time web and Internet apps then first take a look at the [What is Real-Time?](/2016/04/22/what-is-realtime.html) post.
 
 With the background out of the way, let’s find that real-time data!
 
@@ -162,6 +160,8 @@ When users communicate with each other it is a clear real-time interaction – _
 
 Real-time data discovery in your apps is actually pretty easy. If you weren’t convinced that you had real-time data within your apps when you started reading this blog post, I hope you are now. If you have events in your web apps, there are changes in data, or there are any interactions between components and systems then **you do have real-time data**. And now you know where you can find it!
 
-## Coming soon…
+## Next
 
-In the next post of this series I’ll provide example of what you can do with the real-time data that you already have; from using the data to understanding what’s going on in your systems right now to building awesome real-time features for your users.
+In the next post of this series I cover what you can do with the real-time data that you already have; from using the data to understanding what’s going on in your systems right now to building awesome real-time features for your users.
+
+<small>Originally written by me and published on the [Pusher blog](https://blog.pusher.com/real-time-data-discovery-in-your-apps/)</small>

@@ -12,12 +12,350 @@
     <atom:link href="https://www.leggetter.co.uk/rss.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title><![CDATA[How to Describe, Publish & Consume Real-Time Data]]></title>
+      <link>https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html</link>
+      <guid isPermaLink="true">https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html</guid>
+      <description><![CDATA[<p>In the first post in the series we covered <a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">discovering real-time data</a> within your systems and applications. In part two we went through the <a href="https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html">use cases for your real-time data</a>. In this final section we’ll cover <strong>the how</strong>: how to describe, publish &amp; consume real-time data from your systems and expose the data so that you can build real-time features.</p>
+
+<p>The main steps we’re going to cover are doing the following with the real-time event data:</p>
+
+<ul>
+<li>  Analyse/Process</li>
+<li>  Describe</li>
+<li>  Publish</li>
+<li>  Consume and Use</li>
+</ul>
+
+<h2>Analysing &amp; Processing Real-Time Data</h2>
+
+<p>The amount of analysis and processing of your data that is required really depends on whether the data is already in a form that you can instantly use. If it’s very <strong>simple data</strong> and you have everything you need then you can instantly share it to be used within apps. If it’s <strong>complex data</strong> or requires some additional analysis then you need to do that work before you share it.</p>
+
+<p>Unless there amount of work you’re doing on the data is minimal it’s recommended that you do that work asynchronously. If you got that data from a system interaction, such as a web request, then doing the work there will delay the response to that web request. The same rule applies if you need to put the data into a database in order to perform a query; don’t perform the query within the same context (thread) as the one you received the event and associated data. Instead, do the work in another process.</p>
+
+<p>Here’s one approach to doing this correctly.</p>
+
+<h3>Example: Using RethinkDB</h3>
+
+<p><a href="http://rethinkdb.com/">RethinkDB</a> is an open source database built for the real-time web. The reason it’s such a good fit is due to a feature called <a href="https://rethinkdb.com/docs/changefeeds/">changefeeds</a>. In the following example, where <code>r</code> is the RethinkDB reference, we first update the number of <code>points</code> that a player has:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">r.table(&quot;players&quot;)
+  .get(playerId)
+  .update({points: newPoints})
+  .run(conn, callback);
+
+</code></pre></div>
+<p>We have <code>playerId</code> to identify a player to update and we’re updating the <code>points</code> value to be <code>newPoints</code>.</p>
+
+<p>Elsewhere in code (another file or even another process entirely) we could have the following:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
+  .orderBy(index=r.desc(&#39;points&#39;))
+  .limit(5)
+  .changes().run(conn)
+  .then(top5pointsUpdated);
+
+</code></pre></div>
+<p>We’re querying the <code>players</code> table, ordering the result <code>desc</code>ending by points and limiting the number of results by <code>5</code>. There’s nothing particularly different in this approach to any other database (other than maybe the ReQL syntax). The interesting bit is that the <code>top5pointsUpdated</code> function passed to <code>then</code> is called any time that the query result changes. That’s because we’ve identified this query as a changefeed through the use of <code>changes()</code>. So, any time the <code>update</code> code we covered earlier is executed the <code>top5pointsUpdated</code> function will be called.</p>
+
+<p>In a more traditional database these could be considered <a href="https://en.wikipedia.org/wiki/Database_trigger">triggers</a>. The main things are that it’s <em>evented</em> and that it nicely separates the updating code from the changefeed (trigger) handling code. The asynchronous nature of this code allows it to be executed outside of the incoming event thread/context or in a different process. This is just one example and there may be other solutions allow you to achieve similar functionality.</p>
+
+<h2>Describing Real-Time Data</h2>
+
+<p>Systems, applications, and developers building real-time applications and features need a way of registering their interest in data. One of the simplest and most commonly used approaches to this is provide a name or identifier for the data that can be used when registering interest. Publish-Subscribe fits very well here, where data is identified by a <code>channel</code>, <code>topic</code> or <code>subject</code>.</p>
+
+<p>In addition to being able to identify what the data is, it’s very useful – especially within evented systems – to know what is happening to the data. What event has taken place that has resulted in the new or changed data? We call this <strong>Evented Publish-Subscribe</strong>.</p>
+
+<p>To summarise:</p>
+
+<ul>
+<li>  Use channels, topics or subjects to identify the data</li>
+<li>  Use events to identify what is happening to the data</li>
+</ul>
+
+<p>If you’ve got relatively simple data within your systems then deciding how to identify the data can be easy. There may be a database schema or document that already exists with a name that you can also use as the channel name. Or if you’re using an <a href="https://en.wikipedia.org/wiki/Object-relational_mapping">ORM</a> solution then the model name may be a good name for the channel. So, for an activity stream where there’s a database table called <code>activities</code> or in an ORM where there’s a model called <code>Activity</code> then <code>activities</code> is a good choice for a channel name.</p>
+
+<p>When it comes to naming events – what has happened to the data – then the standard <a href="https://en.wikipedia.org/wiki/Create,_read,_update_and_delete">CRUD</a> terminology may be the right solution; <code>created</code>, <code>read</code>, <code>updated</code> and <code>deleted</code>/<code>destroyed</code>. It may be that <code>read</code> is used much less than the other operations, although building features that inform other users that somebody is accessing data can be really useful.</p>
+
+<p>For more complex data it’s probably best to name the channel based on the analysis or query that’s taking place. In the RethinkDB example we covered earlier we were creating a query representing the top 5 players in a game. So, a channel named <code>top-5-players</code> would be a good channel name and <code>updated</code> may be an appropriate event name.</p>
+
+<h2>Publishing Real-Time Data</h2>
+
+<p>Once you’ve described your data you need a mechanism for distributing that data to interested parties (we’ll cover how those parties register their interest in the next section).</p>
+
+<p>In the following example using the <a href="https://github.com/dresende/node-orm2">node-orm2</a> ORM package and the Socket.IO we’ll see how this can be achieved for a simple data change:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">Activity.create(
+  {text: &quot;Phil is talking&quot;},
+  function(err, activity) {
+    if(err) throw err;
+
+    io.of(&#39;/activities&#39;).emit(&#39;created&#39;, activity);
+  });
+
+</code></pre></div>
+<p>In this code a new activity has been created so we’ve triggered an event called <code>created</code> on the <code>activities</code> namespace passing the newly created <code>activity</code> as the event data payload.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">Activity.get(activityId, function (err, activity) {
+  activity.text = &quot;Phil is still talking&quot;;
+  activity.save(function (err) {
+    io.of(&#39;/activities&#39;).emit(&#39;updated&#39;, activity);
+  });
+});
+
+</code></pre></div>
+<p>The code above shows that updating is simply a matter of changing the event name to <code>updated</code>. You can work out how <code>deleted</code> and any other event could easily be represented in code and communicated.</p>
+
+<p>For the RethinkDB, more complex example we looked at earlier, the code would look as follows:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
+  .orderBy(index=r.desc(&#39;points&#39;))
+  .limit(5)
+  .changes().run(conn)
+  .then(top5pointsUpdated);
+
+function top5pointsUpdated(cursor) {
+  var top5 = [];
+  cursor.each(function(err, item) {
+    top5.push(item);
+  });
+  io.of(&#39;/top-5-players&#39;).emit(&#39;updated&#39;, top5)
+});
+
+</code></pre></div>
+<p><em>Note: In the above code we know the function passed to <code>cursor.each</code> called synchronously</em></p>
+
+<p>In the above code we’ve implemented the <code>top5pointsUpdated</code> function. It loops over the updated result, adds those results to an array and triggers and event via Socket.IO. The name of the channel is <code>top-5-players</code>, since that’s the query being made and clearly identifies what the data is. The name of the event is <code>updated</code> since the result value has been updated.</p>
+
+<p>In this example we’re using RethinkDB for the processing and analysis, and Socket.IO for the publishing of the data. Other solutions will offer similar abstractions to help you process and then publish your real-time data.</p>
+
+<p>For completeness, here are some of the examples of publishing data for the other scenarios that were mentioned in the <a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">discovering real-time data</a> blog post.</p>
+
+<h3>Web Endpoints</h3>
+
+<p>In this example using the <a href="https://socket.io">Socket.IO</a> the code triggers an event any time the <code>/interact</code> web endpoint is accessed. It then triggers an event on the <code>endpoints</code> channel with an event name of <code>new_interactions</code>. The event data is the parameters that are used when accessing the endpoint.</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js">app.post(&#39;/interact&#39;, function (req, res) {
+  io.of(&#39;/endpoints&#39;,
+        &#39;new_interaction&#39;,
+        {
+          endpoint:&#39;interact&#39;
+          post_data: params
+        });
+
+  res.status(200)
+})
+</code></pre></div>
+<p>You could create some middleware that intercepts web requests and instead share the endpoint that was interacted with along with the HTTP parameters as the event data. Using this you could build a real-time analytics dashboard.</p>
+
+<h3>Requests &amp; Responses</h3>
+
+<p>Setting up a request:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js">var request = require(&#39;request&#39;);
+var url = &#39;http://www.google.com&#39;;
+io.of(&#39;web-request&#39;).emit(&#39;outgoing&#39;, {url: url});
+
+</code></pre></div>
+<p>Making the request, handling the response and sharing the data:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">request(url, function (error, response, body) {
+  if(error) {
+    io.of(&#39;/web-request&#39;).emit(&#39;incoming-error&#39;, {url: url, error: error});
+  } else {
+    io.of(&#39;/web-request&#39;).emit(&#39;incoming-success&#39;, {url: url, body: body});
+  }
+});
+
+</code></pre></div>
+<p>This example may be useful for some kind of real-time analytics, but could also be useful if you wanted to make a call to a process to kick-off the request and then let you real-time framework – Socket.IO in this case – inform you when the result is ready (background process completion notifications). In the code above we’ve used the event names, <code>incoming-error</code> or <code>incoming-error</code>, to identify if the request was successful or not. This separation also makes it clear that the event data we get for each will be different.</p>
+
+<h3>Logging</h3>
+
+<p>Logging for custom system analytics:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
+function log(level, data) {
+  winston.log(level, data);
+  io.of(&#39;/logging&#39;).emit(level, data);
+}
+log(&#39;info&#39;, {&#39;some&#39;: &#39;data&#39; });
+
+</code></pre></div>
+<p>This example just uses a <code>log</code> function wrapper to both log using <a href="https://github.com/winstonjs/winston">Winston</a> and also emit an event via Socket.IO. In real life you may instead create a <code>realtime-log-listener</code> and configure your logging to use that. In this example the channel is hard-coded to <code>logging</code> and the event name is the log level. But it could be that using the level as the channel name (e.g. <code>logging-{level}</code>) may be a nicer approach to partition the data.</p>
+
+<h2>Consuming &amp; Using Real-Time Data</h2>
+
+<p>Now that it’s clear how the data is published, how do you go about consuming that data within an application? Well, we’ve covered how we identify and describe the data earlier so we use that mechanism for consuming the data. Again, we’ll show an Evented Publish-Subscribe example using Socket.IO.</p>
+
+<p>First, let’s take a look at the code for publishing the data from the server:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">var activities = io.of(&#39;/activities&#39;)
+activities.emit(&#39;created&#39;, activity);
+activities.emit(&#39;updated&#39;, activity);
+activities.emit(&#39;deleted&#39;, activity);
+
+</code></pre></div>
+<p>The corresponding code uses the <a href="https://socket.io">Socket.IO</a> in the client (the consumer) to identify the data (using namespaces) and then register interest in what’s happening to the data (using events):</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">var activities = io(&#39;/activities&#39;);
+
+activities.bind(&#39;created&#39;, function(activity) {
+  // Add to the UI
+});
+
+activities.bind(&#39;updated&#39;, function(activity) {
+  // Update the UI
+});
+
+activities.bind(&#39;deleted&#39;, function(activity) {
+  // Remove from the UI
+});
+
+</code></pre></div>
+<p>First we reference to the <code>activities</code> namespace using <code>io(&#39;/activities&#39;)</code> and then we bind to each event we’re interested in (<code>created</code>, <code>updated</code> and <code>deleted</code>). In each case we have as separate callback to handle each of those events which nicely separates our code into functional blocks.</p>
+
+<p>The code really speaks for itself due to its simplicity. Although the activities example is used here I’m sure you can see how it maps to the web endpoints, requests/responses and logging examples that have been shown earlier.</p>
+
+<h2>Conclusion</h2>
+
+<p>This post has discussed whether you need to analyse and process your real-time data and where you should do that. We’ve then looked at the importance of describing your data and how you can do that. Finally we’ve provided examples of publishing and then consuming your real-time data. From there it’s really up to you to start adding the real-time features – that were covered in the <a href="https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html">real-time features and use cases</a> post – to your applications.</p>
+
+<p>In this series we’ve covered <a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">identifying the real-time data</a> with your apps and systems, the <a href="https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html">real-time features</a> you can build with your data and in this post we’ve covered <strong>how to describe, publish &amp; consume real-time data</strong>.</p>
+
+<p>If you’re interested in digging into this a bit further I’ve recorded a screencast that covers some of the information from these posts entitled <a href="https://www.youtube.com/watch?v=rk5Jm1IHxlI">You have real-time data. You just don’t know it.</a>. You can also find out more about strategies for dealing real-time data and real-time development best practices in a talk I gave at FOWA London, <a href="https://www.youtube.com/watch?v=KPEcK4zFuyw">Tools, Tips &amp; Techniques for Developing Real-Time Apps</a>.</p>
+
+<p>I’m really pleased to have finally put together a series on some of the fundamentals of building real-time apps. I’d love to hear your thoughts and experiences on the topics I’ve covered and more. So please <a href="mailto:phil@leggetter.co.uk">get in touch</a>.</p>
+
+<p><small>This was originally written by me and published on the <a href="https://blog.pusher.com/how-to-describe-publish-consume-real-time-data/">Pusher blog</a></small></p>
+]]></description>
+      <dc:creator>Phil Leggetter</dc:creator>
+      <pubDate>Thu, 25 May 2017 00:00:00 +0100</pubDate>
+    </item>
+    
+    <item>
+      <title><![CDATA[Use Cases for Your Real-Time Data]]></title>
+      <link>https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html</link>
+      <guid isPermaLink="true">https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html</guid>
+      <description><![CDATA[<p><em>This is the first part of our real-time data series. The second part in the series covers <a href="https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html">use cases for your real-time data</a>.</em></p>
+
+<p>In the <a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">Discovering Real-Time Data in Your Apps post</a> I covered <strong>what is real-time</strong> and <strong>discovering the real-time data</strong> within your existing apps. In this second post I want to cover ways in which you can use the real-time data that you have now identified within your apps. Specifically, how you can use that data to understand <strong>what’s happening right now</strong> in your apps and how it enables you to <strong>build awesome real-time features</strong> for your customers.</p>
+
+<h2>What’s Happening Right Now in <em>Your</em> Apps?</h2>
+
+<p>It’s really important to know what’s happening in your application. The most common example of this is being notified if anything is going wrong; from infrastructure issues like CPU, memory or disk usage through to in-application warnings, errors and exceptions. These events are highly important as they may directly impact your business and customers.</p>
+
+<p>From the <a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">first post in the series</a> we all now know that when any event takes place with an application there is an associated data payload and therefore real-time data. This information may be available in a number of ways, but one of the most common way is through some sort of logging solution: system stat logs, access logs and application logs.</p>
+
+<p>Having logs let you analyse what has happened in the past, but that could be too late if your customers have been impacted by system downtime or a broken feature. Email notifications telling your team something is going awry are fine and are indeed useful. But there’s much more that you can do to act as things are happening or better still, before they’ve happened.</p>
+
+<h3>Real-Time System Analytics</h3>
+
+<p>There’s something reassuring about dashboards. A dashboard that’s showing the correct selection of information can give you a highly informative view of the status of your application. It lets you see what’s happened in the past and identify potential trends. Add real-time data and it lets you see what’s happening right now and enables you to be much more reactive to potential issues, or indeed opportunities.</p>
+
+<p><img src="https://www.leggetter.co.uk/images/librato.png" alt="Librato stats"></p>
+
+<p>Many companies use <a href="https://www.librato.com/">Librato</a> to monitor a whole host of information; the status of the machines that make up our infrastructure, the number of persistent connections we’re maintaining, socket churn, the number of messages (events) we’re sending, system latency and much more. We of course have monitoring systems with pre-defined thresholds in place. But we also find that having a visual representation of what’s going on to be highly valuable for status updates, right after deployment to ensure unexpected things aren’t showing an unwanted upwards trend and during times when we’re trying to track down the cause of a problem.</p>
+
+<p>You could use a solution like Librato, <a href="http://graphite.wikidot.com/">Graphite</a> or <a href="https://github.com/etsy/statsd">statsd</a> for your system analytic dashboard, use a combination of these or build your own entirely. In some cases you could build your own real-time system analytics dashboard and deliver real-time data updates to it with <a href="/real-time-web-technologies-guide">real-time web technology</a>.</p>
+
+<h3>Real-Time App Analytics</h3>
+
+<p>Most of us use some form of application analytics to identify how your application is being used, what features are most popular and which ones aren’t, if a promotional activity meet its goals and much more. Some analytics tools such as: <a href="https://www.google.co.uk/analytics/">Google Analytics</a>, <a href="https://clicky.com/">Clicky</a>, <a href="https://chartbeat.com/">Chartbeat</a> and <a href="https://www.gosquared.com/">GoSquared</a> offer real-time analytics. These let you know what users are doing right now in your app.</p>
+
+<p>Here are a few examples of the potential benefits of real-time analytics:</p>
+
+<p>Has the usage of a feature – or the app as a whole – change just after pushing out a new version? Does it mean that a change has negatively impacted how accessible it is, or is there a chance something has broken? Real-time application logging and usage analytics will tell you.</p>
+
+<p>You’ve just kicked off an advertising campaign with a goal to get more users to sign up. You can see a spike in website traffic, but your real-time analytics show you those visits aren’t converting to signups. You can instantly react by either tweaking the campaign (maybe the landing page) or cancelling the advertisement to save money.</p>
+
+<p>You can either use one of these existing tools for your real-time analytics, or for a more customised approach you could try combining services like <a href="https://keen.io/">Keen IO</a> and a real-time web technology.</p>
+
+<h2>Building Awesome Features For Your Customers</h2>
+
+<p>Although there’s clearly a benefit from using your new found data internally, the biggest benefits from a product and customer point of view are likely to be seen when you use that data to build new, exciting, productive and potentially interactive features for your applications.</p>
+
+<p>So, how is real-time data generally used within applications? What are the most common use cases? Here are a few examples:</p>
+
+<h3>Signalling</h3>
+
+<p>When something has happened within one component or system and you need to instantly inform another component or system you can signal them. A signal can contain a data payload but it doesn’t necessarily need to/ The fact a signal has been received may be enough on it’s own; think lighting beacons across the hilltops to indicate an enemy is approaching.</p>
+
+<p>In these use cases there may not be any visual indication that something is happening, but a new workflow may start following the signal.</p>
+
+<p>Do you have real-time data within your systems that could be used to signal other processes to take place?</p>
+
+<h3>User Notifications</h3>
+
+<p>User notifications inform a user that something that they are interested in has happened or data relevant to them has changed. We’ve all seen the notification bar at the top of Twitter. ITV have used this to great effect on the live updates sections on <a href="http://www.itv.com/news">itv.com/news</a> where the notification bar is shown whenever an update arrives and when the user clicks the bar the new updates are shown in the app.</p>
+
+<p><img src="https://www.leggetter.co.uk/images/itv-news-notification.png" alt="ITV News real-time notifications"></p>
+
+<p>Popup notifications are also a common UI pattern that are seen across many applications, from social apps like Facebook to more workflow focused applications like Freshdesk, InVision, Intercom, Base CRM and many more.</p>
+
+<p>Is there data within your application that would benefit from being instantly displayed as a user notification?</p>
+
+<h3>Activity Streams</h3>
+
+<p>An Activity Streams is the quintessential representation of a real-time UI. They show what has happened and what is happening right now as a stream of sequential activity, normally with older activities at the bottom and newer activities at the top. We see these on all social networks; Twitter, Google+, Facebook, Flickr and many more.</p>
+
+<p><img src="https://www.leggetter.co.uk/images/activity-streams.png" alt="Delighted Activity Streams"></p>
+
+<p>We also see Activity Stream UIs (sometimes referred to as an Activity Feed or News Feed) in news, sports and beyond; anywhere that there is a clear need to visualise activity. Live events are a great example. Whether it’s breaking news or a specific sporting event, you will see data represented as an activity stream with new updates appearing as they happen.</p>
+
+<p>In all cases, a user is shown a stream of activity related to data that they are interested in. What have the people we are friends with, or are following, been doing and what are they doing right now? What has been happening with data related to my parcel? What user signups have taken place? What have the devices within my smart home doing? What’s the activity on a support ticket? etc. And what is happening related to those items right now?</p>
+
+<p>Is there data within your system that would benefit from being displayed as an activity stream of actions, instantly updating as new activity takes place?</p>
+
+<h3>Data Visualisations &amp; Dashboards</h3>
+
+<p>Human beings can generally better extract information from data if it is displayed in a visual form – not just as simple text. We often seen visualisations that help us interpret historical information and the same practice can be applied to real-time data.</p>
+
+<p><img src="https://www.leggetter.co.uk/images/nytimes-visualisation.png" alt="New York Times - Senate Elections Real-Time Visualisation"></p>
+
+<p>Adding real-time updates to a visualisation helps a user spot trends and changes in data that would be very difficult to spot through raw data alone. Seeing a dial move towards the green or red, a line starting to trend up or down, colours change on a map (such as in the New York Times example above), the area of a visualisation starting to grow or shrink or many more examples. All of these are great visual indicators and triggers that can help human beings be more aware of what’s happening, to identify changes and to act upon those changes as quickly as possible.</p>
+
+<p>Do you have data within your applications that would benefit from being converted into a real-time data visualisation to help you or your customers see trends and take action sooner?</p>
+
+<h3>Interactive Communication</h3>
+
+<p>Real-time technology is frequently used to build chat and instant messaging solutions and we all know the benefit of being able to instantly communicate with work colleagues, friends and family.</p>
+
+<p>Chat is a very focused form of interactions between users, but can be more generally thought of as interactive communication. We often partition chat into rooms or topics so that the conversation is focused.</p>
+
+<p>In the context of your application, is there any real-time data that you could integrate into these conversations (chat/instant messaging) that would provide added context and help conversations become even more focused and productive? Could it actually trigger valuable conversations?</p>
+
+<h3>Multi-User Collaboration: Beyond Chat</h3>
+
+<p>One of the core benefits of realtime technology, and technology in general, is to improve and automate workflows that involved multiple people. We’ve seen this with project management, support systems, stock management, logistics and even applications such as document writing where Google Docs.</p>
+
+<p><img src="https://www.leggetter.co.uk/images/collaboration.jpg" alt="Sprintly - Real-Time Collaborative Workflow"></p>
+
+<p>Collaborative applications save hours, if not days, when it comes to the time and effort required when working with others on completing a task or project. A great example of this is document collaboration: where previously we’d have to email a document around for others to make edits or comment we can now use Google Docs or Word in Office 365 to initially write a draft and then instantly start collaborating with others.</p>
+
+<p>Real-time documentation editing is a very specific use case so you’re unlikely to be able to map the functionality it offers to the data you have (or maybe you can?). A more likely use case for your real-time data is to instantly send the changes in data to an application to inform your collaborators about what’s happening. Simple examples such as indicating that somebody else is editing a record can save time and avoid conflicts. Showing tickets in a project management system moving between stages in a workflow instantly indicates progress and can result in conversations or the next step in the workflow taking place.</p>
+
+<p>Could you take your real-time data and improve your existing application workflows? Could you create visual representations of your workflows and enable real-time collaboration to further improve efficiency?</p>
+
+<h3>Real-Time APIs</h3>
+
+<p>APIs are big news. They <a href="http://techcrunch.com/2015/05/06/apis-fuel-the-software-thats-eating-the-world/">fuel the software that’s eating the world</a>, they are <a href="http://techcrunch.com/2015/09/06/apis-are-the-new-ftes/">the new full time employees</a> of many businesses and they <a href="http://www.3scale.net/2015/09/apis-supercharge-your-ftes/">super-charge your existing employees</a>. So, where does your real-time data fit with the potential for offering a real-time API?</p>
+
+<p>If you already have a real-time API then you can upgrade your API so that the initial <code>GET</code> requests also provide a mechanism for subscribing to future updates to the result dataset of that query. If you don’t have an API then you could expose the events you’ve identified within your systems as streams that other systems can subscribe to.</p>
+
+<p>So, whilst you can build a new real-time feature on top of your real-time API, there’s the additional potential benefit of your customers now being able to get instant updates via an API and build their own applications and functionality on top of relevant data that you’re providing.</p>
+
+<p>If you need more convincing you may be surprised to hear that a number of applications and services do already offer real-time APIs and they do so because they see a value in it. They know that companies want to add real-time features and experiences to their apps and they can only do that if they have real-time data.</p>
+
+<p><img src="https://www.leggetter.co.uk/images/apps-with-realtime-apis.png" alt="Applications with real-time APIs"></p>
+
+<p>See the video covering this in the <a href="https://www.youtube.com/watch?v=XXgSFbphW88">so you want to build a Real-time API, where do you start?</a> talk.</p>
+
+<h2>Next up: Setting Your Real-Time Data Free</h2>
+
+<p>In this post we’ve discussed the value of understanding what’s happening in your app right now and how you can expose your real-time data to help you get a much clearer understanding of that. We also looked at seven potential features (or even products) that you could build using your real-time data to make your product offering even more awesome; signalling, notifications, data visualisations and dashboards, interactive communication, collaboration and real-time APIs.</p>
+
+<p>In the next post, <a href="https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html">describing, publishing and consuming real-time data</a>, we’ll take the next step: how do you take your real-time data and expose it in such a way that you can start building real-time features?</p>
+
+<p><small>This was originally written by me and published on the <a href="https://blog.pusher.com/using-your-real-time-data-features/">Pusher blog</a></small></p>
+]]></description>
+      <dc:creator>Phil Leggetter</dc:creator>
+      <pubDate>Wed, 24 May 2017 00:00:00 +0100</pubDate>
+    </item>
+    
+    <item>
       <title><![CDATA[Discovering the Real-Time Data in Your Apps]]></title>
       <link>https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html</link>
       <guid isPermaLink="true">https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html</guid>
-      <description><![CDATA[<p><small>Originally written by me and published on the <a href="https://blog.pusher.com/real-time-data-discovery-in-your-apps/">Pusher blog</a></small></p>
-
-<p>Real-time notifications, data visualisation, communication, collaboration… Whether the aim is to improve user experience or to facilitate the management of your infrastructure, the ability to collect, process, and deliver data in real-time is critical.</p>
+      <description><![CDATA[<p>Real-time notifications, data visualisation, communication, collaboration… Whether the aim is to improve user experience or to facilitate the management of your infrastructure, the ability to collect, process, and deliver data in real-time is critical.</p>
 
 <p>Every application has real-time data, but turning this data into useful functionality requires three steps:</p>
 
@@ -29,7 +367,7 @@
 
 <p>During this series of posts on <strong>real-time data discovery</strong> I’ll show you how to identify the real-time data within your apps, give you some examples of what you can do with that data and finally I’ll provide some examples of how to do it. This series is based on a talk I’ve given so there’s also a “You have real-time data” screencast that we’ll share with the final post.</p>
 
-<p>In this first edition I’ll prove to you that you do have real-time data in your apps and tell you where you can find it. If you’re asking yourself “What is Real-Time?” in the context of real-time web and Internet apps then first take a look at the <a href="https://www.leggetter.co.uk/2016/04/22/what-is-realtime.html">What is Real-Time?</a> post.</p>
+<p>In this first edition I’ll prove to you that you do have real-time data in your apps and tell you where you can find it. If you’re asking yourself “What is Real-Time?” in the context of real-time web and Internet apps then first take a look at the <a href="/2016/04/22/what-is-realtime.html">What is Real-Time?</a> post.</p>
 
 <p>With the background out of the way, let’s find that real-time data!</p>
 
@@ -154,9 +492,11 @@ winston.log(&#39;critical&#39;, errorEventPayload)
 
 <p>Real-time data discovery in your apps is actually pretty easy. If you weren’t convinced that you had real-time data within your apps when you started reading this blog post, I hope you are now. If you have events in your web apps, there are changes in data, or there are any interactions between components and systems then <strong>you do have real-time data</strong>. And now you know where you can find it!</p>
 
-<h2>Coming soon…</h2>
+<h2>Next</h2>
 
-<p>In the next post of this series I’ll provide example of what you can do with the real-time data that you already have; from using the data to understanding what’s going on in your systems right now to building awesome real-time features for your users.</p>
+<p>In the next post of this series I cover what you can do with the real-time data that you already have; from using the data to understanding what’s going on in your systems right now to building awesome real-time features for your users.</p>
+
+<p><small>Originally written by me and published on the <a href="https://blog.pusher.com/real-time-data-discovery-in-your-apps/">Pusher blog</a></small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
       <pubDate>Sun, 14 Aug 2016 00:00:00 +0100</pubDate>
@@ -487,13 +827,13 @@ Now that we’ve clarified and classified the types of real-time and addressed t
       <guid isPermaLink="true">https://www.leggetter.co.uk/2015/12/18/real-time-data-fundamentals.html</guid>
       <description><![CDATA[<p>There are <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide/">lots of real-time frameworks</a> which exist to allow us to build real-time features and functionality into our apps. However, I often see developers who are excited about discovering real-time framework X and then proclaim &quot;now to find a use for it&quot;. Every single application has real-time data and every single application could benefit from real-time features driven by that data.</p>
 
-<p>So I felt compelled to write a series of posts over on the Pusher blog covering some of the fundamentals of real-time. This is complimentary with the series I previously wrote on <a href="https://www.leggetter.co.uk/2013/12/09/choosing-realtime-web-app-tech-stack.html">choosing your real-time web app tech stack</a>. If anything, this new series should be read first.</p>
+<p>So I felt compelled to write a series of posts covering some of the fundamentals of real-time. This is complimentary with the series I previously wrote on <a href="https://www.leggetter.co.uk/2013/12/09/choosing-realtime-web-app-tech-stack.html">choosing your real-time web app tech stack</a>. If anything, this new series should be read first.</p>
 
 <ol>
-<li><a href="https://blog.pusher.com/what-is-real-time/?utm_source=twitter&amp;utm_medium=social&amp;utm_campaign=realtime_data">What is real-time</a> - understanding what &quot;real-time&quot; means in the context of web, mobile and IoT applications</li>
-<li><a href="https://blog.pusher.com/real-time-data-discovery-in-your-apps/?utm_source=twitter&amp;utm_medium=social&amp;utm_campaign=realtime_data">Discovering the Real-Time Data in Your Apps</a> - helping you identify where you can find the real-time data in your apps and systems</li>
-<li><a href="https://blog.pusher.com/using-your-real-time-data-features/?utm_source=twitter&amp;utm_medium=social&amp;utm_campaign=realtime_data">Using Your Real-Time Data: Use Cases &amp; Features</a></li>
-<li><a href="https://blog.pusher.com/how-to-describe-publish-consume-real-time-data/?utm_source=twitter&amp;utm_medium=social&amp;utm_campaign=realtime_data">How to Describe, Publish &amp; Consume Real-Time Data
+<li><a href="https://www.leggetter.co.uk/2016/04/22/what-is-realtime.html">What is real-time</a> - understanding what &quot;real-time&quot; means in the context of web, mobile and IoT applications</li>
+<li><a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">Discovering the Real-Time Data in Your Apps</a> - helping you identify where you can find the real-time data in your apps and systems</li>
+<li><a href="https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html">Using Your Real-Time Data: Use Cases &amp; Features</a></li>
+<li><a href="https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html">How to Describe, Publish &amp; Consume Real-Time Data
 </a> - how to easily share the data you&#39;ve found and consume it within your applications in order to build real-time features</li>
 </ol>
 

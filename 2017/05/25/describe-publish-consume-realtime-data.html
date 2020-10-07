@@ -30,7 +30,7 @@
   <!-- Logo -->
   <div id="logo">
     <h1><a href="/">Phil Leggetter</a></h1>
-    <p>Head of Developer Relations at <a href="https://www.nexmo.com" style="color: white;">Nexmo</a>. Real-Time Web Evangelist &amp; Consultant</p>
+    <p>Developer Experience &amp; Developer Relations. Real-Time Web Advocate &amp; Consultant</p>
   </div>
 
   <!-- Nav -->
@@ -106,22 +106,22 @@
 <h3>Example: Using RethinkDB</h3>
 
 <p><a href="http://rethinkdb.com/">RethinkDB</a> is an open source database built for the real-time web. The reason it’s such a good fit is due to a feature called <a href="https://rethinkdb.com/docs/changefeeds/">changefeeds</a>. In the following example, where <code>r</code> is the RethinkDB reference, we first update the number of <code>points</code> that a player has:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">r.table(&quot;players&quot;)
+<figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&quot;players&quot;)
   .get(playerId)
   .update({points: newPoints})
   .run(conn, callback);
 
-</code></pre></div>
+</code></pre></figure>
 <p>We have <code>playerId</code> to identify a player to update and we’re updating the <code>points</code> value to be <code>newPoints</code>.</p>
 
 <p>Elsewhere in code (another file or even another process entirely) we could have the following:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
+<figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
   .orderBy(index=r.desc(&#39;points&#39;))
   .limit(5)
   .changes().run(conn)
   .then(top5pointsUpdated);
 
-</code></pre></div>
+</code></pre></figure>
 <p>We’re querying the <code>players</code> table, ordering the result <code>desc</code>ending by points and limiting the number of results by <code>5</code>. There’s nothing particularly different in this approach to any other database (other than maybe the ReQL syntax). The interesting bit is that the <code>top5pointsUpdated</code> function passed to <code>then</code> is called any time that the query result changes. That’s because we’ve identified this query as a changefeed through the use of <code>changes()</code>. So, any time the <code>update</code> code we covered earlier is executed the <code>top5pointsUpdated</code> function will be called.</p>
 
 <p>In a more traditional database these could be considered <a href="https://en.wikipedia.org/wiki/Database_trigger">triggers</a>. The main things are that it’s <em>evented</em> and that it nicely separates the updating code from the changefeed (trigger) handling code. The asynchronous nature of this code allows it to be executed outside of the incoming event thread/context or in a different process. This is just one example and there may be other solutions allow you to achieve similar functionality.</p>
@@ -150,7 +150,7 @@
 <p>Once you’ve described your data you need a mechanism for distributing that data to interested parties (we’ll cover how those parties register their interest in the next section).</p>
 
 <p>In the following example using the <a href="https://github.com/dresende/node-orm2">node-orm2</a> ORM package and the Socket.IO we’ll see how this can be achieved for a simple data change:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">Activity.create(
+<figure class="highlight"><pre><code class="language-text" data-lang="text">Activity.create(
   {text: &quot;Phil is talking&quot;},
   function(err, activity) {
     if(err) throw err;
@@ -158,20 +158,20 @@
     io.of(&#39;/activities&#39;).emit(&#39;created&#39;, activity);
   });
 
-</code></pre></div>
+</code></pre></figure>
 <p>In this code a new activity has been created so we’ve triggered an event called <code>created</code> on the <code>activities</code> namespace passing the newly created <code>activity</code> as the event data payload.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">Activity.get(activityId, function (err, activity) {
+<figure class="highlight"><pre><code class="language-text" data-lang="text">Activity.get(activityId, function (err, activity) {
   activity.text = &quot;Phil is still talking&quot;;
   activity.save(function (err) {
     io.of(&#39;/activities&#39;).emit(&#39;updated&#39;, activity);
   });
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p>The code above shows that updating is simply a matter of changing the event name to <code>updated</code>. You can work out how <code>deleted</code> and any other event could easily be represented in code and communicated.</p>
 
 <p>For the RethinkDB, more complex example we looked at earlier, the code would look as follows:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
+<figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
   .orderBy(index=r.desc(&#39;points&#39;))
   .limit(5)
   .changes().run(conn)
@@ -185,7 +185,7 @@ function top5pointsUpdated(cursor) {
   io.of(&#39;/top-5-players&#39;).emit(&#39;updated&#39;, top5)
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p><em>Note: In the above code we know the function passed to <code>cursor.each</code> called synchronously</em></p>
 
 <p>In the above code we’ve implemented the <code>top5pointsUpdated</code> function. It loops over the updated result, adds those results to an array and triggers and event via Socket.IO. The name of the channel is <code>top-5-players</code>, since that’s the query being made and clearly identifies what the data is. The name of the event is <code>updated</code> since the result value has been updated.</p>
@@ -197,7 +197,7 @@ function top5pointsUpdated(cursor) {
 <h3>Web Endpoints</h3>
 
 <p>In this example using the <a href="https://socket.io">Socket.IO</a> the code triggers an event any time the <code>/interact</code> web endpoint is accessed. It then triggers an event on the <code>endpoints</code> channel with an event name of <code>new_interactions</code>. The event data is the parameters that are used when accessing the endpoint.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">app.post(&#39;/interact&#39;, function (req, res) {
+<figure class="highlight"><pre><code class="language-js" data-lang="js">app.post(&#39;/interact&#39;, function (req, res) {
   io.of(&#39;/endpoints&#39;,
         &#39;new_interaction&#39;,
         {
@@ -207,19 +207,19 @@ function top5pointsUpdated(cursor) {
 
   res.status(200)
 })
-</code></pre></div>
+</code></pre></figure>
 <p>You could create some middleware that intercepts web requests and instead share the endpoint that was interacted with along with the HTTP parameters as the event data. Using this you could build a real-time analytics dashboard.</p>
 
 <h3>Requests &amp; Responses</h3>
 
 <p>Setting up a request:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">var request = require(&#39;request&#39;);
+<figure class="highlight"><pre><code class="language-js" data-lang="js">var request = require(&#39;request&#39;);
 var url = &#39;http://www.google.com&#39;;
 io.of(&#39;web-request&#39;).emit(&#39;outgoing&#39;, {url: url});
 
-</code></pre></div>
+</code></pre></figure>
 <p>Making the request, handling the response and sharing the data:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">request(url, function (error, response, body) {
+<figure class="highlight"><pre><code class="language-text" data-lang="text">request(url, function (error, response, body) {
   if(error) {
     io.of(&#39;/web-request&#39;).emit(&#39;incoming-error&#39;, {url: url, error: error});
   } else {
@@ -227,20 +227,20 @@ io.of(&#39;web-request&#39;).emit(&#39;outgoing&#39;, {url: url});
   }
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p>This example may be useful for some kind of real-time analytics, but could also be useful if you wanted to make a call to a process to kick-off the request and then let you real-time framework – Socket.IO in this case – inform you when the result is ready (background process completion notifications). In the code above we’ve used the event names, <code>incoming-error</code> or <code>incoming-error</code>, to identify if the request was successful or not. This separation also makes it clear that the event data we get for each will be different.</p>
 
 <h3>Logging</h3>
 
 <p>Logging for custom system analytics:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
 function log(level, data) {
   winston.log(level, data);
   io.of(&#39;/logging&#39;).emit(level, data);
 }
 log(&#39;info&#39;, {&#39;some&#39;: &#39;data&#39; });
 
-</code></pre></div>
+</code></pre></figure>
 <p>This example just uses a <code>log</code> function wrapper to both log using <a href="https://github.com/winstonjs/winston">Winston</a> and also emit an event via Socket.IO. In real life you may instead create a <code>realtime-log-listener</code> and configure your logging to use that. In this example the channel is hard-coded to <code>logging</code> and the event name is the log level. But it could be that using the level as the channel name (e.g. <code>logging-{level}</code>) may be a nicer approach to partition the data.</p>
 
 <h2>Consuming &amp; Using Real-Time Data</h2>
@@ -248,14 +248,14 @@ log(&#39;info&#39;, {&#39;some&#39;: &#39;data&#39; });
 <p>Now that it’s clear how the data is published, how do you go about consuming that data within an application? Well, we’ve covered how we identify and describe the data earlier so we use that mechanism for consuming the data. Again, we’ll show an Evented Publish-Subscribe example using Socket.IO.</p>
 
 <p>First, let’s take a look at the code for publishing the data from the server:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var activities = io.of(&#39;/activities&#39;)
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var activities = io.of(&#39;/activities&#39;)
 activities.emit(&#39;created&#39;, activity);
 activities.emit(&#39;updated&#39;, activity);
 activities.emit(&#39;deleted&#39;, activity);
 
-</code></pre></div>
+</code></pre></figure>
 <p>The corresponding code uses the <a href="https://socket.io">Socket.IO</a> in the client (the consumer) to identify the data (using namespaces) and then register interest in what’s happening to the data (using events):</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var activities = io(&#39;/activities&#39;);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var activities = io(&#39;/activities&#39;);
 
 activities.bind(&#39;created&#39;, function(activity) {
   // Add to the UI
@@ -269,7 +269,7 @@ activities.bind(&#39;deleted&#39;, function(activity) {
   // Remove from the UI
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p>First we reference to the <code>activities</code> namespace using <code>io(&#39;/activities&#39;)</code> and then we bind to each event we’re interested in (<code>created</code>, <code>updated</code> and <code>deleted</code>). In each case we have as separate callback to handle each of those events which nicely separates our code into functional blocks.</p>
 
 <p>The code really speaks for itself due to its simplicity. Although the activities example is used here I’m sure you can see how it maps to the web endpoints, requests/responses and logging examples that have been shown earlier.</p>
@@ -342,9 +342,18 @@ var disqus_identifier = '/2017/05/25/describe-publish-consume-realtime-data.html
   <section class="box">
 
   <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
-  <p>My name is <strong>Phil Leggetter</strong>. I'm Head of Developer Relations at <a href="https://www.nexmo.com">Nexmo</a> and a real-time web evangelist and consultant.</p>
+  <p>My name is <strong>Phil Leggetter</strong>. I'm presently focusing on Developer Experience and Developer Relations for a company in stealth mode.</p>
+  <p>From 2016 to 2020 I had the pleasure of supporting, enabling and growing a Developer Relations and Platform Experience team at <a href="https://developer.nexmo.com">Nexmo</a> (acquired by Vonage). We grew a team from 3 people to 42 and the team continues to move from strength to strength following my departure. We built a diverse, collaborative, multi-functional, remote-first team spread from San Francisco to Singapore. A team that:</p>
+  <ul>
+    <li>Won the very first "Best Overall Developer Relations Programme Award" in 2018</li>
+    <li>Won 5 awards for documentation across 2018 and 2019</li>
+    <li>Raised awareness in targeted developer communities from 0% to 30%</li>
+    <li>Increased monthly developer blog post traffic by over 200% and climbing</li>
+    <li>Championed and executed on a new self-serve developer onboarding flow that saw the number of developers that experience our APIs increase by 200%</li>
+    <li>…and so much more</li>
+  </ul>
 
-  <p>I frequently write articles and give talks on <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology. <a href="https://www.leggetter.co.uk/#contact-me">Get in touch</a> if you'd like me to talk at your event or write an article for you. I'm also very interested in developer experience and productivity, APIs and customer service.</p>
+  <p>Prior to joining Nexmo I was Head of Developer Relations at <a href="https://pusher.com">Pusher</a> where I wrote documentation, built SDKs, handled support, met customers, frequently wrote articles and gave talks on <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology.</p>
 
   <p>I'm also the co-author of the APress for-beginners title "<a href="http://realtimewebapps.com">Realtime Web Apps</a>".</p>
 

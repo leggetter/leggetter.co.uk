@@ -30,7 +30,7 @@
   <!-- Logo -->
   <div id="logo">
     <h1><a href="/">Phil Leggetter</a></h1>
-    <p>Head of Developer Relations at <a href="https://www.nexmo.com" style="color: white;">Nexmo</a>. Real-Time Web Evangelist &amp; Consultant</p>
+    <p>Developer Experience &amp; Developer Relations. Real-Time Web Advocate &amp; Consultant</p>
   </div>
 
   <!-- Nav -->
@@ -97,36 +97,36 @@
 <p>The morning of the conference day saw a few fuzzy heads from the Pusher party the night before, but they soon cleared as <a href="http://www.crockford.com/">Douglas Crockford</a> delivered the keynote. He covered the good and bad parts of JavaScript and how, as developers, we need to us a combination of head and gut (instinct) when writing code. <a href="http://www.jslint.com/">JSLint</a> got a number of mentions and Douglas stressed the importance of following coding practices. He explained that just because JavaScript lets us do something, it doesn’t mean we should necessarily do it.  Here are a couple of examples:</p>
 
 <h4>Always use treble equals for comparisons</h4>
-<div class="highlight"><pre><code class="language-js" data-lang="js">if(myVar === 0) {
+<figure class="highlight"><pre><code class="language-js" data-lang="js">if(myVar === 0) {
 }
-</code></pre></div>
+</code></pre></figure>
 <p>Many of us already know that double equals can lead to problems. 0 compared with an empty string will evaluate to try, undefined compared with null will evaluate to true and a number of no so obvious examples:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">&#39;0&#39; == 0 // true
+<figure class="highlight"><pre><code class="language-js" data-lang="js">&#39;0&#39; == 0 // true
 &#39;00&#39; == false // true
 true == 1 // true
 undefined == null // true
-</code></pre></div>
+</code></pre></figure>
 <p>Therefore Douglas believes it’s best practice to always use treble equals so that the code intent is absolutely clear.</p>
 
 <h4>Put curly brackets after parenthesis</h4>
-<div class="highlight"><pre><code class="language-js" data-lang="js">function myFunc() {
+<figure class="highlight"><pre><code class="language-js" data-lang="js">function myFunc() {
 }
-</code></pre></div>
+</code></pre></figure>
 <p>This was a hard one to swallow as I like to put my parenthesis on the left - on the next line. However, Douglas provided an example which made me realise that it could be a bad thing.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">function buildObjectLiteral()
+<figure class="highlight"><pre><code class="language-js" data-lang="js">function buildObjectLiteral()
 {
    return // this returns!
    {
       &#39;someProperty&#39;: &#39;&amp;quot;&#39;hello&#39;
    };
 }
-</code></pre></div>
+</code></pre></figure>
 <p>The interesting thing here is that undefined will be returned because a line break is also ends a statement in JavaScript. I don’t think I would actually ever do this. I would probably assign the object literal to a variable first and then return it. However, if I didn’t follow this rule I might make the above mistake. If it can happen then the easiest way to avoid it is just don’t do it. So, curly brackets now go on the same line – on the right.</p>
 
 <h3>Do the right thing</h3>
 
 <p>Douglas explained that he has made some changes to his coding practices recently. A developer had contacted him asking if JSLint should report a problem if it found a switch statement that allowed any code to fall through between cases. Although he had a gut feeling that it was probably not a good thing to do he believed that it would “hardly ever” cause a problem. Some time later the developer got back to Douglas saying he’d found a bug in JSLint. The bug was causes by a switch statement which allowed code to fall through cases. Doug has now formed the opinion that if something can cause a problem, even if it’s unlikely, that the best practice is don’t do it.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">switch(test)  {
+<figure class="highlight"><pre><code class="language-js" data-lang="js">switch(test)  {
    case 0:
       // don’t do it!
    case 1:
@@ -134,7 +134,7 @@ undefined == null // true
    case 2:
       break;
 }
-</code></pre></div>
+</code></pre></figure>
 <h3>When will ECMAScript 6 reach the web browser?</h3>
 
 <p><a href="http://twitter.com/#%21/dmitrysoshnikov">Dmitry Soshnikov</a> gave a talk on <a href="http://wiki.ecmascript.org/doku.php">ECMAScript 6</a>, codename Harmony. Whilst there seem like some good ideas going to to ES6 the question remains when will anybody actually be able to use it in a web browser? It will probably a be available in <a href="http://nodejs.org/">node.js</a> before it's most browser runtimes. It also sounded like a lot of syntactical things were being drawn from Erlang - not sure about this.</p>
@@ -180,8 +180,6 @@ var disqus_url = 'https://www.leggetter.co.uk/2011/05/24/notes-on-falsy-values.h
 
 
 
-  
-
 var disqus_identifier = '16125 https://www.leggetter.co.uk/?page_id=16125';
 
 /* * * DON'T EDIT BELOW THIS LINE * * */
@@ -226,9 +224,18 @@ var disqus_identifier = '16125 https://www.leggetter.co.uk/?page_id=16125';
   <section class="box">
 
   <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
-  <p>My name is <strong>Phil Leggetter</strong>. I'm Head of Developer Relations at <a href="https://www.nexmo.com">Nexmo</a> and a real-time web evangelist and consultant.</p>
+  <p>My name is <strong>Phil Leggetter</strong>. I'm presently focusing on Developer Experience and Developer Relations for a company in stealth mode.</p>
+  <p>From 2016 to 2020 I had the pleasure of supporting, enabling and growing a Developer Relations and Platform Experience team at <a href="https://developer.nexmo.com">Nexmo</a> (acquired by Vonage). We grew a team from 3 people to 42 and the team continues to move from strength to strength following my departure. We built a diverse, collaborative, multi-functional, remote-first team spread from San Francisco to Singapore. A team that:</p>
+  <ul>
+    <li>Won the very first "Best Overall Developer Relations Programme Award" in 2018</li>
+    <li>Won 5 awards for documentation across 2018 and 2019</li>
+    <li>Raised awareness in targeted developer communities from 0% to 30%</li>
+    <li>Increased monthly developer blog post traffic by over 200% and climbing</li>
+    <li>Championed and executed on a new self-serve developer onboarding flow that saw the number of developers that experience our APIs increase by 200%</li>
+    <li>…and so much more</li>
+  </ul>
 
-  <p>I frequently write articles and give talks on <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology. <a href="https://www.leggetter.co.uk/#contact-me">Get in touch</a> if you'd like me to talk at your event or write an article for you. I'm also very interested in developer experience and productivity, APIs and customer service.</p>
+  <p>Prior to joining Nexmo I was Head of Developer Relations at <a href="https://pusher.com">Pusher</a> where I wrote documentation, built SDKs, handled support, met customers, frequently wrote articles and gave talks on <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology.</p>
 
   <p>I'm also the co-author of the APress for-beginners title "<a href="http://realtimewebapps.com">Realtime Web Apps</a>".</p>
 

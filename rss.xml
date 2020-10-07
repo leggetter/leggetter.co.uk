@@ -37,22 +37,22 @@
 <h3>Example: Using RethinkDB</h3>
 
 <p><a href="http://rethinkdb.com/">RethinkDB</a> is an open source database built for the real-time web. The reason it’s such a good fit is due to a feature called <a href="https://rethinkdb.com/docs/changefeeds/">changefeeds</a>. In the following example, where <code>r</code> is the RethinkDB reference, we first update the number of <code>points</code> that a player has:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">r.table(&quot;players&quot;)
+<figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&quot;players&quot;)
   .get(playerId)
   .update({points: newPoints})
   .run(conn, callback);
 
-</code></pre></div>
+</code></pre></figure>
 <p>We have <code>playerId</code> to identify a player to update and we’re updating the <code>points</code> value to be <code>newPoints</code>.</p>
 
 <p>Elsewhere in code (another file or even another process entirely) we could have the following:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
+<figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
   .orderBy(index=r.desc(&#39;points&#39;))
   .limit(5)
   .changes().run(conn)
   .then(top5pointsUpdated);
 
-</code></pre></div>
+</code></pre></figure>
 <p>We’re querying the <code>players</code> table, ordering the result <code>desc</code>ending by points and limiting the number of results by <code>5</code>. There’s nothing particularly different in this approach to any other database (other than maybe the ReQL syntax). The interesting bit is that the <code>top5pointsUpdated</code> function passed to <code>then</code> is called any time that the query result changes. That’s because we’ve identified this query as a changefeed through the use of <code>changes()</code>. So, any time the <code>update</code> code we covered earlier is executed the <code>top5pointsUpdated</code> function will be called.</p>
 
 <p>In a more traditional database these could be considered <a href="https://en.wikipedia.org/wiki/Database_trigger">triggers</a>. The main things are that it’s <em>evented</em> and that it nicely separates the updating code from the changefeed (trigger) handling code. The asynchronous nature of this code allows it to be executed outside of the incoming event thread/context or in a different process. This is just one example and there may be other solutions allow you to achieve similar functionality.</p>
@@ -81,7 +81,7 @@
 <p>Once you’ve described your data you need a mechanism for distributing that data to interested parties (we’ll cover how those parties register their interest in the next section).</p>
 
 <p>In the following example using the <a href="https://github.com/dresende/node-orm2">node-orm2</a> ORM package and the Socket.IO we’ll see how this can be achieved for a simple data change:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">Activity.create(
+<figure class="highlight"><pre><code class="language-text" data-lang="text">Activity.create(
   {text: &quot;Phil is talking&quot;},
   function(err, activity) {
     if(err) throw err;
@@ -89,20 +89,20 @@
     io.of(&#39;/activities&#39;).emit(&#39;created&#39;, activity);
   });
 
-</code></pre></div>
+</code></pre></figure>
 <p>In this code a new activity has been created so we’ve triggered an event called <code>created</code> on the <code>activities</code> namespace passing the newly created <code>activity</code> as the event data payload.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">Activity.get(activityId, function (err, activity) {
+<figure class="highlight"><pre><code class="language-text" data-lang="text">Activity.get(activityId, function (err, activity) {
   activity.text = &quot;Phil is still talking&quot;;
   activity.save(function (err) {
     io.of(&#39;/activities&#39;).emit(&#39;updated&#39;, activity);
   });
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p>The code above shows that updating is simply a matter of changing the event name to <code>updated</code>. You can work out how <code>deleted</code> and any other event could easily be represented in code and communicated.</p>
 
 <p>For the RethinkDB, more complex example we looked at earlier, the code would look as follows:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
+<figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
   .orderBy(index=r.desc(&#39;points&#39;))
   .limit(5)
   .changes().run(conn)
@@ -116,7 +116,7 @@ function top5pointsUpdated(cursor) {
   io.of(&#39;/top-5-players&#39;).emit(&#39;updated&#39;, top5)
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p><em>Note: In the above code we know the function passed to <code>cursor.each</code> called synchronously</em></p>
 
 <p>In the above code we’ve implemented the <code>top5pointsUpdated</code> function. It loops over the updated result, adds those results to an array and triggers and event via Socket.IO. The name of the channel is <code>top-5-players</code>, since that’s the query being made and clearly identifies what the data is. The name of the event is <code>updated</code> since the result value has been updated.</p>
@@ -128,7 +128,7 @@ function top5pointsUpdated(cursor) {
 <h3>Web Endpoints</h3>
 
 <p>In this example using the <a href="https://socket.io">Socket.IO</a> the code triggers an event any time the <code>/interact</code> web endpoint is accessed. It then triggers an event on the <code>endpoints</code> channel with an event name of <code>new_interactions</code>. The event data is the parameters that are used when accessing the endpoint.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">app.post(&#39;/interact&#39;, function (req, res) {
+<figure class="highlight"><pre><code class="language-js" data-lang="js">app.post(&#39;/interact&#39;, function (req, res) {
   io.of(&#39;/endpoints&#39;,
         &#39;new_interaction&#39;,
         {
@@ -138,19 +138,19 @@ function top5pointsUpdated(cursor) {
 
   res.status(200)
 })
-</code></pre></div>
+</code></pre></figure>
 <p>You could create some middleware that intercepts web requests and instead share the endpoint that was interacted with along with the HTTP parameters as the event data. Using this you could build a real-time analytics dashboard.</p>
 
 <h3>Requests &amp; Responses</h3>
 
 <p>Setting up a request:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">var request = require(&#39;request&#39;);
+<figure class="highlight"><pre><code class="language-js" data-lang="js">var request = require(&#39;request&#39;);
 var url = &#39;http://www.google.com&#39;;
 io.of(&#39;web-request&#39;).emit(&#39;outgoing&#39;, {url: url});
 
-</code></pre></div>
+</code></pre></figure>
 <p>Making the request, handling the response and sharing the data:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">request(url, function (error, response, body) {
+<figure class="highlight"><pre><code class="language-text" data-lang="text">request(url, function (error, response, body) {
   if(error) {
     io.of(&#39;/web-request&#39;).emit(&#39;incoming-error&#39;, {url: url, error: error});
   } else {
@@ -158,20 +158,20 @@ io.of(&#39;web-request&#39;).emit(&#39;outgoing&#39;, {url: url});
   }
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p>This example may be useful for some kind of real-time analytics, but could also be useful if you wanted to make a call to a process to kick-off the request and then let you real-time framework – Socket.IO in this case – inform you when the result is ready (background process completion notifications). In the code above we’ve used the event names, <code>incoming-error</code> or <code>incoming-error</code>, to identify if the request was successful or not. This separation also makes it clear that the event data we get for each will be different.</p>
 
 <h3>Logging</h3>
 
 <p>Logging for custom system analytics:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
 function log(level, data) {
   winston.log(level, data);
   io.of(&#39;/logging&#39;).emit(level, data);
 }
 log(&#39;info&#39;, {&#39;some&#39;: &#39;data&#39; });
 
-</code></pre></div>
+</code></pre></figure>
 <p>This example just uses a <code>log</code> function wrapper to both log using <a href="https://github.com/winstonjs/winston">Winston</a> and also emit an event via Socket.IO. In real life you may instead create a <code>realtime-log-listener</code> and configure your logging to use that. In this example the channel is hard-coded to <code>logging</code> and the event name is the log level. But it could be that using the level as the channel name (e.g. <code>logging-{level}</code>) may be a nicer approach to partition the data.</p>
 
 <h2>Consuming &amp; Using Real-Time Data</h2>
@@ -179,14 +179,14 @@ log(&#39;info&#39;, {&#39;some&#39;: &#39;data&#39; });
 <p>Now that it’s clear how the data is published, how do you go about consuming that data within an application? Well, we’ve covered how we identify and describe the data earlier so we use that mechanism for consuming the data. Again, we’ll show an Evented Publish-Subscribe example using Socket.IO.</p>
 
 <p>First, let’s take a look at the code for publishing the data from the server:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var activities = io.of(&#39;/activities&#39;)
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var activities = io.of(&#39;/activities&#39;)
 activities.emit(&#39;created&#39;, activity);
 activities.emit(&#39;updated&#39;, activity);
 activities.emit(&#39;deleted&#39;, activity);
 
-</code></pre></div>
+</code></pre></figure>
 <p>The corresponding code uses the <a href="https://socket.io">Socket.IO</a> in the client (the consumer) to identify the data (using namespaces) and then register interest in what’s happening to the data (using events):</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var activities = io(&#39;/activities&#39;);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var activities = io(&#39;/activities&#39;);
 
 activities.bind(&#39;created&#39;, function(activity) {
   // Add to the UI
@@ -200,7 +200,7 @@ activities.bind(&#39;deleted&#39;, function(activity) {
   // Remove from the UI
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p>First we reference to the <code>activities</code> namespace using <code>io(&#39;/activities&#39;)</code> and then we bind to each event we’re interested in (<code>created</code>, <code>updated</code> and <code>deleted</code>). In each case we have as separate callback to handle each of those events which nicely separates our code into functional blocks.</p>
 
 <p>The code really speaks for itself due to its simplicity. Although the activities example is used here I’m sure you can see how it maps to the web endpoints, requests/responses and logging examples that have been shown earlier.</p>
@@ -406,26 +406,26 @@ activities.bind(&#39;deleted&#39;, function(activity) {
 <p>Of course, database interactions are also system interactions. But databases contain… well… data and any interaction with such a system has the high probability of representing a change in data. So it’s worth showing some specific examples.</p>
 
 <p>Firstly you can look for any SQL statements:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">INSERT INTO activities ...
+<figure class="highlight"><pre><code class="language-text" data-lang="text">INSERT INTO activities ...
 
 UPDATE activities WHERE ...
 
-</code></pre></div>
+</code></pre></figure>
 <p>NoSQL document interactions such as this <a href="https://www.mongodb.org">MongoDB</a> example:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var insertDocument = function(db, callback) {
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var insertDocument = function(db, callback) {
    db.collection(&#39;activities&#39;).insertOne( {
       &quot;text&quot; : &quot;Phil is talking&quot;
    }, function(err, result) {
   });
 };
 
-</code></pre></div>
+</code></pre></figure>
 <p>Or any interactions with an <a href="http://en.wikipedia.org/wiki/Object-relational_mapping">ORM (Object Relational Mapper)</a></p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">Activity a = repository.GetActivity(10);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">Activity a = repository.GetActivity(10);
 a.text = &quot;Phil is still talking&quot;;
 p.save();
 
-</code></pre></div>
+</code></pre></figure>
 <h2>Events – System Interactions</h2>
 
 <p>Next let’s take a look at some other, more generic, system interactions.</p>
@@ -435,28 +435,28 @@ p.save();
 <p>Something that all web apps will have is a web endpoint. Whether to serve HTML content to users or as part of a Web API, each interaction represents an event with an associated data payload. Whether it’s Sinatra, Rails, Express, SailsJS, Flask, Django, Laravel, Silex, ASP.NET MVC … all of these frameworks provide ways of defining routes and web endpoints. Each interaction produces real-time data.</p>
 
 <p>With Sinatra:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">post &#39;/interact&#39; do
+<figure class="highlight"><pre><code class="language-text" data-lang="text">post &#39;/interact&#39; do
   # endpoint called
 end
 
-</code></pre></div>
+</code></pre></figure>
 <p>Or Express:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">app.post(&#39;/interact&#39;, function(req, res) {
+<figure class="highlight"><pre><code class="language-text" data-lang="text">app.post(&#39;/interact&#39;, function(req, res) {
   // endpoint called
 });
 
-</code></pre></div>
+</code></pre></figure>
 <h3>Requests &amp; Responses</h3>
 
 <p>If any web endpoint interaction is an interaction event then so is any request and response.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var request = require(&#39;request&#39;);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var request = require(&#39;request&#39;);
 
 var url = &#39;https://www.leggetter.co.uk&#39;;
 request(url, function (error, response, body) {
   // response
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p>The request event data has a URL and the potential for some payload depending on the type of request. The response event provides the result data. All real-time data as it happens.</p>
 
 <h3>Logging</h3>
@@ -464,16 +464,16 @@ request(url, function (error, response, body) {
 <p>We log information about what’s going on within our applications as it happens. We log it because it has some use. Not only historically, but also – for certain log levels – the instant that the log entry is created.</p>
 
 <p>In Ruby using <code>logger</code>:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">require &#39;logger&#39;
+<figure class="highlight"><pre><code class="language-text" data-lang="text">require &#39;logger&#39;
 $LOG = Logger.new(&#39;log_file.log&#39;, &#39;monthly&#39;)   
 $LOG.debug(&quot;I&#39;m logging stuff!&quot;)
 
-</code></pre></div>
+</code></pre></figure>
 <p>In Node using <code>winston</code>:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
 winston.log(&#39;critical&#39;, errorEventPayload)
 
-</code></pre></div>
+</code></pre></figure>
 <p>If we’re logging at <code>critical</code> then surely there’s much more value in getting that data now – in real-time – than there is grepping the logs after the event.</p>
 
 <h3>Many more system interactions</h3>
@@ -691,7 +691,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <li>In some cases developer relations activities may cross over with what some may consider product. To indicate this involvement in <strong>product</strong> a &quot;P&quot; has been added as a suffix.</li>
 </ol>
 
-<p>These additions result in a new <strong>AAARRRP</strong><sup><a href="#footnote2">2</a></sup> acronym. Instead of thinking of these as just metrics (although how they can be measured should be taken into consideration - see <a href="https://www.youtube.com/watch?v=I5uinqFfl7w&amp;feature=youtu.be">What&#39;s the ROI of Developer Relations</a>) think of them as potential goals for your developer relations programme:</p>
+<p>These additions result in a new <strong>AAARRRP</strong><sup><a href="#footnote2">2</a></sup> acronym. Instead of thinking of these as just metrics (although how they can be measured should be taken into consideration - see <a href="https://www.youtube.com/watch?v=I5uinqFfl7w&feature=youtu.be">What&#39;s the ROI of Developer Relations</a>) think of them as potential goals for your developer relations programme:</p>
 
 <ul>
 <li><strong>Awareness</strong> - awareness of the platform and what it does</li>
@@ -1690,31 +1690,31 @@ A Quantum Leap in Scalability for the Web</a></li>
   <p><iframe src="http://jsbin.com/lacog/2/embed?html,output" class="" id="" style="border: 1px solid rgb(170, 170, 170); width: 100%; min-height: 300px; height: 30px;"></iframe><script src="http://static.jsbin.com/js/embed.js"></script></p>
   <p>This example demonstrate how simple it can be to use Angular directives. The <code>scope</code> values define the attributes that are used from the <code>my-avatar</code> element and those attributes are then used when building the underlying image tag that is rendered and shows the user’s avatar.</p>
   <p>As you can see, the HTML looks as follows:</p></p>
-<div class="highlight"><pre><code class="language-html" data-lang="html">&lt;my-avatar service=&quot;twitter&quot; username=&quot;leggetter&quot; /&gt;
-</code></pre></div>
+<figure class="highlight"><pre><code class="language-html" data-lang="html">&lt;my-avatar service=&quot;twitter&quot; username=&quot;leggetter&quot; /&gt;
+</code></pre></figure>
 <p><h3>Ember</h3>
   <p>There’s an ongoing debate about frameworks v libraries, where in some circles frameworks are seen as forcing you to work in particular ways and are therefore evil. Well, Angular is clearly a framework and Yehuda Katz and Tom Dale – the developers behind Ember – are also <a href="https://www.youtube.com/watch?v=jScLjUlLTLI">happy to call Ember a framework</a>.</p>
   <p><a href="http://emberjs.com">Ember</a> has in-built support for what it aptly calls <a href="http://emberjs.com/guides/components/">Components</a>. The idea behind Ember Components is to align as much as possible with Web Components so that they can be migrated to native Web Components when browser support permits.</p>
   <p><iframe src="http://jsbin.com/nawuwi/4/embed?html,output" class="" id="" style="border: 1px solid rgb(170, 170, 170); width: 100%; min-height: 300px; height: 30px;"></iframe><script src="http://static.jsbin.com/js/embed.js"></script></p>
   <p>The example below uses <a href="http://handlebarsjs.com/">handlebars</a> for templating so the element definition doesn’t follow the exact same syntax:</p></p>
-<div class="highlight"><pre><code class="language-html" data-lang="html">&lt;script type=&quot;text/x-handlebars&quot;&gt;
+<figure class="highlight"><pre><code class="language-html" data-lang="html">&lt;script type=&quot;text/x-handlebars&quot;&gt;
   {{my-avatar service=&quot;twitter&quot; username=&quot;leggetter&quot;}}  
 &lt;/script&gt;
-</code></pre></div>
+</code></pre></figure>
 <p><h3>React</h3>
   <p><a href="http://facebook.github.io/react/">React</a> is the new kid on the block but has already gained a significant following. It’s developed by Facebook and is used for the full Instagram UI and some of the Facebook UI.</p>
   <p>The recommended approach to building components using React is to define them using something called <a href="http://facebook.github.io/react/docs/jsx-in-depth.html">JSX</a>. This is a “JavaScript XML syntax transform recommended for use with React”. Don’t let this put you off. As they point out in the docs the idea is to allow HTML markup within a JavaScript structure to help you visualise.</p>
   <p>As far as I can tell you can’t add markup directly to HTML and you have to create your component using JSX too. But, once you’ve defined a component you can then create other components that use it (composition).</p>
   <p><iframe src="http://jsbin.com/qigoz/5/embed?html,output" class="" id="" style="border: 1px solid rgb(170, 170, 170); width: 100%; min-height: 300px; height: 30px;"></iframe><script src="http://static.jsbin.com/js/embed.js"></script></p>
   <p>So, the syntax for declaring using the component requires an HTML element and a call to <code>React.RenderComponent</code> e.g.</p></p>
-<div class="highlight"><pre><code class="language-html" data-lang="html">&lt;div id=&quot;avatar&quot;&gt;&lt;/div&gt;
+<figure class="highlight"><pre><code class="language-html" data-lang="html">&lt;div id=&quot;avatar&quot;&gt;&lt;/div&gt;
 &lt;script&gt;
   React.renderComponent(
     &lt;MyAvatar service=&quot;twitter&quot; username=&quot;leggetter&quot; /&gt;,
     document.getElementById(&#39;avatar&#39;)
   );
 &lt;/script&gt;
-</code></pre></div>
+</code></pre></figure>
 <h2>The Future: Web Components &amp; Beyond</h2>
 
 <p>Web Components are the future! As the name suggests they promise to deliver native browser support for building components that can encapsulate functionality.</p>
@@ -2220,7 +2220,7 @@ a place to discuss and evolve web component best-practices</a></li>
 </ul>
 
 <p>Here's the server code that is executed when new data is available and updates the database:</p>
-<div class="highlight"><pre><code class="language-php" data-lang="php">&lt;?php
+<figure class="highlight"><pre><code class="language-php" data-lang="php">&lt;?php
 $update = $_POST[&#39;update&#39;];
 $data = json_decode($update, true);
 
@@ -2233,9 +2233,9 @@ if($result) {
   header(&quot;HTTP/1.1 201 Created&quot;)
 }
 else { header(&quot;HTTP/1.1 418 I&#39;m a teapot&quot;); }
-</code></pre></div>
+</code></pre></figure>
 <p>Here's some JavaScript that polls the server every 5 seconds to see if any new data is available:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">var lastUpdate = new Date();
+<figure class="highlight"><pre><code class="language-js" data-lang="js">var lastUpdate = new Date();
 setInterval(function() {
  $.getJSON(&#39;ajax/get_update.php?since=&#39; + lastUpdate, function(data) {
    var items = [];
@@ -2248,7 +2248,7 @@ setInterval(function() {
  });
  lastUpdate = new Date();
 }, 5*1000);
-</code></pre></div>
+</code></pre></figure>
 <p>Here's the server code that handles that polling request:</p>
 
 <pre><code>&lt;?php // get_update.php
@@ -5869,36 +5869,36 @@ Originally written by me and <a href="http://blog.programmableweb.com/2011/06/02
 <p>The morning of the conference day saw a few fuzzy heads from the Pusher party the night before, but they soon cleared as <a href="http://www.crockford.com/">Douglas Crockford</a> delivered the keynote. He covered the good and bad parts of JavaScript and how, as developers, we need to us a combination of head and gut (instinct) when writing code. <a href="http://www.jslint.com/">JSLint</a> got a number of mentions and Douglas stressed the importance of following coding practices. He explained that just because JavaScript lets us do something, it doesn’t mean we should necessarily do it.  Here are a couple of examples:</p>
 
 <h4>Always use treble equals for comparisons</h4>
-<div class="highlight"><pre><code class="language-js" data-lang="js">if(myVar === 0) {
+<figure class="highlight"><pre><code class="language-js" data-lang="js">if(myVar === 0) {
 }
-</code></pre></div>
+</code></pre></figure>
 <p>Many of us already know that double equals can lead to problems. 0 compared with an empty string will evaluate to try, undefined compared with null will evaluate to true and a number of no so obvious examples:</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">&#39;0&#39; == 0 // true
+<figure class="highlight"><pre><code class="language-js" data-lang="js">&#39;0&#39; == 0 // true
 &#39;00&#39; == false // true
 true == 1 // true
 undefined == null // true
-</code></pre></div>
+</code></pre></figure>
 <p>Therefore Douglas believes it’s best practice to always use treble equals so that the code intent is absolutely clear.</p>
 
 <h4>Put curly brackets after parenthesis</h4>
-<div class="highlight"><pre><code class="language-js" data-lang="js">function myFunc() {
+<figure class="highlight"><pre><code class="language-js" data-lang="js">function myFunc() {
 }
-</code></pre></div>
+</code></pre></figure>
 <p>This was a hard one to swallow as I like to put my parenthesis on the left - on the next line. However, Douglas provided an example which made me realise that it could be a bad thing.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">function buildObjectLiteral()
+<figure class="highlight"><pre><code class="language-js" data-lang="js">function buildObjectLiteral()
 {
    return // this returns!
    {
       &#39;someProperty&#39;: &#39;&amp;quot;&#39;hello&#39;
    };
 }
-</code></pre></div>
+</code></pre></figure>
 <p>The interesting thing here is that undefined will be returned because a line break is also ends a statement in JavaScript. I don’t think I would actually ever do this. I would probably assign the object literal to a variable first and then return it. However, if I didn’t follow this rule I might make the above mistake. If it can happen then the easiest way to avoid it is just don’t do it. So, curly brackets now go on the same line – on the right.</p>
 
 <h3>Do the right thing</h3>
 
 <p>Douglas explained that he has made some changes to his coding practices recently. A developer had contacted him asking if JSLint should report a problem if it found a switch statement that allowed any code to fall through between cases. Although he had a gut feeling that it was probably not a good thing to do he believed that it would “hardly ever” cause a problem. Some time later the developer got back to Douglas saying he’d found a bug in JSLint. The bug was causes by a switch statement which allowed code to fall through cases. Doug has now formed the opinion that if something can cause a problem, even if it’s unlikely, that the best practice is don’t do it.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">switch(test)  {
+<figure class="highlight"><pre><code class="language-js" data-lang="js">switch(test)  {
    case 0:
       // don’t do it!
    case 1:
@@ -5906,7 +5906,7 @@ undefined == null // true
    case 2:
       break;
 }
-</code></pre></div>
+</code></pre></figure>
 <h3>When will ECMAScript 6 reach the web browser?</h3>
 
 <p><a href="http://twitter.com/#%21/dmitrysoshnikov">Dmitry Soshnikov</a> gave a talk on <a href="http://wiki.ecmascript.org/doku.php">ECMAScript 6</a>, codename Harmony. Whilst there seem like some good ideas going to to ES6 the question remains when will anybody actually be able to use it in a web browser? It will probably a be available in <a href="http://nodejs.org/">node.js</a> before it's most browser runtimes. It also sounded like a lot of syntactical things were being drawn from Erlang - not sure about this.</p>
@@ -8518,26 +8518,26 @@ All you need to do is add a new custom rule. You can do this via the menu option
 </div>
 
 <p>This will bring up a JScript.NET file (if you don’t like the thought of JScript you can just pretend it’s JavaScript) called <em>CustomRules.js</em>. In that file you will see a number of functions/methods that are called at certain points during an HTTP request or response. The method we are interested in is called <code>OnBeforeResponse</code> and what we want to do is to add the <em>Access-Control-Allow-Origin</em> header to trick the browser/scripting engine into thinking that the resource we are requesting allows the cross domain request.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">static function OnBeforeResponse(oSession: Session)
+<figure class="highlight"><pre><code class="language-js" data-lang="js">static function OnBeforeResponse(oSession: Session)
 {
     oSession.oResponse.headers.Add(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;);
 }
-</code></pre></div>
+</code></pre></figure>
 <p>The code above will add this header to all HTTP responses. You can of course add an <code>if</code> statement so that the header is only added when a particular condition is matched, such as a responses from <a href="/">https://www.leggetter.co.uk</a>.</p>
-<div class="highlight"><pre><code class="language-js" data-lang="js">static function OnBeforeResponse(oSession: Session)
+<figure class="highlight"><pre><code class="language-js" data-lang="js">static function OnBeforeResponse(oSession: Session)
 {
     if (oSession.HostNameIs(&quot;www.leggetter.co.uk&quot;))
     {
         oSession.oResponse.headers.Add(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;);
     }
 }
-</code></pre></div>
+</code></pre></figure>
 <p><small>The code snippet above has not been tested</small></p>
 
 <p>Once you have added your code to the <code>OnBeforeResponse</code> method you can save and close the CustomRules.js file. Fiddler will detect that this file has been modified and compile it in the background so that it can use the new code with each request and response that it processes.</p>
 
 <p>The next time that Fiddler is processing an HTTP response it will call this method, your code will run, and the <em>Access-Control-Allow-Origin</em> HTTP header added to the response.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200 OK
+<figure class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200 OK
 Connection: close
 Date: Fri, 19 Mar 2010 11:04:51 GMT
 Server: Microsoft-IIS/6.0
@@ -8546,7 +8546,7 @@ Expires: Fri, 19 Mar 2010 11:03:51 GMT
 Cache-Control: no-cache
 Pragma: no-cache
 Access-Control-Allow-Origin: *
-</code></pre></div>
+</code></pre></figure>
 <p>For more information on custom rules and generally developing using Fidder see their <a href="http://www.fiddler2.com/Fiddler/dev/">Developer Info section</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
@@ -8574,7 +8574,7 @@ I took the code that I'll use below from this <a href="http://arunranga.com/exam
 </div></p>
 
 <h2>The code</h2>
-<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;script&gt;
+<figure class="highlight"><pre><code class="language-text" data-lang="text">&lt;script&gt;
   var isIE8 = window.XDomainRequest ? true : false;
   var invocation = createCrossDomainRequest();
   var url = &#39;https://leggetter-cors.herokuapp.com/&#39;;
@@ -8636,14 +8636,14 @@ I took the code that I'll use below from this <a href="http://arunranga.com/exam
 &lt;div id=&quot;textDiv&quot;&gt;
     The information below (when it appears) has been fetched using cross-site XHR.
 &lt;/div&gt;
-</code></pre></div>
+</code></pre></figure>
 <p>And this is the code on the server</p>
-<div class="highlight"><pre><code class="language-php" data-lang="php">&lt;?php
+<figure class="highlight"><pre><code class="language-php" data-lang="php">&lt;?php
   header(&#39;Content-type: text/html&#39;);
   header(&#39;Access-Control-Allow-Origin: *&#39;);
   $uri = &#39;http&#39;. ($_SERVER[&#39;HTTPS&#39;] ? &#39;s&#39; : null) .&#39;://&#39;. $_SERVER[&#39;HTTP_HOST&#39;] . $_SERVER[&#39;REQUEST_URI&#39;];
   echo(&#39;&lt;p&gt;This information has come from &lt;a href=&quot;&#39; . $uri . &#39;&quot;&gt;&#39; . $uri . &#39;&lt;/a&gt;&lt;/p&gt;&#39;);
-</code></pre></div>]]></description>
+</code></pre></figure>]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
       <pubDate>Fri, 12 Mar 2010 18:19:23 +0000</pubDate>
     </item>
@@ -10897,8 +10897,8 @@ tags:
 <h2>permalink: /2007/02/02/get-windows-temporary-directory.html</h2>
 
 <p>Once you know it you'll probably never forget it...but wait, this is the second time I've <a href="http://www.google.com/search?q=C%23+get+temp+folder+path" title="Google search for C# get temp folder path">googled</a> for this. I'd best post how  you "<strong>get the Windows temporary directory using C#</strong>"!</p>
-<div class="highlight"><pre><code class="language-csharp" data-lang="csharp">string tempPath = System.IO.Path.GetTempPath();
-</code></pre></div>]]></description>
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">string tempPath = System.IO.Path.GetTempPath();
+</code></pre></figure>]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
       <pubDate>Fri, 02 Feb 2007 00:00:00 +0000</pubDate>
     </item>

@@ -30,7 +30,7 @@
   <!-- Logo -->
   <div id="logo">
     <h1><a href="/">Phil Leggetter</a></h1>
-    <p>Head of Developer Relations at <a href="https://www.nexmo.com" style="color: white;">Nexmo</a>. Real-Time Web Evangelist &amp; Consultant</p>
+    <p>Developer Experience &amp; Developer Relations. Real-Time Web Advocate &amp; Consultant</p>
   </div>
 
   <!-- Nav -->
@@ -135,31 +135,31 @@
   <p><iframe src="http://jsbin.com/lacog/2/embed?html,output" class="" id="" style="border: 1px solid rgb(170, 170, 170); width: 100%; min-height: 300px; height: 30px;"></iframe><script src="http://static.jsbin.com/js/embed.js"></script></p>
   <p>This example demonstrate how simple it can be to use Angular directives. The <code>scope</code> values define the attributes that are used from the <code>my-avatar</code> element and those attributes are then used when building the underlying image tag that is rendered and shows the user’s avatar.</p>
   <p>As you can see, the HTML looks as follows:</p></p>
-<div class="highlight"><pre><code class="language-html" data-lang="html">&lt;my-avatar service=&quot;twitter&quot; username=&quot;leggetter&quot; /&gt;
-</code></pre></div>
+<figure class="highlight"><pre><code class="language-html" data-lang="html">&lt;my-avatar service=&quot;twitter&quot; username=&quot;leggetter&quot; /&gt;
+</code></pre></figure>
 <p><h3>Ember</h3>
   <p>There’s an ongoing debate about frameworks v libraries, where in some circles frameworks are seen as forcing you to work in particular ways and are therefore evil. Well, Angular is clearly a framework and Yehuda Katz and Tom Dale – the developers behind Ember – are also <a href="https://www.youtube.com/watch?v=jScLjUlLTLI">happy to call Ember a framework</a>.</p>
   <p><a href="http://emberjs.com">Ember</a> has in-built support for what it aptly calls <a href="http://emberjs.com/guides/components/">Components</a>. The idea behind Ember Components is to align as much as possible with Web Components so that they can be migrated to native Web Components when browser support permits.</p>
   <p><iframe src="http://jsbin.com/nawuwi/4/embed?html,output" class="" id="" style="border: 1px solid rgb(170, 170, 170); width: 100%; min-height: 300px; height: 30px;"></iframe><script src="http://static.jsbin.com/js/embed.js"></script></p>
   <p>The example below uses <a href="http://handlebarsjs.com/">handlebars</a> for templating so the element definition doesn’t follow the exact same syntax:</p></p>
-<div class="highlight"><pre><code class="language-html" data-lang="html">&lt;script type=&quot;text/x-handlebars&quot;&gt;
+<figure class="highlight"><pre><code class="language-html" data-lang="html">&lt;script type=&quot;text/x-handlebars&quot;&gt;
   {{my-avatar service=&quot;twitter&quot; username=&quot;leggetter&quot;}}  
 &lt;/script&gt;
-</code></pre></div>
+</code></pre></figure>
 <p><h3>React</h3>
   <p><a href="http://facebook.github.io/react/">React</a> is the new kid on the block but has already gained a significant following. It’s developed by Facebook and is used for the full Instagram UI and some of the Facebook UI.</p>
   <p>The recommended approach to building components using React is to define them using something called <a href="http://facebook.github.io/react/docs/jsx-in-depth.html">JSX</a>. This is a “JavaScript XML syntax transform recommended for use with React”. Don’t let this put you off. As they point out in the docs the idea is to allow HTML markup within a JavaScript structure to help you visualise.</p>
   <p>As far as I can tell you can’t add markup directly to HTML and you have to create your component using JSX too. But, once you’ve defined a component you can then create other components that use it (composition).</p>
   <p><iframe src="http://jsbin.com/qigoz/5/embed?html,output" class="" id="" style="border: 1px solid rgb(170, 170, 170); width: 100%; min-height: 300px; height: 30px;"></iframe><script src="http://static.jsbin.com/js/embed.js"></script></p>
   <p>So, the syntax for declaring using the component requires an HTML element and a call to <code>React.RenderComponent</code> e.g.</p></p>
-<div class="highlight"><pre><code class="language-html" data-lang="html">&lt;div id=&quot;avatar&quot;&gt;&lt;/div&gt;
+<figure class="highlight"><pre><code class="language-html" data-lang="html">&lt;div id=&quot;avatar&quot;&gt;&lt;/div&gt;
 &lt;script&gt;
   React.renderComponent(
     &lt;MyAvatar service=&quot;twitter&quot; username=&quot;leggetter&quot; /&gt;,
     document.getElementById(&#39;avatar&#39;)
   );
 &lt;/script&gt;
-</code></pre></div>
+</code></pre></figure>
 <h2>The Future: Web Components &amp; Beyond</h2>
 
 <p>Web Components are the future! As the name suggests they promise to deliver native browser support for building components that can encapsulate functionality.</p>
@@ -318,9 +318,18 @@ var disqus_identifier = '/2014/08/06/state-componentised-web.html';
   <section class="box">
 
   <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
-  <p>My name is <strong>Phil Leggetter</strong>. I'm Head of Developer Relations at <a href="https://www.nexmo.com">Nexmo</a> and a real-time web evangelist and consultant.</p>
+  <p>My name is <strong>Phil Leggetter</strong>. I'm presently focusing on Developer Experience and Developer Relations for a company in stealth mode.</p>
+  <p>From 2016 to 2020 I had the pleasure of supporting, enabling and growing a Developer Relations and Platform Experience team at <a href="https://developer.nexmo.com">Nexmo</a> (acquired by Vonage). We grew a team from 3 people to 42 and the team continues to move from strength to strength following my departure. We built a diverse, collaborative, multi-functional, remote-first team spread from San Francisco to Singapore. A team that:</p>
+  <ul>
+    <li>Won the very first "Best Overall Developer Relations Programme Award" in 2018</li>
+    <li>Won 5 awards for documentation across 2018 and 2019</li>
+    <li>Raised awareness in targeted developer communities from 0% to 30%</li>
+    <li>Increased monthly developer blog post traffic by over 200% and climbing</li>
+    <li>Championed and executed on a new self-serve developer onboarding flow that saw the number of developers that experience our APIs increase by 200%</li>
+    <li>…and so much more</li>
+  </ul>
 
-  <p>I frequently write articles and give talks on <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology. <a href="https://www.leggetter.co.uk/#contact-me">Get in touch</a> if you'd like me to talk at your event or write an article for you. I'm also very interested in developer experience and productivity, APIs and customer service.</p>
+  <p>Prior to joining Nexmo I was Head of Developer Relations at <a href="https://pusher.com">Pusher</a> where I wrote documentation, built SDKs, handled support, met customers, frequently wrote articles and gave talks on <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology.</p>
 
   <p>I'm also the co-author of the APress for-beginners title "<a href="http://realtimewebapps.com">Realtime Web Apps</a>".</p>
 

@@ -30,7 +30,7 @@
   <!-- Logo -->
   <div id="logo">
     <h1><a href="/">Phil Leggetter</a></h1>
-    <p>Head of Developer Relations at <a href="https://www.nexmo.com" style="color: white;">Nexmo</a>. Real-Time Web Evangelist &amp; Consultant</p>
+    <p>Developer Experience &amp; Developer Relations. Real-Time Web Advocate &amp; Consultant</p>
   </div>
 
   <!-- Nav -->
@@ -135,26 +135,26 @@
 <p>Of course, database interactions are also system interactions. But databases contain… well… data and any interaction with such a system has the high probability of representing a change in data. So it’s worth showing some specific examples.</p>
 
 <p>Firstly you can look for any SQL statements:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">INSERT INTO activities ...
+<figure class="highlight"><pre><code class="language-text" data-lang="text">INSERT INTO activities ...
 
 UPDATE activities WHERE ...
 
-</code></pre></div>
+</code></pre></figure>
 <p>NoSQL document interactions such as this <a href="https://www.mongodb.org">MongoDB</a> example:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var insertDocument = function(db, callback) {
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var insertDocument = function(db, callback) {
    db.collection(&#39;activities&#39;).insertOne( {
       &quot;text&quot; : &quot;Phil is talking&quot;
    }, function(err, result) {
   });
 };
 
-</code></pre></div>
+</code></pre></figure>
 <p>Or any interactions with an <a href="http://en.wikipedia.org/wiki/Object-relational_mapping">ORM (Object Relational Mapper)</a></p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">Activity a = repository.GetActivity(10);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">Activity a = repository.GetActivity(10);
 a.text = &quot;Phil is still talking&quot;;
 p.save();
 
-</code></pre></div>
+</code></pre></figure>
 <h2>Events – System Interactions</h2>
 
 <p>Next let’s take a look at some other, more generic, system interactions.</p>
@@ -164,28 +164,28 @@ p.save();
 <p>Something that all web apps will have is a web endpoint. Whether to serve HTML content to users or as part of a Web API, each interaction represents an event with an associated data payload. Whether it’s Sinatra, Rails, Express, SailsJS, Flask, Django, Laravel, Silex, ASP.NET MVC … all of these frameworks provide ways of defining routes and web endpoints. Each interaction produces real-time data.</p>
 
 <p>With Sinatra:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">post &#39;/interact&#39; do
+<figure class="highlight"><pre><code class="language-text" data-lang="text">post &#39;/interact&#39; do
   # endpoint called
 end
 
-</code></pre></div>
+</code></pre></figure>
 <p>Or Express:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">app.post(&#39;/interact&#39;, function(req, res) {
+<figure class="highlight"><pre><code class="language-text" data-lang="text">app.post(&#39;/interact&#39;, function(req, res) {
   // endpoint called
 });
 
-</code></pre></div>
+</code></pre></figure>
 <h3>Requests &amp; Responses</h3>
 
 <p>If any web endpoint interaction is an interaction event then so is any request and response.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var request = require(&#39;request&#39;);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var request = require(&#39;request&#39;);
 
 var url = &#39;https://www.leggetter.co.uk&#39;;
 request(url, function (error, response, body) {
   // response
 });
 
-</code></pre></div>
+</code></pre></figure>
 <p>The request event data has a URL and the potential for some payload depending on the type of request. The response event provides the result data. All real-time data as it happens.</p>
 
 <h3>Logging</h3>
@@ -193,16 +193,16 @@ request(url, function (error, response, body) {
 <p>We log information about what’s going on within our applications as it happens. We log it because it has some use. Not only historically, but also – for certain log levels – the instant that the log entry is created.</p>
 
 <p>In Ruby using <code>logger</code>:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">require &#39;logger&#39;
+<figure class="highlight"><pre><code class="language-text" data-lang="text">require &#39;logger&#39;
 $LOG = Logger.new(&#39;log_file.log&#39;, &#39;monthly&#39;)   
 $LOG.debug(&quot;I&#39;m logging stuff!&quot;)
 
-</code></pre></div>
+</code></pre></figure>
 <p>In Node using <code>winston</code>:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
 winston.log(&#39;critical&#39;, errorEventPayload)
 
-</code></pre></div>
+</code></pre></figure>
 <p>If we’re logging at <code>critical</code> then surely there’s much more value in getting that data now – in real-time – than there is grepping the logs after the event.</p>
 
 <h3>Many more system interactions</h3>
@@ -283,9 +283,18 @@ var disqus_identifier = '/2016/08/14/discovering-realtime-data-in-your-apps.html
   <section class="box">
 
   <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
-  <p>My name is <strong>Phil Leggetter</strong>. I'm Head of Developer Relations at <a href="https://www.nexmo.com">Nexmo</a> and a real-time web evangelist and consultant.</p>
+  <p>My name is <strong>Phil Leggetter</strong>. I'm presently focusing on Developer Experience and Developer Relations for a company in stealth mode.</p>
+  <p>From 2016 to 2020 I had the pleasure of supporting, enabling and growing a Developer Relations and Platform Experience team at <a href="https://developer.nexmo.com">Nexmo</a> (acquired by Vonage). We grew a team from 3 people to 42 and the team continues to move from strength to strength following my departure. We built a diverse, collaborative, multi-functional, remote-first team spread from San Francisco to Singapore. A team that:</p>
+  <ul>
+    <li>Won the very first "Best Overall Developer Relations Programme Award" in 2018</li>
+    <li>Won 5 awards for documentation across 2018 and 2019</li>
+    <li>Raised awareness in targeted developer communities from 0% to 30%</li>
+    <li>Increased monthly developer blog post traffic by over 200% and climbing</li>
+    <li>Championed and executed on a new self-serve developer onboarding flow that saw the number of developers that experience our APIs increase by 200%</li>
+    <li>…and so much more</li>
+  </ul>
 
-  <p>I frequently write articles and give talks on <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology. <a href="https://www.leggetter.co.uk/#contact-me">Get in touch</a> if you'd like me to talk at your event or write an article for you. I'm also very interested in developer experience and productivity, APIs and customer service.</p>
+  <p>Prior to joining Nexmo I was Head of Developer Relations at <a href="https://pusher.com">Pusher</a> where I wrote documentation, built SDKs, handled support, met customers, frequently wrote articles and gave talks on <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology.</p>
 
   <p>I'm also the co-author of the APress for-beginners title "<a href="http://realtimewebapps.com">Realtime Web Apps</a>".</p>
 

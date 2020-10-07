@@ -4,7 +4,8 @@
   "description": "www.leggetter.co.uk website",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "bundle exec gulp deploy"
   },
   "repository": {
     "type": "git",
@@ -18,13 +19,12 @@
     "web",
     "technology"
   ],
-  "author": "Pusher <support@pusher.com> (https://pusher.com)",
+  "author": "Phil Leggetter <phil@leggetter.co.uk> (https://leggetter.co.uk)",
   "license": "Creative Commons - Attribution 3.0",
   "bugs": {
     "url": "https://github.com/leggetter/leggetter.co.uk/issues"
   },
   "homepage": "https://github.com/leggetter/leggetter.co.uk",
-  "private": true,
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-gh-pages": "^0.5.2",

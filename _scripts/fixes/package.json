@@ -15,7 +15,7 @@
   "author": "phil@leggetter.co.uk",
   "license": "MIT",
   "dependencies": {
-    "js-yaml": "~3.0.2",
+    "js-yaml": "~3.14.0",
     "request": "~2.34.0",
     "promise": "~5.0.0",
     "mkpath": "~0.1.0"

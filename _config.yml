@@ -4,6 +4,7 @@ redcarpet:
   extensions: ["tables"]
 highlighter: true
 relative_permalinks: false
+plugins: [jekyll-paginate]
 paginate: 10
 excerpt_separator: "\n\n"
 

@@ -190,3 +190,7 @@ div.highlight {
     padding: 0em 0 !important;
   }
 }
+
+#content section.about {
+	margin-bottom: 2em;
+}

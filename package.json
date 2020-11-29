@@ -32,5 +32,8 @@
   },
   "dependencies": {
     "gulp-run": "^1.6.10"
+  },
+  "resolutions": {
+    "graceful-fs": "^4.2.4"
   }
 }

@@ -9,7 +9,7 @@
 
 ```sh
 bundle install
-npm install
+yarn install
 ```
 
 ## Running the site locally
@@ -21,5 +21,5 @@ bundle exec jekyll serve -w
 ## Deploy
 
 ```sh
-bundle exec gulp deploy
+yarn deploy
 ```

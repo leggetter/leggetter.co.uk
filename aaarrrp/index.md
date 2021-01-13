@@ -23,6 +23,7 @@ AAARRRP is a framework for defining a Developer Relations strategy where each ac
 * **Awareness** - users become aware of your product
 * **Acquisition** - users signup for your product
 * **Activation** - users successfully use your product
+* **Retention** - users continue to use the product and potentially increase usage
 * **Referral** - users like product and company brand enough to refer others
 * **Revenue** - users conduct some monetizing behavior
 * **Product** - users and the developer relations team help define and build the product as well as gathering feedback from users to enhance your product

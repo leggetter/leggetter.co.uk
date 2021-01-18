@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
 	{% if page.title %}
 	<title>{{ page.title }} - {{ site.name }}</title>
@@ -7,8 +7,12 @@
 	<title>{{ site.name }}</title>
 	{% endif %}
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<meta name="description" content="{{ post.excerpt | strip_html }}" />
-	<meta name="keywords" content="{{ post.tags }}" />
+
+	{% if post.excerpt %}<meta name="description" content="{{ post.excerpt | strip_html }}" />
+	{% else %}<meta name="description" content="{{ page.excerpt | strip_html }}" />{% endif %}
+	{% if post.keywords %}
+	<meta name="keywords" content="{{ post.tags }}" />{% else %}
+	<meta name="keywords" content="{{ page.tags }}" />{% endif %}
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />

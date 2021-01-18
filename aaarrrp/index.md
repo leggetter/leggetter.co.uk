@@ -4,7 +4,7 @@ title: The AAARRRP Developer Relations Strategy Framework
 permalink: /aaarrrp/
 ---
 
-## The AAARRRP Developer Relations Strategy Framework
+# The AAARRRP Developer Relations Strategy Framework
 
 **AAARRRP** is a framework that helps you define your Developer Relations strategy. In its simplest form it provides a mechanism for **mapping the company goals for developer relations at a company through to the activities that will help you achieve those goals**. Since activities for some goals naturally feed into helping you achieve other goals you can adopt AAARRRP as a funnel or a loop.
  
@@ -28,7 +28,7 @@ AAARRRP is a framework for defining a Developer Relations strategy where each ac
 * **Revenue** - users conduct some monetizing behavior
 * **Product** - users and the developer relations team help define and build the product as well as gathering feedback from users to enhance your product
  
-### AAARRRP Goals
+## AAARRRP Goals
  
 Each acronym in AAARRRP represents a potential goal that your company can have for your Developer Relations team.
  
@@ -48,7 +48,7 @@ The company goals for a Developer Relations team may also change depending on a 
 
 **The lifecycle of your product significantly influences Developer Relations goals**. Early on in a product's existence it's important to determine product market fit; is there a clear demand for the product? Or to ensure the product meets some fundamental requirements such as following basic API guidelines, having documentation and sample code to help prospective customers get started, or demos to show what the product makes possible and as a sales-enablement tool. In later stages of product development the focus may be more on growth and the Developer Relations goals and associated activites will follow suit.
 
-### Mapping AAARRRP Goals to Activities
+## Mapping AAARRRP Goals to Activities
 
 In it's simplest form AAARRRP can be seen as a mechanism of mapping company goals to Developer Relations activites. Activities are the pieces of work that a Developer Relations team will undertake and those activities will differ depending on the company goals.
 
@@ -72,7 +72,7 @@ This helped us identify that we should focus on the following to achieve the com
 * Blog -> Tutorials
 * Events -> Hackathons
 
-### An Introduction to AAARRRP (Video)
+## An Introduction to AAARRRP (Video)
 
 The following description and video is from a talk given at DevRelCon London 2016.
 
@@ -84,7 +84,7 @@ The following description and video is from a talk given at DevRelCon London 201
     <iframe width="560" height="315" src="https://www.youtube.com/embed/i7EZDYYfFmc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-### AAARRRP Resources
+## AAARRRP Resources
 
 * [Introducing the AAARRRP devrel strategy framework on devrel.net](https://devrel.net/strategy-and-metrics/introducing-aaarrrp-devrel-strategy)
 * [AAARRRP Google Sheets template](https://docs.google.com/spreadsheets/d/1nUGvs7cmN9shWcA57cIESVqHuXliNa7NywXGviCuwNE/edit#gid=0)

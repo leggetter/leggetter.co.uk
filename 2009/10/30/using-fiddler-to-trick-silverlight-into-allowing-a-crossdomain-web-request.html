@@ -1,12 +1,15 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
 	
-	<title>Using Fiddler to trick Silverlight into allowing a crossdomain Web Request - Phil Leggetter - Real-Time Web Software &amp; Developer Evangelist</title>
+	<title>Using Fiddler to trick Silverlight into allowing a crossdomain Web Request - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<meta name="description" content="" />
-	<meta name="keywords" content="" />
+
+	<meta name="description" content="If you are trying to make a web request from a Silverlight application the first thing the Silverlight runtime will do is request a security policy file (see Network Security Access Restrictions in Silverlight) from the root of the server you are making your web request to. This happens if you are making your request using the HttpWebRequest or WebClient class. If the Silverlight runtime fails to get a security policy file your web request will fail. If your Silverlight application relies on this web request then you are going to need to contact the server owner and get them to add a security file but until then you can use the Fiddler HTTP Proxy to trick the Silverlight runtime into believing that it does have permission to make the request.
+" />
+	
+	<meta name="keywords" content="silverlightMicrosoftreal-time webRTRIAreal-time datareal-time" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
@@ -30,7 +33,7 @@
   <!-- Logo -->
   <div id="logo">
     <h1><a href="/">Phil Leggetter</a></h1>
-    <p>Developer Experience &amp; Developer Relations at <a style="text-transform: none;" href="https://tru.id">tru.ID</a>. Advisor, Real-Time Web Advocate &amp; Consultant</p>
+    <p>Developer Experience &amp; Developer Relations at <a style="font-weight: 900; font-size: 1.1em;" href="https://tru.id">tru.ID</a>. Leader, Team Builder &amp; Advisor</p>
   </div>
 
   <!-- Nav -->

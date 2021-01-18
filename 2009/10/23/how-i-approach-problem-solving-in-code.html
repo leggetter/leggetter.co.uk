@@ -1,12 +1,49 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
 	
-	<title>How I approach problem solving in code? - Phil Leggetter - Real-Time Web Software &amp; Developer Evangelist</title>
+	<title>How I approach problem solving in code? - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<meta name="description" content="" />
-	<meta name="keywords" content="" />
+
+	<meta name="description" content="Recently I was posed the following question:
+Write a piece of code that prints all odd integer numbers between 1 and 99
+This really isn't a difficult question but it still requires some thought. When I'm posed with any question I like to break things down into their constituent parts.
+
+Here's the process I went through:
+
+Okay, so I'll define two variables for a start and end value and there's going to have to be a loop.
+[csharp]int startValue = 1;
+int endValue = 99;
+for(int i = startValue;
+     i &amp;lt;= endValue;
+     i++)
+{
+   // work out if &quot;i&quot; is an odd number
+}[/csharp]
+Now, for the odd number detection. And... after a few umms and errrs ... I'm going to have to mod 2 (%2) the current value of i to work out if the value is odd. More ... umms and errs. Okay, I've finally worked out that if something mod 2 is not equal to 0 it's clearly an odd number. This took me longer than it should have but never mind. Once I've detected if i is an odd number I'll then put the odd number into a list for use later.
+[csharp]
+int startValue = 1;
+int endValue = 99;
+IList&lt;int&gt; oddValues = new List&amp;lt;int&amp;gt;();
+for(int i = startValue;
+     i &amp;lt;= endValue;
+     i++)
+{
+   if(i%2 != 0)
+   {
+      oddValues.Add(i);
+   }
+}
+[/csharp]
+Those of you that are good at these little puzzles, or just think this is way too easy, might already be screaming at me about one of the following:
+
+	Why are you using a IList, why don't you just print the value?
+	Odd numbers are always 2 apart so why aren't you just increment i by 2 using i+=2?
+
+" />
+	
+	<meta name="keywords" content=".NETC#problem solvingAgileCoding" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
@@ -30,7 +67,7 @@
   <!-- Logo -->
   <div id="logo">
     <h1><a href="/">Phil Leggetter</a></h1>
-    <p>Developer Experience &amp; Developer Relations at <a style="text-transform: none;" href="https://tru.id">tru.ID</a>. Advisor, Real-Time Web Advocate &amp; Consultant</p>
+    <p>Developer Experience &amp; Developer Relations at <a style="font-weight: 900; font-size: 1.1em;" href="https://tru.id">tru.ID</a>. Leader, Team Builder &amp; Advisor</p>
   </div>
 
   <!-- Nav -->

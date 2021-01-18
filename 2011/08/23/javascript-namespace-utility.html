@@ -1,12 +1,25 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
 	
-	<title>JavaScript namespace utility - Phil Leggetter - Real-Time Web Software &amp; Developer Evangelist</title>
+	<title>JavaScript namespace utility - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<meta name="description" content="" />
-	<meta name="keywords" content="" />
+
+	<meta name="description" content="Over the past 10 or so years I've written a lot of JavaScript. From very early on, at Caplin Systems, I had to write things in a way which ensured that code was clear, usable, discoverable, reusable, extensible and can easily built upon. One of the concepts that was used was to put code within a namespace. This ensured that you couldn't accidentally override a function in the global window namespace and also meant that the namespace would describe the sort of functionality contained within. I've continued to use this concept in various forms but just realised that I've never actually shared how I do this. So here goes.
+
+It's actually really simple. I've got two functions that I use, and I've recently ported over to the com.pusher namespace since I'm creating demos for my work (and play). The first creates some default namespace objects and then defines a namespace function that can be used from then on to create any other namespace objects.
+
+/**
+ * @namespace
+ * Top-level namespace to stop namespace clutter.
+ */
+if(!window[&quot;com&quot;]) {
+  window[&quot;com&quot;] = {};
+}
+" />
+	
+	<meta name="keywords" content="JavaScriptnamespaceUtilitiesLibraries" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
@@ -30,7 +43,7 @@
   <!-- Logo -->
   <div id="logo">
     <h1><a href="/">Phil Leggetter</a></h1>
-    <p>Developer Experience &amp; Developer Relations at <a style="text-transform: none;" href="https://tru.id">tru.ID</a>. Advisor, Real-Time Web Advocate &amp; Consultant</p>
+    <p>Developer Experience &amp; Developer Relations at <a style="font-weight: 900; font-size: 1.1em;" href="https://tru.id">tru.ID</a>. Leader, Team Builder &amp; Advisor</p>
   </div>
 
   <!-- Nav -->

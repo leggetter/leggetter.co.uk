@@ -1,12 +1,24 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
 	
-	<title>How to sign an unsigned DLL - Phil Leggetter - Real-Time Web Software &amp; Developer Evangelist</title>
+	<title>How to sign an unsigned DLL - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<meta name="description" content="" />
-	<meta name="keywords" content="" />
+
+	<meta name="description" content="Taken from: http://forums.microsoft.com/MSDN/showpost.aspx?postid=420884&amp;siteid=1
+
+
+Step 1: Dis-assemble the assembly
+ildasm myTest.dll /out:myTest.il
+Step 2: Re-Assemble using your strong-name key
+ilasm myTest.il /res:myTest.res /dll /key:myTest.snk /out:myTestSN.dll
+This code work perfectly to assign strong name.
+for verification you can use following command,
+sn -vf myTestSN.dll
+" />
+	
+	<meta name="keywords" content=".NET" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
@@ -30,7 +42,7 @@
   <!-- Logo -->
   <div id="logo">
     <h1><a href="/">Phil Leggetter</a></h1>
-    <p>Developer Experience &amp; Developer Relations at <a style="text-transform: none;" href="https://tru.id">tru.ID</a>. Advisor, Real-Time Web Advocate &amp; Consultant</p>
+    <p>Developer Experience &amp; Developer Relations at <a style="font-weight: 900; font-size: 1.1em;" href="https://tru.id">tru.ID</a>. Leader, Team Builder &amp; Advisor</p>
   </div>
 
   <!-- Nav -->

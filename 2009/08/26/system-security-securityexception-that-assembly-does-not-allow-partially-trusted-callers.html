@@ -1,12 +1,29 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
 	
-	<title>System.Security.SecurityException: That assembly does not allow partially trusted callers - Phil Leggetter - Real-Time Web Software &amp; Developer Evangelist</title>
+	<title>System.Security.SecurityException: That assembly does not allow partially trusted callers - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<meta name="description" content="" />
-	<meta name="keywords" content="" />
+
+	<meta name="description" content="I was writing a Windows Azure ASP.NET MVC application and when making a call to a page I received the following exception:
+
+System.Security.SecurityException: That assembly does not allow partially trusted callers
+
+In my application I'm using Castle Windsor for dependency injection and when trying to resolve a service using:
+
+}
+
+IGravatar gravatar = MvcApplication.Container.Resolve&lt;IGravatar&gt;();
+
+I received this message. To solve things I needed to update the WebRole element in the ServiceDefinitions.csdef file so that enableNativeCodeExecution is enabled.
+
+&lt;WebRole name="TwitterGravatarMVC" enableNativeCodeExecution="true"&gt;
+
+I found the solution, detailed above, on the Azure Services Platform Developer Centre forum.
+" />
+	
+	<meta name="keywords" content="C# Snippets.NETWindows AzureASP.NET MVC" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
@@ -30,7 +47,7 @@
   <!-- Logo -->
   <div id="logo">
     <h1><a href="/">Phil Leggetter</a></h1>
-    <p>Developer Experience &amp; Developer Relations at <a style="text-transform: none;" href="https://tru.id">tru.ID</a>. Advisor, Real-Time Web Advocate &amp; Consultant</p>
+    <p>Developer Experience &amp; Developer Relations at <a style="font-weight: 900; font-size: 1.1em;" href="https://tru.id">tru.ID</a>. Leader, Team Builder &amp; Advisor</p>
   </div>
 
   <!-- Nav -->

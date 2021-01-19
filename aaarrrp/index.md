@@ -90,3 +90,7 @@ The following description and video is from a talk given at DevRelCon London 201
 * [AAARRRP Google Sheets template](https://docs.google.com/spreadsheets/d/1nUGvs7cmN9shWcA57cIESVqHuXliNa7NywXGviCuwNE/edit#gid=0)
 * [AAARRRP applied at Nexmo: 2016 - 2017](https://docs.google.com/spreadsheets/d/1HeKG9-h2yT4ahpaSsq6_6z6uDt7RWVtlRcj7jBMxEQI/edit?usp=sharing)
 - [Original "Defining Developer Relations" blog post](https://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html)
+
+## Also see
+
+* [The Orbit Model](https://github.com/orbit-love/orbit-model) - "a vocabulary and visual canvas that helps organizations understand, manage, and grow their community"

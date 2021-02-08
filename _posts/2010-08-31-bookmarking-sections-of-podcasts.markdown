@@ -22,7 +22,6 @@ tags:
   - RSS
   - ideas
   - podcasts
-permalink: "http://leggetter.posterous.com/bookmarking-sections-of-podcasts"
 ---
 
 <p>Just listening to the&nbsp;<a href="http://www.socialmediawhitenoise.com/">Social Media White Noise</a> podcast and really enjoying it.<br />

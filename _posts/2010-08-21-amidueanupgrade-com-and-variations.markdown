@@ -24,7 +24,6 @@ tags:
   - web applications
   - website
   - mobile upgrade
-permalink: "http://leggetter.posterous.com/amidueanupgradecom-and-variations"
 ---
 
 <p><a href="http://posterous.com/getfile/files.posterous.com/leggetter/Po1GYDN1UrYaSkqp3jHUk0kOC8BQeg8q6VmyQjNJROPNqaH0knwknIVxJmX3/phones.jpg"><img src="http://posterous.com/getfile/files.posterous.com/leggetter/F5yUejaQYkQ265FOOWLzSmEMIa3OuQNdRuFisr8yPEWXtQ1J7kd9EycOa7bU/phones.jpg.scaled.500.jpg" alt="" width="500" height="330" /></a><br />

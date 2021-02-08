@@ -20,7 +20,6 @@ tags:
   - WeBuyAnyCar.com
   - Used Car Sales
   - Brand Management
-permalink: "http://leggetter.posterous.com/webuyanycarcom-shock-and-scare-tactics-leads"
 ---
 
 <p><strong>Selling your used car</strong><br />

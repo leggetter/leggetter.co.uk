@@ -17,7 +17,6 @@ date_gmt: "2010-08-27 13:19:56 +0100"
 categories:
   - Technology
 tags: []
-permalink: "http://leggetter.posterous.com/google-realtime-search-isnt-real-time"
 ---
 
 <p><a href='http://posterous.com/getfile/files.posterous.com/leggetter/Kw7asyQSkyuE7vJHA3DgUtMvWJ45NbusBl2OTLBOumSdJz5xuX752qbRu4CY/PollingIsNotRealTime.png.scaled.1000.jpg'><img src="http://posterous.com/getfile/files.posterous.com/leggetter/fczBA2jCZCADsQv3BGYjDjVoFqiuNP5b9pVgfZD9JTusGxfvy6WH3wDYw5r2/PollingIsNotRealTime.png.scaled.500.jpg" width="500" height="400"/></a></p>

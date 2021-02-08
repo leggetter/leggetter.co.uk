@@ -20,7 +20,6 @@ tags:
   - fish
   - dundee
   - broughty ferry
-permalink: "http://leggetter.posterous.com/hit-roond-around-the-heed-head-by-a-faash-fis"
 ---
 
 <p>I was out with my friend. We&#39;d had a couple of pints at the <a href="http://www.taychreggan-hotel.co.uk/">Taychreggan</a> and decided to head into Broughty Ferry, near Dundee. On the way along Dundee Road I got hit, around the head, with a fish. It hurt. It wasn&#39;t a small fish. It&#39;s probably a mackerel (really not sure) weighing a few pounds. It jolted my neck. It bounced off of my neck and head and hit my friend.<br />

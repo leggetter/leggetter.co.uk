@@ -28,7 +28,6 @@ tags:
   - Job
   - TDD
   - BDD
-permalink: "http://leggetter.posterous.com/looking-for-a-c-javascript-real-time-web-cont"
 ---
 
 <p>I'm looking for a contractor for a provisional 3 month contract with the following skills, experience and interests:</p>

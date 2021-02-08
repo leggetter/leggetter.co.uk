@@ -19,7 +19,6 @@ categories:
 tags:
   - Google
   - adsense
-permalink: "http://leggetter.posterous.com/google-adsense-could-easily-be-better"
 ---
 
 <p>

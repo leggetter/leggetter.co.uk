@@ -20,7 +20,6 @@ tags:
   - ideas
   - The Thank You Economy
   - Gary Vaynerchuk
-permalink: "http://leggetter.posterous.com/were-starting-to-live-in-a-thank-you-economy"
 ---
 
 <p>I'm looking forward to Gary Vaynerchuk's new book called <a href="http://www.amazon.co.uk/gp/product/0061914185?ie=UTF8&amp;tag=philleggsoftc-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0061914185">The Thank You Economy</a>. I know what's going to be in it. But, I'm still going to buy it. This is the point that Gary will make in the book.</p>

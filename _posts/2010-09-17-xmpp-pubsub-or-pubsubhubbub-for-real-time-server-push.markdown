@@ -22,7 +22,6 @@ tags:
   - pubsubhubbub
   - Superfeedr
   - XMPP
-permalink: "http://leggetter.posterous.com/xmpp-pubsub-or-pubsubhubbub-for-real-time-ser"
 ---
 
 <p>In case you hadn't noticed,&nbsp;<a href="http://leggetter.posterous.com/hit-roond-around-the-heed-head-by-a-faash-fis" >when I'm not getting hit by flying trout</a>, I like to think of myself as a bit of <a href="/" >a real-time web guy</a>. However, there's one thing I'd like clarification on, and I'm confident somebody will be able to shed some light on this:</p>

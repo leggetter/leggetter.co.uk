@@ -20,7 +20,6 @@ tags:
   - Social Media
   - social media white noice
   - seo
-permalink: "http://leggetter.posterous.com/thoughts-on-an-seo-question-raised-in-the-soc"
 ---
 
 <p>

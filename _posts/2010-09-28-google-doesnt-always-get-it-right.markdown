@@ -20,7 +20,6 @@ tags:
   - real-time web
   - Google
   - Search Engines
-permalink: "http://leggetter.posterous.com/google-doesnt-always-get-it-right"
 ---
 
 <p><p>Here's an interesting example where Google really isn't returning the most relevant information.</p>

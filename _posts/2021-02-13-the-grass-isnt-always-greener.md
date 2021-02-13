@@ -47,6 +47,6 @@ When I decided to move on from Nexmo/Vonage I was sure it was the right move but
 
 However, upon reflection, I did make the right decision. For me it was fundamental: I felt that the company was going in the wrong direction from both a cultural and product perspective. I also looked at the VP (in all but title) job that - through the team's success - I'd ended up in and it was not the sort of role I wanted to be within a company like Vonage. So I wrote up a job spec for my successor and decided it was time to move on.
 
-So, if you're reading this because you've been wondering if the grass will be greener please do ensure you've considered all your options before making your decision. Whatever you decide, good luck!
+So, if you're reading this because you've been wondering if the grass will be greener, please do ensure you've considered all your options before making your decision. Whatever you decide, good luck! 🍀
 
 <small><span>Photo by <a href="https://unsplash.com/@dimhou?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Dimitri Houtteman</a> on <a href="https://unsplash.com/s/photos/grass?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span></small>

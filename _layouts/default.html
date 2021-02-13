@@ -10,8 +10,8 @@
 	<meta property="og:title" content="{{ page.title }}" />
 	<meta property="og:type" content="article" />
 	<meta property="og:url" content="{{ site.base_url }}{{page.url}}" />
-	{% if post.excerpt %}<meta property="og:description" content=" content="{{ post.excerpt | strip_html }}" />
-	{% else %}<meta property="og:description" content=" content="{{ page.excerpt | strip_html }}" />{% endif %}
+	{% if post.excerpt %}<meta property="og:description" content="{{ post.excerpt | strip_html }}" />
+	{% else %}<meta property="og:description" content="{{ page.excerpt | strip_html }}" />{% endif %}
 	{% if page.image_url %}
 	<meta property="og:image" content="{{ site.base_url }}{{page.image_url}}" />
 	{% endif %}

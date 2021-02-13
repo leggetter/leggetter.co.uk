@@ -4,6 +4,12 @@
 	
 	<title>Realtime Connection Transports - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Realtime Connection Transports - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2015/01/26/realtime_framework_connection_transports.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="In this post I'll take a look at why HTTP-based transports are still used by realtime frameworks and services, why don’t all solutions use WebSocket, and which transports are best for different realtime use cases." />
@@ -92,7 +98,7 @@
 
 <p>In a <a href="https://blog.pusher.com/what-came-before-websockets/">previous post</a> I go into mechanism for achieving HTTP transports. In this post I&#39;ll take a look at why HTTP-based transports are still used by realtime frameworks and services, why all solutions don’t use WebSocket, and which transports are best for different realtime use cases.</p>
 
-<h2>What is Realtime?</h2>
+<h2 id="what-is-realtime?"><a href="#what-is-realtime?">What is Realtime?</a></h2>
 
 <p>When we talk about realtime in combination with web apps, mobile apps and IoT devices we mean something different to realtime in vehicle breaking systems or the USS Enterprise warp core safety system. The latter require hard realtime; when antimatter containment is lost that core needs to be ejected within a hard deadline or the ship is lost. Realtime on the web is generally soft; the usefulness of the data can degrade over time without system failure.</p>
 
@@ -117,7 +123,7 @@
 
 <p>Now that we&#39;ve covered a bit of background about the technology and how it&#39;s being used let&#39;s have a brief look at the history and current status of the realtime connection transports.</p>
 
-<h2>HTTP Long-Polling &amp; Streaming Hacks</h2>
+<h2 id="http-long-polling-&amp;-streaming-hacks"><a href="#http-long-polling-&amp;-streaming-hacks">HTTP Long-Polling &amp; Streaming Hacks</a></h2>
 
 <p>Many years ago - at least as far back as 2000 - there were a few companies that were doing all they could to work around the <a href="http://en.wikipedia.org/wiki/Request%E2%80%93response">request-response</a> limitations of HTTP. Those companies had a use case where they needed to <em>push</em> information from the server to one or more <strong>web browsers</strong> as soon as the data became available (this is way before IoT and connected devices were on anyone’s radar.).</p>
 
@@ -133,7 +139,7 @@
 
 <p><em>Note: If you&#39;re also interested in a higher level background about how realtime went mainstream take a look at the <a href="https://www.leggetter.co.uk/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a> part of my realtime web tech guide.</em></p>
 
-<h2>Why still use HTTP transports?</h2>
+<h2 id="why-still-use-http-transports?"><a href="#why-still-use-http-transports?">Why still use HTTP transports?</a></h2>
 
 <p>If HTTP-based solutions are so &quot;hacky&quot; why do so many realtime solutions still use them? Remember those browser quirks? Well, <em>we now have standards!</em> The ways you would achieve in-browser HTTP Streaming and HTTP Long-Polling became standardised and much easier to achieve, no matter which browser is used. </p>
 
@@ -149,7 +155,7 @@
 
 <p>You can find out more about the complexity of multi-transport connection management in Pusher&#39;s post on <a href="http://blog.pusher.com/pusher-2-0-0-cutting-edge-websockets-with-comprehensive-legacy-support/">adding HTTP fallback</a> to compliment their WebSocket-focused service.</p>
 
-<h2>HTTP Shortcomings</h2>
+<h2 id="http-shortcomings"><a href="#http-shortcomings">HTTP Shortcomings</a></h2>
 
 <p>If you decided to read <a href="http://blog.pusher.com/what-came-before-websockets/">what came before WebSocket article</a> before reading this far you already know why HTTP falls short. For those that didn&#39;t read that article it&#39;s pretty simple: HTTP supports the request-response cycle so you can initially send data to the server. But once the server has initiated the response the client can&#39;t send any additional information to it over that same connection. You can think of the initial request as a kind of handshake and from that point on it&#39;s essentially a uni-directional communications channel from server to client. Even with Keep-Alive where the underlying TCP connection can be reused between requests and HTTP Pipelining <strong>you can&#39;t achieve bi-directional communication over a single persistent HTTP connection</strong>.</p>
 
@@ -157,7 +163,7 @@
 
 <p><strong>And that&#39;s why we need WebSocket.</strong></p>
 
-<h2>Why we need WebSocket</h2>
+<h2 id="why-we-need-websocket"><a href="#why-we-need-websocket">Why we need WebSocket</a></h2>
 
 <p>The main purpose of WebSocket is to provide a standardised way to solve all the problems we get with HTTP.</p>
 
@@ -165,7 +171,7 @@
 
 <p><em><sup>†</sup> See <a href="#additional_reading">Additional Reading</a> for more justification on the above statements.</em></p>
 
-<h2>Transports &amp; Their Most Suited Realtime Uses Cases</h2>
+<h2 id="transports-&amp;-their-most-suited-realtime-uses-cases"><a href="#transports-&amp;-their-most-suited-realtime-uses-cases">Transports &amp; Their Most Suited Realtime Uses Cases</a></h2>
 
 <p>Finally, I&#39;d like to provide some information on where I believe the available realtime transports are most suitable. I&#39;ll do this based on the following criteria:</p>
 
@@ -179,7 +185,7 @@
 
 <p>I&#39;ll then provide the most appropriate use case for each of the realtime connection transport types.</p>
 
-<h3>HTTP Polling (Short-Polling)</h3>
+<h3 id="http-polling-(short-polling)"><a href="#http-polling-(short-polling)">HTTP Polling (Short-Polling)</a></h3>
 
 <p>HTTP Polling is fine for updates that don&#39;t need to be delivered quickly <em>and</em> where updates happen infrequently. As frequency of polling increases, so does the load on the server and strain on the client. You can use the request to send data to the server and the response to get the fresh data. However, this means client data must be queued until the next request is sent. Each request outside of the polling cycle results in an additional connection.</p>
 
@@ -187,7 +193,7 @@
 
 <p>HTTP Polling is therefore suitable for lots of use cases where the data doesn&#39;t update all that frequently and where the data being stale (out of date) doesn&#39;t really matter.</p>
 
-<h3>HTTP Long-Polling</h3>
+<h3 id="http-long-polling"><a href="#http-long-polling">HTTP Long-Polling</a></h3>
 
 <p>You won&#39;t waste as many round trips with this transport as you do with standard polling. As the folks at Fanout say, <a href="http://blog.fanout.io/2013/03/04/long-polling-doesnt-totally-suck/">it doesn&#39;t totally suck</a>. But during the reconnect cycle you <em>could</em> be seeing stale data during request-response cycle where there’s no server-client connection. And If updates come in frequently then there could be a lot of highly inefficient request-response cycles.</p>
 
@@ -195,7 +201,7 @@
 
 <p>When the freshness of data is not essential and client to server communication is infrequent then Long-Polling is a suitable solution. It&#39;s not ideal for things like financial trading where freshness of data is imperative or multiplayer games and collaborative experiences where messages representing important changes in data are being sent from client to server.</p>
 
-<h3>HTTP Streaming</h3>
+<h3 id="http-streaming"><a href="#http-streaming">HTTP Streaming</a></h3>
 
 <p>HTTP Streaming is generally the best of the HTTP solutions and probably as efficient as WebSocket for pushing data from the server to the client.</p>
 
@@ -205,7 +211,7 @@
 
 <p>And this is where WebSocket wins out.</p>
 
-<h3>WebSocket</h3>
+<h3 id="websocket"><a href="#websocket">WebSocket</a></h3>
 
 <p>WebSocket perfectly suits increasingly interactive functionality and higher frequency bi-directional communication as you really start to see the benefits of low latency, efficiency and small payloads.</p>
 
@@ -213,11 +219,11 @@
 
 <p>If your data doesn&#39;t update all that frequently then maintaining your own infrastructure to support WebSocket is probably an overhead. However, as soon as the frequency of data increases and the experiences become interactive WebSocket shines. Data displays, highly active chat, fast moving activity streams, collaborative experiences, second screen experiences that need to stay in sync, collaborative apps and multiplayer games all massively benefit from what WebSocket has to offer.</p>
 
-<h4>Note: It&#39;s not just user-driven interactions</h4>
+<h4 id="note:-it&#39;s-not-just-user-driven-interactions"><a href="#note:-it&#39;s-not-just-user-driven-interactions">Note: It&#39;s not just user-driven interactions</a></h4>
 
 <p>WebSocket is essential where bi-directional communication is required. The initial thought is obviously that this is user driven interaction - and until now I&#39;ve done nothing to say otherwise. However, that&#39;s not always the case. It could be that your solution requires a relative interactive protocol e.g. for updating data subscriptions. Again, WebSocket is the best solution for this.</p>
 
-<h3>HTTP Polling v HTTP Long-Polling v HTTP Streaming v WebSocket</h3>
+<h3 id="http-polling-v-http-long-polling-v-http-streaming-v-websocket"><a href="#http-polling-v-http-long-polling-v-http-streaming-v-websocket">HTTP Polling v HTTP Long-Polling v HTTP Streaming v WebSocket</a></h3>
 
 <p>To summarise, here&#39;s a comparison of where I see each of the realtime connection transports fitting.</p>
 
@@ -327,7 +333,7 @@
 </tr>
 </tbody></table>
 
-<h2>WebSocket Everywhere!</h2>
+<h2 id="websocket-everywhere!"><a href="#websocket-everywhere!">WebSocket Everywhere!</a></h2>
 
 <p>My - hopefully informed - opinion is that WebSocket is by far the best realtime connection transport. If it weren&#39;t for problems with legacy browsers, firewalls and proxies WebSocket would be the <em>only</em> realtime transport that we would need for use case where realtime really matters. We&#39;re not all that far from making that possible. Based on the stats that Pusher has this means 90% of connections use WebSocket and the rest use either Flash WebSocket emulation or HTTP.</p>
 
@@ -335,7 +341,7 @@
 
 <p><a name="additional_reading"></a></p>
 
-<h2>Additional reading</h2>
+<h2 id="additional-reading"><a href="#additional-reading">Additional reading</a></h2>
 
 <ul>
 <li><a href="http://chimera.labs.oreilly.com/books/1230000000545/ch11.html">Ilya Grigorik&#39;s High Performance Browser Networking HTTP 1.X chapter</a></li>
@@ -408,7 +414,7 @@ var disqus_identifier = '/2015/01/26/realtime_framework_connection_transports.ht
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -417,7 +423,7 @@ var disqus_identifier = '/2015/01/26/realtime_framework_connection_transports.ht
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

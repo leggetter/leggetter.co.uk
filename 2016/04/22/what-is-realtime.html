@@ -4,6 +4,12 @@
 	
 	<title>What is Real-Time? - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="What is Real-Time? - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2016/04/22/what-is-realtime.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="What is Real-Time? – it’s a question that is asked a lot. It’s a fundamental question that I’m sure many are curious to get a definition for. In this post I'll clarify what real-time is and focus on the context of web, mobile and IoT apps." />
@@ -94,7 +100,7 @@
 
 <p>There are three types of real-time system and application classification: hard, firm, and soft.</p>
 
-<h2>Hard real-time</h2>
+<h2 id="hard-real-time"><a href="#hard-real-time">Hard real-time</a></h2>
 
 <blockquote>
 <p>Hard Real-Time: missing a deadline is a total system failure.</p>
@@ -106,7 +112,7 @@
 
 <p>You wouldn’t use <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide/">real-time web technologies</a> as part of the Enterprise safety system. But you might use them in a hard real-time system if the deadline is sufficiently long and if the real-time technology offers some form of guaranteed delivery (simple receipt acknowledgement may suffice).</p>
 
-<h2>Firm real-time</h2>
+<h2 id="firm-real-time"><a href="#firm-real-time">Firm real-time</a></h2>
 
 <blockquote>
 <p>Firm Real-Time – infrequent deadline misses are tolerable, but may degrade the system’s quality of service. The usefulness of a result is zero after its deadline.</p>
@@ -114,7 +120,7 @@
 
 <p>Trading and betting systems are good examples of firm real-time systems. The important thing with these systems is that they are aware that messages may arrive outside of the deadlines and offer appropriate logic to deal with it. For example, if a user executes a trade on a given price you can’t absolutely guarantee that the “trade now” message will hit the trading system by the deadline so you need a mechanism to inform the user that a firm deadline was missed.</p>
 
-<h2>Soft real-time</h2>
+<h2 id="soft-real-time"><a href="#soft-real-time">Soft real-time</a></h2>
 
 <blockquote>
 <p>Soft Real-Time – the usefulness of a result degrades after its deadline, thereby degrading the system’s quality of service.</p>
@@ -122,13 +128,13 @@
 
 <p>The majority of real-time applications that we use fall into this category. Twitter, Facebook, any form of real-time chat, Google Docs, Uber and many more. Quite how much the “usefulness degrades” and what impact that has really depends on the application. A delayed document update in Google Docs reduces the user experience and can potentially result in duplicate/wasted effort. Missed Uber taxi position updates might result in a delayed journey or extra effort required to locate the exact taxi position.</p>
 
-<h2>How does this apply to Real-Time Web, Mobile and IoT Applications?</h2>
+<h2 id="how-does-this-apply-to-real-time-web,-mobile-and-iot-applications?"><a href="#how-does-this-apply-to-real-time-web,-mobile-and-iot-applications?">How does this apply to Real-Time Web, Mobile and IoT Applications?</a></h2>
 
 <p>Classifying your real-time apps – Web, Mobile, IoT or Star Trek systems – as hard, soft or firm is worthwhile for a couple of reasons. Firstly, you will be in a better position to explain yourself when confronted by folks who have a strong opinion about the use of “real-time” in applications. Secondly, and most importantly, it’ll make you think about the deadlines you should impose on the real-time data within your systems and how the applications that use that data should behave.</p>
 
 <p>If you are building a real-time application and using the Internet as your communication network then you can really only think in terms of <strong>firm</strong> or <strong>soft</strong> real-time apps.</p>
 
-<h2>“What is Real-Time?” Answered! Where next?</h2>
+<h2 id="“what-is-real-time?”-answered!-where-next?"><a href="#“what-is-real-time?”-answered!-where-next?">“What is Real-Time?” Answered! Where next?</a></h2>
 
 <p>Now that we’ve clarified and classified the types of real-time and addressed the “What is Real-Time?” question we can finally move on to things like <em>discovering the real-time data</em> within our systems and apps and then <em>understanding the potential uses of that real-time data</em> to increase our knowledge of what are applications are doing <em>right now</em> and building real-time features that improve our product.</p>
 
@@ -199,7 +205,7 @@ var disqus_identifier = '/2016/04/22/what-is-realtime.html';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -208,7 +214,7 @@ var disqus_identifier = '/2016/04/22/what-is-realtime.html';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

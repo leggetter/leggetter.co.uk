@@ -4,6 +4,12 @@
 	
 	<title>Defining the Kwwika API - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Defining the Kwwika API - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2010/04/02/defining-the-kwwika-api.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="Update: Hang on a minute. You've not explained what Kwwika is!
@@ -93,7 +99,7 @@ In a really informative chat using Nurph, which has been really useful in gettin
 <p><strong>Update: Hang on a minute. You've not explained what <em>Kwwika</em> is!</strong><br />
 In a really <a href="http://nur.ph/ih7pgw">informative chat using Nurph</a>, which has been really useful in getting feedback, it was pointed out to me by <a href="http://nur.ph/users/rythie">@rythie</a> and <a href="http://nur.ph/users/neilcauldwell">@NeilCauldwell</a> that I need to explain what problem Kwwika is trying to solve before asking what the API should look like.</p>
 
-<h2>Why do we need Kwwika?</h2>
+<h2 id="why-do-we-need-kwwika?"><a href="#why-do-we-need-kwwika?">Why do we need Kwwika?</a></h2>
 
 <p>There are loads of real-time technologies available at the moment. Almost all of them have a reasonable learning curve and require a developer to sort out server infrastructure, perform installation, do all sort of configuration and then finally get around to writing an application. In the same way that a lot of developers or organisations have moved into managed hosting for their websites, or more recently moved a lot of their IT infrastructure into the Cloud, Kwwika offers a managed and scalable real-time infrastructure so you can concentrate on building your <a href="/2009/10/29/real-time-rich-internet-applications-rtria.html">Real-Time Rich Internet Application</a>.</p>
 
@@ -101,11 +107,11 @@ In a really <a href="http://nur.ph/ih7pgw">informative chat using Nurph</a>, whi
 
 <blockquote><p>Kwwika is a real-time web data sharing platform with APIs in JavaScript, Silveright, .NET, Java and C.</p></blockquote>
 
-<h3>An example of where Kwwika could be used</h3>
+<h3 id="an-example-of-where-kwwika-could-be-used"><a href="#an-example-of-where-kwwika-could-be-used">An example of where Kwwika could be used</a></h3>
 
 <p><a href="http://blog.caplin.com/author/martintcaplincom/">Martin Tyler</a> recently wrote a <a href="http://blog.caplin.com/2010/02/24/when-were-you-when-tendulkar-scored-200/">blog post</a> that provides a great example of where a service like Kwwika would have been really useful. In the situation described in the blog post <a href="http://www.cricinfo.com/">CricInfo</a> could simply publish their cricket updates to their defined topic in Kwwika, maybe <em>/CRICINFO/GAMES/INDIA-SOUTHAFRICA/</em>, from a single server. They would then add a small piece of script to their game web page that subscribes to this topic and updates that web page whenever any new data is available. Users would see the real-time in-page updates and would no longer continue to hit "Refresh" to see if the score had updated. Kwwika would instead take the hit of the data transfer and push the live updates to the web page. This would take a massive load off of the CricInfo server and clearly save them a lot of time and infrastructure costs.</p>
 
-<h2>How will I use Kwwika?</h2>
+<h2 id="how-will-i-use-kwwika?"><a href="#how-will-i-use-kwwika?">How will I use Kwwika?</a></h2>
 
 <p>When we launch Kwwika all you'll need to do to use the service is:</p>
 
@@ -121,7 +127,7 @@ In a really <a href="http://nur.ph/ih7pgw">informative chat using Nurph</a>, whi
 
 <p>I think the great thing about this is that developers just use the Kwwika service and only ever need to care about developing their own application. Kwwika provides the server infrastructure so you don't have to.</p>
 
-<h2>The Kwwika API</h2>
+<h2 id="the-kwwika-api"><a href="#the-kwwika-api">The Kwwika API</a></h2>
 
 <p>I'm in the middle of defining the Kwwika API and thought this would be a great opportunity to get some early feedback. We plan to have initial releases of the API for the following technologies:</p>
 
@@ -304,7 +310,7 @@ var disqus_identifier = '773 https://www.leggetter.co.uk/?page_id=773';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -313,7 +319,7 @@ var disqus_identifier = '773 https://www.leggetter.co.uk/?page_id=773';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

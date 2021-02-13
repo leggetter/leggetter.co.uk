@@ -4,6 +4,12 @@
 	
 	<title>Windows Azure Mobile Services Realtime Collaborative To Do App - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Windows Azure Mobile Services Realtime Collaborative To Do App - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2013/04/09/windows-mobile-service-realtime-collaborative-todo.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="Inspired by the first two talks at #stacked13 by Mike Taulty and then Maarten Balliauw I thought I'd jump straight into Windows Azure Mobile Services and build an a realtime collaborative synchronised todo list. I'd do this based on the Get started with data in Mobile Services HTML guide. I would then and host it on a Windows Azure web site.
@@ -99,13 +105,13 @@
 
 <p><em>Note: I want to publish this quite quickly so that people at the event can have a play. So, the rest of this post will be a bit of a brain dump and I'll tidy it up later</em></p>
 
-<h3>HTML/JavaScript Mobile Services To Do list</h3>
+<h3 id="html/javascript-mobile-services-to-do-list"><a href="#html/javascript-mobile-services-to-do-list">HTML/JavaScript Mobile Services To Do list</a></h3>
 
 <p>In Mike's talk he mentioned that the mobile service JavaScript library has just been released. So, this was an obvious starting point. Signing up for Azure and following the <a href="http://www.windowsazure.com/en-us/develop/mobile/tutorials/get-started-with-data-html/">getting started</a> guide was very simple.</p>
 
 <p>You can see the code following the tutorial, with a bit of clean up, <a href="https://github.com/leggetter/pusher-azure-todo/tree/bf07e3c0ec944f5ed74096cc1d748f5e26cd5cda">here</a>. The main files to look at are <a href="https://github.com/leggetter/pusher-azure-todo/blob/bf07e3c0ec944f5ed74096cc1d748f5e26cd5cda/index.html">index.html</a> and <a href="https://github.com/leggetter/pusher-azure-todo/blob/bf07e3c0ec944f5ed74096cc1d748f5e26cd5cda/app.js">app.js</a>.</p>
 
-<h3>Making it realtime with Pusher</h3>
+<h3 id="making-it-realtime-with-pusher"><a href="#making-it-realtime-with-pusher">Making it realtime with Pusher</a></h3>
 
 <p><a href="http://pusher.com">Pusher</a> (who I work for) are <a href="http://www.windowsazure.com/en-us/store/service/?id=70e4389b-739e-4c8a-9af2-411fb11b895a">listed in the Windows Azure store</a>. So, the first thing to do is add Pusher as an add-on.</p>
 
@@ -119,7 +125,7 @@
 
 <p>The code for this is unbelievably simple. The fact the <em>insert</em>, <em>update</em> and <em>delete</em> scripts are all separate makes things a bit repetitive, but ultimately you can broadcast the change events in just a few lines of code.</p>
 
-<h3>Broadcasting C<span style="text-decoration: line-through;">R</span>UD Trigger events</h3>
+<h3 id="broadcasting-c<span-style="text-decoration:-line-through;">r</span>ud-trigger-events"><a href="#broadcasting-c<span-style="text-decoration:-line-through;">r</span>ud-trigger-events">Broadcasting C<span style="text-decoration: line-through;">R</span>UD Trigger events</a></h3>
 
 <p><img src="/wp-content/uploads/2013/04/pusher-insert-1024x639.png" alt="pusher-insert" width="1024" height="639" class="aligncenter size-large wp-image-23762" /></p>
 
@@ -139,13 +145,13 @@
 
 <p>You only get the <code>id</code> of the item that was deleted in the <code>DELETE</code> do you need to create an object with an <code>id</code> property e.g. <code>{ id: 'some_id'}</code></p>
 
-<h3>Are the events being triggered</h3>
+<h3 id="are-the-events-being-triggered"><a href="#are-the-events-being-triggered">Are the events being triggered</a></h3>
 
 <p>You can check to see if events are being triggered by using the existing application, which doe cause the scripts to be executed, and then view the <a href="http://pusher.com/docs/debugging#pusher_debug_console">Pusher Debug Console</a></p>
 
 <p><img src="/wp-content/uploads/2013/04/pusher-debug-console.png" alt="pusher-debug-console" width="811" height="474" class="aligncenter size-full wp-image-23776" /></p>
 
-<h3>Making the front-end realtime</h3>
+<h3 id="making-the-front-end-realtime"><a href="#making-the-front-end-realtime">Making the front-end realtime</a></h3>
 
 <p><code>app.js</code> relied quite heavily on a function called <a href="https://github.com/leggetter/pusher-azure-todo/blob/bf07e3c0ec944f5ed74096cc1d748f5e26cd5cda/app.js#L7-L26"><code>refreshTodoItems</code></a>. <strong>Yuck!</strong> every time something happens in the application this function would query the Windows Azure Mobile data service to get all the new data. Why do this when you can just instantly push the changes to the client as they happen?!</p>
 
@@ -153,13 +159,13 @@
 
 <p>But, here are a few details.</p>
 
-<h3>The pusher-js script tag</h3>
+<h3 id="the-pusher-js-script-tag"><a href="#the-pusher-js-script-tag">The pusher-js script tag</a></h3>
 
 <p>A simple include:</p>
 
 <p><a href="https://github.com/leggetter/pusher-azure-todo/commit/4b4d6157c965c80de71a5798daaba68c4c03ee6d#L1R34"><img src="/wp-content/uploads/2013/04/pusher-js.png" alt="pusher-js" width="930" height="150" class="aligncenter size-full wp-image-23768" /></a></p>
 
-<h3>Create a Pusher instance, subscribe and bind</h3>
+<h3 id="create-a-pusher-instance,-subscribe-and-bind"><a href="#create-a-pusher-instance,-subscribe-and-bind">Create a Pusher instance, subscribe and bind</a></h3>
 
 <p>You create a new <code>Pusher</code> instance and pass in your <code>app_key</code>. Doing this connects your app to Pusher.</p>
 
@@ -169,7 +175,7 @@
 
 <p><a href="https://github.com/leggetter/pusher-azure-todo/commit/4b4d6157c965c80de71a5798daaba68c4c03ee6d#L0R14"><img src="/wp-content/uploads/2013/04/pusher-instance-channels.png" alt="pusher-instance-channels" width="926" height="137" class="aligncenter size-full wp-image-23770" /></a></p>
 
-<h3>Handle create events</h3>
+<h3 id="handle-create-events"><a href="#handle-create-events">Handle create events</a></h3>
 
 <p>When a new item is created we need to insert it into the existing list:</p>
 
@@ -177,25 +183,25 @@
 
 <p>The <code>createItem</code> function actually create a <code>&lt;li&gt;</code> and the <code>insertItem</code> function actually appends it to the view. We also reuse <code>createItem</code> function in the function that we renamed <code>refreshTodoItems</code> (<strong>Yuck!</strong>) to - <a href="https://github.com/leggetter/pusher-azure-todo/commit/4b4d6157c965c80de71a5798daaba68c4c03ee6d#L0R21"><code>initTodoItems</code></a>. This means we only query the mobile service endpoint once when the app initial loads - <strong>Win!</strong>. Notice how many times I got to delete <code>refreshTodoItems</code> in <a href="https://github.com/leggetter/pusher-azure-todo/commit/4b4d6157c965c80de71a5798daaba68c4c03ee6d#L0L47">the commit</a>.</p>
 
-<h3>Handle update events</h3>
+<h3 id="handle-update-events"><a href="#handle-update-events">Handle update events</a></h3>
 
 <p>Because only the updated data is sent to the <code>update</code> handler this function is a bit bigger than I would have liked. We simply check to see what data is present in the update and then change the list as required:</p>
 
 <p><a href="https://github.com/leggetter/pusher-azure-todo/commit/4b4d6157c965c80de71a5798daaba68c4c03ee6d#L0R61"><img src="/wp-content/uploads/2013/04/update-item.png" alt="update-item" width="930" height="275" class="aligncenter size-full wp-image-23773" /></a></p>
 
-<h3>Handle delete events</h3>
+<h3 id="handle-delete-events"><a href="#handle-delete-events">Handle delete events</a></h3>
 
 <p>The delete event handler is passed an <code>item</code> with an <code>id</code> property. We simply find the <code>&lt;li&gt;</code> in the view with this <code>id</code>, slide it out of view and then remove it from the DOM.</p>
 
 <p><a href="https://github.com/leggetter/pusher-azure-todo/commit/4b4d6157c965c80de71a5798daaba68c4c03ee6d#L0R77"><img src="/wp-content/uploads/2013/04/delete-item.png" alt="delete-item" width="928" height="131" class="aligncenter size-full wp-image-23775" /></a></p>
 
-<h3>It's now realtime</h3>
+<h3 id="it's-now-realtime"><a href="#it's-now-realtime">It's now realtime</a></h3>
 
 <p>If you now use the app, any time somebody else makes a change it'll instantly be broadcast to anybody else viewing the application.</p>
 
 <p>Next, to deploy it to Windows Azure Web Sites</p>
 
-<h3>Windows Azure Web Sites</h3>
+<h3 id="windows-azure-web-sites"><a href="#windows-azure-web-sites">Windows Azure Web Sites</a></h3>
 
 <p>Creating a Windows Azure Web Site is a piece of cake!</p>
 
@@ -211,13 +217,13 @@
 
 <p>The app is now live - <strong>or is it?</strong> It's <strong>GOTCHA</strong> time.</p>
 
-<h3>Gotchas</h3>
+<h3 id="gotchas"><a href="#gotchas">Gotchas</a></h3>
 
-<h4>.js in root directory = node.js env detection</h4>
+<h4 id=".js-in-root-directory-=-node.js-env-detection"><a href="#.js-in-root-directory-=-node.js-env-detection">.js in root directory = node.js env detection</a></h4>
 
 <p>The first gotcha I came across was that it seem like the environment detection assumes your app is a Node.js app if you have a <code>js</code> file in the root directory. To get around this I had to <a href="https://github.com/leggetter/pusher-azure-todo/commit/020527f2282455ac7fd064dd2a7e5c4ae1e5a3ef">move <code>app.js</code> to <code>js/app.js</code></a>.</p>
 
-<h4>Cross scheme and Origin (CORS) communication</h4>
+<h4 id="cross-scheme-and-origin-(cors)-communication"><a href="#cross-scheme-and-origin-(cors)-communication">Cross scheme and Origin (CORS) communication</a></h4>
 
 <p>Browsers implement rules that mean you can't communicate cross scheme: http <-> https. So, make sure that the app/web page and the assets (JavaScript) are all <a href="https://github.com/leggetter/pusher-azure-todo/commit/30323655fc31c9c9cb6fed0c6b2e930c855a21de">served from the same scheme</a>.</p>
 
@@ -234,7 +240,7 @@
 
 <p><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></p>
 
-<h3>Tada - I mean TODO!</h3>
+<h3 id="tada---i-mean-todo!"><a href="#tada---i-mean-todo!">Tada - I mean TODO!</a></h3>
 
 <p>We no have a To Do list that multiple users can collaborate on and instantly see the changes as they happen. The back-end is powered by <a href="http://www.windowsazure.com/en-us/develop/mobile/">Windows Azure Mobile Services</a>, the realtime communication is achieved using <a href="http://pusher.com">Pusher</a> and the app/site is hosted on a <a href="http://www.windowsazure.com/en-us/home/scenarios/web-sites/">Windows Azure Web Site</a>.</p>
 
@@ -301,7 +307,7 @@ var disqus_identifier = '23749 https://www.leggetter.co.uk/?page_id=23749';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -310,7 +316,7 @@ var disqus_identifier = '23749 https://www.leggetter.co.uk/?page_id=23749';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

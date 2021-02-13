@@ -4,6 +4,12 @@
 	
 	<title>A Real Time Rich Internet Application (RTRIA) Example - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="A Real Time Rich Internet Application (RTRIA) Example - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2009/11/03/a-real-time-rich-internet-application-rtria-example.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="I've just had an article published in the latest UK MSDN Flash newsletter on How to consume real-time data in a Silverlight RIA. As part of writing up the article I developed a sample Real-Time Rich Internet Application (RTRIA) that consumes real-time data from the Twitter real-time data feed. I also put together my first ever screencast. So, you can start by getting hold of the code or watching the screencast.
@@ -106,7 +112,7 @@ If you'd like to find out a bit more about the code then read on. If you'd rathe
 
 <p><a name="code"></a></p>
 
-<h2>The Code</h2>
+<h2 id="the-code"><a href="#the-code">The Code</a></h2>
 
 <p>First, and this is <strong>Important</strong>:</p>
 
@@ -121,7 +127,7 @@ If you'd like to find out a bit more about the code then read on. If you'd rathe
 <p>If you'd like to find out a bit more about the code then read on. If you'd rather jump straight into the code you can download it from the <a href="http://code.google.com/p/tweetstreamer/">TweetStreamer Google Code project</a>.<br />
 <a id="more"></a><a id="more-423"></a></p>
 
-<h3>The streaming connection</h3>
+<h3 id="the-streaming-connection"><a href="#the-streaming-connection">The streaming connection</a></h3>
 
 <p>The following extracts of code may be slightly modified but that has been done to be able to explain what the code does in general a bit better.</p>
 
@@ -222,7 +228,7 @@ The <code>ParseResponseChunk</code> checks the data it's passed and ensures that
 <p><small>I chose to use the JSON format simply because the content passed over the wire is smaller than the XML feed. This should mean that the application has to do less work to read all the data. What we really should also do is benchmark the deserialisation of JSON against the deserialisation of XML to see which performs best within a Silverlight application.<br />
 </small></p>
 
-<h3>Deserialising the JSON</h3>
+<h3 id="deserialising-the-json"><a href="#deserialising-the-json">Deserialising the JSON</a></h3>
 
 <p>The following JavaScript JSON snipped shows an example of a single Tweet that we get back from the Twitter real-time data feed.<br />
 [javascript]<br />
@@ -286,7 +292,7 @@ private static IStatusMessage CreateMessageFromJsonString(string messageData)<br
 }<br />
 [/csharp]</p>
 
-<h3>Binding the data to the grid</h3>
+<h3 id="binding-the-data-to-the-grid"><a href="#binding-the-data-to-the-grid">Binding the data to the grid</a></h3>
 
 <p>To bind the data to a DataGrid the grid needs to be defined in XAML. In addition we can specify the properties on the <code>StatusMessage</code> that we want to bind to columns. In the XAML below we are binding the <code>CreatedAtString</code> property to a Time column, a <code>User.ScreenName</code> to a User column, and a <code>Text</code> property to a Message column. Notice the cool binding of <code>User.ScreenName</code>. The <code>StatusMessage.User</code> property returns an instance of another class and we are actually binding to a property on the returned class.<br />
 [xml]<br />
@@ -345,12 +351,12 @@ Hopefully this will have helped you understand how the Twitter real-time data st
 
 <div class="information"><strong>Limitations</strong>: Although I've seen the sample application perform reasonably well I've also seen it perform quite poorly. How well it performs will depend on the machine running the application and the frequency of the updates from the real-time Twitter stream. In later posts I'll provide information on how to improve performance by making changes to the client code and I'll also go into what can be done on the server.</div>
 
-<h3>Download</h3>
+<h3 id="download"><a href="#download">Download</a></h3>
 
 <p>You can download the source from the <a href="http://code.google.com/p/tweetstreamer/">TweetStreamer Google Code project</a>.<br />
 <a name="screencast"></a></p>
 
-<h2>Screencast</h2>
+<h2 id="screencast"><a href="#screencast">Screencast</a></h2>
 
 <p>This screencast was supposed to be short but ended up being just shy of 10 minutes. In it I provide some technical detail of how I built the application, show the basics of how Fiddler is used to give access to the Twitter real-time data stream, and give a demo of the application.<br />
 <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="625" height="505" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="allowFullScreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="src" value="http://www.youtube.com/v/5T_jiZCzg4U&amp;hl=en&amp;fs=1&amp;rel=0&amp;hd=1" /><param name="allowfullscreen" value="true" /><embed type="application/x-shockwave-flash" width="625" height="505" src="http://www.youtube.com/v/5T_jiZCzg4U&amp;hl=en&amp;fs=1&amp;rel=0&amp;hd=1" allowscriptaccess="always" allowfullscreen="true"></embed></object></p>
@@ -416,7 +422,7 @@ var disqus_identifier = '423 https://www.leggetter.co.uk/?page_id=423';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -425,7 +431,7 @@ var disqus_identifier = '423 https://www.leggetter.co.uk/?page_id=423';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

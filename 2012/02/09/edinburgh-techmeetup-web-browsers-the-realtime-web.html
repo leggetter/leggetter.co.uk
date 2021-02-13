@@ -4,6 +4,12 @@
 	
 	<title>Edinburgh Techmeetup, Web Browsers & the Realtime Web - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Edinburgh Techmeetup, Web Browsers & the Realtime Web - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2012/02/09/edinburgh-techmeetup-web-browsers-the-realtime-web.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="I gave a presentation yesterday at Edinburgh techmeetup. A big thanks to Dale Harvey for inviting me to talk and to all the attendees for taking the time to attend, listen and interact. Aaron Bassett also gave a good talk on Avoiding Integration Hell so I'd recommend you follow him for more info.
@@ -102,7 +108,7 @@ the past, present &amp; future" slides</a>.</p>
 
 <p>After the presentation there were a number of good questions asked here they are, and my answers. If you've any other questions please <a href="mailto:phil@leggetter.co.uk?subject=Web Browsers & the Realtime Web Qs">drop me an email</a> or leave a comment.</p>
 
-<h3>Does WebSockets provide support for common use cases? Does it natively support Pub/Sub?</h3>
+<h3 id="does-websockets-provide-support-for-common-use-cases?-does-it-natively-support-pub/sub?"><a href="#does-websockets-provide-support-for-common-use-cases?-does-it-natively-support-pub/sub?">Does WebSockets provide support for common use cases? Does it natively support Pub/Sub?</a></h3>
 
 <p>As with most standardised technology WebSockets offer the very basics of what is required to enable realtime bi-directional communication between a server and a client;</p>
 
@@ -117,17 +123,17 @@ the past, present &amp; future" slides</a>.</p>
 
 <p>If you want functionality like auto reconnection, connection stability checking (<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/network.html#ping-and-pong-frames">ping/pong is hopefully coming</a>), the ability to subscribe to channels/topics/subjects in order to filter and partition data then you need to build this functionality yourself or user a client/server combination that already offers this. We've built this functionality into our Pusher JavaScript library and service.</p>
 
-<h3>How do people on shared hosting use this technology?</h3>
+<h3 id="how-do-people-on-shared-hosting-use-this-technology?"><a href="#how-do-people-on-shared-hosting-use-this-technology?">How do people on shared hosting use this technology?</a></h3>
 
 <p>If you are on a shared hosting then the hosting provide doesn't tend to like this sort of technology because it requires you to maintain persistent connections between the hosting server and the client. I don't know for sure but I think PHP hosting services may do something to stop this sort of thing from working. However, I'm pretty sure that hosting services like <a href="http://www.joyent.com/">Joyent</a> will provide support since <a href="http://socket.io">socket.io</a> is quite possibly one of the most popular packages available. I could be wrong, but I'd be surprised if I am. If you know, please get in touch.</p>
 
 <p>A great option here is to use <a href="http://pusher.com">Pusher</a> since it remove the need to maintain the persistent connections - it's technology agnostic.</p>
 
-<h3>Do WebSockets have problems with proxies and firewalls?</h3>
+<h3 id="do-websockets-have-problems-with-proxies-and-firewalls?"><a href="#do-websockets-have-problems-with-proxies-and-firewalls?">Do WebSockets have problems with proxies and firewalls?</a></h3>
 
 <p>Yes, but connecting over a secure connection (WSS:// over port 443) will work in the majority of cases. For those cases it doesn't work I've seen HTTP Long-Polling and HTTP Streaming also having problems where proxies and firewalls don't like the long-held requests. It's really a battle between realtime technologies and older Internet infrastructure.</p>
 
-<h3>Where does SPDY fit into the Realtime Web?</h3>
+<h3 id="where-does-spdy-fit-into-the-realtime-web?"><a href="#where-does-spdy-fit-into-the-realtime-web?">Where does SPDY fit into the Realtime Web?</a></h3>
 
 <p>"<a href="http://www.chromium.org/spdy/spdy-whitepaper">SPDY is an experimental protocol for a faster web</a>". It's actually used by Google Chrome and a number of Google web apps already (a quick Google suggestions <a href="http://www.datamation.com/open-source/firefox-11-gets-spdy.html">Firefox 11 will support SPDY</a>). The main problem is that in order for this protocol to be used we need the Internet Infrastructure to upgrade. This isn't going to happen to quickly. So, SPDY sounds very promising but it'll be a while until we see it widely adopted/used.</p>
 
@@ -198,7 +204,7 @@ var disqus_identifier = '22601 https://www.leggetter.co.uk/?page_id=22601';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -207,7 +213,7 @@ var disqus_identifier = '22601 https://www.leggetter.co.uk/?page_id=22601';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

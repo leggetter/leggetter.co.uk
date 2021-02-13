@@ -4,6 +4,12 @@
 	
 	<title>Realtime Web Technology Transport Mechanisms - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Realtime Web Technology Transport Mechanisms - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="" />
@@ -89,7 +95,7 @@
 <div class="post">
 <p><a name="comet"></a></p>
 
-<h2>Comet</h2>
+<h2 id="comet"><a href="#comet">Comet</a></h2>
 
 <p>Comet is an umbrella term for all old HTTP-based hacks which were used to simulate bi-directional realtime communication between a web client and server. It is a phrase that we should hopefully hear mentioned much less over the coming years. WebSockets are where we want to be; browsers and beyond.</p>
 
@@ -97,19 +103,19 @@
 
 <p><a name="http-long-polling"></a></p>
 
-<h2>HTTP Long-Polling</h2>
+<h2 id="http-long-polling"><a href="#http-long-polling">HTTP Long-Polling</a></h2>
 
 <p><strong>HTTP Long-polling</strong> is a technique used to push updates to a web client. A connection is held open between the web client and the web server so that when the server has new information it can push it to the client. That connection is then closed. A new connection is then established between the client and the server and then wait for another update from the server.</p>
 
 <p><a name="http-streaming"></a></p>
 
-<h2>HTTP Streaming</h2>
+<h2 id="http-streaming"><a href="#http-streaming">HTTP Streaming</a></h2>
 
 <p><strong>HTTP Streaming</strong> is a technique used to push updates to a web client. A persistent connection is held open between the web client and the web server so that when the server has new information it can push it to the client. This is a truly persistent connection that will only drop due to network problems or through user action e.g. navigating away from a web page or the application is closed.</p>
 
 <p><a name="websockets"></a></p>
 
-<h2>WebSockets</h2>
+<h2 id="websockets"><a href="#websockets">WebSockets</a></h2>
 
 <p><strong>WebSocket</strong> is a specification that allows realtime bi-directional full-duplex communication between a web client and a web server over a single TCP connection. It represents a solution to older Comet <em>hacks</em> that have been used for over 10 years in order to simulate this type of communication.</p>
 
@@ -117,7 +123,7 @@
 
 <p><a name="server-sent-events"></a></p>
 
-<h2>Server Sent Events (EventSource API)</h2>
+<h2 id="server-sent-events-(eventsource-api)"><a href="#server-sent-events-(eventsource-api)">Server Sent Events (EventSource API)</a></h2>
 
 <p><strong>Server-Sent Events</strong> is a technology for providing uni-directional communication between a web server and web clients in the form of DOM (Document Object Model) events.</p>
 
@@ -160,7 +166,7 @@
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -169,7 +175,7 @@
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

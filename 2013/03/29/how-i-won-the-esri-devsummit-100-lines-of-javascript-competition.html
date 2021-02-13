@@ -4,6 +4,12 @@
 	
 	<title>How I won the ESRI DevSummit 100 lines of JavaScript competition - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="How I won the ESRI DevSummit 100 lines of JavaScript competition - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2013/03/29/how-i-won-the-esri-devsummit-100-lines-of-javascript-competition.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="First I'd like to emphasise that this is a blog post on how and not why. The why comes down to the judges. So, thanks Judges! Secondly I'd like to thank Rob Dunfey for the idea and for providing additional motivation - I'll dig deeper into this later. Finally: what am I going to cover? As the title suggests, I want to cover the how.
@@ -103,7 +109,7 @@
 <li><em>Where next?</em></li>
 </ol>
 
-<h3>The Idea</h3>
+<h3 id="the-idea"><a href="#the-idea">The Idea</a></h3>
 
 <p class="alignright size-full"><img src="/wp-content/uploads/2013/03/robs-brain-287x300.jpg" alt="Rob&#039;s Brain" width="287" height="300" class="size-medium wp-image-23711" /><br />Rob's Brain</p>
 
@@ -113,7 +119,7 @@
 
 <p>So, two weeks ago Rob got in touch with me - <em>not to discuss his impending wedding on Monday</em> - but to tell me about the <a href="https://github.com/Esri/100-lines-or-less-js">100 Lines or Less ArcGIS JavaScript Code Challenge</a>!</p>
 
-<h3>Solving Real Problem</h3>
+<h3 id="solving-real-problem"><a href="#solving-real-problem">Solving Real Problem</a></h3>
 
 <p>Rob said:</p>
 
@@ -127,7 +133,7 @@
 
 <p><strong>Could this be done in 100 lines of JavaScript or less?</strong> Yes.</p>
 
-<h3>The Motivation</h3>
+<h3 id="the-motivation"><a href="#the-motivation">The Motivation</a></h3>
 
 <p><img src="/wp-content/uploads/2013/03/2-person-collaboration-300x286.jpg" alt="2-person-collaboration" width="300" height="286" class="alignright size-medium wp-image-23737" /></p>
 
@@ -139,7 +145,7 @@
 
 <p>Finally, I've been working with realtime web technologies for over 10 years now and I saw this as a great opportunity to <strong>demonstrate the power of realtime web technologies</strong>. And to demonstrate that <strong>using realtime web technologies is really easy</strong>.</p>
 
-<h3>A Developer's Toolbox?</h3>
+<h3 id="a-developer's-toolbox?"><a href="#a-developer's-toolbox?">A Developer's Toolbox?</a></h3>
 
 <p><a href="/wp-content/uploads/2013/03/toolbox3.jpg"><img src="/wp-content/uploads/2013/03/toolbox3-262x300.jpg" alt="Developer&#039;s Toolbox" width="262" height="300" class="alignright size-medium wp-image-23710" /></a></p>
 
@@ -160,7 +166,7 @@
 
 <p>Hosted services - which offer APIs - actually combine productivity tools, application runtimes &amp; frameworks and the functionality offered by 3rd party libraries. This makes them amazingly powerful and, I'd argue, are becoming the most important tools in a developer toolbox.</p>
 
-<h3>My Developer Toolbox - How the Realtime Collaborative Mapping app was built</h3>
+<h3 id="my-developer-toolbox---how-the-realtime-collaborative-mapping-app-was-built"><a href="#my-developer-toolbox---how-the-realtime-collaborative-mapping-app-was-built">My Developer Toolbox - How the Realtime Collaborative Mapping app was built</a></h3>
 
 <p><img src="/wp-content/uploads/2013/03/realtime-global-collaboration1.jpg" alt="Realtime Global Collaboration" width="1000" height="714" class="alignright size-full wp-image-23709" /></p>
 
@@ -176,7 +182,7 @@
 
 <p>I chose these tools because the application was to be built using front-end web technologies with a heavy focus on JavaScript.</p>
 
-<h4>ArcGIS API for JavaScript</h4>
+<h4 id="arcgis-api-for-javascript"><a href="#arcgis-api-for-javascript">ArcGIS API for JavaScript</a></h4>
 
 <p>My usage of the ArcGIS API for JavaScript was really simple:</p>
 
@@ -186,7 +192,7 @@
 <li><a href="https://github.com/Esri/100-lines-or-less-js/blob/master/realtime-collaborative-mapping/js/ArcGIS.js#L69">Add a graphic</a> too the map when the user draws one and <a href="https://github.com/Esri/100-lines-or-less-js/blob/master/realtime-collaborative-mapping/js/ArcGIS.js#L81">remove a graphic</a> when required too</li>
 </ul>
 
-<h4>Angular JS</h4>
+<h4 id="angular-js"><a href="#angular-js">Angular JS</a></h4>
 
 <p>The <a href="https://github.com/Esri/100-lines-or-less-js/blob/master/realtime-collaborative-mapping/js/ArcGIS.js#L6">routing part</a> was really simple. I needed:</p>
 
@@ -203,7 +209,7 @@
 <li>The <a href="https://github.com/Esri/100-lines-or-less-js/blob/master/realtime-collaborative-mapping/js/ArcGIS.js#L31">type of drawing</a> that the user had selected in the <a href="https://github.com/Esri/100-lines-or-less-js/blob/master/realtime-collaborative-mapping/views/map.html#L2-L39">toolbar view</a>.</li>
 </ul>
 
-<h4>Firebase</h4>
+<h4 id="firebase"><a href="#firebase">Firebase</a></h4>
 
 <p>My use of Firebase goes to show just how easy it is to add realtime functionality to web applications using a realtime web hosted service. I used Firebase to persist and share the graphics data between all users who were viewing the same map.</p>
 
@@ -216,7 +222,7 @@
 
 <p>I've supplied quite a bit of detail here. But this all actually only equates to the code using the Firebase object 5 times. Wow! <strong>5 lines of code to convert a web application into a realtime collaborative web app</strong> - realtime web technology really is powerful!</p>
 
-<h3>What has been achieved?</h3>
+<h3 id="what-has-been-achieved?"><a href="#what-has-been-achieved?">What has been achieved?</a></h3>
 
 <p>Ok, I've won the competition - which is awesome! Thanks, ESRI. What I'm also hoping has been achieved is that by creating the application and writing this is blog post I've demonstrated:</p>
 
@@ -227,7 +233,7 @@
 <li>Finally - something I'm really excited about - is how it's now easier than ever to use a <strong>fusion of technologies to create very powerful applications on the web</strong>. The Google Maps API launched in 2005 (whilst I was at ESRI) and if the ArcGIS API for JavaScript had been about who knows what I'd be doing now. I'm not a GIS developer, but I understand the power of GIS so I can't wait to see GIS appear in more applications. See <a href="http://tweetmap.it/">TweetMap</a> and <a href="http://rawkes.com/articles/vizicities-dev-diary-1">ViziCities</a> as some exciting examples.</li>
 </ol>
 
-<h3>Where next?</h3>
+<h3 id="where-next?"><a href="#where-next?">Where next?</a></h3>
 
 <p>I'd really like some feedback on the application. I'd also like people to <a href="https://github.com/Esri/100-lines-or-less-js">fork the application</a> and go beyond the 100 lines of JavaScript (it is a bit messy) and change it into a real application - <strong>it does have real potential</strong>.</p>
 
@@ -301,7 +307,7 @@ var disqus_identifier = '23703 https://www.leggetter.co.uk/?page_id=23703';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -310,7 +316,7 @@ var disqus_identifier = '23703 https://www.leggetter.co.uk/?page_id=23703';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

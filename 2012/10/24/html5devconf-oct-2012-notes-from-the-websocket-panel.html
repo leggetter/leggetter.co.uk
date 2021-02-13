@@ -4,6 +4,12 @@
 	
 	<title>HTML5DevConf - Oct 2012: Notes from the WebSocket panel - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="HTML5DevConf - Oct 2012: Notes from the WebSocket panel - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2012/10/24/html5devconf-oct-2012-notes-from-the-websocket-panel.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="On October 16th 2012 I sat on a HTML5DevConf WebSocket panel along with Ilya Grigorik from Google, Matt DeBergalis from Meteor and Peter Moskovits from Kaazing - the panel was chaired by Frank Greco, also of Kaazing.
@@ -93,7 +99,7 @@
 
 <p>Here are the notes, in a pretty raw format, from the event. A more curated write-up can be found on the <a href="http://blog.pusher.com/2012/10/22/a-realtime-focus-at-html5devconf">Pusher blog</a>.</p>
 
-<h2>Where does WS affect current web infrastructure the most?</h2>
+<h2 id="where-does-ws-affect-current-web-infrastructure-the-most?"><a href="#where-does-ws-affect-current-web-infrastructure-the-most?">Where does WS affect current web infrastructure the most?</a></h2>
 
 <ul>
 <li>The potential for many more persistent connection to be held open.</li>
@@ -107,15 +113,20 @@
 
 <p></li>
 </ul>
-<h2>Why use WS when HTTP2.0/SPDY is soon pervasive?</h2>
+<h2 id="why-use-ws-when-http2.0/spdy-is-soon-pervasive?"><a href="#why-use-ws-when-http2.0/spdy-is-soon-pervasive?">Why use WS when HTTP2.0/SPDY is soon pervasive?</a></h2>
 <p>HTML5 represents a move to empower developers with the tools required to build rich interactive applications in the web browser. HTML5 WebSockets are a core element in enabling that interactive functionality. For me, WebSockets are a tool for developers - they&#39;re an API. SPDY is a protocol for the web browser to improve the efficiency of web content distribution.</p>
-<h2>What&#39;s the real advantage of WS to web servers (and app servers)?</h2>
+
+<h2 id="what&#39;s-the-real-advantage-of-ws-to-web-servers-(and-app-servers)?"><a href="#what&#39;s-the-real-advantage-of-ws-to-web-servers-(and-app-servers)?">What&#39;s the real advantage of WS to web servers (and app servers)?</a></h2>
+
 <ul>
 <li>Bi-direction communication is they key benefit; instant interaction between client and server.</li>
 <li>For apps that have been &#39;faking&#39; realtime bi-directional functionality using Comet they can now do this in a standardised, and more efficient, way.</li>
 </ul>
-<h2>What new types of applications does WS unlock?</h2>
+
+<h2 id="what-new-types-of-applications-does-ws-unlock?"><a href="#what-new-types-of-applications-does-ws-unlock?">What new types of applications does WS unlock?</a></h2>
+
 <p>It makes applications that we&#39;ve previously been hacking more easily achievable:</p>
+
 <ul>
 <li>Instant notifications of activity about things we are interested in. IT&#39;S NOT JUST ABOUT PUSH NOTIFICATIONS. These notifications can then be used to kick-off more interactive experiences. That&#39;s where WebSockets really stand out.</li>
 <li>Live content
@@ -126,7 +137,8 @@
 <li>Realtime social feeds/activity streams</li>
 <li>But these can be achieved using EventSource/SSE</li>
 </ul>
-</li>
+
+<p></li>
 <li>Interactive experiences
 <ul>
 <li>Realtime communication with colleagues and customers</li>
@@ -141,25 +153,25 @@
 <li>If you merge all this together - live content from different sources, interactive functionality between users, systems and devices, there&#39;s really very little limit to what can be achieved other than our imagination. This is why I think Creative Technologists are having a lot of fun with this technology - they are pushing the boundaries.</li>
 <li>In terms of application types in browsers - WebSockets most definitely fit the move to Single Page Applications (SPAs).</li>
 </ul>
-<h2>Doesn&#39;t WS present new types of security issues?</h2>
+<h2 id="doesn&#39;t-ws-present-new-types-of-security-issues?"><a href="#doesn&#39;t-ws-present-new-types-of-security-issues?">Doesn&#39;t WS present new types of security issues?</a></h2>
 <ul>
 <li>The protocol deals with security considerations. It&#39;s then up to the runtime to ensure that an application doesn&#39;t do anything naughty - that&#39;s no different from any other technology.</li>
 </ul>
-<h2>Why isn&#39;t WS just a slightly better Comet?</h2>
+<h2 id="why-isn&#39;t-ws-just-a-slightly-better-comet?"><a href="#why-isn&#39;t-ws-just-a-slightly-better-comet?">Why isn&#39;t WS just a slightly better Comet?</a></h2>
 <ul>
 <li>WebSockets are a technology answering the need for realtime bi-directional communication that was previously answered by Comet solutions - there&#39;s no escaping that. But a lot of the HTML5 features are things that let us achieve things we were previously having to jump through hoops to achieve.</li>
 <li>It&#39;s standardised so the functionality works the same way cross browser</li>
 <li>It&#39;s not restricted to browsers (nor was Comet) so it means we have a standardised way of achieveing realtime bi-directional communication on the web.</li>
 <li>WebSockets work over a single connection so it&#39;s much more efficient that comet solutions which required two connections for bi-directional communication.</li>
 </ul>
-<h2>Why is WS important for cloud services and apps?</h2>
+<h2 id="why-is-ws-important-for-cloud-services-and-apps?"><a href="#why-is-ws-important-for-cloud-services-and-apps?">Why is WS important for cloud services and apps?</a></h2>
 <ul>
 <li>The fundamental reason why WebSockets are important is they are a core component in a move to make the web an interactive communication platform. HTML5 gives us a set of tools that let developers build much richer experiences than we could previously but without a realtime interactive aspect we would just be creating static RIAs.</li>
 </ul>
-<h2>Where are we going next?</h2>
+<h2 id="where-are-we-going-next?"><a href="#where-are-we-going-next?">Where are we going next?</a></h2>
 <ul>
 <li>WebSockets are not just a browser technology. As I said before, I believe they are a key component for realtime communication on the Web between any client and any server. The Web is now a communication platform and realtime is a massive part of that. There are so many areas where realtime communcation saves time, money, increases user experiences, improves engagment and offers great opportunity that we&#39;ve only just scatched the surface of the possibilities.</li>
-</ul></p>
+</ul></p></p>
 
 </div>
 
@@ -222,7 +234,7 @@ var disqus_identifier = '23505 https://www.leggetter.co.uk/?page_id=23505';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -231,7 +243,7 @@ var disqus_identifier = '23505 https://www.leggetter.co.uk/?page_id=23505';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

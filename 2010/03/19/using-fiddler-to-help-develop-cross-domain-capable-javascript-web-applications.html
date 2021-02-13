@@ -4,6 +4,12 @@
 	
 	<title>Using Fiddler to help develop cross domain capable JavaScript web applications - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Using Fiddler to help develop cross domain capable JavaScript web applications - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2010/03/19/using-fiddler-to-help-develop-cross-domain-capable-javascript-web-applications.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="This post is going to be short and sweet. &ldquo;Short&rdquo; because Fiddler makes working around this problem so simple. And &ldquo;Sweet&rdquo; because I think this is really powerful and will allow you to develop applications that show why cross domain access, in some situations, should be allowed. In my last..." />
@@ -100,12 +106,15 @@ All you need to do is add a new custom rule. You can do this via the menu option
 </div>
 
 <p>This will bring up a JScript.NET file (if you don’t like the thought of JScript you can just pretend it’s JavaScript) called <em>CustomRules.js</em>. In that file you will see a number of functions/methods that are called at certain points during an HTTP request or response. The method we are interested in is called <code>OnBeforeResponse</code> and what we want to do is to add the <em>Access-Control-Allow-Origin</em> header to trick the browser/scripting engine into thinking that the resource we are requesting allows the cross domain request.</p>
+
 <figure class="highlight"><pre><code class="language-js" data-lang="js">static function OnBeforeResponse(oSession: Session)
 {
     oSession.oResponse.headers.Add(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;);
 }
 </code></pre></figure>
+
 <p>The code above will add this header to all HTTP responses. You can of course add an <code>if</code> statement so that the header is only added when a particular condition is matched, such as a responses from <a href="/">https://www.leggetter.co.uk</a>.</p>
+
 <figure class="highlight"><pre><code class="language-js" data-lang="js">static function OnBeforeResponse(oSession: Session)
 {
     if (oSession.HostNameIs(&quot;www.leggetter.co.uk&quot;))
@@ -114,11 +123,13 @@ All you need to do is add a new custom rule. You can do this via the menu option
     }
 }
 </code></pre></figure>
+
 <p><small>The code snippet above has not been tested</small></p>
 
 <p>Once you have added your code to the <code>OnBeforeResponse</code> method you can save and close the CustomRules.js file. Fiddler will detect that this file has been modified and compile it in the background so that it can use the new code with each request and response that it processes.</p>
 
 <p>The next time that Fiddler is processing an HTTP response it will call this method, your code will run, and the <em>Access-Control-Allow-Origin</em> HTTP header added to the response.</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200 OK
 Connection: close
 Date: Fri, 19 Mar 2010 11:04:51 GMT
@@ -129,6 +140,7 @@ Cache-Control: no-cache
 Pragma: no-cache
 Access-Control-Allow-Origin: *
 </code></pre></figure>
+
 <p>For more information on custom rules and generally developing using Fidder see their <a href="http://www.fiddler2.com/Fiddler/dev/">Developer Info section</a>.</p>
 
 </div>
@@ -192,7 +204,7 @@ var disqus_identifier = '758 https://www.leggetter.co.uk/?page_id=758';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -201,7 +213,7 @@ var disqus_identifier = '758 https://www.leggetter.co.uk/?page_id=758';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

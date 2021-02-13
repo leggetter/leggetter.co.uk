@@ -4,6 +4,12 @@
 	
 	<title>How to Describe, Publish & Consume Real-Time Data - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="How to Describe, Publish & Consume Real-Time Data - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="In this final post in the real-time data series we’ll cover the how: how to describe, publish & consume real-time data from your systems and expose the data so that you can build real-time features. The main steps we’re going to cover are doing Analysing & Processing, Describing the data, Publishing the data and finally Consuming and Using that data within and app." />
@@ -99,7 +105,7 @@
 <li>  Consume and Use</li>
 </ul>
 
-<h2>Analysing &amp; Processing Real-Time Data</h2>
+<h2 id="analysing-&amp;-processing-real-time-data"><a href="#analysing-&amp;-processing-real-time-data">Analysing &amp; Processing Real-Time Data</a></h2>
 
 <p>The amount of analysis and processing of your data that is required really depends on whether the data is already in a form that you can instantly use. If it’s very <strong>simple data</strong> and you have everything you need then you can instantly share it to be used within apps. If it’s <strong>complex data</strong> or requires some additional analysis then you need to do that work before you share it.</p>
 
@@ -107,18 +113,21 @@
 
 <p>Here’s one approach to doing this correctly.</p>
 
-<h3>Example: Using RethinkDB</h3>
+<h3 id="example:-using-rethinkdb"><a href="#example:-using-rethinkdb">Example: Using RethinkDB</a></h3>
 
 <p><a href="http://rethinkdb.com/">RethinkDB</a> is an open source database built for the real-time web. The reason it’s such a good fit is due to a feature called <a href="https://rethinkdb.com/docs/changefeeds/">changefeeds</a>. In the following example, where <code>r</code> is the RethinkDB reference, we first update the number of <code>points</code> that a player has:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&quot;players&quot;)
   .get(playerId)
   .update({points: newPoints})
   .run(conn, callback);
 
 </code></pre></figure>
+
 <p>We have <code>playerId</code> to identify a player to update and we’re updating the <code>points</code> value to be <code>newPoints</code>.</p>
 
 <p>Elsewhere in code (another file or even another process entirely) we could have the following:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
   .orderBy(index=r.desc(&#39;points&#39;))
   .limit(5)
@@ -126,11 +135,12 @@
   .then(top5pointsUpdated);
 
 </code></pre></figure>
+
 <p>We’re querying the <code>players</code> table, ordering the result <code>desc</code>ending by points and limiting the number of results by <code>5</code>. There’s nothing particularly different in this approach to any other database (other than maybe the ReQL syntax). The interesting bit is that the <code>top5pointsUpdated</code> function passed to <code>then</code> is called any time that the query result changes. That’s because we’ve identified this query as a changefeed through the use of <code>changes()</code>. So, any time the <code>update</code> code we covered earlier is executed the <code>top5pointsUpdated</code> function will be called.</p>
 
 <p>In a more traditional database these could be considered <a href="https://en.wikipedia.org/wiki/Database_trigger">triggers</a>. The main things are that it’s <em>evented</em> and that it nicely separates the updating code from the changefeed (trigger) handling code. The asynchronous nature of this code allows it to be executed outside of the incoming event thread/context or in a different process. This is just one example and there may be other solutions allow you to achieve similar functionality.</p>
 
-<h2>Describing Real-Time Data</h2>
+<h2 id="describing-real-time-data"><a href="#describing-real-time-data">Describing Real-Time Data</a></h2>
 
 <p>Systems, applications, and developers building real-time applications and features need a way of registering their interest in data. One of the simplest and most commonly used approaches to this is provide a name or identifier for the data that can be used when registering interest. Publish-Subscribe fits very well here, where data is identified by a <code>channel</code>, <code>topic</code> or <code>subject</code>.</p>
 
@@ -149,11 +159,12 @@
 
 <p>For more complex data it’s probably best to name the channel based on the analysis or query that’s taking place. In the RethinkDB example we covered earlier we were creating a query representing the top 5 players in a game. So, a channel named <code>top-5-players</code> would be a good channel name and <code>updated</code> may be an appropriate event name.</p>
 
-<h2>Publishing Real-Time Data</h2>
+<h2 id="publishing-real-time-data"><a href="#publishing-real-time-data">Publishing Real-Time Data</a></h2>
 
 <p>Once you’ve described your data you need a mechanism for distributing that data to interested parties (we’ll cover how those parties register their interest in the next section).</p>
 
 <p>In the following example using the <a href="https://github.com/dresende/node-orm2">node-orm2</a> ORM package and the Socket.IO we’ll see how this can be achieved for a simple data change:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">Activity.create(
   {text: &quot;Phil is talking&quot;},
   function(err, activity) {
@@ -163,7 +174,9 @@
   });
 
 </code></pre></figure>
+
 <p>In this code a new activity has been created so we’ve triggered an event called <code>created</code> on the <code>activities</code> namespace passing the newly created <code>activity</code> as the event data payload.</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">Activity.get(activityId, function (err, activity) {
   activity.text = &quot;Phil is still talking&quot;;
   activity.save(function (err) {
@@ -172,9 +185,11 @@
 });
 
 </code></pre></figure>
+
 <p>The code above shows that updating is simply a matter of changing the event name to <code>updated</code>. You can work out how <code>deleted</code> and any other event could easily be represented in code and communicated.</p>
 
 <p>For the RethinkDB, more complex example we looked at earlier, the code would look as follows:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
   .orderBy(index=r.desc(&#39;points&#39;))
   .limit(5)
@@ -190,6 +205,7 @@ function top5pointsUpdated(cursor) {
 });
 
 </code></pre></figure>
+
 <p><em>Note: In the above code we know the function passed to <code>cursor.each</code> called synchronously</em></p>
 
 <p>In the above code we’ve implemented the <code>top5pointsUpdated</code> function. It loops over the updated result, adds those results to an array and triggers and event via Socket.IO. The name of the channel is <code>top-5-players</code>, since that’s the query being made and clearly identifies what the data is. The name of the event is <code>updated</code> since the result value has been updated.</p>
@@ -198,9 +214,10 @@ function top5pointsUpdated(cursor) {
 
 <p>For completeness, here are some of the examples of publishing data for the other scenarios that were mentioned in the <a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">discovering real-time data</a> blog post.</p>
 
-<h3>Web Endpoints</h3>
+<h3 id="web-endpoints"><a href="#web-endpoints">Web Endpoints</a></h3>
 
 <p>In this example using the <a href="https://socket.io">Socket.IO</a> the code triggers an event any time the <code>/interact</code> web endpoint is accessed. It then triggers an event on the <code>endpoints</code> channel with an event name of <code>new_interactions</code>. The event data is the parameters that are used when accessing the endpoint.</p>
+
 <figure class="highlight"><pre><code class="language-js" data-lang="js">app.post(&#39;/interact&#39;, function (req, res) {
   io.of(&#39;/endpoints&#39;,
         &#39;new_interaction&#39;,
@@ -212,17 +229,21 @@ function top5pointsUpdated(cursor) {
   res.status(200)
 })
 </code></pre></figure>
+
 <p>You could create some middleware that intercepts web requests and instead share the endpoint that was interacted with along with the HTTP parameters as the event data. Using this you could build a real-time analytics dashboard.</p>
 
-<h3>Requests &amp; Responses</h3>
+<h3 id="requests-&amp;-responses"><a href="#requests-&amp;-responses">Requests &amp; Responses</a></h3>
 
 <p>Setting up a request:</p>
+
 <figure class="highlight"><pre><code class="language-js" data-lang="js">var request = require(&#39;request&#39;);
 var url = &#39;http://www.google.com&#39;;
 io.of(&#39;web-request&#39;).emit(&#39;outgoing&#39;, {url: url});
 
 </code></pre></figure>
+
 <p>Making the request, handling the response and sharing the data:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">request(url, function (error, response, body) {
   if(error) {
     io.of(&#39;/web-request&#39;).emit(&#39;incoming-error&#39;, {url: url, error: error});
@@ -232,11 +253,13 @@ io.of(&#39;web-request&#39;).emit(&#39;outgoing&#39;, {url: url});
 });
 
 </code></pre></figure>
+
 <p>This example may be useful for some kind of real-time analytics, but could also be useful if you wanted to make a call to a process to kick-off the request and then let you real-time framework – Socket.IO in this case – inform you when the result is ready (background process completion notifications). In the code above we’ve used the event names, <code>incoming-error</code> or <code>incoming-error</code>, to identify if the request was successful or not. This separation also makes it clear that the event data we get for each will be different.</p>
 
-<h3>Logging</h3>
+<h3 id="logging"><a href="#logging">Logging</a></h3>
 
 <p>Logging for custom system analytics:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
 function log(level, data) {
   winston.log(level, data);
@@ -245,20 +268,24 @@ function log(level, data) {
 log(&#39;info&#39;, {&#39;some&#39;: &#39;data&#39; });
 
 </code></pre></figure>
+
 <p>This example just uses a <code>log</code> function wrapper to both log using <a href="https://github.com/winstonjs/winston">Winston</a> and also emit an event via Socket.IO. In real life you may instead create a <code>realtime-log-listener</code> and configure your logging to use that. In this example the channel is hard-coded to <code>logging</code> and the event name is the log level. But it could be that using the level as the channel name (e.g. <code>logging-{level}</code>) may be a nicer approach to partition the data.</p>
 
-<h2>Consuming &amp; Using Real-Time Data</h2>
+<h2 id="consuming-&amp;-using-real-time-data"><a href="#consuming-&amp;-using-real-time-data">Consuming &amp; Using Real-Time Data</a></h2>
 
 <p>Now that it’s clear how the data is published, how do you go about consuming that data within an application? Well, we’ve covered how we identify and describe the data earlier so we use that mechanism for consuming the data. Again, we’ll show an Evented Publish-Subscribe example using Socket.IO.</p>
 
 <p>First, let’s take a look at the code for publishing the data from the server:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">var activities = io.of(&#39;/activities&#39;)
 activities.emit(&#39;created&#39;, activity);
 activities.emit(&#39;updated&#39;, activity);
 activities.emit(&#39;deleted&#39;, activity);
 
 </code></pre></figure>
+
 <p>The corresponding code uses the <a href="https://socket.io">Socket.IO</a> in the client (the consumer) to identify the data (using namespaces) and then register interest in what’s happening to the data (using events):</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">var activities = io(&#39;/activities&#39;);
 
 activities.bind(&#39;created&#39;, function(activity) {
@@ -274,11 +301,12 @@ activities.bind(&#39;deleted&#39;, function(activity) {
 });
 
 </code></pre></figure>
+
 <p>First we reference to the <code>activities</code> namespace using <code>io(&#39;/activities&#39;)</code> and then we bind to each event we’re interested in (<code>created</code>, <code>updated</code> and <code>deleted</code>). In each case we have as separate callback to handle each of those events which nicely separates our code into functional blocks.</p>
 
 <p>The code really speaks for itself due to its simplicity. Although the activities example is used here I’m sure you can see how it maps to the web endpoints, requests/responses and logging examples that have been shown earlier.</p>
 
-<h2>Conclusion</h2>
+<h2 id="conclusion"><a href="#conclusion">Conclusion</a></h2>
 
 <p>This post has discussed whether you need to analyse and process your real-time data and where you should do that. We’ve then looked at the importance of describing your data and how you can do that. Finally we’ve provided examples of publishing and then consuming your real-time data. From there it’s really up to you to start adding the real-time features – that were covered in the <a href="https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html">real-time features and use cases</a> post – to your applications.</p>
 
@@ -351,7 +379,7 @@ var disqus_identifier = '/2017/05/25/describe-publish-consume-realtime-data.html
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -360,7 +388,7 @@ var disqus_identifier = '/2017/05/25/describe-publish-consume-realtime-data.html
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

@@ -4,6 +4,12 @@
 	
 	<title>Windows Azure - 503 Service Unavailable - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Windows Azure - 503 Service Unavailable - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2009/08/28/windows-azure-503-service-unavailable.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="I finally got around to trying out ASP.NET MVC and while I was at it I thought I'd also give Windows Azure a whirl. Windows Azure doesn't support ASP.NET MVC out of the box but Jim over on MSDN Blogs has written up the details of how to get ASP.Net MVC Projects running on Windows Azure.
@@ -127,7 +133,7 @@ If you happen to get network timeouts or 404 network connection issues it's wort
 <div class="post">
 <p>I finally got around to trying out ASP.NET MVC and while I was at it I thought I'd also give Windows Azure a whirl. Windows Azure doesn't support ASP.NET MVC out of the box but Jim over on MSDN Blogs has written up the details of how to get <a href="http://blogs.msdn.com/jnak/archive/2008/10/28/asp-net-mvc-projects-running-on-windows-azure.aspx">ASP.Net MVC Projects running on Windows Azure</a>.</p>
 
-<h3>Problem</h3>
+<h3 id="problem"><a href="#problem">Problem</a></h3>
 
 <p>So, I followed the instruction from the blog and uploaded the package and configuration file, waited for the staging application to get into a runnable state, and clicked on the staging link...</p>
 
@@ -137,7 +143,7 @@ If you happen to get network timeouts or 404 network connection issues it's wort
 
 <p>I tried googling for this error but there was nothing about this problem after deploying to the real Windows Azure hosting (the cloud). As far as I can tell there's no way of getting any debug information or logs to work out what's going wrong. Maybe this is something that Microsoft will add later on?</p>
 
-<h3>Solution</h3>
+<h3 id="solution"><a href="#solution">Solution</a></h3>
 
 <p>Then it struck me that I hadn't actually set up any kind of TableStorage on my Windows Azure hosting so I removed all mentions of storage and database connections from the MVC application. This included editing Web.config and removing the following.</p>
 
@@ -224,7 +230,7 @@ var disqus_identifier = '271 https://www.leggetter.co.uk/?page_id=271';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -233,7 +239,7 @@ var disqus_identifier = '271 https://www.leggetter.co.uk/?page_id=271';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

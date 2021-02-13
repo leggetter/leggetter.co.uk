@@ -4,6 +4,12 @@
 	
 	<title>Making cross domain JavaScript requests using XMLHttpRequest or XDomainRequest - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Making cross domain JavaScript requests using XMLHttpRequest or XDomainRequest - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2010/03/12/making-cross-domain-javascript-requests-using-xmlhttprequest-or-xdomainrequest.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="Cross domain requests (also known as Cross Origin Resource Sharing) can be made using JavaScript without trickery, as far as I can tell, in Firefox 3.5, Safari, Google Chrome and Internet Explorer 8. This is done with all browsers except IE8 using a standard XMLHttpRequest object. The only thing required to notify the browser that JavaScript is allowed to make this request is for the server to send a Access-Control-Allow-Origin response header. Internet Explorer 8 uses an object called XDomainRequest and requires the same HTTP header. If the value of the header is * then requests are allowed from all domains. You can be more restrictive if required.
@@ -92,7 +98,7 @@
 <p>Cross domain requests (also known as <a href="http://www.w3.org/TR/access-control/">Cross Origin Resource Sharing</a>) can be made using JavaScript without trickery, as far as I can tell, in <strong>Firefox 3.5</strong>, <strong>Safari</strong>,<strong> Google Chrome</strong> and <strong>Internet Explorer 8</strong>. This is done with all browsers except IE8 using a standard <a href="http://www.w3.org/TR/XMLHttpRequest/">XMLHttpRequest</a> object. The only thing required to notify the browser that JavaScript is allowed to make this request is for the server to send a <a href="http://www.w3.org/TR/2008/WD-access-control-20080912/#access-control-allow-origin">Access-Control-Allow-Origin</a> response header. Internet Explorer 8 uses an object called <a href="http://msdn.microsoft.com/en-us/library/cc288060(VS.85).aspx">XDomainRequest</a> and requires the same HTTP header. If the value of the header is * then requests are allowed from all domains. You can be more restrictive if required.<br />
 <a id="more"></a><a id="more-741"></a><br />
 I took the code that I'll use below from this <a href="http://arunranga.com/examples/access-control/">CORS in action page</a> but I couldn't find the code required to make this work in Internet Explorer so I've had to modify things a bit.</p>
-<h2>See it in action</h2>
+<h2 id="see-it-in-action"><a href="#see-it-in-action">See it in action</a></h2>
 
 <script type="text/javascript" src="/js/xss/simple.js"></script>
 <form id="controlsToInvoke" action="">
@@ -105,7 +111,8 @@ I took the code that I'll use below from this <a href="http://arunranga.com/exam
   The information below (when it appears) has been fetched using cross-site XHR.
 </div></p>
 
-<h2>The code</h2>
+<h2 id="the-code"><a href="#the-code">The code</a></h2>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">&lt;script&gt;
   var isIE8 = window.XDomainRequest ? true : false;
   var invocation = createCrossDomainRequest();
@@ -169,13 +176,16 @@ I took the code that I'll use below from this <a href="http://arunranga.com/exam
     The information below (when it appears) has been fetched using cross-site XHR.
 &lt;/div&gt;
 </code></pre></figure>
+
 <p>And this is the code on the server</p>
+
 <figure class="highlight"><pre><code class="language-php" data-lang="php">&lt;?php
   header(&#39;Content-type: text/html&#39;);
   header(&#39;Access-Control-Allow-Origin: *&#39;);
   $uri = &#39;http&#39;. ($_SERVER[&#39;HTTPS&#39;] ? &#39;s&#39; : null) .&#39;://&#39;. $_SERVER[&#39;HTTP_HOST&#39;] . $_SERVER[&#39;REQUEST_URI&#39;];
   echo(&#39;&lt;p&gt;This information has come from &lt;a href=&quot;&#39; . $uri . &#39;&quot;&gt;&#39; . $uri . &#39;&lt;/a&gt;&lt;/p&gt;&#39;);
 </code></pre></figure>
+
 </div>
 
 <hr />
@@ -237,7 +247,7 @@ var disqus_identifier = '741 https://www.leggetter.co.uk/?page_id=741';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -246,7 +256,7 @@ var disqus_identifier = '741 https://www.leggetter.co.uk/?page_id=741';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

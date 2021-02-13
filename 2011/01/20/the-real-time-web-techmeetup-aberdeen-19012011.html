@@ -4,6 +4,12 @@
 	
 	<title>The Real-Time Web: TechMeetup Aberdeen - 19/01/2011 - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="The Real-Time Web: TechMeetup Aberdeen - 19/01/2011 - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2011/01/20/the-real-time-web-techmeetup-aberdeen-19012011.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="I did my first ever TechMeetup talk yesterday in Aberdeen and my chosen subject, unsurprisingly, was The Real-Time Web. We started out discussing what real-time was, then what The Real-Time Web is and when receiving information in real-time mattered. I also went on to cover some of the key real-time web technologies including HTTP Streaming, PubSubHubbub and WebSockets and then on to real-time web services and platforms.
@@ -93,11 +99,11 @@
 
 <p>A big thanks to <a href="http://twitter.com/#!/aboynejames">@aboynejames</a> for suggesting I do the talk and <a href="http://www.abdn.ac.uk/~csc228/blog/">Bruce Scharlau</a> for inviting me along. I'd also like to thank everybody who attended and made me feel very welcome and certainly seemed interested.</p>
 
-<h3>Feedback</h3>
+<h3 id="feedback"><a href="#feedback">Feedback</a></h3>
 
 <p>If you where there then please leave a comment letting me know what you thought or just to let me know who you are. If you'd rather email you can get me using <a href="mailto:phil@leggetter.co.uk?subject=Aberdeen TechMeetup">phil@leggetter.co.uk</a>.</p>
 
-<h3>Video</h3>
+<h3 id="video"><a href="#video">Video</a></h3>
 
 <p>Here's a video of the first 10 minutes of the talk. Unfortunately the video recorder ran out of batteries.</p>
 
@@ -105,13 +111,13 @@
 <p><a href="http://vimeo.com/19060295">TM January 2011: Phil Leggetter - Real-Time Web</a> from <a href="http://vimeo.com/user2219054">Alan Gardner</a> on <a href="http://vimeo.com">Vimeo</a>.</p>
 </div>
 
-<h3>Presentation and Notes</h3>
+<h3 id="presentation-and-notes"><a href="#presentation-and-notes">Presentation and Notes</a></h3>
 
 <p><iframe src="https://docs.google.com/present/embed?id=dhf7xbgp_184gqqj6hhc&size=m" frameborder="0" width="555" height="451"></iframe></p>
 
 <p>Unfortunately I can't find a way of showing my slide notes in the above embeded Google Presentation so here they are in pretty rough form.</p>
 
-<h4>What is Real-Time?</h4>
+<h4 id="what-is-real-time?"><a href="#what-is-real-time?">What is Real-Time?</a></h4>
 
 <p>Respond or react within a predictable time after an event has occurred.</p>
 
@@ -122,7 +128,7 @@
 <p>Maybe we should really call it:<br />
 Right-Time</p>
 
-<h4>When does Real-Time matter?</h4>
+<h4 id="when-does-real-time-matter?"><a href="#when-does-real-time-matter?">When does Real-Time matter?</a></h4>
 
 <p><strong>When does NOW matter?</strong></p>
 
@@ -139,7 +145,7 @@ The 2Screen experience e.g. <a href="http://tellylinks.com">TellyLinks.com</a></
 <li><strong>Betting</strong>: You want to make sure you bet at the right odds and you don't want clients to be able to bed when the odds have changed.</li>
 </ul>
 
-<h4>Evolution of the Web</h4>
+<h4 id="evolution-of-the-web"><a href="#evolution-of-the-web">Evolution of the Web</a></h4>
 
 <p><strong>From Pull to Push</strong></p>
 
@@ -147,7 +153,7 @@ The 2Screen experience e.g. <a href="http://tellylinks.com">TellyLinks.com</a></
 
 <p>I'm also going to focus on HTTP but the mechanisms could be applied to standard TCP socket connections.</p>
 
-<h4>HTTP Pull (Request, Response)</h4>
+<h4 id="http-pull-(request,-response)"><a href="#http-pull-(request,-response)">HTTP Pull (Request, Response)</a></h4>
 
 <p>Note: client. This can be a web browser but doesn't have to be.</p>
 
@@ -155,7 +161,7 @@ The 2Screen experience e.g. <a href="http://tellylinks.com">TellyLinks.com</a></
 2) Event occurs on server there's no way of the server telling the browser.<br />
 3) e.g. chat pages where you would need to click the "Refresh" button to see what other users are saying </p>
 
-<h4>HTTP Polling</h4>
+<h4 id="http-polling"><a href="#http-polling">HTTP Polling</a></h4>
 
 <p>A user hitting F5 or clicking the refresh button is one manual example.</p>
 
@@ -171,7 +177,7 @@ The 2Screen experience e.g. <a href="http://tellylinks.com">TellyLinks.com</a></
 
 <p>For quite some time I've said if a service uses HTTP Polling when push technology is available and a much better option that <a href="http://itsnotrealtime.com">it's not real-time</a></p>
 
-<h4>HTTP Push</h4>
+<h4 id="http-push"><a href="#http-push">HTTP Push</a></h4>
 
 <p>In this diagram you could replace the Client with Server. The initialization could be classed as a subscription or webhook.</p>
 
@@ -245,7 +251,7 @@ var disqus_identifier = '5479 https://www.leggetter.co.uk/?page_id=5479';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -254,7 +260,7 @@ var disqus_identifier = '5479 https://www.leggetter.co.uk/?page_id=5479';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

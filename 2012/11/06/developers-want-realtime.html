@@ -4,6 +4,12 @@
 	
 	<title>Developers Want Realtime - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Developers Want Realtime - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2012/11/06/developers-want-realtime.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="I'm on the What Developers Want panel at the Business of APIs Conference London, arranged by Mashery. I'm also giving a lightening talk on my take on What Developers Want. Unsurprisingly I believe they wany the APIs to offer access to their data in Realtime. Here are the details." />
@@ -96,7 +102,7 @@
 
 <p>Unsurprisingly I believe they wany the APIs to offer access to their data in Realtime. Here are the details:</p>
 
-<h2>What Makes An API Awesome?</h2>
+<h2 id="what-makes-an-api-awesome?"><a href="#what-makes-an-api-awesome?">What Makes An API Awesome?</a></h2>
 
 <p>We now have a better idea than ever before what is required to offer an awesome API.</p>
 
@@ -109,7 +115,7 @@
 <li>We are <strong>building communities</strong> of <strong>heroes</strong> who champion our product</li>
 </ul>
 
-<h2>What more can we offer?</h2>
+<h2 id="what-more-can-we-offer?"><a href="#what-more-can-we-offer?">What more can we offer?</a></h2>
 
 <p><strong>Realtime!</strong> Let me explain:</p>
 
@@ -130,21 +136,21 @@
 
 <p>So, how can you push this information to your developers?</p>
 
-<h2>Realtime Web Technologies</h2>
+<h2 id="realtime-web-technologies"><a href="#realtime-web-technologies">Realtime Web Technologies</a></h2>
 
-<h3>The PubSub Paradigm</h3>
+<h3 id="the-pubsub-paradigm"><a href="#the-pubsub-paradigm">The PubSub Paradigm</a></h3>
 
 <p>In order to push information to developers you need to know that they are interested in that data. The <a href="http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern">Publish Subscriber pattern</a> makes this possible.</p>
 
-<h3>WebHooks</h3>
+<h3 id="webhooks"><a href="#webhooks">WebHooks</a></h3>
 
 <p><a href="http://en.wikipedia.org/wiki/Webhook">WebHooks</a> offer a way of instantly pushing information from one server to another via a simple HTTP call. Since you have a list of subscribers when you receive new information that matches a subscription or information that a developer is insterested in updates you can push it to a URL. Simple!</p>
 
-<h3>HTTP Streaming</h3>
+<h3 id="http-streaming"><a href="#http-streaming">HTTP Streaming</a></h3>
 
 <p>HTTP Streaming offers a way of holding a HTTP connection open so that your API can instantly push new information over that existing connection. This is probably an option if your data updates quite frequently.</p>
 
-<h3>WebSockets</h3>
+<h3 id="websockets"><a href="#websockets">WebSockets</a></h3>
 
 <p><a href="http://en.wikipedia.org/wiki/WebSockets">WebSockets</a> offer a way of maintaining a connection between a server and a client. This lets you instantly push information from the server to the client, but also lets the two instantly communicate in general. WebSockets are an amazing opportunity to API providers for a couple of reasons:</p>
 
@@ -153,37 +159,37 @@
 <li>From the point of view from a developer this means they don't need any infrastructure to deal with the delivery of this realtime data. You are providing that for them. This infrastructure can be very real benefit to the developer.</li>
 </ol>
 
-<h2>Realtime APIs - I Want Proof</h2>
+<h2 id="realtime-apis---i-want-proof"><a href="#realtime-apis---i-want-proof">Realtime APIs - I Want Proof</a></h2>
 
 <p>Here are just a few of the many companies who are successfully using Realtime Web Technologies as a core part of their API.</p>
 
-<h3>Pusher</h3>
+<h3 id="pusher"><a href="#pusher">Pusher</a></h3>
 
 <p><a href="http://pusher.com">Pusher</a> is a hosted WebSockets API so we're delivering this benefit to our customers every day. It's also possible to potentially use Pusher as your WebSockets API. Just a thought!</p>
 
-<h3>Twilio</h3>
+<h3 id="twilio"><a href="#twilio">Twilio</a></h3>
 
 <p>Twilio use WebHooks to let the developer know when an SMS is recieved on a phone number or when there is an incoming call. They also use WebSockets in the Twilio client.</p>
 
-<h3>SendGrid</h3>
+<h3 id="sendgrid"><a href="#sendgrid">SendGrid</a></h3>
 
 <p>SendGrid use WebHooks as part of their <a href="http://sendgrid.com/docs/API%20Reference/Webhooks/event.html">Event</a> &amp; <a href="http://sendgrid.com/docs/API%20Reference/Webhooks/parse.html">Parse</a> functionality.</p>
 
-<h3>DataSift</h3>
+<h3 id="datasift"><a href="#datasift">DataSift</a></h3>
 
 <p>DataSift offer a HTTP Streaming API so that they can instantly deliver new interactions which meet the criteria you've defined in your DataSift streams.</p>
 
-<h3>MailChimp</h3>
+<h3 id="mailchimp"><a href="#mailchimp">MailChimp</a></h3>
 
 <p>MailChimp offer <a href="http://apidocs.mailchimp.com/webhooks/">WebHooks</a> for a number of events within their system including new subscriptions, unsubscribes, profile changes, email address changes and more.</p>
 
-<h3>Twitter</h3>
+<h3 id="twitter"><a href="#twitter">Twitter</a></h3>
 
 <p>Twitter have a number of <a href="https://dev.twitter.com/docs/streaming-apis">HTTP Streaming API endpoints</a> so that the developer is instantly informed whenever a new tweet is found.</p>
 
 <p><strong>And many more…</strong></p>
 
-<h2>Realtime = More Awesome</h2>
+<h2 id="realtime-=-more-awesome"><a href="#realtime-=-more-awesome">Realtime = More Awesome</a></h2>
 
 <p>The technology to let you offer these improved <strong>Developer Experiences</strong> exist in the form of Realtime Web Technologies. So, start thinking about how you can use them to make things easier for them and take that next step in making your API even more awesome.</p>
 
@@ -250,7 +256,7 @@ var disqus_identifier = '23525 https://www.leggetter.co.uk/?page_id=23525';
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -259,7 +265,7 @@ var disqus_identifier = '23525 https://www.leggetter.co.uk/?page_id=23525';
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

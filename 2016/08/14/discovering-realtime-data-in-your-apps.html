@@ -4,6 +4,12 @@
 	
 	<title>Discovering the Real-Time Data in Your Apps - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
+
+	<meta property="og:title" content="Discovering the Real-Time Data in Your Apps - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html" />
+	
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="description" content="Real-time notifications, data visualisation, communication, collaboration… Whether the aim is to improve user experience or to facilitate the management of your infrastructure, the ability to collect, process, and deliver data in real-time is critical. Every application has real-time data. In this post I'll cover how to find that real-time data with any application that you build." />
@@ -104,7 +110,7 @@
 
 <p>With the background out of the way, let’s find that real-time data!</p>
 
-<h2>Where do you find Real-Time Data?</h2>
+<h2 id="where-do-you-find-real-time-data?"><a href="#where-do-you-find-real-time-data?">Where do you find Real-Time Data?</a></h2>
 
 <p>Back in 2011 Mike Brevoort gave a number of talks with the title <strong>The Evented Web</strong>. In those talks he covered things like WebHooks, Comet and <a href="https://en.wikipedia.org/wiki/WebSocket">WebSocket</a>. But in reviewing the <a href="http://www.slideshare.net/brevoortm/the-evented-web">slides</a> from these talks recently there were two that really stood out.</p>
 
@@ -132,19 +138,22 @@
 
 <p>What these slides tell us is that if you can identify the events within your systems then you you’ve found real-time data. Additionally they tell us that events are caused by <strong>changes in data</strong> (in this case the code) and <strong>interactions</strong> (the push of the code to GitHub).</p>
 
-<h2>Events – Changing Data</h2>
+<h2 id="events-–-changing-data"><a href="#events-–-changing-data">Events – Changing Data</a></h2>
 
 <p>Applications are data-driven. They create data, display data, allow data to be updated and, in some cases, deleted. These operations are often referred to as <a href="https://en.wikipedia.org/wiki/Create,_read,_update_and_delete">CRUD</a> which stands for <strong>C</strong>reate, <strong>R</strong>ead, <strong>U</strong>pdate and <strong>D</strong>elete and it’s quite easy to find these within your applications.</p>
 
 <p>Of course, database interactions are also system interactions. But databases contain… well… data and any interaction with such a system has the high probability of representing a change in data. So it’s worth showing some specific examples.</p>
 
 <p>Firstly you can look for any SQL statements:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">INSERT INTO activities ...
 
 UPDATE activities WHERE ...
 
 </code></pre></figure>
+
 <p>NoSQL document interactions such as this <a href="https://www.mongodb.org">MongoDB</a> example:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">var insertDocument = function(db, callback) {
    db.collection(&#39;activities&#39;).insertOne( {
       &quot;text&quot; : &quot;Phil is talking&quot;
@@ -153,35 +162,43 @@ UPDATE activities WHERE ...
 };
 
 </code></pre></figure>
+
 <p>Or any interactions with an <a href="http://en.wikipedia.org/wiki/Object-relational_mapping">ORM (Object Relational Mapper)</a></p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">Activity a = repository.GetActivity(10);
 a.text = &quot;Phil is still talking&quot;;
 p.save();
 
 </code></pre></figure>
-<h2>Events – System Interactions</h2>
+
+<h2 id="events-–-system-interactions"><a href="#events-–-system-interactions">Events – System Interactions</a></h2>
 
 <p>Next let’s take a look at some other, more generic, system interactions.</p>
 
-<h3>Web Endpoints</h3>
+<h3 id="web-endpoints"><a href="#web-endpoints">Web Endpoints</a></h3>
 
 <p>Something that all web apps will have is a web endpoint. Whether to serve HTML content to users or as part of a Web API, each interaction represents an event with an associated data payload. Whether it’s Sinatra, Rails, Express, SailsJS, Flask, Django, Laravel, Silex, ASP.NET MVC … all of these frameworks provide ways of defining routes and web endpoints. Each interaction produces real-time data.</p>
 
 <p>With Sinatra:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">post &#39;/interact&#39; do
   # endpoint called
 end
 
 </code></pre></figure>
+
 <p>Or Express:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">app.post(&#39;/interact&#39;, function(req, res) {
   // endpoint called
 });
 
 </code></pre></figure>
-<h3>Requests &amp; Responses</h3>
+
+<h3 id="requests-&amp;-responses"><a href="#requests-&amp;-responses">Requests &amp; Responses</a></h3>
 
 <p>If any web endpoint interaction is an interaction event then so is any request and response.</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">var request = require(&#39;request&#39;);
 
 var url = &#39;https://www.leggetter.co.uk&#39;;
@@ -190,42 +207,47 @@ request(url, function (error, response, body) {
 });
 
 </code></pre></figure>
+
 <p>The request event data has a URL and the potential for some payload depending on the type of request. The response event provides the result data. All real-time data as it happens.</p>
 
-<h3>Logging</h3>
+<h3 id="logging"><a href="#logging">Logging</a></h3>
 
 <p>We log information about what’s going on within our applications as it happens. We log it because it has some use. Not only historically, but also – for certain log levels – the instant that the log entry is created.</p>
 
 <p>In Ruby using <code>logger</code>:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">require &#39;logger&#39;
 $LOG = Logger.new(&#39;log_file.log&#39;, &#39;monthly&#39;)   
 $LOG.debug(&quot;I&#39;m logging stuff!&quot;)
 
 </code></pre></figure>
+
 <p>In Node using <code>winston</code>:</p>
+
 <figure class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
 winston.log(&#39;critical&#39;, errorEventPayload)
 
 </code></pre></figure>
+
 <p>If we’re logging at <code>critical</code> then surely there’s much more value in getting that data now – in real-time – than there is grepping the logs after the event.</p>
 
-<h3>Many more system interactions</h3>
+<h3 id="many-more-system-interactions"><a href="#many-more-system-interactions">Many more system interactions</a></h3>
 
 <p>Web endpoints, request/response, logging, CRON jobs, incoming email… how about any form of I/O? Systems interactions are events that take place with a data payload that in some cases should be instantly distributed and exposed by other systems to use right away.</p>
 
 <p>What other types of interaction are there?</p>
 
-<h3>User Interactions</h3>
+<h3 id="user-interactions"><a href="#user-interactions">User Interactions</a></h3>
 
 <p>User interaction events and associated data payload represent real-time data. A user navigating a website is ultimately a browser interacting with a web endpoint. But there is additional data associated with that interaction; the user data. In a SPA (Single Page App) a user navigating views, clicking the UI, moving the mouse, touching the screen, dragging, typing; each an interaction, each with not only the action data, but also the user data to give much richer context.</p>
 
 <p>When users communicate with each other it is a clear real-time interaction – <em>@mentioning</em> being a good example. However, other actions like commenting on a post is an action where other users may want to know about that comment quickly in order to change the experience into a conversation. A user updating data that others are interested in becomes an event that results in user-to-user interactions.</p>
 
-<h2>You Have Real-Time Data</h2>
+<h2 id="you-have-real-time-data"><a href="#you-have-real-time-data">You Have Real-Time Data</a></h2>
 
 <p>Real-time data discovery in your apps is actually pretty easy. If you weren’t convinced that you had real-time data within your apps when you started reading this blog post, I hope you are now. If you have events in your web apps, there are changes in data, or there are any interactions between components and systems then <strong>you do have real-time data</strong>. And now you know where you can find it!</p>
 
-<h2>Next</h2>
+<h2 id="next"><a href="#next">Next</a></h2>
 
 <p>In the next post of this series I cover what you can do with the real-time data that you already have; from using the data to understanding what’s going on in your systems right now to building awesome real-time features for your users.</p>
 
@@ -292,7 +314,7 @@ var disqus_identifier = '/2016/08/14/discovering-realtime-data-in-your-apps.html
 </section>
 
 
-  <section class="box">
+  <!-- <section class="box">
   <header>
     <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
   </header>
@@ -301,7 +323,7 @@ var disqus_identifier = '/2016/08/14/discovering-realtime-data-in-your-apps.html
     <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
   </div>
 </section>
-
+ -->
 
 </div>
 

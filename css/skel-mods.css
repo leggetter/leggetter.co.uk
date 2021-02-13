@@ -1,3 +1,7 @@
+html {
+	scroll-behavior: smooth;
+  }
+
 body, input, textarea, select {
   color: rgba(0,0,0,0.8);
   font-size: 1.2em;

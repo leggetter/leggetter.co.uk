@@ -10,6 +10,7 @@
 	<meta property="og:title" content="{{ page.title }} - {{ site.name }}" />
 	<meta property="og:type" content="article" />
 	<meta property="og:url" content="{{ site.base_url }}{{page.url}}" />
+	<meta property="og:description" content="{{ post.excerpt | strip_html }}" />
 	{% if page.image_url %}
 	<meta property="og:image" content="{{ site.base_url }}{{page.image_url}}" />
 	{% endif %}

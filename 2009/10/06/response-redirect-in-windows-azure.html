@@ -8,7 +8,7 @@
 	<meta property="og:title" content="Response.Redirect in Windows Azure" />
 	<meta property="og:type" content="article" />
 	<meta property="og:url" content="https://www.leggetter.co.uk/2009/10/06/response-redirect-in-windows-azure.html" />
-	<meta property="og:description" content=" content="I've recently created an application called GetGravatar that allows you to update your Twitter profile picture with your Gravatar. Once I'd set up my Windows Azure custom domain name I decided I wanted the web address for this new service site to be without "www" as seems to be all the rage (to keep the web address short). So, I looked at doing a Response.Redirect to catch any attempts to access my domain with "www" in it. I'm very sure that there are better ways of doing this but I added the following to my Site.master file:
+	<meta property="og:description" content="I've recently created an application called GetGravatar that allows you to update your Twitter profile picture with your Gravatar. Once I'd set up my Windows Azure custom domain name I decided I wanted the web address for this new service site to be without "www" as seems to be all the rage (to keep the web address short). So, I looked at doing a Response.Redirect to catch any attempts to access my domain with "www" in it. I'm very sure that there are better ways of doing this but I added the following to my Site.master file:
 
 
     if (Request.Url.ToString().StartsWith("http://www."))

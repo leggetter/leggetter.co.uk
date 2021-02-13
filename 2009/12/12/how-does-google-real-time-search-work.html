@@ -5,10 +5,23 @@
 	<title>How does Google Real-Time Search work? - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
 
-	<meta property="og:title" content="How does Google Real-Time Search work? - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:title" content="How does Google Real-Time Search work?" />
 	<meta property="og:type" content="article" />
 	<meta property="og:url" content="https://www.leggetter.co.uk/2009/12/12/how-does-google-real-time-search-work.html" />
-	<meta property="og:description" content="" />
+	<meta property="og:description" content=" content="On or around the 12th of December 2009 Google released a feature they are calling "real-time search".
+Our real-time search enables you to discover breaking news the moment it's happening, even if it's not the popular news of the day, and even if you didn't know about it beforehand.
+Although I'd still argue that we're not seeing the real-time web with this solution I thought I'd go in to a bit of detail about how Google are achieving this HTTP polling solution.
+
+Summary
+
+Google are consuming and indexing real-time data from multiple social networks
+It's not real-time HTTP PUSH yet, it's HTTP PULL using a polling interval
+The polling interval seems to vary but this needs to be confirmed.
+The polling result returns an encoded JSON response containing the next request to be made and the HTML of any new results. These results are injected into the "Latest results" section of the page
+The HTML returned is quite verbose and could be refined
+87% from a sample of 30 polled requests returned no new results meaning the request was a waste of resources
+
+" />
 	
 
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />

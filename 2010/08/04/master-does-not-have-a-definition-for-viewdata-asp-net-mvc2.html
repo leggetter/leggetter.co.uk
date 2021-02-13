@@ -5,10 +5,27 @@
 	<title>Master does not have a definition for ViewData (ASP.NET MVC2) - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
 
-	<meta property="og:title" content="Master does not have a definition for ViewData (ASP.NET MVC2) - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:title" content="Master does not have a definition for ViewData (ASP.NET MVC2)" />
 	<meta property="og:type" content="article" />
 	<meta property="og:url" content="https://www.leggetter.co.uk/2010/08/04/master-does-not-have-a-definition-for-viewdata-asp-net-mvc2.html" />
-	<meta property="og:description" content="" />
+	<meta property="og:description" content=" content="I'm building an ASP.NET MVC2 web application and I was trying to access ViewData in my Site.Master page and I kept getting "master does not have a definition for ViewData".
+
+[code lang="xml"]&lt;%= ViewData[&quot;topic&quot;] %&gt;[/code]
+
+The simple answer was that my Master Page was not an ASP.NET MVC2 master page. Somehow I had a standard master page.
+
+So, all I did was swap the existing page declaration
+
+[code lang="xml"]&lt;%@ Master Language=&quot;C#&quot; AutoEventWireup=&quot;true&quot; CodeBehind=&quot;Site.Master.cs&quot; Inherits=&quot;HubSubscriber.Views.Shared.Site&quot; %&gt;[/code]
+
+With an ASP.NET MVC2 declaration:
+
+[code lang="xml"]&lt;%@ Master Language=&quot;C#&quot; Inherits=&quot;System.Web.Mvc.ViewMasterPage&quot; %&gt;[/code]
+
+And bingo! ViewData was now accessible from my master page.
+
+This post on Passing Data to View Master Pages may also be useful.
+" />
 	
 
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />

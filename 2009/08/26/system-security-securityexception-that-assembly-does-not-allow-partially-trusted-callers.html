@@ -5,10 +5,25 @@
 	<title>System.Security.SecurityException: That assembly does not allow partially trusted callers - Phil Leggetter - Developer Experience & Relations Leader</title>
 	
 
-	<meta property="og:title" content="System.Security.SecurityException: That assembly does not allow partially trusted callers - Phil Leggetter - Developer Experience & Relations Leader" />
+	<meta property="og:title" content="System.Security.SecurityException: That assembly does not allow partially trusted callers" />
 	<meta property="og:type" content="article" />
 	<meta property="og:url" content="https://www.leggetter.co.uk/2009/08/26/system-security-securityexception-that-assembly-does-not-allow-partially-trusted-callers.html" />
-	<meta property="og:description" content="" />
+	<meta property="og:description" content=" content="I was writing a Windows Azure ASP.NET MVC application and when making a call to a page I received the following exception:
+
+System.Security.SecurityException: That assembly does not allow partially trusted callers
+
+In my application I'm using Castle Windsor for dependency injection and when trying to resolve a service using:
+
+}
+
+IGravatar gravatar = MvcApplication.Container.Resolve&lt;IGravatar&gt;();
+
+I received this message. To solve things I needed to update the WebRole element in the ServiceDefinitions.csdef file so that enableNativeCodeExecution is enabled.
+
+&lt;WebRole name="TwitterGravatarMVC" enableNativeCodeExecution="true"&gt;
+
+I found the solution, detailed above, on the Azure Services Platform Developer Centre forum.
+" />
 	
 
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />

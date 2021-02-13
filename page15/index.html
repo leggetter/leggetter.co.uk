@@ -94,6 +94,38 @@
 <article class="box post">
 
   <header class="style1">
+    <a href="/2009/08/26/system-security-securityexception-that-assembly-does-not-allow-partially-trusted-callers.html">
+      <h2>System.Security.SecurityException: That assembly does not allow partially trusted callers</h2>
+    </a>
+    <div class="post-date">26 Aug 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>I was writing a Windows Azure ASP.NET MVC application and when making a call to a page I received the following exception:
+
+System.Security.SecurityException: That assembly does not allow partially trusted callers
+
+In my application I'm using Castle Windsor for dependency injection and when trying to resolve a service using:
+
+}
+
+IGravatar gravatar = MvcApplication.Container.Resolve&lt;IGravatar&gt;();
+
+I received this message. To solve things I needed to update the WebRole element in the ServiceDefinitions.csdef file so that enableNativeCodeExecution is enabled.
+
+&lt;WebRole name="TwitterGravatarMVC" enableNativeCodeExecution="true"&gt;
+
+I found the solution, detailed above, on the Azure Services Platform Developer Centre forum.
+</p>
+    <p><a href="/2009/08/26/system-security-securityexception-that-assembly-does-not-allow-partially-trusted-callers.html" title="System.Security.SecurityException: That assembly does not allow partially trusted callers">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
     <a href="/2009/08/05/book-review-juggle-rethink-work-reclaim-your-life.html">
       <h2>Book review: Juggle! Rethink work, reclaim your life</h2>
     </a>
@@ -323,32 +355,6 @@ View the What is the real-time web? article here.
     
     <p>Are we really seeing the real-time web? The phrase &ldquo;real-time web&rdquo; has been streaming its way around the Internet for a while now. It&rsquo;s presently being used to describe information being available in search results as soon as it has been published by its author. Examples of this are Twitter...</p>
     <p><a href="/http:/blog.caplin.com/2009/04/20/what-is-the-real-time-web/" title="What is the “real-time web”?">Read more...</a></p>
-  </div>
-
-</article>
-
-<article class="box post">
-
-  <header class="style1">
-    <a href="/2009/02/28/how-to-read-a-file-into-a-string-using-php.html">
-      <h2>How to read a file into a string using PHP</h2>
-    </a>
-    <div class="post-date">28 Feb 2009</div>
-  </header>
-
-  <div class="posts-list">
-    
-    <p>
-    function ReadFile($filename)
-    {
-        $fh = fopen($filename, 'r');
-        $theData = fread($fh, filesize($filename));
-        fclose($fh);
-        return $theData;
-    }
-
-</p>
-    <p><a href="/2009/02/28/how-to-read-a-file-into-a-string-using-php.html" title="How to read a file into a string using PHP">Read more...</a></p>
   </div>
 
 </article>

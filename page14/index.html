@@ -94,6 +94,28 @@
 <article class="box post">
 
   <header class="style1">
+    <a href="/2009/12/09/how-real-time-does-real-time-have-to-be.html">
+      <h2>How real-time does real-time have to be?</h2>
+    </a>
+    <div class="post-date">09 Dec 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>Last night, just over 12 hours ago, I attended the Gary Vaynerchuk Crush It event organised by Sprouter in London. I’ve already read Crush It and seen a lot of Gary online so I wondered if he would give out any information that I hadn’t already heard. On the way in I mentioned this to Ian Sanders who said:
+It’s always different live. It’s like a gig.
+This is a big statement considering the event is just a guy standing and speaking and taking some Q&amp;A. However, Ian’s statement was spot-on. Gary oozes charisma and when he speaks it feels like he’s addressing you directly. This is clearly one of the reasons why he’s so popular and doing so well.
+
+[caption id="attachment_592" align="alignnone" width="480" caption="Gary Vaynerchuk at the Sprouter Crush It event"][/caption]
+</p>
+    <p><a href="/2009/12/09/how-real-time-does-real-time-have-to-be.html" title="How real-time does real-time have to be?">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
     <a href="/2009/12/01/the-christmascrunch-nearly-real-time-web-event.html">
       <h2>The ChristmasCrunch nearly real-time web event</h2>
     </a>
@@ -369,38 +391,6 @@ If you happen to get network timeouts or 404 network connection issues it's wort
 &lt;InputEndpoint name="HttpIn" protocol="http" port="80" /&gt;
 </p>
     <p><a href="/2009/08/28/windows-azure-503-service-unavailable.html" title="Windows Azure - 503 Service Unavailable">Read more...</a></p>
-  </div>
-
-</article>
-
-<article class="box post">
-
-  <header class="style1">
-    <a href="/2009/08/26/system-security-securityexception-that-assembly-does-not-allow-partially-trusted-callers.html">
-      <h2>System.Security.SecurityException: That assembly does not allow partially trusted callers</h2>
-    </a>
-    <div class="post-date">26 Aug 2009</div>
-  </header>
-
-  <div class="posts-list">
-    
-    <p>I was writing a Windows Azure ASP.NET MVC application and when making a call to a page I received the following exception:
-
-System.Security.SecurityException: That assembly does not allow partially trusted callers
-
-In my application I'm using Castle Windsor for dependency injection and when trying to resolve a service using:
-
-}
-
-IGravatar gravatar = MvcApplication.Container.Resolve&lt;IGravatar&gt;();
-
-I received this message. To solve things I needed to update the WebRole element in the ServiceDefinitions.csdef file so that enableNativeCodeExecution is enabled.
-
-&lt;WebRole name="TwitterGravatarMVC" enableNativeCodeExecution="true"&gt;
-
-I found the solution, detailed above, on the Azure Services Platform Developer Centre forum.
-</p>
-    <p><a href="/2009/08/26/system-security-securityexception-that-assembly-does-not-allow-partially-trusted-callers.html" title="System.Security.SecurityException: That assembly does not allow partially trusted callers">Read more...</a></p>
   </div>
 
 </article>

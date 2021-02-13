@@ -94,6 +94,32 @@
 <article class="box post">
 
   <header class="style1">
+    <a href="/2009/02/28/how-to-read-a-file-into-a-string-using-php.html">
+      <h2>How to read a file into a string using PHP</h2>
+    </a>
+    <div class="post-date">28 Feb 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>
+    function ReadFile($filename)
+    {
+        $fh = fopen($filename, 'r');
+        $theData = fread($fh, filesize($filename));
+        fclose($fh);
+        return $theData;
+    }
+
+</p>
+    <p><a href="/2009/02/28/how-to-read-a-file-into-a-string-using-php.html" title="How to read a file into a string using PHP">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
     <a href="/2009/02/03/snow-in-hertford.html">
       <h2>Snow in Hertford</h2>
     </a>
@@ -310,36 +336,6 @@ Update: 02/10/2008
 I've been looking into getting SilverLight to work with Google Chrome or Chromium and came across a post about something called Chrome Channel Switcher which looks like it automatically updates your Chrome install to either Beta or Development builds. Could be useful! There are links directly to the executable download from Jon Galloway's blog post.
 </p>
     <p><a href="/2008/09/24/google-chrome-nightly-downloader.html" title="Google Chrome Nightly Downloader">Read more...</a></p>
-  </div>
-
-</article>
-
-<article class="box post">
-
-  <header class="style1">
-    <a href="/2008/06/26/net-obfuscators.html">
-      <h2>.NET Obfuscators</h2>
-    </a>
-    <div class="post-date">26 Jun 2008</div>
-  </header>
-
-  <div class="posts-list">
-    
-    <p>As I was cleaning up the contents of my desktop I came across a text file containing a list of links to .NET obfuscator offerings. I created this list when researching options about six months ago. The main criteria was that the obfuscator could be executed as part of an automated build process.
-
-Here's the contents of the list:
-
-
-http://www.secureteam.net
-http://www.remotesoft.com/salamander/obfuscator.html
-http://www.smartassembly.com/
-http://www.preemptive.com/products/dotfuscator/index.html
-http://www.9rays.net/products/Spices.Obfuscator/
-http://www.wiseowl.com/products/products.aspx
-http://www.eziriz.com/comparison.htm
-
-</p>
-    <p><a href="/2008/06/26/net-obfuscators.html" title=".NET Obfuscators">Read more...</a></p>
   </div>
 
 </article>

@@ -45,7 +45,7 @@ Once you've considered all the alternatives you may decide it really is time to 
 
 When I decided to move on from Nexmo/Vonage I was sure it was the right move but, over the past eight months, I have had the occasional moment where I wondered if I made a mistake. I'm very proud of the Platform & Developer Experience team (including DevRel) we'd built at Nexmo/Vonage and many of the people in the wider organisation were nice.
 
-However, upon reflection, I did make the right decision. For me it was fundamental: I felt that the company was going in the wrong direction from both a cultural and product perspective. I also looked at the VP (in all but title) job that - through the team's success - I'd ended up in and it was not the sort of role I wanted to be within a company like Vonage. So I wrote up a job spec for my successor and decided it was time to move on.
+However, upon reflection, I did make the right decision. For me it was fundamental: I felt that the company was going in the wrong direction from both a cultural and product perspective. I also looked at the VP (in all but title) job that - through the team's success - I'd ended up in and it was not the sort of role I wanted within a company like Vonage. So I wrote up a job spec for my successor and decided it was time to move on.
 
 So, if you're reading this because you've been wondering if the grass will be greener, please do ensure you've considered all your options before making your decision. Whatever you decide, good luck! 🍀
 

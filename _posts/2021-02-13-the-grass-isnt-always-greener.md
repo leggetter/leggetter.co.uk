@@ -7,9 +7,9 @@ image_url: /images/jobs-grass-isnt-greener.jpg
 
 ---
 
-It's been just over eight months since I left Nexmo/Vonage, where I'd been for over four years, and I've spent many hours reflect upon my decision to leave. It's also that time of year when many people seem to get a new job and change companies.
+It's been just over eight months since I left Nexmo/Vonage, where I'd been for over four years, and I'll admit to having spent a few hours reflecting upon my decision to leave. It's also that time of year when many people seem to get a new job and change companies so now seems like a good time to share some advice and one of my own experiences.
 
-When frustrated or tired of a job the most obvious reaction for many is to look for another job at another organisation. Sometimes a change in scenery can be what you need. But, it may not always be what you need so it's worth considering alternative options.
+When frustrated or tired of a job the most obvious reaction for many is to look for another job at another organisation. Sometimes a change in scenery can be what you need. The grass may be greener on the other side. But, there's also a chance it won't be and a move may not always be what you need. So, it's worth considering alternative options.
 
 ## Take a Break
 
@@ -49,4 +49,4 @@ However, upon reflection, I did make the right decision. For me it was fundament
 
 So, if you're reading this because you've been wondering if the grass will be greener please do ensure you've considered all your options before making your decision. Whatever you decide, good luck!
 
-<span>Photo by <a href="https://unsplash.com/@dimhou?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Dimitri Houtteman</a> on <a href="https://unsplash.com/s/photos/grass?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+<small><span>Photo by <a href="https://unsplash.com/@dimhou?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Dimitri Houtteman</a> on <a href="https://unsplash.com/s/photos/grass?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span></small>

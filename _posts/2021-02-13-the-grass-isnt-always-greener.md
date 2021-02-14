@@ -7,7 +7,7 @@ image_url: /images/jobs-grass-isnt-greener.jpg
 
 ---
 
-It's been just over eight months since I left Nexmo/Vonage, where I'd been for over four years, and I'll admit to having spent a few hours reflecting upon my decision to leave. It's also that time of year when many people seem to get a new job and change companies so now seems like a good time to share some advice and one of my own experiences.
+It's been just over eight months since I left Nexmo/Vonage, where I'd been for over four years, and I'll admit to having spent a few hours reflecting upon my decision to leave. It's also that time of year when many people seem to get a new job and change companies so now seems like a good time to share some advice and some of my experiences.
 
 When frustrated or tired of a job the most obvious reaction for many is to look for another job at another organisation. Sometimes a change in scenery can be what you need. The grass may be greener on the other side. But, there's also a chance it won't be and a move may not always be what you need. So, it's worth considering alternative options.
 
@@ -25,7 +25,7 @@ If you're considering moving on for reasons other than a fundamental problem wit
 
 ## Try a Different Role
 
-If you have a reasonably broad range of skills, the company you work for requires some of your other skills and another role available, trying that different role may be an option. Some companies may invest in retraining you so that you can take on that role.
+If you have a reasonably broad range of skills, the company you work for requires some of your other skills, and another role available, trying that different role may be an option. Some companies may invest in retraining you so that you can take on that role.
 
 For example, within [Developer Relations](https://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html) it may be possible to move from Developer Advocacy, where there's a requirement for a broad range of skills required, to something more focused like Developer Education.
 
@@ -45,7 +45,7 @@ Once you've considered all the alternatives you may decide it really is time to 
 
 When I decided to move on from Nexmo/Vonage I was sure it was the right move but, over the past eight months, I have had the occasional moment where I wondered if I made a mistake. I'm very proud of the Platform & Developer Experience team (including DevRel) we'd built at Nexmo/Vonage and many of the people in the wider organisation were nice.
 
-However, upon reflection, I did make the right decision. For me it was fundamental: I felt that the company was going in the wrong direction from both a cultural and product perspective. I also looked at the VP (in all but title) job that - through the team's success - I'd ended up in and it was not the sort of role I wanted within Vonage at that time. So I discussed the situation with my colleagues, with leadership, wrote up a job spec for my successor and decided it was time to move on.
+However, upon reflection, I did make the right decision. For me it was fundamental: I felt that the company was going in the wrong direction from both a cultural and product perspective. I also looked at the VP (in all but title) job that - through the team's success - I’d ended up in and it was not the sort of role I wanted within Vonage at that time. So I discussed the situation with my colleagues, with leadership, wrote up a job spec for my successor and decided it was time to move on.
 
 So, if you're reading this because you've been wondering if the grass will be greener, please do ensure you've considered all your options before making your decision. Whatever you decide, good luck! 🍀
 

@@ -29,7 +29,7 @@ If you're considering moving on for reasons other than a fundamental problem wit
 
 If you have a reasonably broad range of skills, the company you work for requires some of your other skills, and another role available, trying that different role may be an option. Some companies may invest in retraining you so that you can take on that role.
 
-For example, within [Developer Relations](https://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html) it may be possible to move from Developer Advocacy, where there's a requirement for a broad range of skills required, to something more focused like Developer Education.
+For example, within [Developer Relations](https://www.leggetter.co.uk/2016/02/03/defining-developer-relations.html) it may be possible to move from Developer Advocacy, where there's a requirement for a broad range of skills, to something more focused like Developer Education.
 
 ## Propose an Alternative Role
 

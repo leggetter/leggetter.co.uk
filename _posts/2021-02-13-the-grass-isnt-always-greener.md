@@ -7,6 +7,8 @@ image_url: /images/jobs-grass-isnt-greener.jpg
 
 ---
 
+[Listen to the audio version on Descript 🔉](https://share.descript.com/view/gVn4KDWrmsE)
+
 It's been just over eight months since I left Nexmo/Vonage, where I'd been for over four years, and I'll admit to having spent a few hours reflecting upon my decision to leave. It's also that time of year when many people seem to get a new job and change companies so now seems like a good time to share some advice and some of my experiences.
 
 When frustrated or tired of a job the most obvious reaction for many is to look for another job at another organisation. Sometimes a change in scenery can be what you need. The grass may be greener on the other side. But, there's also a chance it won't be and a move may not always be what you need. So, it's worth considering alternative options.

@@ -33,8 +33,8 @@ small {
 }
 
 #header-wrapper {
-	/*background: url('/wp-content/uploads/2013/07/fluent-1024x609.png') center center;
-	background-size: cover;*/
+	background: linear-gradient(rgba(0, 0, 0, 0.7),rgba(0, 0, 0, 0.3)), url('/images/1500x500-loveism.jpeg') center center;
+	background-size: cover;
 }
 
 #header {
@@ -189,12 +189,6 @@ div.highlight {
   font-size: 0.8em;
 }
 
-@media screen and (max-width: 736px) {
-  #header {
-    padding: 0em 0 !important;
-  }
-}
-
 #content section.about {
 	margin-bottom: 2em;
 }
@@ -203,4 +197,42 @@ div.highlight {
 	font-size: 2.2em;
 	line-height: 1.2em;
 	margin-bottom: 1em;
+}
+
+#nav > ul {
+	background-color: #222835;
+}
+
+#logo {
+	top: 40%;
+}
+
+@media screen and (max-width: 736px) {
+
+}
+
+#logo h1, #logo p, p>a {
+	color: #fff;
+	font-weight: 600;
+}
+
+#logo p {
+	font-size: 1em;
+}
+
+.dropotron a, #navPanel .link {
+	text-transform: none;
+	letter-spacing: 0.1em;
+}
+
+@media screen and (max-width: 736px) {
+	#header-wrapper {
+		padding: 2em 2em 6em 2em;
+	}
+}
+
+@media screen and (max-width: 736px) {
+	#header {
+	  padding: 0em 0 !important;
+	}
 }

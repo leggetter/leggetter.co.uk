@@ -20,7 +20,6 @@ categories:
 tags:
   - Investment
   - Government
-permalink: "http://leggetter.posterous.com/government-invests-200m-in-technology-centres"
 ---
 
 <p>

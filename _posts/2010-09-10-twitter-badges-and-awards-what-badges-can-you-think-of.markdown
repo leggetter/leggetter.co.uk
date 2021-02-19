@@ -21,7 +21,6 @@ tags:
   - Twitter
   - ideas
   - web applications
-permalink: "http://leggetter.posterous.com/twitter-badges-and-awards-what-badges-can-you"
 ---
 
 <p>One of the reasons FourSquare is popular is because you can get awards or badges for your check-ins. Would it be of interest to anybody if you could get badges for your tweets? Some ideas for badges:

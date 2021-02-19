@@ -1712,7 +1712,6 @@
 	#logo p {
 		color: #eee;
 		color: rgba(255, 255, 255, 0.5);
-		text-transform: uppercase;
 	}
 
 /* Intro */
@@ -2000,7 +1999,7 @@
 			#logo p {
 				margin: 1.25em 0 0 0;
 				display: block;
-				letter-spacing: 0.2em;
+				letter-spacing: 0.1em;
 				font-size: 0.9em;
 			}
 
@@ -2482,10 +2481,10 @@
 				-webkit-backface-visibility: hidden;
 				-ms-backface-visibility: hidden;
 				backface-visibility: hidden;
-				-moz-transform: translateX(-275px);
-				-webkit-transform: translateX(-275px);
-				-ms-transform: translateX(-275px);
-				transform: translateX(-275px);
+				-moz-transform: translateX(-300px);
+				-webkit-transform: translateX(-300px);
+				-ms-transform: translateX(-300px);
+				transform: translateX(-300px);
 				-moz-transition: -moz-transform 0.5s ease;
 				-webkit-transition: -webkit-transform 0.5s ease;
 				-ms-transition: -ms-transform 0.5s ease;
@@ -2496,7 +2495,7 @@
 				overflow-y: auto;
 				position: fixed;
 				top: 0;
-				width: 275px;
+				width: 300px;
 				z-index: 10002;
 				background: #242730 url("images/overlay.png");
 				box-shadow: inset -3px 0px 4px 0px rgba(0, 0, 0, 0.1);
@@ -2510,7 +2509,6 @@
 					font-size: 0.85em;
 					letter-spacing: 0.15em;
 					text-decoration: none;
-					height: 44px;
 					line-height: 44px;
 					border-top: solid 1px rgba(255, 255, 255, 0.05);
 					margin: 0 15px 0 15px;
@@ -2550,17 +2548,17 @@
 				}
 
 			body.navPanel-visible #page-wrapper {
-				-moz-transform: translateX(275px);
-				-webkit-transform: translateX(275px);
-				-ms-transform: translateX(275px);
-				transform: translateX(275px);
+				-moz-transform: translateX(300px);
+				-webkit-transform: translateX(300px);
+				-ms-transform: translateX(300px);
+				transform: translateX(300px);
 			}
 
 			body.navPanel-visible #titleBar {
-				-moz-transform: translateX(275px);
-				-webkit-transform: translateX(275px);
-				-ms-transform: translateX(275px);
-				transform: translateX(275px);
+				-moz-transform: translateX(300px);
+				-webkit-transform: translateX(300px);
+				-ms-transform: translateX(300px);
+				transform: translateX(300px);
 			}
 
 			body.navPanel-visible #navPanel {
@@ -2620,7 +2618,7 @@
 				#logo p {
 					margin: 1.25em 0 0 0;
 					display: block;
-					letter-spacing: 0.2em;
+					/* letter-spacing: 0.2em; */
 					font-size: 0.9em;
 				}
 
@@ -2688,3 +2686,8 @@
 						}
 
 	}
+
+code {
+	font-family: 'Courier New', Courier, monospace;
+	background-color: #eee;
+}

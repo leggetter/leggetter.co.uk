@@ -1,14 +1,28 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
 	{% if page.title %}
 	<title>{{ page.title }} - {{ site.name }}</title>
 	{% else %}
 	<title>{{ site.name }}</title>
 	{% endif %}
+
+	<meta property="og:title" content="{{ page.title }}" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="{{ site.base_url }}{{page.url}}" />
+	{% if post.excerpt %}<meta property="og:description" content="{{ post.excerpt | strip_html }}" />
+	{% else %}<meta property="og:description" content="{{ page.excerpt | strip_html }}" />{% endif %}
+	{% if page.image_url %}
+	<meta property="og:image" content="{{ site.base_url }}{{page.image_url}}" />
+	{% endif %}
+
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<meta name="description" content="{{ post.excerpt | strip_html }}" />
-	<meta name="keywords" content="{{ post.tags }}" />
+
+	{% if post.excerpt %}<meta name="description" content="{{ post.excerpt | strip_html }}" />
+	{% else %}<meta name="description" content="{{ page.excerpt | strip_html }}" />{% endif %}
+	{% if post.keywords %}
+	<meta name="keywords" content="{{ post.tags }}" />{% else %}
+	<meta name="keywords" content="{{ page.tags }}" />{% endif %}
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
@@ -118,9 +132,9 @@
 	{% include google_analytics.html %}
 
 	<!-- realtime benchmarks -->
-	<script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>
+	<!--script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script-->
 	<!-- <script src="http://localhost:5000/benchmark.js"></script> -->
-	<script src="https://realtime-latency-stats.herokuapp.com/benchmark.js"></script>
+	<!--script src="https://realtime-latency-stats.herokuapp.com/benchmark.js"></script-->
 </body>
 </html>
 <!--

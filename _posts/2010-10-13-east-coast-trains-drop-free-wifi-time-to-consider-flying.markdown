@@ -16,7 +16,6 @@ date: "2010-10-13 08:31:00 +0100"
 date_gmt: "2010-10-13 08:31:00 +0100"
 categories: []
 tags: []
-permalink: "http://leggetter.posterous.com/east-coast-trains-drop-free-wifi-time-to-cons"
 ---
 
 

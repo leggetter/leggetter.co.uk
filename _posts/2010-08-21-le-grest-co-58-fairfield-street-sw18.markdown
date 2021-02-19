@@ -19,7 +19,6 @@ categories:
 tags:
   - furniture
   - investigating
-permalink: "http://leggetter.posterous.com/le-grest-co-58-fairfield-street-sw18"
 ---
 
 <p>We live in a flat that was previously occupied by Jo's Grandparents. One of the things we do occasionally is sort out a room or cupboard. Today I'm tidying up a room for a friend to move in whilst he's finishing his University course.</p>

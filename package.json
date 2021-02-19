@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "bundle exec gulp deploy"
+    "deploy": "bundle exec gulp deploy",
+    "dev": "bundle exec jekyll serve -w --future -l"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,58 @@
+.slides.template-pusher article.realtime {
+  background: white url(spit.jpg) no-repeat bottom center !important;
+  background-size: 100%;
+}
+
+.slides.template-pusher > article.use-cases {
+    background: url(../template/images/hero_usecases.png) no-repeat #FFF bottom right !important;
+    height: 100%;
+}
+
+.slides.template-pusher article.site-icons {
+  background: white url(icons_of_the_web.png) no-repeat bottom right !important;
+  background-size: 40%;
+}
+
+.slides.template-pusher article.realtimeweb {
+  background: white url(scoble-realtime.jpg) no-repeat bottom right !important;
+  background-size: 50%;
+}
+
+.slides.template-pusher article.realtimeweb-tech {
+  background: white url(html5logo.png) no-repeat bottom right !important;
+  background-size: 50%;
+}
+
+.slides.template-pusher article.websocket-api {
+  background: white url(websocket_api.png) no-repeat bottom right !important;
+  background-size: 45%;
+}
+
+.slides.template-pusher article.monkey-island {
+  background: white url(monkey-island.jpg) no-repeat bottom right !important;
+  background-size: 50%;
+}
+.slides.template-pusher ul.gallery li{
+  float: left;
+  width: 300px;
+  height: 200px;
+  margin-right: 30px;
+  padding-bottom: 20px;
+}
+
+.slides.template-pusher ul.gallery li img{
+  max-width: 300px;
+  max-height: 200px;
+}
+
+sup {
+  font-size: 12px;
+}
+
+.strike {
+  text-decoration: line-through;
+}
+
+small {
+  font-size: 12px;
+}

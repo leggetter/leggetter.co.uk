@@ -1,0 +1,306 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	
+	<title>How real-time does real-time have to be? - Phil Leggetter - Developer Experience & Relations Leader</title>
+	
+
+	<meta property="og:title" content="How real-time does real-time have to be?" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2009/12/09/how-real-time-does-real-time-have-to-be.html" />
+	<meta property="og:description" content="Last night, just over 12 hours ago, I attended the Gary Vaynerchuk Crush It event organised by Sprouter in London. I’ve already read Crush It and seen a lot of Gary online so I wondered if he would give out any information that I hadn’t already heard. On the way in I mentioned this to Ian Sanders who said:
+It’s always different live. It’s like a gig.
+This is a big statement considering the event is just a guy standing and speaking and taking some Q&amp;A. However, Ian’s statement was spot-on. Gary oozes charisma and when he speaks it feels like he’s addressing you directly. This is clearly one of the reasons why he’s so popular and doing so well.
+
+[caption id="attachment_592" align="alignnone" width="480" caption="Gary Vaynerchuk at the Sprouter Crush It event"][/caption]
+" />
+	
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<meta name="description" content="Last night, just over 12 hours ago, I attended the Gary Vaynerchuk Crush It event organised by Sprouter in London. I’ve already read Crush It and seen a lot of Gary online so I wondered if he would give out any information that I hadn’t already heard. On the way in I mentioned this to Ian Sanders who said:
+It’s always different live. It’s like a gig.
+This is a big statement considering the event is just a guy standing and speaking and taking some Q&amp;A. However, Ian’s statement was spot-on. Gary oozes charisma and when he speaks it feels like he’s addressing you directly. This is clearly one of the reasons why he’s so popular and doing so well.
+
+[caption id="attachment_592" align="alignnone" width="480" caption="Gary Vaynerchuk at the Sprouter Crush It event"][/caption]
+" />
+	
+	<meta name="keywords" content="real-time webSocial Mediatruly real-time webGary Vaynerchuk" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+	
+	
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/skel/assets/css/main.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/skel/assets/css/ie8.css" /><![endif]-->
+	<link rel="stylesheet" href="/css/skel-mods.css" />
+
+  <link rel="stylesheet" href="/libs/highlight/styles/solarized_dark.css" />
+	
+	<script src="/skel/assets/js/jquery.min.js"></script>
+</head>
+<body class="right-sidebar ">
+
+	<!-- Header -->
+	<div id="header-wrapper" class="wrapper">
+		<div id="header">
+
+  <!-- Logo -->
+  <div id="logo">
+    <h1><a href="/">Phil Leggetter</a></h1>
+    <p>Developer Relations at <a style="font-weight: 900; font-size: 1.1em; color: white;" href="https://posthog.com">PostHog</a>. Leader, Team Builder &amp; Advisor</p>
+  </div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul>
+      <li class="current"><a href="/"><img class="logo-sml" src="/images/leggetter-logo-trans-sml.png" title="Phil Leggetter - Home" alt="Phil Leggetter logo" /></a></li>
+      <li>
+        <a href="/aaarrrp" title="The AAARRRP Developer Relations Strategy Framework">AAARRRP</a>
+      </li>
+      <li>
+        <a href="/real-time-web-technologies-guide/">Realtime Web Guide</a>
+        <ul>
+          <li><a href="/real-time-web-technologies-guide">Realtime Web Technology Guide</a></li>
+          <li><a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
+          <li><a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web & Realtime Web Functionality</a></li>
+          <li><a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>
+          <li><a href="/real-time-web-technologies-guide/developer-tools/">Developer Tools</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-hosted-service-latency/">Realtime Hosted Service Latency Stats</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-data-sources/">Realtime Data Sources</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/">Transport Mechanisms</a></li>
+        </ul>
+      </li>
+      <li><a href="/about-phil-leggetter/">About Phil Leggetter</a>
+        <ul>
+          <li><a href="/leggetter-family-tree">The Unique Name of Leggetter</a></li>
+          <li><a href="/mygoffice">My Goffice</a></li>
+        </ul>
+      </li>
+      <li><a href="#contact-me">Contact Me</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+	</div>
+
+	<!-- Main -->
+	<div class="main-wrapper wrapper style2">
+
+    <div class="title">
+			<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+		</div>
+
+    <div id="main" class="container">
+      <div class="row 150%">
+        <div class="8u 12u(mobile)">
+          <div id="content">
+            <h1>How real-time does real-time have to be?</h1>
+<p class="meta">09 Dec 2009</p>
+
+<div class="post">
+<p>Last night, just over 12 hours ago, I attended the <a href="http://sproutuplondon.eventbrite.com/">Gary Vaynerchuk Crush It event</a> organised by <a href="http://sprouter.com/">Sprouter</a> in London. I’ve already read <a href="http://www.amazon.co.uk/gp/product/0061914177?ie=UTF8&amp;tag=philleggsoftc-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0061914177">Crush It</a> and seen a lot of <a href="http://garyvaynerchuk.com/">Gary online</a> so I wondered if he would give out any information that I hadn’t already heard. On the way in I mentioned this to <a href="http://iansanders.com/">Ian Sanders</a> who said:</p>
+
+<blockquote><p>It’s always different live. It’s like a gig.</p></blockquote>
+
+<p>This is a big statement considering the event is just a guy standing and speaking and taking some Q&amp;A. However, Ian’s statement was spot-on. Gary oozes charisma and when he speaks it feels like he’s addressing you directly. This is clearly one of the reasons why he’s so popular and doing so well.</p>
+
+<p>[caption id="attachment_592" align="alignnone" width="480" caption="Gary Vaynerchuk at the Sprouter Crush It event"]<a href="/wp-content/uploads/2009/12/IMAGE_205.jpg"><img class="size-full wp-image-592" title="Gary Vaynerchuk" src="/wp-content/uploads/2009/12/IMAGE_205.jpg" alt="Gary Vaynerchuk at the Sprouter Crush It event" width="480" height="640" /></a>[/caption]<br />
+<a id="more"></a><a id="more-591"></a></p>
+
+<p>One of the things that Gary covered, and I’ve heard him mention a few times now, was <strong>small town rules</strong>. My take on what Gary means that social media has made a global community possible. He provided a couple of examples.</p>
+
+<h3 id="example-1:-small-town"><a href="#example-1:-small-town">Example 1: Small Town</a></h3>
+
+<p>You can go out in New York, get drunk and get naked every night of the week and it most probably won’t impact your reputation. However, in a small town if you do this just once it will.</p>
+
+<h3 id="example-2:-small-town-effect-through-social-media"><a href="#example-2:-small-town-effect-through-social-media">Example 2: Small Town effect through Social Media</a></h3>
+
+<p>The movie Bruno (I'm not giving it a link, I've heard it's <em>that</em> bad) had one of the biggest attendances for an opening night in the states. However, the second night had the biggest drop off in attendances ever. This is because on the first night people left half way through and wrote on Twitter and Facebook how terrible the movie was. In 24 hours word had got out to avoid this movie at all costs.</p>
+
+<p>What has this got to do with the Real-Time web I hear you ask? Well, in the first small town example it’s easy to see why and how news spreads so quickly. In a small town it doesn’t take long for news like this to spread. But in the second example the news spreads to a massive number of people because of the real-time web effect introduced by the immediate availability of information from networks such as Twitter and Facebook.</p>
+
+<p>I managed to get a question in and asked Gary:</p>
+
+<blockquote><p>How real-time does real-time have to be? For example, the newly introduced Google real-time search checks every 20 seconds to see if any more relevant search results are available.</p></blockquote>
+
+<p>Whilst Gary said that 20 seconds was probably alright he did suggest that this would be fine until another site provided the results in 19 seconds, and ultimately 0 seconds. At which point expectation would be changed.</p>
+
+<p>This has encouraged me to continue my <strong>push</strong> to encourage the uptake of technology to provide a truly real-time web experience. Data is available instantly so why not push it to users instantly. Is 20 seconds really good enough when technology is out there to allow that information to be pushed to us in closer to 0 seconds? My opinion is: <strong>C'mon Google, you can do better!</strong></p>
+
+</div>
+
+<hr />
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+var disqus_shortname = 'leggetter';
+var disqus_url = 'https://www.leggetter.co.uk/2009/12/09/how-real-time-does-real-time-have-to-be.html';
+
+
+
+var disqus_identifier = '591 https://www.leggetter.co.uk/?page_id=591';
+
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+          </div>
+        </div>
+        <div class="4u 12u(mobile)">
+          <!-- Sidebar -->
+<div id="sidebar">
+
+  <section class="box">
+
+  <form action="https://leggetter.us2.list-manage.com/subscribe/post?u=75fcbc606555d96262c1cd5bd&amp;id=e0524b92e7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+    <header>
+      <h2>Get posts via email</h2>
+    </header>
+    <div class="mc-field-group" style="margin-top: -25px;">
+      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address" style="display:inline-block; margin:0; width: auto;">
+      <input type="submit" value="Go" name="subscribe" id="mc-embedded-subscribe" class="button" style="display:inline-block; min-width: inherit; line-height: 1em;
+      height: 3.1em;
+      vertical-align: top;">
+    </div>
+    <div id="mce-responses" class="clear">
+      <div class="response" id="mce-error-response" style="display:none"></div>
+      <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_75fcbc606555d96262c1cd5bd_e0524b92e7" value=""></div>
+  </form>
+
+  <!--End mc_embed_signup-->
+</section>
+
+
+  <section class="box about">
+
+  <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
+  <p>My name is <strong>Phil Leggetter</strong>. I lead Developer Relations at <a href="https://posthog.com">PostHog</a>. I also advise on developer relations and developer experience at <a href="https://tru.id">tru.ID</a> and <a href="https://crosser.io">Crosser</a>.</p>
+
+</section>
+
+
+  <!-- <section class="box">
+  <header>
+    <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
+  </header>
+  <div style="text-align: center; margin-top: 10px;">
+    <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20"><img border="0" src="https://www.leggetter.co.uk/wp-content/uploads/2013/04/realtime-web-apps-sml.jpg" scale="0"></a><img src="https://www.assoc-amazon.com/e/ir?t=phillegg-20&amp;l=as2&amp;o=1&amp;a=1430246200" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" scale="0">
+    <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
+  </div>
+</section>
+ -->
+
+</div>
+
+        </div>
+      </div>
+    </div>
+	</div>
+	<!-- /Main -->
+
+	<!-- Footer Wrapper -->
+	<div id="footer-wrapper" class="wrapper">
+		<div class="title">Get In Touch</div>
+		<div id="footer" class="container">
+
+				<!-- Contact -->
+				<a name="contact-me" id="contact-me"></a>
+				<section class="feature-list small">
+					<div class="row">
+	          <div class="-2u 4u">
+	            <section>
+	              <h3 class="icon fa-comment">Social</h3>
+	              <p>
+									<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+	              </p>
+	            </section>
+	          </div>
+						<div class="-1u 4u">
+							<section>
+								<h3 class="icon fa-envelope">Email</h3>
+								<p>
+									<a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+								</p>
+							</section>
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+			<hr />
+
+			<div id="copyright">
+				<ul>
+					<li>&copy; Phil Leggetter.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- / Footer Wrapper -->
+
+	</div>
+	
+	<script src="/skel/assets/js/jquery.dropotron.min.js"></script>
+	<script src="/skel/assets/js/skel.min.js"></script>
+	<script src="/skel/assets/js/skel-viewport.min.js"></script>
+	<script src="/skel/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/skel/assets/js/main.js"></script>
+	
+	<script src="/bower_components/jquery-smooth-scroll/jquery.smooth-scroll.min.js"></script>
+
+	<script>
+		( function() {
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
+		} )();
+	</script>
+
+  <script src="/libs/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+	<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-513034-10', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+	<!-- realtime benchmarks -->
+	<!--script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script-->
+	<!-- <script src="http://localhost:5000/benchmark.js"></script> -->
+	<!--script src="https://realtime-latency-stats.herokuapp.com/benchmark.js"></script-->
+</body>
+</html>
+<!--
+Escape Velocity by HTML5 UP
+html5up.net | @n33co
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->

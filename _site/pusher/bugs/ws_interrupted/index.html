@@ -1,0 +1,23 @@
+<html>
+<head>
+  <title>The connection to ... was interrupted while the page was loading</title>
+  <script>
+    var TestWS = window["WebSocket"]? WebSocket : MozWebSocket;
+    var ws = new TestWS('ws://ws.pusherapp.com/app/da6da0f4862846b74325?client=js&version=1.10.1');
+    ws.onopen = function() {
+      console.log('open');
+    };
+    ws.onerror = function() {
+      console.log('error');
+    };
+    ws.onclose = function() {
+      console.log('close');
+    };
+  </script>
+</head>
+<body>
+  <h1>The connection to ... was interrupted while the page was loading</h1>
+  <p>How can I stop this error appearing in the console whenever I refresh the page and there is an active WebSocket connection?</p>
+  <img src="ff_console_error.png" alt="Firefox Console Error when WebSocket connected" />
+</body>
+</html>

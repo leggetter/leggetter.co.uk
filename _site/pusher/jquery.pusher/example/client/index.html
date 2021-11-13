@@ -1,0 +1,120 @@
+<html>
+  <head>
+    <title>jQuery Pusher Plugin</title>
+    
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="jquery.snippet/jquery.snippet.min.css" type="text/css" media="screen" />
+  </head>
+  <body>
+    
+    <h1>jQuery Pusher Plugin</h1>
+    <p>
+      Using Pusher is really easy but the jQuery Pusher plugin can, in some cases, make adding realtime data to your web pages
+      even easier. It reduces the amount of JavaScript to an absolute minimum and lets you simply create the
+      page markup. This can be especially useful if you don't want to spend time learning JavaScript or if you have already used jQuery
+      plugins to enrich their web applications and would prefer to keep your JavaScript at this level.
+    </p>
+    
+    <p>Realtime data is added by annotating your HTML with <code>data-</code> attributes.</p>
+    
+    <ul>
+      <li><strong>data-pusher-channel</strong> - the channel to subscribe to</li>
+      <li><strong>data-pusher-event</strong> - the event to bind to and get the data from</li>
+      <li><strong>data-pusher-value</strong> - the value to extract from the event data</li>
+    </ul>
+    
+    <p>And by including the jQuery core library and the jQuery Pusher plugin. The jQuery Pusher Plugin script tag can optionally have a <code>data-pusher-app-key</code> attribute removing the need for any JavaScript at all.</p>
+    
+    <pre class="html">
+      &lt;script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/jquery.pusher.js" data-pusher-app-key="c9f5043738b6f7e428fa"&gt;&lt;/script&gt;</pre>
+    
+    <p>If the <code>data-pusher-app-key</code> attribute is not used the plugin can be used in the more traditional way using a jQuery selector and the <code>pusher</code> function.</p>
+
+    <pre class="html">
+      &lt;script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"&gt;&lt;/script&gt;
+      &lt;script src="../js/jquery.pusher.js"&gt;&lt;/script&gt;
+      &lt;script&gt;
+        $("body div").pusher("c9f5043738b6f7e428fa");
+      &lt;/script&gt;</pre>
+    
+    <h2>Simple Markup</h2>
+    <p>The markup is really simple. Here's what it looks like:</p>
+    <pre class="html" id="simpleMarkupExample1"></pre>
+    
+    <h2>Simple Markup in Action</h2>
+    <div class="example" id="simpleExample1" data-pusher-channel="racing_channel">
+      
+      <div class="title">Race Commentary</div>
+      <div data-pusher-event="race_data_updated"><p data-pusher-value="commentary">Not running</p></div>
+      
+    </div>
+    
+    <h2>More data</h2>
+    <p>Adding more realtime data to a web page is really simple. Here's what it looks like:</p>
+    <pre class="html" id="simpleMarkupExample2"></pre>
+    
+    <h2>More data in Action</h2>
+    <div class="example" id="simpleExample2" data-pusher-channel="racing_channel" data-pusher-event="race_data_updated">
+      
+      <div class="title">Race Commentary</div>
+      <div data-pusher-event="race_data_updated"><p data-pusher-value="commentary">Not running</p></div>
+      
+      <div class="title">Runner positions:</div>
+      <ol>
+        <li data-pusher-value="position1"></li>
+        <li data-pusher-value="position2"></li>
+        <li data-pusher-value="position3"></li>
+        <li data-pusher-value="position4"></li>
+        <li data-pusher-value="position5"></li>
+        <li data-pusher-value="position6"></li>
+        <li data-pusher-value="position7"></li>
+      </ol>               
+    </div>
+    
+    <h2>Comparing Script to Markup</h2>
+    <p>A good way of understanding the saving that the jQuery Pusher plugin can make is by comparing doing something
+      using just JavaScript against using the jQuery Pusher plugin and markup.</p>
+      
+    <p>The Markup + jQuery Pusher Plugin version below save a reasonable number of lines of JavaScript and the more elements
+      that need to be updated the more time the plugin saves.</p>
+    
+    <h3>Script</h3>
+    
+    <pre class="html" id="scriptMarkup1"></pre>
+    
+    <div class="example" id="scriptExample1">
+      <div class="title">Race Commentary</div>
+      <div><p>Not running</p></div>
+      <ol>
+        <li class="first"></li>
+        <li class="second"></li>
+        <li class="third"></li>      
+      </ol>
+    </div>
+    <em>Note: The above example isn't expected to work. It's just here for markup demonstration purposes.</em>
+    
+    <h3>Markup + jQuery Pusher Plugin</h3>
+    
+    <pre class="html" id="simpleMarkup3"></pre>
+    
+    <div class="example" id="simpleExample3" data-pusher-channel="racing_channel" data-pusher-event="race_data_updated">
+      <div class="title">Race Commentary</div>
+      <div data-pusher-event="race_data_updated"><p data-pusher-value="commentary">Not running</p></div>
+      <ol>
+        <li data-pusher-value="position1"></li>
+        <li data-pusher-value="position2"></li>
+        <li data-pusher-value="position3"></li>
+      </ol>
+    </div>
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script src="../../js/jquery.pusher.js" data-pusher-app-key="c9f5043738b6f7e428fa"></script>
+    <script>
+      //$("body div").pusher("c9f5043738b6f7e428fa");
+    </script>
+    <script src="jquery.snippet/jquery.snippet.min.js"></script>
+    <script src="js/markup-help.js"></script>
+    
+  </body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	
+	<title>Defining the Kwwika API - Phil Leggetter - Developer Experience & Relations Leader</title>
+	
+
+	<meta property="og:title" content="Defining the Kwwika API" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2010/04/02/defining-the-kwwika-api.html" />
+	<meta property="og:description" content="Update: Hang on a minute. You've not explained what Kwwika is!
+In a really informative chat using Nurph, which has been really useful in getting feedback, it was pointed out to me by @rythie and @NeilCauldwell that I need to explain what problem Kwwika is trying to solve before asking what the API should look like.
+" />
+	
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<meta name="description" content="Update: Hang on a minute. You've not explained what Kwwika is!
+In a really informative chat using Nurph, which has been really useful in getting feedback, it was pointed out to me by @rythie and @NeilCauldwell that I need to explain what problem Kwwika is trying to solve before asking what the API should look like.
+" />
+	
+	<meta name="keywords" content="JavaScriptreal-time webreal-time dataKwwikaAPIDesign" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+	
+	
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/skel/assets/css/main.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/skel/assets/css/ie8.css" /><![endif]-->
+	<link rel="stylesheet" href="/css/skel-mods.css" />
+
+  <link rel="stylesheet" href="/libs/highlight/styles/solarized_dark.css" />
+	
+	<script src="/skel/assets/js/jquery.min.js"></script>
+</head>
+<body class="right-sidebar ">
+
+	<!-- Header -->
+	<div id="header-wrapper" class="wrapper">
+		<div id="header">
+
+  <!-- Logo -->
+  <div id="logo">
+    <h1><a href="/">Phil Leggetter</a></h1>
+    <p>Developer Relations at <a style="font-weight: 900; font-size: 1.1em; color: white;" href="https://posthog.com">PostHog</a>. Leader, Team Builder &amp; Advisor</p>
+  </div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul>
+      <li class="current"><a href="/"><img class="logo-sml" src="/images/leggetter-logo-trans-sml.png" title="Phil Leggetter - Home" alt="Phil Leggetter logo" /></a></li>
+      <li>
+        <a href="/aaarrrp" title="The AAARRRP Developer Relations Strategy Framework">AAARRRP</a>
+      </li>
+      <li>
+        <a href="/real-time-web-technologies-guide/">Realtime Web Guide</a>
+        <ul>
+          <li><a href="/real-time-web-technologies-guide">Realtime Web Technology Guide</a></li>
+          <li><a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
+          <li><a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web & Realtime Web Functionality</a></li>
+          <li><a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>
+          <li><a href="/real-time-web-technologies-guide/developer-tools/">Developer Tools</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-hosted-service-latency/">Realtime Hosted Service Latency Stats</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-data-sources/">Realtime Data Sources</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/">Transport Mechanisms</a></li>
+        </ul>
+      </li>
+      <li><a href="/about-phil-leggetter/">About Phil Leggetter</a>
+        <ul>
+          <li><a href="/leggetter-family-tree">The Unique Name of Leggetter</a></li>
+          <li><a href="/mygoffice">My Goffice</a></li>
+        </ul>
+      </li>
+      <li><a href="#contact-me">Contact Me</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+	</div>
+
+	<!-- Main -->
+	<div class="main-wrapper wrapper style2">
+
+    <div class="title">
+			<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+		</div>
+
+    <div id="main" class="container">
+      <div class="row 150%">
+        <div class="8u 12u(mobile)">
+          <div id="content">
+            <h1>Defining the Kwwika API</h1>
+<p class="meta">02 Apr 2010</p>
+
+<div class="post">
+<p><strong>Update: Hang on a minute. You've not explained what <em>Kwwika</em> is!</strong><br />
+In a really <a href="http://nur.ph/ih7pgw">informative chat using Nurph</a>, which has been really useful in getting feedback, it was pointed out to me by <a href="http://nur.ph/users/rythie">@rythie</a> and <a href="http://nur.ph/users/neilcauldwell">@NeilCauldwell</a> that I need to explain what problem Kwwika is trying to solve before asking what the API should look like.</p>
+
+<h2 id="why-do-we-need-kwwika?"><a href="#why-do-we-need-kwwika?">Why do we need Kwwika?</a></h2>
+
+<p>There are loads of real-time technologies available at the moment. Almost all of them have a reasonable learning curve and require a developer to sort out server infrastructure, perform installation, do all sort of configuration and then finally get around to writing an application. In the same way that a lot of developers or organisations have moved into managed hosting for their websites, or more recently moved a lot of their IT infrastructure into the Cloud, Kwwika offers a managed and scalable real-time infrastructure so you can concentrate on building your <a href="/2009/10/29/real-time-rich-internet-applications-rtria.html">Real-Time Rich Internet Application</a>.</p>
+
+<p>The way I'm describing Kwwika at the moment is:</p>
+
+<blockquote><p>Kwwika is a real-time web data sharing platform with APIs in JavaScript, Silveright, .NET, Java and C.</p></blockquote>
+
+<h3 id="an-example-of-where-kwwika-could-be-used"><a href="#an-example-of-where-kwwika-could-be-used">An example of where Kwwika could be used</a></h3>
+
+<p><a href="http://blog.caplin.com/author/martintcaplincom/">Martin Tyler</a> recently wrote a <a href="http://blog.caplin.com/2010/02/24/when-were-you-when-tendulkar-scored-200/">blog post</a> that provides a great example of where a service like Kwwika would have been really useful. In the situation described in the blog post <a href="http://www.cricinfo.com/">CricInfo</a> could simply publish their cricket updates to their defined topic in Kwwika, maybe <em>/CRICINFO/GAMES/INDIA-SOUTHAFRICA/</em>, from a single server. They would then add a small piece of script to their game web page that subscribes to this topic and updates that web page whenever any new data is available. Users would see the real-time in-page updates and would no longer continue to hit "Refresh" to see if the score had updated. Kwwika would instead take the hit of the data transfer and push the live updates to the web page. This would take a massive load off of the CricInfo server and clearly save them a lot of time and infrastructure costs.</p>
+
+<h2 id="how-will-i-use-kwwika?"><a href="#how-will-i-use-kwwika?">How will I use Kwwika?</a></h2>
+
+<p>When we launch Kwwika all you'll need to do to use the service is:</p>
+
+<ol>
+<li>Register for Kwwika via a sign up page</li>
+<li>Define your topics that you would like to publish data to in the Kwwika dashboard e.g. <em>/PhilLeggetter/Kwwika</em></li>
+<li>Find some topics with information on that you are interested in using e.g. <em>/BBC/NEWS/SPORT/FOOTBALL</em> (doesn't exist - just an example - but how cool would that be!)</li>
+<li>Embed the Kwwika &lt;script&gt; tag in your web application or download the API for your chosen technology</li>
+<li>Start developing your Real-Time Rich Internet Application</li>
+</ol>
+
+<ul></ul>
+
+<p>I think the great thing about this is that developers just use the Kwwika service and only ever need to care about developing their own application. Kwwika provides the server infrastructure so you don't have to.</p>
+
+<h2 id="the-kwwika-api"><a href="#the-kwwika-api">The Kwwika API</a></h2>
+
+<p>I'm in the middle of defining the Kwwika API and thought this would be a great opportunity to get some early feedback. We plan to have initial releases of the API for the following technologies:</p>
+
+<ul>
+<li>JavaScript</li>
+<li>Java</li>
+<li>.NET</li>
+<li>Silverlight</li>
+<li>C</li>
+</ul>
+
+<p>The API is really simple. It has the following functionality:</p>
+
+<ul>
+<li>Connect</li>
+<li>Receive connection events</li>
+<li>Subscribe for data</li>
+<li>Receive subscription events such as errors and data updates</li>
+<li>Publish data</li>
+<li>Receive data publishing events (publish success or failure)</li>
+<li>Disconnect</li>
+</ul>
+
+<p>At the moment we have two ways of thinking about the API. The following two examples are using the JavaScript API but we plan to make the APIs virtually identical between technologies with the only differences down to following the language specific standards.<br />
+<a id="more"></a><a id="more-773"></a><br />
+Our main topic of discussion is around how you initiate your connection to the Kwwika service but for completeness I'll provide full examples. The first option we have is to create a <code>Connection</code> object using a factory method on the <code>kwwika</code> namespace.</p>
+
+<p>[javascript]<br />
+var oConnection = kwwika.connect({<br />
+                                    &quot;connectionStatusUpdated&quot;:function(sStatus)<br />
+                                    {<br />
+                                        document.getElementById(&quot;connectionStatus&quot;).innerHTML = sStatus;<br />
+                                    }<br />
+                                 });</p>
+
+<p>var oSubscription =<br />
+    oConnection.subscribe(&quot;/KWWIKA/LIBRARIES/JavaScriptAPI&quot;,<br />
+                          {<br />
+                            &quot;topicUpdated&quot;:function(oSubscription, mUpdate)<br />
+                            {<br />
+                                for(var sFieldName in mUpdate)<br />
+                                {<br />
+                                    document.getElementById(&quot;field_&quot; + sFieldName).innerHTML = mUpdate[sFieldName];<br />
+                                }<br />
+                            },<br />
+                            &quot;topicError&quot;:function(oSubscription, sReason)<br />
+                            {<br />
+                                var sMsg = oSubscription.topicName + &quot; error: &quot; + sReason;<br />
+                                document.getElementById(&quot;topicErrorMessage&quot;).innerHTML = sMsg;<br />
+                            });</p>
+
+<p>oConnection.publish(&quot;/KWWIKA/LIBRARIES/JavaScriptAPI&quot;,<br />
+                    {<br />
+                        &quot;name&quot;: &quot;Phil Leggetter&quot;,<br />
+                        &quot;status&quot;: &quot;Getting feedback about the Kwwika API&quot;,<br />
+                        &quot;datetime&quot;: new Date().getTime()<br />
+                    },<br />
+                    {<br />
+                        &quot;commandSuccess&quot;:function(oSubscription)<br />
+                        {<br />
+                            var sMsg = oSubscription.topicName + &quot; message published.&quot;;<br />
+                            document.getElementById(&quot;publishStatus&quot;).innerHTML = sMsg;<br />
+                        },<br />
+                        &quot;commandError&quot;:function(oSubscription, sError)<br />
+                        {<br />
+                            var sMsg = oSubscription.topicName + &quot; publish error: &quot; + sError;<br />
+                            document.getElementById(&quot;publishStatus&quot;).innerHTML = sMsg;<br />
+                        }<br />
+                    });<br />
+[/javascript]</p>
+
+<p>In the second option is to create a new <code>Kwwika</code> object.</p>
+
+<p>[javascript]<br />
+var oKwwika = new Kwwika({<br />
+                            &quot;connectionStatusUpdated&quot;:function(sStatus)<br />
+                            {<br />
+                                document.getElementById(&quot;connectionStatus&quot;).innerHTML = sStatus;<br />
+                            }<br />
+                         });</p>
+
+<p>var oSubscription =<br />
+    oKwwika.subscribe(&quot;/KWWIKA/LIBRARIES/JavaScriptAPI&quot;,<br />
+                      {<br />
+                        &quot;topicUpdated&quot;:function(oSubscription, mUpdate)<br />
+                        {<br />
+                            for(var sFieldName in mUpdate)<br />
+                            {<br />
+                                document.getElementById(&quot;field_&quot; + sFieldName).innerHTML = mUpdate[sFieldName];<br />
+                            }<br />
+                        },<br />
+                        &quot;topicError&quot;:function(oSubscription, sReason)<br />
+                        {<br />
+                            var sMsg = oSubscription.topicName + &quot; error: &quot; + sReason;<br />
+                            document.getElementById(&quot;topicErrorMessage&quot;).innerHTML = sMsg;<br />
+                        });</p>
+
+<p>oKwwika.publish(&quot;/KWWIKA/LIBRARIES/JavaScriptAPI&quot;,<br />
+                {<br />
+                    &quot;name&quot;: &quot;Phil Leggetter&quot;,<br />
+                    &quot;status&quot;: &quot;Getting feedback about the Kwwika API&quot;,<br />
+                    &quot;datetime&quot;: new Date().getTime()<br />
+                },<br />
+                {<br />
+                    &quot;commandSuccess&quot;:function(oSubscription)<br />
+                    {<br />
+                        var sMsg = oSubscription.topicName + &quot; message published.&quot;;<br />
+                        document.getElementById(&quot;publishStatus&quot;).innerHTML = sMsg;<br />
+                    },<br />
+                    &quot;commandError&quot;:function(oSubscription, sError)<br />
+                    {<br />
+                        var sMsg = oSubscription.topicName + &quot; publish error: &quot; + sError;<br />
+                        document.getElementById(&quot;publishStatus&quot;).innerHTML = sMsg;<br />
+                    }<br />
+                });<br />
+[/javascript]</p>
+
+<p>Do the above examples make sense? Is the API easy enough to use? How would you establish a connection to the Kwwika service? Would you do anything differently?</p>
+
+<p>I'd love to get you feedback so please leave your comments below or email me directly using <a href="mailto:phil@leggetter.co.uk?subject=Defining the Kwwika API">phil@leggetter.co.uk</a>.</p>
+
+</div>
+
+<hr />
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+var disqus_shortname = 'leggetter';
+var disqus_url = 'https://www.leggetter.co.uk/2010/04/02/defining-the-kwwika-api.html';
+
+
+
+var disqus_identifier = '773 https://www.leggetter.co.uk/?page_id=773';
+
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+          </div>
+        </div>
+        <div class="4u 12u(mobile)">
+          <!-- Sidebar -->
+<div id="sidebar">
+
+  <section class="box">
+
+  <form action="https://leggetter.us2.list-manage.com/subscribe/post?u=75fcbc606555d96262c1cd5bd&amp;id=e0524b92e7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+    <header>
+      <h2>Get posts via email</h2>
+    </header>
+    <div class="mc-field-group" style="margin-top: -25px;">
+      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address" style="display:inline-block; margin:0; width: auto;">
+      <input type="submit" value="Go" name="subscribe" id="mc-embedded-subscribe" class="button" style="display:inline-block; min-width: inherit; line-height: 1em;
+      height: 3.1em;
+      vertical-align: top;">
+    </div>
+    <div id="mce-responses" class="clear">
+      <div class="response" id="mce-error-response" style="display:none"></div>
+      <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_75fcbc606555d96262c1cd5bd_e0524b92e7" value=""></div>
+  </form>
+
+  <!--End mc_embed_signup-->
+</section>
+
+
+  <section class="box about">
+
+  <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
+  <p>My name is <strong>Phil Leggetter</strong>. I lead Developer Relations at <a href="https://posthog.com">PostHog</a>. I also advise on developer relations and developer experience at <a href="https://tru.id">tru.ID</a> and <a href="https://crosser.io">Crosser</a>.</p>
+
+</section>
+
+
+  <!-- <section class="box">
+  <header>
+    <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
+  </header>
+  <div style="text-align: center; margin-top: 10px;">
+    <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20"><img border="0" src="https://www.leggetter.co.uk/wp-content/uploads/2013/04/realtime-web-apps-sml.jpg" scale="0"></a><img src="https://www.assoc-amazon.com/e/ir?t=phillegg-20&amp;l=as2&amp;o=1&amp;a=1430246200" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" scale="0">
+    <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
+  </div>
+</section>
+ -->
+
+</div>
+
+        </div>
+      </div>
+    </div>
+	</div>
+	<!-- /Main -->
+
+	<!-- Footer Wrapper -->
+	<div id="footer-wrapper" class="wrapper">
+		<div class="title">Get In Touch</div>
+		<div id="footer" class="container">
+
+				<!-- Contact -->
+				<a name="contact-me" id="contact-me"></a>
+				<section class="feature-list small">
+					<div class="row">
+	          <div class="-2u 4u">
+	            <section>
+	              <h3 class="icon fa-comment">Social</h3>
+	              <p>
+									<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+	              </p>
+	            </section>
+	          </div>
+						<div class="-1u 4u">
+							<section>
+								<h3 class="icon fa-envelope">Email</h3>
+								<p>
+									<a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+								</p>
+							</section>
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+			<hr />
+
+			<div id="copyright">
+				<ul>
+					<li>&copy; Phil Leggetter.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- / Footer Wrapper -->
+
+	</div>
+	
+	<script src="/skel/assets/js/jquery.dropotron.min.js"></script>
+	<script src="/skel/assets/js/skel.min.js"></script>
+	<script src="/skel/assets/js/skel-viewport.min.js"></script>
+	<script src="/skel/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/skel/assets/js/main.js"></script>
+	
+	<script src="/bower_components/jquery-smooth-scroll/jquery.smooth-scroll.min.js"></script>
+
+	<script>
+		( function() {
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
+		} )();
+	</script>
+
+  <script src="/libs/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+	<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-513034-10', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+	<!-- realtime benchmarks -->
+	<!--script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script-->
+	<!-- <script src="http://localhost:5000/benchmark.js"></script> -->
+	<!--script src="https://realtime-latency-stats.herokuapp.com/benchmark.js"></script-->
+</body>
+</html>
+<!--
+Escape Velocity by HTML5 UP
+html5up.net | @n33co
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->

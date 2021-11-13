@@ -1,0 +1,449 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	
+	<title>Choosing your Realtime Web App Tech Stack - Phil Leggetter - Developer Experience & Relations Leader</title>
+	
+
+	<meta property="og:title" content="Choosing your Realtime Web App Tech Stack" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2013/12/09/choosing-realtime-web-app-tech-stack.html" />
+	<meta property="og:description" content="In this final part (sorry for the delay) I'm going to cover how you should approach choosing your Realtime Web App Tech Stack. Socket.IO has done an amazing job when it comes to making people aware of realtime web technology. And it's a great solution. But, it shouldn't be the default choice when choosing your realtime web solution. You should instead take a number of factors into account. Then, if it provides the functionality required to meet your requirements, use it. But there are lots of other  fantastic realtime web solutions available that may be a better fit or your application's needs." />
+	
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<meta name="description" content="In this final part (sorry for the delay) I'm going to cover how you should approach choosing your Realtime Web App Tech Stack. Socket.IO has done an amazing job when it comes to making people aware of realtime web technology. And it's a great solution. But, it shouldn't be the default choice when choosing your realtime web solution. You should instead take a number of factors into account. Then, if it provides the functionality required to meet your requirements, use it. But there are lots of other  fantastic realtime web solutions available that may be a better fit or your application's needs." />
+	
+	<meta name="keywords" content="realtimepubnubpusherrealtime webrealtime web appsfirebaseFOWAmeteorrealtime web stack" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+	
+	
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/skel/assets/css/main.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/skel/assets/css/ie8.css" /><![endif]-->
+	<link rel="stylesheet" href="/css/skel-mods.css" />
+
+  <link rel="stylesheet" href="/libs/highlight/styles/solarized_dark.css" />
+	
+	<script src="/skel/assets/js/jquery.min.js"></script>
+</head>
+<body class="right-sidebar ">
+
+	<!-- Header -->
+	<div id="header-wrapper" class="wrapper">
+		<div id="header">
+
+  <!-- Logo -->
+  <div id="logo">
+    <h1><a href="/">Phil Leggetter</a></h1>
+    <p>Developer Relations at <a style="font-weight: 900; font-size: 1.1em; color: white;" href="https://posthog.com">PostHog</a>. Leader, Team Builder &amp; Advisor</p>
+  </div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul>
+      <li class="current"><a href="/"><img class="logo-sml" src="/images/leggetter-logo-trans-sml.png" title="Phil Leggetter - Home" alt="Phil Leggetter logo" /></a></li>
+      <li>
+        <a href="/aaarrrp" title="The AAARRRP Developer Relations Strategy Framework">AAARRRP</a>
+      </li>
+      <li>
+        <a href="/real-time-web-technologies-guide/">Realtime Web Guide</a>
+        <ul>
+          <li><a href="/real-time-web-technologies-guide">Realtime Web Technology Guide</a></li>
+          <li><a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
+          <li><a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web & Realtime Web Functionality</a></li>
+          <li><a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>
+          <li><a href="/real-time-web-technologies-guide/developer-tools/">Developer Tools</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-hosted-service-latency/">Realtime Hosted Service Latency Stats</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-data-sources/">Realtime Data Sources</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/">Transport Mechanisms</a></li>
+        </ul>
+      </li>
+      <li><a href="/about-phil-leggetter/">About Phil Leggetter</a>
+        <ul>
+          <li><a href="/leggetter-family-tree">The Unique Name of Leggetter</a></li>
+          <li><a href="/mygoffice">My Goffice</a></li>
+        </ul>
+      </li>
+      <li><a href="#contact-me">Contact Me</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+	</div>
+
+	<!-- Main -->
+	<div class="main-wrapper wrapper style2">
+
+    <div class="title">
+			<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+		</div>
+
+    <div id="main" class="container">
+      <div class="row 150%">
+        <div class="8u 12u(mobile)">
+          <div id="content">
+            <h1>Choosing your Realtime Web App Tech Stack</h1>
+<p class="meta">09 Dec 2013</p>
+
+<div class="post">
+<p>In the previous parts of this three part series I covered:</p>
+
+<ul>
+<li>Part 1: <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
+<li>Part 2: <a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web &amp; Realtime Web Functionality</a>.</li>
+<li>The FOWA 2013 <a href="/2014/01/19/video-choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack video</a></li>
+</ul>
+
+<p>On to part three...</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-0.png" alt="" /></p>
+
+<p>In this final part (<em>sorry for the delay</em>) I'm going to cover how you should approach choosing your Realtime Web App Tech Stack.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-1.png" alt="" /></p>
+
+<p><a href="http://socket.io">Socket.IO</a> has done an amazing job when it comes to making people aware of realtime web technology. And it's a great solution.</p>
+
+<p><strong>But, it shouldn't be the default choice when choosing your realtime web solution.</strong></p>
+
+<p>You should instead take a number of factors into account. Then, if it provides the functionality required to meet your requirements, use it. But there are <strong>lots</strong> of other  fantastic realtime web solutions available that may be a better fit or your application's needs.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-2.png" alt="" /></p>
+
+<p>I would certainly recommend using an existing <a href="/real-time-web-technologies-guide">realtime web tech solution</a>. Unless you have a very unique requirement there's no point going through the pain of building something from the ground up. If you really want to focus on adding realtime features to your apps then there is more than likely an existing solution that will enable you to start adding those features quickly.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-3.png" alt="" /></p>
+
+<p>Focusing on features: do you really want to have to write code to deal with connection fallback/upgrade strategy? Surely it's better to use a solution that has that in place.</p>
+
+<p>If you use an existing solution you get support either from the company you've licensed the software from or/and from any community of developers that also use that product or service.</p>
+
+<p>All software has to be maintained. Do you want to deal with the maintenance of the a realtime web solution as well as your application stack? If you use an existing solution that may be handled for you.</p>
+
+<p>For example, when WebSocket came out <a href="http://pusher.com">Pusher</a> handled all the pain as the WebSocket specification changed during numerous revisions and they managed and supported a number of protocol versions. I know I would rather focus on adding features than dealing with the intricacies of the WebSocket spec.</p>
+
+<p>Realtime web tech is still evolving. For example. WebSocket provides support for sub-protocols. If one of these becomes popular it may be the case that the solution you use has that support added in with no effort required from you or your team. If a clear additional use for realtime web technologies raises it's head - such as acting as the middleman in WebRTC connection handshaking - then it may be that the solution you use decide to add this in.</p>
+
+<p>If your application is going to be popular you're going to have to consider how you scale your solution. Some solutions such as <a href="http://faye.jcoglan.com/architecture.html">Faye</a> and <a href="http://www.asp.net/signalr/overview/signalr-20/performance-and-scaling/scaleout-with-redis">SignalR</a> have put a lot of thought into this. Documentation and features will be available to help you achieve that.</p>
+
+<p>When I posted <a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">part two</a> of this series to the <a href="http://www.linkedin.com/groups?home=&amp;gid=2578818&amp;trk=anet_ug_hm&amp;goback=%2Egmr_2578818">LinkedIn Realtime Software &amp; Tech Group</a> the CTO of <a href="http://migratorydata.com/">Migratory Data Systems</a>, Mihai Rotaru, commented on my post:</p>
+
+<blockquote>
+<p>I hope you agree that much more difficult to implement requirements, vital for any production deployment, should be considered when choosing a real-time web technology including:</p>
+<ul>
+<li>Vertical scalability (and performance in general) </li>
+<li>Horizontal scalability via fault-tolerant clustering </li>
+<li>Guaranteed delivery of data in presence of failures (e.g. if the connection between a client and a messaging server is broken or if the messaging server serving the client goes down, the client will reconnect to another cluster member and will receive all messages published during the reconnection time) </li>
+<li>Security of data including data entitlement</li>
+</ul>
+</blockquote>
+
+<p>Well put! Do you want to have to deal with all this? If not, use an existing solution (<em>and definitely consider using a hosted service</em>).</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-4.png" alt="" /></p>
+
+<p>I did say there were lots of solutions - and the above images doesn't show them all!</p>
+
+<p>So, how do you go about filtering that list of existing solutions down and choosing the right one for your app?</p>
+
+<p>Here are some additional considerations that will help.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-5.png" alt="" /></p>
+
+<p>Sometimes you may need to dive into the code of the solution you've chosen. So it makes sense to choose one that is written in a language that you and your team are comfortable with. In some cases you can then even contribute to the solution with bug fixes and improvements.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-6.png" alt="" /></p>
+
+<p>The one language that there seems to be some limit with right now is PHP. For more information see my post on <a href="/2013/10/18/the-current-state-of-realtime-web-tech-for-php.html">The current state of Realtime Web Tech for PHP</a>.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-7.png" alt="" /></p>
+
+<p>As with most web technology the initial focus was desktop web clients - web browsers. Mobile is also very big in this space but only some solutions have good native mobile client support (Objective-C for iOS, Java for Android and .NET for Windows Phone).</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-8.png" alt="" /></p>
+
+<p>When building for mobile you also need to think about things such as the amount of data you're sending, how frequently data is being sent and the processing these things result in on the mobile client.</p>
+
+<p>I think PubSub solutions make you think about messaging and Data Sync solutions that only send deltas (the changes to data) are the best solutions in this space. I feel that RMI may abstract things away too much and you might forget you're making calls 'over the wire'.</p>
+
+<p>The solution is also going to have to provide SSL support as many mobile networks tamper with or drop persistent connections; HTTP Streaming and WebSockets. You may also need HTTP fallback on mobile.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-9.png" alt="" /></p>
+
+<p>I don't have a comprehensive list of solutions that have good mobile support, but I do know that self hosted solutions like Socket.IO, Faye and SignalR do have some mobile client libraries and hosted services like Firebase, PubNub and Pusher do too. I'll try to update the <a href="/real-time-web-technologies-guide">realtime web tech guide</a> to highlight this information.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-10.png" alt="" /></p>
+
+<p>In order to make a decision on the right realtime web solution for your application you need a good understanding of the functionality that it offers.</p>
+
+<p>You need to understand the structure of the data, how it's used in the application and how you expect it to be requested and transmitted between the client and the server. How complex is the data and how much data will your app have?</p>
+
+<p>How complex are the interactions between your user and the application and how does that affect the interactions between client and server?</p>
+
+<p>All this should feed into you being able to choose the type of functionality you need.</p>
+
+<p>Is it a simple messaging solution where you just get a data blob in an <code>onMessage</code> callback?</p>
+
+<p>Do you have data that you want to be able to partition and have users selectively subscribe (PubSub) to sections of data?</p>
+
+<p>Are the interactions more like method invocations?</p>
+
+<p>Or are you synchronising data structures between clients?</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-11.png" alt="" /></p>
+
+<p>In the diagram above there's an X-Axis representing functional complexity and the Y-Axis represents data complexity.</p>
+
+<p>If the data in your system is simple and the application functionality (around that data) is also relatively simple then it's possible that a simple messaging solution (<code>onMessage</code>) may fit the application's needs.</p>
+
+<p>As the complexity of the data increases (and the amount of data) then a PubSub solution is more likely to be a better fit.</p>
+
+<p>If the data is simple and the the data sizes of the objects representing the method parameters are small, but the interactions are complex, then a RMI solution may suit your needs.</p>
+
+<p>As data complexity increases along with application complexity then a Data Synchronisation solution may be a better fit.</p>
+
+<p>This isn't a one-size-fits-all diagram, but it provides a nice simple way of considering which solution may suit your application's needs.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-12.png" alt="" /></p>
+
+<p>The diagram above shows how the examples I provided in the Benefits &amp; Use Cases section of <a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">part one</a> fit into the functionality quadrants.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-13.png" alt="" /></p>
+
+<p>This diagram is an attempt to show the functionality offered by some of the available realtime web solutions. This may not be 100% correct but I plan to add this to the <a href="/real-time-web-technologies-guide">realtime web guide</a> in order to make it as easy as possible for others to make contributes and fixes.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-14.png" alt="" /></p>
+
+<p>The stage in development that you are at can also affect what the most viable realtime web solution is for you.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-15.png" alt="" /></p>
+
+<p>If you already have an application then you'll want to choose a solution that can easily be integrated with your existing application, and it's architecture.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-16.png" alt="" /></p>
+
+<p>It may be possible to integrate a self-hosted solution in a tightly coupled way. By that I mean the applicaiton web server handles both the HTTP requests and the persistent connections (e.g. WebSocket and HTTP fallback connections) and the logic for your web apps is integrated with your realtime web functionality.</p>
+
+<p>It's possible that there would be less initial overhead in doing this (but not guaranteed if you're really shoe-horning the functionality in). However, as the project grows the complexity of your codebase will increase and you're highly likely going to start to experience problems caused by this complexity. Realtime vs standard web functionality is a good place to exercise <a href="http://en.wikipedia.org/wiki/Separation_of_concerns">separation of concerns</a> and keep that functionality <a href="http://en.wikipedia.org/wiki/Loose_coupling">loosely coupled</a>.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-17.png" alt="" /></p>
+
+<p>It's generally agreed that a loosely coupled architecture is going to be easier to change, maintain, test and scale. Your DB may even be message-queue-capable (e.g. Redis) so a loosely coupled integration may actually be very simple.</p>
+
+<p>In this situation you can also scale-out your realtime server independently of your web server.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-18.png" alt="" /></p>
+
+<p>Hosted services offer the fastest and probably simplest integration option - it's one of their focuses, after all.</p>
+
+<p>With a hosted service you get natural loose coupling and you can integrate via simple calls to their APIs. Or by pushing messages onto a queue where integration with the service is performed via one or more dedicated processes.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-19.png" alt="" /></p>
+
+<p>There are an increasing number of realtime hosted services available. Those leading the way are <a href="http://firebase.com">Firebase</a>, <a href="http://pusher.com">Pusher</a> and <a href="http://pubnub.com">PubNub</a>.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-20.png" alt="" /></p>
+
+<p>If you don't presently have an application and are just kicking off your application development you have the full playing field of realtime web solutions to choose from. That includes all the solutions I've already discussed but also some new breeds of framework.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-6-21.png" alt="" /></p>
+
+<p>These solutions come with realtime functionality baked-in as a core feature. The framework getting the most publicity right now - and the one with a large amount of funding - is <a href="http://meteor.com">Meteor</a> (not to be confused with the original Meteor Perl solution). Meteor offers a full stack framework built on Node.js that lets you write all your functionality in JavaScript, share code between the front-end and backend, offers data synchronisation, RMI style functionality and also has built in JavaScript templating. They also offer application hosting.</p>
+
+<p>Other solutions worth looking into are <a href="http://firebase.com">Firebase</a> (that also integrations well as a traditional hosted-service), <a href="http://sailsjs.org/">SailsJS</a>, <a href="https://github.com/socketstream/socketstream">SocketStream</a> and a number of solutions listed as a <a href="http://nobackend.org">no-backend solution</a>.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-7-0.png" alt="" /></p>
+
+<p>In this three-part series, based on my "Choosing your Realtime Web App Tech Stack" FOWA talk, I've covered a lot of information:</p>
+
+<p>I've discussed why realtime functionality offers both business benefit in the form of increased capability and perception, and the user benefits through an improved service, faster access to information and richer functionality.</p>
+
+<p>I've then gone into the type of functionality that realtime web solutions offer; simple messaging, PubSub, RMI and data synchronisation.</p>
+
+<p>Finally, in this post I've covered how to go about choosing the right solution for you. Choose a good existing solution and consider choosing based on the language it was implemented in. Consider native mobile support as a requirement, and understand how your application will function so you can choose a solution offering the right kind of functionality. And I've covered how the stage of development that you are at should also be considered as there are some exciting new options available to choose from.</p>
+
+<p>After over 10 years working with realtime web technologies I'm still very excited by realtime web technologies - I hope it shows. Realtime functionality is becoming more important and beneficial; the arrival of a number of realtime-focused frameworks demonstrates that. Other existing frameworks are adding this functionality and <strong>maybe it won't be long until realtime will be a standard part of most application frameworks and applications</strong>.</p>
+
+<p><img src="/wp-content/uploads/2013/11/slide-7-1.png" alt="" /></p>
+
+<p>I'm Phil Leggetter, I maintain the <a href="/real-time-web-technologies-guide">realtime web tech guide</a>, I've written a book on building <a href="http://j.mp/realtime-web-apps-uk">Realtime Web Apps with a PHP stack</a> (because it's not as easy as it should be) and I'm presently working on open sourcing a developer toolkit for building complex front-end web apps called <a href="http://bladerunnerjs.org">BladeRunnerJS</a>.</p>
+
+</div>
+
+<hr />
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+var disqus_shortname = 'leggetter';
+var disqus_url = 'https://www.leggetter.co.uk/2013/12/09/choosing-realtime-web-app-tech-stack.html';
+
+
+
+var disqus_identifier = '24239 https://www.leggetter.co.uk/?page_id=24239';
+
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+          </div>
+        </div>
+        <div class="4u 12u(mobile)">
+          <!-- Sidebar -->
+<div id="sidebar">
+
+  <section class="box">
+
+  <form action="https://leggetter.us2.list-manage.com/subscribe/post?u=75fcbc606555d96262c1cd5bd&amp;id=e0524b92e7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+    <header>
+      <h2>Get posts via email</h2>
+    </header>
+    <div class="mc-field-group" style="margin-top: -25px;">
+      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address" style="display:inline-block; margin:0; width: auto;">
+      <input type="submit" value="Go" name="subscribe" id="mc-embedded-subscribe" class="button" style="display:inline-block; min-width: inherit; line-height: 1em;
+      height: 3.1em;
+      vertical-align: top;">
+    </div>
+    <div id="mce-responses" class="clear">
+      <div class="response" id="mce-error-response" style="display:none"></div>
+      <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_75fcbc606555d96262c1cd5bd_e0524b92e7" value=""></div>
+  </form>
+
+  <!--End mc_embed_signup-->
+</section>
+
+
+  <section class="box about">
+
+  <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
+  <p>My name is <strong>Phil Leggetter</strong>. I lead Developer Relations at <a href="https://posthog.com">PostHog</a>. I also advise on developer relations and developer experience at <a href="https://tru.id">tru.ID</a> and <a href="https://crosser.io">Crosser</a>.</p>
+
+</section>
+
+
+  <!-- <section class="box">
+  <header>
+    <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
+  </header>
+  <div style="text-align: center; margin-top: 10px;">
+    <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20"><img border="0" src="https://www.leggetter.co.uk/wp-content/uploads/2013/04/realtime-web-apps-sml.jpg" scale="0"></a><img src="https://www.assoc-amazon.com/e/ir?t=phillegg-20&amp;l=as2&amp;o=1&amp;a=1430246200" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" scale="0">
+    <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
+  </div>
+</section>
+ -->
+
+</div>
+
+        </div>
+      </div>
+    </div>
+	</div>
+	<!-- /Main -->
+
+	<!-- Footer Wrapper -->
+	<div id="footer-wrapper" class="wrapper">
+		<div class="title">Get In Touch</div>
+		<div id="footer" class="container">
+
+				<!-- Contact -->
+				<a name="contact-me" id="contact-me"></a>
+				<section class="feature-list small">
+					<div class="row">
+	          <div class="-2u 4u">
+	            <section>
+	              <h3 class="icon fa-comment">Social</h3>
+	              <p>
+									<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+	              </p>
+	            </section>
+	          </div>
+						<div class="-1u 4u">
+							<section>
+								<h3 class="icon fa-envelope">Email</h3>
+								<p>
+									<a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+								</p>
+							</section>
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+			<hr />
+
+			<div id="copyright">
+				<ul>
+					<li>&copy; Phil Leggetter.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- / Footer Wrapper -->
+
+	</div>
+	
+	<script src="/skel/assets/js/jquery.dropotron.min.js"></script>
+	<script src="/skel/assets/js/skel.min.js"></script>
+	<script src="/skel/assets/js/skel-viewport.min.js"></script>
+	<script src="/skel/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/skel/assets/js/main.js"></script>
+	
+	<script src="/bower_components/jquery-smooth-scroll/jquery.smooth-scroll.min.js"></script>
+
+	<script>
+		( function() {
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
+		} )();
+	</script>
+
+  <script src="/libs/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+	<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-513034-10', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+	<!-- realtime benchmarks -->
+	<!--script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script-->
+	<!-- <script src="http://localhost:5000/benchmark.js"></script> -->
+	<!--script src="https://realtime-latency-stats.herokuapp.com/benchmark.js"></script-->
+</body>
+</html>
+<!--
+Escape Velocity by HTML5 UP
+html5up.net | @n33co
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->

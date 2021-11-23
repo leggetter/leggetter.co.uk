@@ -23,16 +23,16 @@ Over the next few weeks or months, as I search for my next role, I'm hoping that
 - [What I want from a role](#what-i-want-from-a-role):
     - Accountability spanning developer experience and relations; the end-to-end developer journey with a brand
     - An opportunity to learn and grow
-    - A servant leadership and team building role
+    - A servant leadership and team-building role
     - To directly help a business succeed
 
 ## What I'll Bring
 
 I hope that [my experience](https://www.linkedin.com/in/leggetter/), which includes over 20 years of building developer-focused products and engaging with developer communities, speaks for itself. But, here are some highlights that I feel are most relevant to my search for a new role right now.
 
-### Servant Leadership & Team Building
+### Servant Leadership & Team-Building
 
-I enjoy helping others succeed and I've a proven record of seeding, growing, and scaling mult-functional and globally distributed teams.
+I enjoy helping others succeed, and I have a proven record of seeding, growing, and scaling multi-functional and globally distributed teams.
 
 My biggest challenge and learning experience was growing a DevRel team of three people to become a Platform & Developer Experience team of forty-two people. The team was diverse, collaborative, multi-functional, remote-first and distributed from San Francisco to Singapore, with a multi-million dollar budget and revenue goal.
 
@@ -47,7 +47,7 @@ These teams delivered business value and [won multiple awards](https://www.nexmo
 
 ### A Product-First Approach
 
-I have a background in software engineering so I am a developer and understand what developers need and care about. You have to start with a product that solves a real problem and provides a really good developer experience.
+I have a background in software engineering, so I am a developer and understand what developers need and care about. You have to start with a product that solves a real problem and provides a really good developer experience.
 
 > There's no point in driving developer awareness of a product that provides a poor developer experience.
 > 
@@ -91,11 +91,11 @@ No matter the type of company, I want my focus to be enabling a team to serve de
 I've learned that it's important to be excited about the products that the company I work for is building. In the past, the products for companies I've most enjoyed working with are:
 
 - Real-time web technologies: Caplin Systems and Pusher
-- An open-source tooklit for building complex JavaScript apps: BladeRunnerJS by Caplin Systems
+- An open-source toolkit for building complex JavaScript apps: BladeRunnerJS by Caplin Systems
 - APIs for communications such as messaging, voice, and video: Nexmo/Vonage
 - Open-source product analytics, including funnels and feature flags: PostHog
 
-I'm not as interested in roles focused on developer infrastructure/devops such as k8s and source control. These are powerful and important products but not something that excites me as much as those listed above.
+I'm not as interested in roles focused on developer infrastructure/DevOps such as k8s and source control. These are powerful and important products but not something that excites me as much as those listed above.
 
 ### Be Transparent
 
@@ -121,7 +121,7 @@ I want to build upon these experiences, which means a role such as Chief Develop
 
 ### Servant Leadership & Team Building
 
-I work this way and I want to work with others who do too.
+I work this way, and I want to work with others who do too.
 
 I believe the traditional company org chart should be inverted where the CEO's role is to support and enable everyone above them. Therefore, my role as a leader within an organisation will be to grow, support and enable a department or team.
 

@@ -16,9 +16,10 @@ From 2016 to 2020 I had the pleasure of supporting, enabling and growing a Devel
 
 Prior to joining Nexmo I was Head of Developer Relations at <a href="https://pusher.com">Pusher</a> where I wrote documentation, built SDKs, handled support, met customers, frequently wrote articles and gave talks on <a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technologies</a> and general Web technology.
 
-I'm also the co-author of the APress for-beginners title "<a href="http://realtimewebapps.com">Realtime Web Apps</a>".
+I'm was the techical editor of the book [Developer Relations
+How to build and grow a successful developer program](https://www.devrelbook.com/), a contributor to the book [HTML5 Hacks](https://www.oreilly.com/library/view/html5-hacks/9781449335052/), and the co-author of the APress for-beginners title "<a href="http://realtimewebapps.com">Realtime Web Apps</a>".
 
-I live near Dollar, Clackmannanshire in Scotland where I frequently work from <a href="/mygoffice">MyGoffice</a>.
+I live near Dollar, Clackmannanshire in Scotland.
 
 <style>
   #socialmediabuttons {

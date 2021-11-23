@@ -482,6 +482,11 @@ flagged-respawn@^1.0.0:
   resolved "https://registry.yarnpkg.com/flagged-respawn/-/flagged-respawn-1.0.1.tgz#e7de6f1279ddd9ca9aac8a5971d618606b3aab41"
   integrity sha512-lNaHNVymajmk0OJMBn8fVUAU1BtDeKIqKoVhk4xAALB57aALg6b4W0MfJ/cUE0g9YBXy5XhSlPIpYIJ7HaY/3Q==
 
+flex-exec@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/flex-exec/-/flex-exec-1.0.0.tgz#06974b68532839d2a12c32debcdb12378200fdf0"
+  integrity sha1-BpdLaFMoOdKhLDLevNsSN4IA/fA=
+
 for-in@^1.0.1, for-in@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/for-in/-/for-in-1.0.2.tgz#81068d295a8142ec0ac726c6e2200c30fb6d5e80"
@@ -530,12 +535,13 @@ get-value@^2.0.3, get-value@^2.0.6:
   resolved "https://registry.yarnpkg.com/get-value/-/get-value-2.0.6.tgz#dc15ca1c672387ca76bd37ac0a395ba2042a2c28"
   integrity sha1-3BXKHGcjh8p2vTesCjlbogQqLCg=
 
-gift@^0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/gift/-/gift-0.6.1.tgz#c1698e6b6887164ed978a01095423cff65b8e79f"
-  integrity sha1-wWmOa2iHFk7ZeKAQlUI8/2W4558=
+gift@^0.10.2, gift@^0.6.1:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/gift/-/gift-0.10.2.tgz#4600efe8f284b51fcb01c3527b321e22b494e156"
+  integrity sha512-wC9aKnQpjfOTWX+JG4DPJkS89ux6sl8EN4hXhv/2vBoXCDTEz1JiTeGTSeuKYlCqIgUFM1JwPVym34Sys3hvzw==
   dependencies:
-    underscore "1.x.x"
+    flex-exec "^1.0.0"
+    underscore "^1.8.3"
 
 glob-base@^0.3.0:
   version "0.3.0"
@@ -1944,10 +1950,10 @@ unc-path-regex@^0.1.2:
   resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
   integrity sha1-5z3T17DXxe2G+6xrCufYxqadUPo=
 
-underscore@1.x.x:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.12.0.tgz#4814940551fc80587cef7840d1ebb0f16453be97"
-  integrity sha512-21rQzss/XPMjolTiIezSu3JAjgagXKROtNrYFEOWK109qY1Uv2tVjPTZ1ci2HgvQDA16gHYSthQIJfB+XId/rQ==
+underscore@^1.8.3:
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.1.tgz#0c1c6bd2df54b6b69f2314066d65b6cde6fcf9d1"
+  integrity sha512-hzSoAVtJF+3ZtiFX0VgfFPHEDRm7Y/QPjGyNo4TVdnDTdft3tr8hEkD25a1jC+TjTuE7tkHGKkhwCgs9dgBB2g==
 
 union-value@^1.0.0:
   version "1.0.1"

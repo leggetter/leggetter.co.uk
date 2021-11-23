@@ -35,6 +35,7 @@
     "gulp-run": "^1.6.10"
   },
   "resolutions": {
-    "graceful-fs": "^4.2.4"
+    "graceful-fs": "^4.2.4",
+    "gift": "^0.10.2"
   }
 }

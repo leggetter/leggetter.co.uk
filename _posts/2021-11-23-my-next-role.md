@@ -12,6 +12,7 @@ Over the next few weeks or months, as I search for my next role, I'm hoping that
 
 - [What I'll bring](#what-i'll-bring):
     - See [my LinkedIn profile]([my experience](https://www.linkedin.com/in/leggetter/)). In particular, my time at Nexmo (acquired by Vonage)
+    - A successful servant leader and award-winning team builder
     - A product-first approach that must start with the developer experience
     - Business understanding and the ability to achieve strategic alignment with developer-focused initiatives
 - [How I'll assess the company](#how-i'll-assess-the-company):
@@ -27,7 +28,22 @@ Over the next few weeks or months, as I search for my next role, I'm hoping that
 
 ## What I'll Bring
 
-I hope that [my experience](https://www.linkedin.com/in/leggetter/) speaks for itself, but here are some things that I feel are most relevant to my search for a new role right now.
+I hope that [my experience](https://www.linkedin.com/in/leggetter/), which includes over 20 years of building developer-focused products and engaging with developer communities, speaks for itself. But, here are some highlights that I feel are most relevant to my search for a new role right now.
+
+### Servant Leadership & Team Building
+
+I enjoy helping others succeed and I've a proven record of seeding, growing, and scaling mult-functional and globally distributed teams.
+
+My biggest challenge and learning experience was growing a DevRel team of three people to become a Platform & Developer Experience team of forty-two people. The team was diverse, collaborative, multi-functional, remote-first and distributed from San Francisco to Singapore, with a multi-million dollar budget and revenue goal.
+
+The teams were:
+
+- **Developer Experience**: API standards, documentation, dashboards (inc. signup flow), SDKs and sample code. See the [developer.vonage.com](https://developer.nexmo.com).
+- **Developer Education**: Blog posts, streaming, and video content. See [learn.vonage.com](https://learn.vonage.com).
+- **Community**: Internal and external developer community engagement. See [Vonage OneHack](https://www.nexmo.com/legacy-blog/2018/12/14/onehack-devrel-internal-hackathon-dr) and [Vonage Voyagers](https://developer.vonage.com/voyagers).
+- **End-to-End Experience**: defining, managing, and coordinating the Nexmo and Tokbox to Vonage rebrand and the experience crossing multiple digital assets.
+
+These teams delivered business value and [won multiple awards](https://www.nexmo.com/legacy-blog/2018/11/28/all-your-devrel-award-belong-to-us-dr) year-on-year.
 
 ### A Product-First Approach
 
@@ -99,15 +115,15 @@ I'm looking for a similar opportunity where I am accountable for many developer 
 
 ### An Opportunity to Learn & Grow
 
-My biggest challenge and learning experience was growing a DevRel team of three people to become a Platform & Developer Experience team of forty-two people. The team was diverse, collaborative, multi-functional, remote-first and spread from San Francisco to Singapore, with a multi-million dollar budget and revenue goal.
-
-During that period, I was on the Nexmo SLT (Senior Leadership Team) and then the API Core Council (an exec team representing the API group within Vonage). In these teams, I acted as the "voice of the developer" across Vonage and gained a lot of insight into how businesses operate.
+I was on the Nexmo SLT (Senior Leadership Team) and then the Vonage API Core Council (an exec team representing the API group within Vonage). In these groups, I acted as the "voice of the developer" across Vonage and gained a lot of insight into how businesses operate.
 
 I want to build upon these experiences, which means a role such as Chief Developer Relations/Developer Experience Officer would be perfect. However, these roles are few and far between, so a VP-level role that reports directly to a C-level executive would also give me the access I feel I need to learn, grow, and help a team and business be successful.
 
 ### Servant Leadership & Team Building
 
-I enjoy helping others succeed. However, I believe the traditional company org chart should be inverted where the CEO's role is to support and enable everyone above them. Therefore, my role as a leader within an organisation will be to grow, support and enable a department or team.
+I work this way and I want to work with others who do too.
+
+I believe the traditional company org chart should be inverted where the CEO's role is to support and enable everyone above them. Therefore, my role as a leader within an organisation will be to grow, support and enable a department or team.
 
 I want to work as part of a dedicated team or function. I'm not a standalone individual contributor (IC) though I can be an IC on a team and lead it.
 

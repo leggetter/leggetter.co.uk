@@ -95,7 +95,7 @@ I've learned that it's important to be excited about the products that the compa
 - APIs for communications such as messaging, voice, and video: Nexmo/Vonage
 - Open-source product analytics, including funnels and feature flags: PostHog
 
-I'm not as interested in roles focused on developer infrastructure/DevOps such as k8s and source control. These are powerful and important products but not something that excites me as much as those listed above.
+I'm not as interested in roles focused on developer deployment infrastructure/DevOps such as k8s or source control. These are powerful and important products but not something that excites me as much as those listed above.
 
 ### Be Transparent
 

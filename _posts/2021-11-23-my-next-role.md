@@ -11,7 +11,7 @@ Over the next few weeks or months, as I search for my next role, I'm hoping that
 ## TL;DR / Exec Summary
 
 - [What I'll bring](#what-i'll-bring):
-    - See [my LinkedIn profile]([my experience](https://www.linkedin.com/in/leggetter/)). In particular, my time at Nexmo (acquired by Vonage)
+    - See [my LinkedIn profile](https://www.linkedin.com/in/leggetter/). In particular, my time at Nexmo (acquired by Vonage)
     - A successful servant leader and award-winning Developer Relations team builder
     - A product-first approach that must start with the developer experience
     - Business understanding and the ability to achieve strategic alignment with developer-focused initiatives

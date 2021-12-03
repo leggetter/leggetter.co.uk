@@ -22,7 +22,7 @@ permalink: /real-time-web-technologies-guide/
 
 *Note: This page is a work in progress. I plan to update it new technologies as I find them and increase the information on each as I find the time. If you know of a technology that should be included in this guide then please [raise a pull request](https://github.com/leggetter/realtime-web-technologies-guide). If you have any questions please drop me an <a href="mailto:phil@leggetter.co.uk?subject=Real-Time Technology Guide">email me</a>*
 
-**As above, you can contribute to the list by making a pull request to the <a href="https://github.com/leggetter/realtime-web-technologies-guide">Realtime Web Technologies Guide github repo<a>.**
+**As above, you can contribute to the list by making a pull request to the [Realtime Web Technologies Guide github repo](https://github.com/leggetter/realtime-web-technologies-guide).**
 
 <ul class="toc">
   <li>

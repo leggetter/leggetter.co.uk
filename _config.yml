@@ -1,7 +1,4 @@
 name: "Phil Leggetter - Developer Experience & Relations Leader"
-markdown: redcarpet
-redcarpet:
-  extensions: ["tables"]
 highlighter: true
 relative_permalinks: false
 plugins: [jekyll-paginate]

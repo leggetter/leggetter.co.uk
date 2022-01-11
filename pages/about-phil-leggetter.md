@@ -10,7 +10,7 @@ From 2016 to 2020 I had the pleasure of supporting, enabling and growing a Devel
 - Won the very first "Best Overall Developer Relations Programme Award" in 2018
 - Won 5 awards for documentation across 2018 and 2019
 - Raised awareness in targeted developer communities from 0% to 30%
-- Increased monthly developer blog post traffic by over 200% and climbing
+- Increased monthly developer blog post traffic by over 1000% and climbing
 - Championed and executed on a new self-serve developer onboarding flow that saw the number of developers that experience our APIs increase by 200%
 - …and so much more
 

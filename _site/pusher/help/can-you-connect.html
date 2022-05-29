@@ -1,0 +1,125 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+	<head>
+		<title>Can you connect to Pusher?</title>		
+	  <style>
+	  	.yes {
+			color: green;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		.unknown {
+			color: orange;
+		}
+		h3 {
+			margin-top: 30px;
+			border-top: 1px solid #e7e7e7;
+		}
+	  </style>
+	</head>
+	<body>
+		<h1>Can you connect to Pusher? (<span id="pusher_version"></span>)</h1>
+		<h2 id="can_you_connect" class="unknown">Trying to connect <span class="progress">...</span></h2>
+		<h3>Debug</h3>
+		<div id="log"></div>
+		
+		<script>
+		  var PUSHER_HELP = {};
+      PUSHER_HELP._query;
+      PUSHER_HELP.getQueryValue = function(name, defaultValue) {
+      	if(PUSHER_HELP._query === undefined) {
+      		var i;
+      		var param;
+      		var params = document.location.search.split("&");
+      		params[0] = params[0].substring(1, params[0].length);
+      		var nameValues = {};
+      		for(i = 0, l = params.length; i < l; i=i+1) {
+      			param = params[i].split("=");
+      			nameValues[ param[0] ] = param[1];
+      		}
+
+      		PUSHER_HELP._query = nameValues;
+      	}
+      	var value = PUSHER_HELP._query[name];
+      	return (value?value:defaultValue);
+      };
+      PUSHER_HELP.KEY = PUSHER_HELP.getQueryValue("key", "da6da0f4862846b74325");
+		
+		
+		  function loadScript( src, loaded ) {
+		    var script = document.createElement("script"),
+		        tag = document.getElementsByTagName("script")[0];
+        
+        script.src = src;
+        tag.parentNode.insertBefore(script, tag);
+        
+        if( loaded && loaded.check && loaded.callback ) {
+          var check = function() {
+            if( loaded.check() ) {
+              loaded.callback();
+            }
+            else {
+              setTimeout(check, 200);
+            }
+          };
+          setTimeout(check, 0);
+        }
+		  }
+		  
+		  function init() {
+		    var version = PUSHER_HELP.getQueryValue('v', '1.12');
+		    
+		    document.getElementById('pusher_version').innerText = version;
+		    
+		    loadScript('http://js.pusher.com/' + version + '/pusher.min.js', {
+		      callback: connectCheck,
+		      check: function() {
+		        return window['Pusher'] !== undefined;
+		      }
+		    });
+		  }
+		  
+		  function connectCheck() {
+		    Pusher.host = PUSHER_HELP.getQueryValue("host", "ws.pusherapp.com");
+        Pusher.ws_port = PUSHER_HELP.getQueryValue("ws_port", 80);
+        Pusher.wss_port = PUSHER_HELP.getQueryValue("wss_port", 443);
+		    
+		    var started = new Date();
+  			function log(message)
+  			{
+  				if (window.console && window.console.log) {
+  					window.console.log(message);
+  				}
+
+  				var logDiv = document.getElementById("log");
+  				var timeSinceStart = getTimeSinceStart(started);
+  				logDiv.innerHTML = "(" + timeSinceStart + "): " + message + "<br />" + logDiv.innerHTML;
+  			};
+
+  			function getTimeSinceStart(){
+  		    var now = new Date();
+  		    var diff = (now - started);
+  		    return diff;
+  			};
+
+  			// Enable pusher logging - don't include this in production
+  			Pusher.log = function(message) {
+  				log(message);
+  			};
+
+  			// Flash fallback logging - don't include this in production
+  			WEB_SOCKET_DEBUG = true;
+
+  			var pusher = new Pusher(PUSHER_HELP.KEY, {encrypted: PUSHER_HELP.getQueryValue("encrypted") === "true"});
+
+  			pusher.connection.bind("connected", function(data) {
+  				var canConnect = document.getElementById("can_you_connect");
+  				canConnect.className = "yes";
+  				canConnect.innerHTML = "Yes";
+  			});
+		  }
+		  
+		  window.addEventListener ? window.addEventListener("load", init, false) : window.attachEvent("onload", init);
+		</script>
+	</body>
+</html>

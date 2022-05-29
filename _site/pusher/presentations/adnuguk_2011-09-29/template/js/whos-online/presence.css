@@ -1,0 +1,52 @@
+.whos-online {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 10000;
+  overflow: auto; 
+  
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 11px; 
+}
+
+.whos-online > div {
+  margin: auto;
+  width: 60px;
+  background-color: #C7C7C7;
+  border: 1px solid #000;
+  border-radius: 8px;
+  overflow: auto;
+  opacity: 0.8;
+}
+
+.whos-online ul {
+  /*display: none;
+  float:left;
+  margin: 0;
+  padding: 0;
+  height: 30px;
+  list-style: none !important;*/
+  max-width: 700px;
+}
+
+.whos-online ul li {
+  float: left;
+  list-style: none;
+  margin: 4px;
+  padding: 4px;
+  margin-left: 20px;
+}
+
+.whos-online ul li::before {
+  /*content: '';*/
+}
+
+.whos-online .count {
+  float: right;
+  padding: 4px;
+  margin: 4px;
+  margin-right: 10px;
+  padding-left: 40px;
+  background-image: url(users.png);
+  background-repeat: no-repeat;
+}

@@ -1,0 +1,20 @@
+<p class="intro">
+	This app enables multi-user edit of ArcGIS Online web maps.  Any edit is broadcast to all other web map users realtime.  Enter a web map ID or click on one of the existing maps, sharing the map URL with several of your colleagues, and start editing at the same time to see it in action.
+</p>
+
+<form class="form-webmap">
+  <h2 class="form-webmap-heading">Enter a webmap ID</h2>
+  <input type="text" class="input-block-level" placeholder="webmap ID" ng-model="webmap.id">
+  <button class="btn btn-large btn-primary" ng-click="choose( webmap )" type="submit">Start Editing</button>
+</form>
+
+<div class="example-maps">
+	<h3>Example webmaps</h3>
+	<ul>
+		<li><a href="#/map/a1c44a0cde484dd88a0901c65624d327">Landsat NDVI Change</a></li>
+		<li><a href="#/map/8bf7167d20924cbf8e25e7b11c7c502c">World Streets</a></li>
+		<li><a href="#/map/5ae9e138a17842688b0b79283a4353f6">Ocean Basemap</a></li>
+		<li><a href="#/map/d94dcdbe78e141c2b2d3a91d5ca8b9c9">National Geographic</a></li>
+		<li><a href="#/map/0a83a78096ac4f5798af58f124174c4f">ArcGIS Online World Imagery</a></li>
+	<ul>
+</div>

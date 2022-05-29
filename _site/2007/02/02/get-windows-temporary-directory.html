@@ -1,0 +1,28 @@
+<p>layout: post
+status: publish
+published: true
+title: &quot;C# - Get Windows Temporary Directory&quot;
+author:
+  display<em>name: Phil Leggetter
+  email: &quot;phil@leggetter.co.uk&quot;
+  url: &quot;https://www.leggetter.co.uk&quot;
+author</em>email: &quot;phil@leggetter.co.uk&quot;
+author<em>url: &quot;https://www.leggetter.co.uk&quot;
+wordpress</em>id: 8
+wordpress<em>url: &quot;https://www.leggetter.co.uk/2007/02/02/get-windows-temporary-directory.html&quot;
+date: &quot;2007-02-02 10:25:48 +0000&quot;
+date</em>gmt: &quot;2007-02-02 09:25:48 +0000&quot;
+categories:
+  - Technology
+tags:
+  - &quot;C# Snippets&quot;
+  - .NET
+  - Software Development
+  - &quot;C#&quot;</p>
+
+<h2 id="permalink:-/2007/02/02/get-windows-temporary-directory.html"><a href="#permalink:-/2007/02/02/get-windows-temporary-directory.html">permalink: /2007/02/02/get-windows-temporary-directory.html</a></h2>
+
+<p>Once you know it you'll probably never forget it...but wait, this is the second time I've <a href="http://www.google.com/search?q=C%23+get+temp+folder+path" title="Google search for C# get temp folder path">googled</a> for this. I'd best post how  you "<strong>get the Windows temporary directory using C#</strong>"!</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp">string tempPath = System.IO.Path.GetTempPath();
+</code></pre></figure>

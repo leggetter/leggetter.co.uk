@@ -1,0 +1,491 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	
+	<title>How to Describe, Publish & Consume Real-Time Data - Phil Leggetter - Developer Experience & Relations Leader</title>
+	
+
+	<meta property="og:title" content="How to Describe, Publish & Consume Real-Time Data" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html" />
+	<meta property="og:description" content="In this final post in the real-time data series we’ll cover the how: how to describe, publish & consume real-time data from your systems and expose the data so that you can build real-time features. The main steps we’re going to cover are doing Analysing & Processing, Describing the data, Publishing the data and finally Consuming and Using that data within and app." />
+	
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<meta name="description" content="In this final post in the real-time data series we’ll cover the how: how to describe, publish & consume real-time data from your systems and expose the data so that you can build real-time features. The main steps we’re going to cover are doing Analysing & Processing, Describing the data, Publishing the data and finally Consuming and Using that data within and app." />
+	
+	<meta name="keywords" content="" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+	
+	
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/skel/assets/css/main.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/skel/assets/css/ie8.css" /><![endif]-->
+	<link rel="stylesheet" href="/css/skel-mods.css" />
+
+  <link rel="stylesheet" href="/libs/highlight/styles/solarized_dark.css" />
+	
+	<script src="/skel/assets/js/jquery.min.js"></script>
+</head>
+<body class="right-sidebar ">
+
+	<!-- Header -->
+	<div id="header-wrapper" class="wrapper">
+		<div id="header">
+
+  <!-- Logo -->
+  <div id="logo">
+    <h1><a href="/">Phil Leggetter</a></h1>
+    <p>Developer Relations at <a style="font-weight: 900; font-size: 1.1em; color: white;" href="https://posthog.com">PostHog</a>. Leader, Team Builder &amp; Advisor</p>
+  </div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul>
+      <li class="current"><a href="/"><img class="logo-sml" src="/images/leggetter-logo-trans-sml.png" title="Phil Leggetter - Home" alt="Phil Leggetter logo" /></a></li>
+      <li>
+        <a href="/aaarrrp" title="The AAARRRP Developer Relations Strategy Framework">AAARRRP</a>
+      </li>
+      <li>
+        <a href="/real-time-web-technologies-guide/">Realtime Web Guide</a>
+        <ul>
+          <li><a href="/real-time-web-technologies-guide">Realtime Web Technology Guide</a></li>
+          <li><a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
+          <li><a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web & Realtime Web Functionality</a></li>
+          <li><a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>
+          <li><a href="/real-time-web-technologies-guide/developer-tools/">Developer Tools</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-hosted-service-latency/">Realtime Hosted Service Latency Stats</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-data-sources/">Realtime Data Sources</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/">Transport Mechanisms</a></li>
+        </ul>
+      </li>
+      <li><a href="/about-phil-leggetter/">About Phil Leggetter</a>
+        <ul>
+          <li><a href="/leggetter-family-tree">The Unique Name of Leggetter</a></li>
+          <li><a href="/mygoffice">My Goffice</a></li>
+        </ul>
+      </li>
+      <li><a href="#contact-me">Contact Me</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+	</div>
+
+	<!-- Main -->
+	<div class="main-wrapper wrapper style2">
+
+    <div class="title">
+			<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+		</div>
+
+    <div id="main" class="container">
+      <div class="row 150%">
+        <div class="8u 12u(mobile)">
+          <div id="content">
+            <h1>How to Describe, Publish & Consume Real-Time Data</h1>
+<p class="meta">25 May 2017</p>
+
+<div class="post">
+<p>In the first post in the series we covered <a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">discovering real-time data</a> within your systems and applications. In part two we went through the <a href="https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html">use cases for your real-time data</a>. In this final section we’ll cover <strong>the how</strong>: how to describe, publish &amp; consume real-time data from your systems and expose the data so that you can build real-time features.</p>
+
+<p>The main steps we’re going to cover are doing the following with the real-time event data:</p>
+
+<ul>
+<li>  Analyse/Process</li>
+<li>  Describe</li>
+<li>  Publish</li>
+<li>  Consume and Use</li>
+</ul>
+
+<h2 id="analysing-&amp;-processing-real-time-data"><a href="#analysing-&amp;-processing-real-time-data">Analysing &amp; Processing Real-Time Data</a></h2>
+
+<p>The amount of analysis and processing of your data that is required really depends on whether the data is already in a form that you can instantly use. If it’s very <strong>simple data</strong> and you have everything you need then you can instantly share it to be used within apps. If it’s <strong>complex data</strong> or requires some additional analysis then you need to do that work before you share it.</p>
+
+<p>Unless there amount of work you’re doing on the data is minimal it’s recommended that you do that work asynchronously. If you got that data from a system interaction, such as a web request, then doing the work there will delay the response to that web request. The same rule applies if you need to put the data into a database in order to perform a query; don’t perform the query within the same context (thread) as the one you received the event and associated data. Instead, do the work in another process.</p>
+
+<p>Here’s one approach to doing this correctly.</p>
+
+<h3 id="example:-using-rethinkdb"><a href="#example:-using-rethinkdb">Example: Using RethinkDB</a></h3>
+
+<p><a href="http://rethinkdb.com/">RethinkDB</a> is an open source database built for the real-time web. The reason it’s such a good fit is due to a feature called <a href="https://rethinkdb.com/docs/changefeeds/">changefeeds</a>. In the following example, where <code>r</code> is the RethinkDB reference, we first update the number of <code>points</code> that a player has:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&quot;players&quot;)
+  .get(playerId)
+  .update({points: newPoints})
+  .run(conn, callback);
+
+</code></pre></figure>
+
+<p>We have <code>playerId</code> to identify a player to update and we’re updating the <code>points</code> value to be <code>newPoints</code>.</p>
+
+<p>Elsewhere in code (another file or even another process entirely) we could have the following:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
+  .orderBy(index=r.desc(&#39;points&#39;))
+  .limit(5)
+  .changes().run(conn)
+  .then(top5pointsUpdated);
+
+</code></pre></figure>
+
+<p>We’re querying the <code>players</code> table, ordering the result <code>desc</code>ending by points and limiting the number of results by <code>5</code>. There’s nothing particularly different in this approach to any other database (other than maybe the ReQL syntax). The interesting bit is that the <code>top5pointsUpdated</code> function passed to <code>then</code> is called any time that the query result changes. That’s because we’ve identified this query as a changefeed through the use of <code>changes()</code>. So, any time the <code>update</code> code we covered earlier is executed the <code>top5pointsUpdated</code> function will be called.</p>
+
+<p>In a more traditional database these could be considered <a href="https://en.wikipedia.org/wiki/Database_trigger">triggers</a>. The main things are that it’s <em>evented</em> and that it nicely separates the updating code from the changefeed (trigger) handling code. The asynchronous nature of this code allows it to be executed outside of the incoming event thread/context or in a different process. This is just one example and there may be other solutions allow you to achieve similar functionality.</p>
+
+<h2 id="describing-real-time-data"><a href="#describing-real-time-data">Describing Real-Time Data</a></h2>
+
+<p>Systems, applications, and developers building real-time applications and features need a way of registering their interest in data. One of the simplest and most commonly used approaches to this is provide a name or identifier for the data that can be used when registering interest. Publish-Subscribe fits very well here, where data is identified by a <code>channel</code>, <code>topic</code> or <code>subject</code>.</p>
+
+<p>In addition to being able to identify what the data is, it’s very useful – especially within evented systems – to know what is happening to the data. What event has taken place that has resulted in the new or changed data? We call this <strong>Evented Publish-Subscribe</strong>.</p>
+
+<p>To summarise:</p>
+
+<ul>
+<li>  Use channels, topics or subjects to identify the data</li>
+<li>  Use events to identify what is happening to the data</li>
+</ul>
+
+<p>If you’ve got relatively simple data within your systems then deciding how to identify the data can be easy. There may be a database schema or document that already exists with a name that you can also use as the channel name. Or if you’re using an <a href="https://en.wikipedia.org/wiki/Object-relational_mapping">ORM</a> solution then the model name may be a good name for the channel. So, for an activity stream where there’s a database table called <code>activities</code> or in an ORM where there’s a model called <code>Activity</code> then <code>activities</code> is a good choice for a channel name.</p>
+
+<p>When it comes to naming events – what has happened to the data – then the standard <a href="https://en.wikipedia.org/wiki/Create,_read,_update_and_delete">CRUD</a> terminology may be the right solution; <code>created</code>, <code>read</code>, <code>updated</code> and <code>deleted</code>/<code>destroyed</code>. It may be that <code>read</code> is used much less than the other operations, although building features that inform other users that somebody is accessing data can be really useful.</p>
+
+<p>For more complex data it’s probably best to name the channel based on the analysis or query that’s taking place. In the RethinkDB example we covered earlier we were creating a query representing the top 5 players in a game. So, a channel named <code>top-5-players</code> would be a good channel name and <code>updated</code> may be an appropriate event name.</p>
+
+<h2 id="publishing-real-time-data"><a href="#publishing-real-time-data">Publishing Real-Time Data</a></h2>
+
+<p>Once you’ve described your data you need a mechanism for distributing that data to interested parties (we’ll cover how those parties register their interest in the next section).</p>
+
+<p>In the following example using the <a href="https://github.com/dresende/node-orm2">node-orm2</a> ORM package and the Socket.IO we’ll see how this can be achieved for a simple data change:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">Activity.create(
+  {text: &quot;Phil is talking&quot;},
+  function(err, activity) {
+    if(err) throw err;
+
+    io.of(&#39;/activities&#39;).emit(&#39;created&#39;, activity);
+  });
+
+</code></pre></figure>
+
+<p>In this code a new activity has been created so we’ve triggered an event called <code>created</code> on the <code>activities</code> namespace passing the newly created <code>activity</code> as the event data payload.</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">Activity.get(activityId, function (err, activity) {
+  activity.text = &quot;Phil is still talking&quot;;
+  activity.save(function (err) {
+    io.of(&#39;/activities&#39;).emit(&#39;updated&#39;, activity);
+  });
+});
+
+</code></pre></figure>
+
+<p>The code above shows that updating is simply a matter of changing the event name to <code>updated</code>. You can work out how <code>deleted</code> and any other event could easily be represented in code and communicated.</p>
+
+<p>For the RethinkDB, more complex example we looked at earlier, the code would look as follows:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">r.table(&#39;players&#39;)
+  .orderBy(index=r.desc(&#39;points&#39;))
+  .limit(5)
+  .changes().run(conn)
+  .then(top5pointsUpdated);
+
+function top5pointsUpdated(cursor) {
+  var top5 = [];
+  cursor.each(function(err, item) {
+    top5.push(item);
+  });
+  io.of(&#39;/top-5-players&#39;).emit(&#39;updated&#39;, top5)
+});
+
+</code></pre></figure>
+
+<p><em>Note: In the above code we know the function passed to <code>cursor.each</code> called synchronously</em></p>
+
+<p>In the above code we’ve implemented the <code>top5pointsUpdated</code> function. It loops over the updated result, adds those results to an array and triggers and event via Socket.IO. The name of the channel is <code>top-5-players</code>, since that’s the query being made and clearly identifies what the data is. The name of the event is <code>updated</code> since the result value has been updated.</p>
+
+<p>In this example we’re using RethinkDB for the processing and analysis, and Socket.IO for the publishing of the data. Other solutions will offer similar abstractions to help you process and then publish your real-time data.</p>
+
+<p>For completeness, here are some of the examples of publishing data for the other scenarios that were mentioned in the <a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">discovering real-time data</a> blog post.</p>
+
+<h3 id="web-endpoints"><a href="#web-endpoints">Web Endpoints</a></h3>
+
+<p>In this example using the <a href="https://socket.io">Socket.IO</a> the code triggers an event any time the <code>/interact</code> web endpoint is accessed. It then triggers an event on the <code>endpoints</code> channel with an event name of <code>new_interactions</code>. The event data is the parameters that are used when accessing the endpoint.</p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js">app.post(&#39;/interact&#39;, function (req, res) {
+  io.of(&#39;/endpoints&#39;,
+        &#39;new_interaction&#39;,
+        {
+          endpoint:&#39;interact&#39;
+          post_data: params
+        });
+
+  res.status(200)
+})
+</code></pre></figure>
+
+<p>You could create some middleware that intercepts web requests and instead share the endpoint that was interacted with along with the HTTP parameters as the event data. Using this you could build a real-time analytics dashboard.</p>
+
+<h3 id="requests-&amp;-responses"><a href="#requests-&amp;-responses">Requests &amp; Responses</a></h3>
+
+<p>Setting up a request:</p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js">var request = require(&#39;request&#39;);
+var url = &#39;http://www.google.com&#39;;
+io.of(&#39;web-request&#39;).emit(&#39;outgoing&#39;, {url: url});
+
+</code></pre></figure>
+
+<p>Making the request, handling the response and sharing the data:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">request(url, function (error, response, body) {
+  if(error) {
+    io.of(&#39;/web-request&#39;).emit(&#39;incoming-error&#39;, {url: url, error: error});
+  } else {
+    io.of(&#39;/web-request&#39;).emit(&#39;incoming-success&#39;, {url: url, body: body});
+  }
+});
+
+</code></pre></figure>
+
+<p>This example may be useful for some kind of real-time analytics, but could also be useful if you wanted to make a call to a process to kick-off the request and then let you real-time framework – Socket.IO in this case – inform you when the result is ready (background process completion notifications). In the code above we’ve used the event names, <code>incoming-error</code> or <code>incoming-error</code>, to identify if the request was successful or not. This separation also makes it clear that the event data we get for each will be different.</p>
+
+<h3 id="logging"><a href="#logging">Logging</a></h3>
+
+<p>Logging for custom system analytics:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var winston = require(&#39;winston&#39;);
+function log(level, data) {
+  winston.log(level, data);
+  io.of(&#39;/logging&#39;).emit(level, data);
+}
+log(&#39;info&#39;, {&#39;some&#39;: &#39;data&#39; });
+
+</code></pre></figure>
+
+<p>This example just uses a <code>log</code> function wrapper to both log using <a href="https://github.com/winstonjs/winston">Winston</a> and also emit an event via Socket.IO. In real life you may instead create a <code>realtime-log-listener</code> and configure your logging to use that. In this example the channel is hard-coded to <code>logging</code> and the event name is the log level. But it could be that using the level as the channel name (e.g. <code>logging-{level}</code>) may be a nicer approach to partition the data.</p>
+
+<h2 id="consuming-&amp;-using-real-time-data"><a href="#consuming-&amp;-using-real-time-data">Consuming &amp; Using Real-Time Data</a></h2>
+
+<p>Now that it’s clear how the data is published, how do you go about consuming that data within an application? Well, we’ve covered how we identify and describe the data earlier so we use that mechanism for consuming the data. Again, we’ll show an Evented Publish-Subscribe example using Socket.IO.</p>
+
+<p>First, let’s take a look at the code for publishing the data from the server:</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var activities = io.of(&#39;/activities&#39;)
+activities.emit(&#39;created&#39;, activity);
+activities.emit(&#39;updated&#39;, activity);
+activities.emit(&#39;deleted&#39;, activity);
+
+</code></pre></figure>
+
+<p>The corresponding code uses the <a href="https://socket.io">Socket.IO</a> in the client (the consumer) to identify the data (using namespaces) and then register interest in what’s happening to the data (using events):</p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">var activities = io(&#39;/activities&#39;);
+
+activities.bind(&#39;created&#39;, function(activity) {
+  // Add to the UI
+});
+
+activities.bind(&#39;updated&#39;, function(activity) {
+  // Update the UI
+});
+
+activities.bind(&#39;deleted&#39;, function(activity) {
+  // Remove from the UI
+});
+
+</code></pre></figure>
+
+<p>First we reference to the <code>activities</code> namespace using <code>io(&#39;/activities&#39;)</code> and then we bind to each event we’re interested in (<code>created</code>, <code>updated</code> and <code>deleted</code>). In each case we have as separate callback to handle each of those events which nicely separates our code into functional blocks.</p>
+
+<p>The code really speaks for itself due to its simplicity. Although the activities example is used here I’m sure you can see how it maps to the web endpoints, requests/responses and logging examples that have been shown earlier.</p>
+
+<h2 id="conclusion"><a href="#conclusion">Conclusion</a></h2>
+
+<p>This post has discussed whether you need to analyse and process your real-time data and where you should do that. We’ve then looked at the importance of describing your data and how you can do that. Finally we’ve provided examples of publishing and then consuming your real-time data. From there it’s really up to you to start adding the real-time features – that were covered in the <a href="https://www.leggetter.co.uk/2017/05/24/use-cases-for-your-realtime-data.html">real-time features and use cases</a> post – to your applications.</p>
+
+<p>In this series we’ve covered <a href="https://www.leggetter.co.uk/2016/08/14/discovering-realtime-data-in-your-apps.html">identifying the real-time data</a> with your apps and systems, the <a href="https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html">real-time features</a> you can build with your data and in this post we’ve covered <strong>how to describe, publish &amp; consume real-time data</strong>.</p>
+
+<p>If you’re interested in digging into this a bit further I’ve recorded a screencast that covers some of the information from these posts entitled <a href="https://www.youtube.com/watch?v=rk5Jm1IHxlI">You have real-time data. You just don’t know it.</a>. You can also find out more about strategies for dealing real-time data and real-time development best practices in a talk I gave at FOWA London, <a href="https://www.youtube.com/watch?v=KPEcK4zFuyw">Tools, Tips &amp; Techniques for Developing Real-Time Apps</a>.</p>
+
+<p>I’m really pleased to have finally put together a series on some of the fundamentals of building real-time apps. I’d love to hear your thoughts and experiences on the topics I’ve covered and more. So please <a href="mailto:phil@leggetter.co.uk">get in touch</a>.</p>
+
+<p><small>This was originally written by me and published on the <a href="https://blog.pusher.com/how-to-describe-publish-consume-real-time-data/">Pusher blog</a></small></p>
+
+</div>
+
+<hr />
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+var disqus_shortname = 'leggetter';
+var disqus_url = 'https://www.leggetter.co.uk/2017/05/25/describe-publish-consume-realtime-data.html';
+
+
+
+var disqus_identifier = '/2017/05/25/describe-publish-consume-realtime-data.html';
+
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+          </div>
+        </div>
+        <div class="4u 12u(mobile)">
+          <!-- Sidebar -->
+<div id="sidebar">
+
+  <section class="box">
+
+  <form action="https://leggetter.us2.list-manage.com/subscribe/post?u=75fcbc606555d96262c1cd5bd&amp;id=e0524b92e7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+    <header>
+      <h2>Get posts via email</h2>
+    </header>
+    <div class="mc-field-group" style="margin-top: -25px;">
+      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address" style="display:inline-block; margin:0; width: auto;">
+      <input type="submit" value="Go" name="subscribe" id="mc-embedded-subscribe" class="button" style="display:inline-block; min-width: inherit; line-height: 1em;
+      height: 3.1em;
+      vertical-align: top;">
+    </div>
+    <div id="mce-responses" class="clear">
+      <div class="response" id="mce-error-response" style="display:none"></div>
+      <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_75fcbc606555d96262c1cd5bd_e0524b92e7" value=""></div>
+  </form>
+
+  <!--End mc_embed_signup-->
+</section>
+
+
+  <section class="box about">
+
+  <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
+  <p>My name is <strong>Phil Leggetter</strong>. I lead Developer Relations at <a href="https://posthog.com">PostHog</a>. I also advise on developer relations and developer experience at <a href="https://tru.id">tru.ID</a> and <a href="https://crosser.io">Crosser</a>.</p>
+
+</section>
+
+
+  <!-- <section class="box">
+  <header>
+    <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
+  </header>
+  <div style="text-align: center; margin-top: 10px;">
+    <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20"><img border="0" src="https://www.leggetter.co.uk/wp-content/uploads/2013/04/realtime-web-apps-sml.jpg" scale="0"></a><img src="https://www.assoc-amazon.com/e/ir?t=phillegg-20&amp;l=as2&amp;o=1&amp;a=1430246200" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" scale="0">
+    <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
+  </div>
+</section>
+ -->
+
+</div>
+
+        </div>
+      </div>
+    </div>
+	</div>
+	<!-- /Main -->
+
+	<!-- Footer Wrapper -->
+	<div id="footer-wrapper" class="wrapper">
+		<div class="title">Get In Touch</div>
+		<div id="footer" class="container">
+
+				<!-- Contact -->
+				<a name="contact-me" id="contact-me"></a>
+				<section class="feature-list small">
+					<div class="row">
+	          <div class="-2u 4u">
+	            <section>
+	              <h3 class="icon fa-comment">Social</h3>
+	              <p>
+									<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+	              </p>
+	            </section>
+	          </div>
+						<div class="-1u 4u">
+							<section>
+								<h3 class="icon fa-envelope">Email</h3>
+								<p>
+									<a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+								</p>
+							</section>
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+			<hr />
+
+			<div id="copyright">
+				<ul>
+					<li>&copy; Phil Leggetter.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- / Footer Wrapper -->
+
+	</div>
+	
+	<script src="/skel/assets/js/jquery.dropotron.min.js"></script>
+	<script src="/skel/assets/js/skel.min.js"></script>
+	<script src="/skel/assets/js/skel-viewport.min.js"></script>
+	<script src="/skel/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/skel/assets/js/main.js"></script>
+	
+	<script src="/bower_components/jquery-smooth-scroll/jquery.smooth-scroll.min.js"></script>
+
+	<script>
+		( function() {
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
+		} )();
+	</script>
+
+  <script src="/libs/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+	<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-513034-10', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+	<!-- realtime benchmarks -->
+	<!--script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script-->
+	<!-- <script src="http://localhost:5000/benchmark.js"></script> -->
+	<!--script src="https://realtime-latency-stats.herokuapp.com/benchmark.js"></script-->
+</body>
+</html>
+<!--
+Escape Velocity by HTML5 UP
+html5up.net | @n33co
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->

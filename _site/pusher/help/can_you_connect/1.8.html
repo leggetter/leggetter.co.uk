@@ -1,0 +1,63 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+	<head>
+		<title>Can you connect to Pusher?</title>		
+		<script src="http://js.pusherapp.com/1.8/pusher.min.js"></script>
+		<script src="../pusher-details.js"></script>
+		<script type="text/javascript">
+		  var started = new Date();
+			function log(message)
+			{
+				if (window.console && window.console.log) {
+					window.console.log(message);
+				}
+				
+				var logDiv = document.getElementById("log");
+				var timeSinceStart = getTimeSinceStart(started);
+				logDiv.innerHTML = "(" + timeSinceStart + "): " + message + "<br />" + logDiv.innerHTML;
+			};
+			
+			function getTimeSinceStart(){
+		    var now = new Date();
+		    var diff = (now - started);
+		    return diff;
+			};
+		
+			// Enable pusher logging - don't include this in production
+			Pusher.log = function(message) {
+				log(message);
+			};
+	
+			// Flash fallback logging - don't include this in production
+			WEB_SOCKET_DEBUG = true;
+	
+			var pusher = new Pusher(PUSHER_HELP.KEY, {encrypted: PUSHER_HELP.getQueryValue("encrypted") === "true"});
+			
+			pusher.bind("pusher:connection_established", function(data) {
+				var canConnect = document.getElementById("can_you_connect");
+				canConnect.className = "yes";
+				canConnect.innerHTML = "Yes";
+			});
+	  </script>
+	  <style>
+	  	.yes {
+			color: green;
+			font-weight: bold;
+			font-size: 30px;
+		}
+		.unknown {
+			color: orange;
+		}
+		h3 {
+			margin-top: 30px;
+			border-top: 1px solid #e7e7e7;
+		}
+	  </style>
+	</head>
+	<body>
+		<h1>Can you connect to Pusher? (1.8)</h1>
+		<h2 id="can_you_connect" class="unknown">Trying to connect <span class="progress">...</span></h2>
+		<h3>Debug</h3>
+		<div id="log"></div>
+	</body>
+</html>

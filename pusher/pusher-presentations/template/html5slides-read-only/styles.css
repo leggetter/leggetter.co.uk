@@ -579,7 +579,7 @@ article.smaller q::after {
 }
 
 .to-build {
-  opacity: 0;
+  /* opacity: 0; */
 }
 
 /* Pretty print */

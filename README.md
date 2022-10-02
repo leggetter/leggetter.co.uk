@@ -15,7 +15,7 @@ yarn install
 ## Running the site locally
 
 ```sh
-bundle exec jekyll serve -w
+yarn dev
 ```
 
 ## Deploy

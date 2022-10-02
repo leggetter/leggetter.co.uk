@@ -1,0 +1,305 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	
+	<title>Why client APIs are an important part of any real-time service - Phil Leggetter - Developer Experience & Relations Leader</title>
+	
+
+	<meta property="og:title" content="Why client APIs are an important part of any real-time service" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2010/12/21/why-client-apis-are-an-important-part-of-any-real-time-service.html" />
+	<meta property="og:description" content="I've just been involved in a twitter conversation with Nick Halstead of DataSift on Twitter. This all started when I tweeted that I thought Kwwika would be a great way of distributing data from DataSift to any web-enabled device.
+The conversation continued:
+
+The main thing here for me is Nick's point that "you just need a client-side library". This is an assumption that a lot of services make. Services tend to offer one or a number of server APIs; maybe a REST one and now luckily we are seeing a HTTP Streaming and WebSocket support. That service may then release some example code that can be used to call the web service. I see a number of problems with this mainly when it comes to HTTP Streaming and WebSockets.
+
+" />
+	
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<meta name="description" content="I've just been involved in a twitter conversation with Nick Halstead of DataSift on Twitter. This all started when I tweeted that I thought Kwwika would be a great way of distributing data from DataSift to any web-enabled device.
+The conversation continued:
+
+The main thing here for me is Nick's point that "you just need a client-side library". This is an assumption that a lot of services make. Services tend to offer one or a number of server APIs; maybe a REST one and now luckily we are seeing a HTTP Streaming and WebSocket support. That service may then release some example code that can be used to call the web service. I see a number of problems with this mainly when it comes to HTTP Streaming and WebSockets.
+
+" />
+	
+	<meta name="keywords" content="real-time webreal-time datareal-timeKwwikareal-time pushSuperfeedrDataSiftCurationData Filtering" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+	
+	
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/skel/assets/css/main.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/skel/assets/css/ie8.css" /><![endif]-->
+	<link rel="stylesheet" href="/css/skel-mods.css" />
+
+  <link rel="stylesheet" href="/libs/highlight/styles/solarized_dark.css" />
+	
+	<script src="/skel/assets/js/jquery.min.js"></script>
+</head>
+<body class="right-sidebar ">
+
+	<!-- Header -->
+	<div id="header-wrapper" class="wrapper">
+		<div id="header">
+
+  <!-- Logo -->
+  <div id="logo">
+    <h1><a href="/">Phil Leggetter</a></h1>
+    <p>VP of Developer Experience at <a href="https://ably.com" style="color: #fff;">Ably</a> and a Developer Experience and Relations Advisor</p>
+  </div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul>
+      <li class="current"><a href="/"><img class="logo-sml" src="/images/leggetter-logo-trans-sml.png" title="Phil Leggetter - Home" alt="Phil Leggetter logo" /></a></li>
+      <li>
+        <a href="/aaarrrp" title="The AAARRRP Developer Relations Strategy Framework">AAARRRP</a>
+      </li>
+      <li>
+        <a href="/real-time-web-technologies-guide/">Realtime Web Guide</a>
+        <ul>
+          <li><a href="/real-time-web-technologies-guide">Realtime Web Technology Guide</a></li>
+          <li><a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
+          <li><a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web & Realtime Web Functionality</a></li>
+          <li><a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>
+          <li><a href="/real-time-web-technologies-guide/developer-tools/">Developer Tools</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-hosted-service-latency/">Realtime Hosted Service Latency Stats</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-data-sources/">Realtime Data Sources</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/">Transport Mechanisms</a></li>
+        </ul>
+      </li>
+      <li><a href="/about-phil-leggetter/">About Phil Leggetter</a>
+        <ul>
+          <li><a href="/leggetter-family-tree">The Unique Name of Leggetter</a></li>
+          <li><a href="/mygoffice">My Goffice</a></li>
+        </ul>
+      </li>
+      <li><a href="#contact-me">Contact Me</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+	</div>
+
+	<!-- Main -->
+	<div class="main-wrapper wrapper style2">
+
+    <div class="title">
+			<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+		</div>
+
+    <div id="main" class="container">
+      <div class="row 150%">
+        <div class="8u 12u(mobile)">
+          <div id="content">
+            <h1>Why client APIs are an important part of any real-time service</h1>
+<p class="meta">21 Dec 2010</p>
+
+<div class="post">
+<p>I've just been involved in a twitter conversation with <a href="http://twitter.com/#%21/nickhalstead">Nick Halstead</a> of <a href="http://datasift.net">DataSift</a> on Twitter. This all started when I <a href="http://twitter.com/#%21/leggetter/status/17233038429655041">tweeted</a> that I thought <a href="http://kwwika.com">Kwwika</a> would be a great way of distributing data from DataSift to any web-enabled device.</p>
+<p>The conversation continued:</p>
+<p><img style="max-width: 800px;" src="/wp-content/uploads/2010/12/leggetter-nickhalstead-conversation1.png" alt="" /></p>
+<p>The main thing here for me is Nick's point that "<strong>you just need a client-side library</strong>". This is an assumption that a lot of services make. Services tend to offer one or a number of server APIs; maybe a REST one and now luckily we are seeing a HTTP Streaming and WebSocket support. That service may then release some example code that can be used to call the web service. I see a number of problems with this mainly when it comes to HTTP Streaming and WebSockets.</p>
+
+<ul>
+<li><a href="http://support.datasift.net/help/kb/rest-api/websocket-streaming">DataSift WebSocket Streaming Docs</a></li>
+<li><a href="http://support.datasift.net/help/kb/rest-api/http-streaming-api">DataSift HTTP Streaming Docs</a></li>
+</ul>
+<p>WebSockets aren't as yet supported in enough browsers. Therefore it's not viable to purely rely on WebSocket support in any production application. So, you can't build a web application unless there is a fallback alternative. HTTP Streaming in a web browser could be a fallback (XmlHttpReqeust, XDomainRequest or Flash connections) if the server provides the necessary <a href="http://dev.w3.org/2006/waf/access-control/#access-control-allow-origin-response-hea">Access-Control-Allow-Origin</a> response header, the browser is new enough, or if the user has Flash installed the server serves up a crossdomain.xml file and the developer is willing to also write code to deal with all the browser types and technoloy scenarios. Then you need to deal with authentication from a web browser for some services to let you access their HTTP Streaming API. DataSift will class your connection as a 2nd class client if you don't authenticate:</p>
+<blockquote><p>Authorization is not required on the streaming API. However, should you chose not to authenticate, you may be subject to stricter rate limiting and other disadvantages over an authorized user. Therefore, authorization is strongly recommended</p></blockquote>
+<p>What this means is that DataSift as yet don't support real-time updates in web browser clients fully.</p>
+<p>Then you need to consider other technologies like .NET, Java, C or C++ desktop applications, mobile applications on iPhone, iPad, Windows Mobile 7 or Palm using webOS. Each of these technologies requires a client API.</p>
+<ul>
+<li><a href="http://support.datasift.net/help/kb/libraries/api-client-libraries">DataSift API Client Libraries</a></li>
+</ul>
+<h3 id="a-scenario"><a href="#a-scenario">A Scenario</a></h3>
+<p>Say I were building a new service which focused on real-time data and delivery of that data in our custom application to desktop app, mobile apps and web apps. My service is focused on curating real-time data from different sources. My first port of call would be DataSift or Superfeedr (I'm going to leave Kwwika out of the equation here). I know these guys can deal with large volumes of data and can provide some filtering. Maybe if filtering was absolutely key I would go for DataSift (maybe <a href="http://twitter.com/#%21/julien51">Julien</a> would tell me off for that).</p>
+<p>Now I've made my choice and I've got all the data I want streaming through my chosen service and I start to build my client applications. If I choose to build my web application first I'm stumped as I've already explained, but let's say I want to build a Windows desktop application first. Simple, I use the HttpWebRequest object to create a HTTP Streaming connection to DataSift, follow the connection guidelines that DataSift follow (<a href="http://dev.twitter.com/pages/streaming_api_concepts#connecting">Twitter's HTTP Streaming guidelines</a> including a backing off process and handle reconnection) and I've not got my real-time Windows desktop application.</p>
+<p>I now decide to build an iPhone application so that people on the move can access my service. I need to start from scratch by writing iOS (Objective-C) code to connect to DataSift's HTTP streaming API, following the back off process and deal with reconnection. Once I've done that I move on to Windows 7 Mobile and I have to do the same again.</p>
+<p><img style="max-width: 800px;" src="/wp-content/uploads/2010/12/DataSift-not-kwwika1.png" alt="" /></p>
+<p>You get my point.</p>
+<p>Now, once DataSift becomes popular, and it will, there will be loads of open source client APIs to choose from. However, these APIs are likely to have been built by a number of different developers providing different ways of doing the same things. Some might be DataSift specific but hopefully they'll be generic HTTP Streaming libraries. At this point building my service applications will become a little easier but, in my opinion, still not as easy as it should be.</p>
+<h3 id="using-kwwika"><a href="#using-kwwika">Using Kwwika</a></h3>
+<p>If I were to build this service, and not exclude Kwwika, I would set up all my real-time data streaming through DataSift and write a single library, probably reusing the <a href="http://wiki.kwwika.com/components/kwwika-tweet-streamer">Kwwika Tweet Streamer</a> code which handles the HTTP Streaming connection and the Twitter connection guidelines, and push the data from DataSift into Kwwika. For each of my client applications I could simply download/use the relevant <a href="http://wiki.kwwika.com/api">Kwwika API</a> (JavaScript, .NET, Silverlight, Flash, Objective-C, Java, C) to subscribe to the DataSift data on any web-enabled device. And because these APIs are are developed and maintained by Kwwika they are consistent across platforms e.g. if you've used the .NET API you will be familiar with the JavaScript API.</p>
+<p><img style="max-width: 800px;" src="/wp-content/uploads/2010/12/DataSift-just-kwwika.png" alt="" /></p>
+<p>My point is that the client APIs are as important as the server APIs. A quality real-time client API adds a lot of value to the service such as handling reconnection, failover, subscription management, connection monitoring, error handling, bi-directional messaing and request batching (not relevant in this scenario). As well as real-time data distrubtion/messaging/client push this is a key part of what Kwwika offers.</p>
+
+</div>
+
+<hr />
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+var disqus_shortname = 'leggetter';
+var disqus_url = 'https://www.leggetter.co.uk/2010/12/21/why-client-apis-are-an-important-part-of-any-real-time-service.html';
+
+
+
+var disqus_identifier = '3863 https://www.leggetter.co.uk/?page_id=3863';
+
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+          </div>
+        </div>
+        <div class="4u 12u(mobile)">
+          <!-- Sidebar -->
+<div id="sidebar">
+
+  <section class="box">
+
+  <form action="https://leggetter.us2.list-manage.com/subscribe/post?u=75fcbc606555d96262c1cd5bd&amp;id=e0524b92e7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+    <header>
+      <h2>Get posts via email</h2>
+    </header>
+    <div class="mc-field-group" style="margin-top: -25px;">
+      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address" style="display:inline-block; margin:0; width: auto;">
+      <input type="submit" value="Go" name="subscribe" id="mc-embedded-subscribe" class="button" style="display:inline-block; min-width: inherit; line-height: 1em;
+      height: 3.1em;
+      vertical-align: top;">
+    </div>
+    <div id="mce-responses" class="clear">
+      <div class="response" id="mce-error-response" style="display:none"></div>
+      <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_75fcbc606555d96262c1cd5bd_e0524b92e7" value=""></div>
+  </form>
+
+  <!--End mc_embed_signup-->
+</section>
+
+
+  <section class="box about">
+
+  <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
+  <p>My name is <strong>Phil Leggetter</strong>. I'm VP of Developer Experience at <a href="https://ably.com">Ably</a> and a <strong>Developer Experience and Relations advisor</strong> at <a href="https://tru.id">tru.ID</a> and <a href="https://crosser.io">Crosser</a>.</p>
+
+</section>
+
+
+  <!-- <section class="box">
+  <header>
+    <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
+  </header>
+  <div style="text-align: center; margin-top: 10px;">
+    <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20"><img border="0" src="https://www.leggetter.co.uk/wp-content/uploads/2013/04/realtime-web-apps-sml.jpg" scale="0"></a><img src="https://www.assoc-amazon.com/e/ir?t=phillegg-20&amp;l=as2&amp;o=1&amp;a=1430246200" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" scale="0">
+    <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
+  </div>
+</section>
+ -->
+
+</div>
+
+        </div>
+      </div>
+    </div>
+	</div>
+	<!-- /Main -->
+
+	<!-- Footer Wrapper -->
+	<div id="footer-wrapper" class="wrapper">
+		<div class="title">Get In Touch</div>
+		<div id="footer" class="container">
+
+				<!-- Contact -->
+				<a name="contact-me" id="contact-me"></a>
+				<section class="feature-list small">
+					<div class="row">
+	          <div class="-2u 4u">
+	            <section>
+	              <h3 class="icon fa-comment">Social</h3>
+	              <p>
+									<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+	              </p>
+	            </section>
+	          </div>
+						<div class="-1u 4u">
+							<section>
+								<h3 class="icon fa-envelope">Email</h3>
+								<p>
+									<a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+								</p>
+							</section>
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+			<hr />
+
+			<div id="copyright">
+				<ul>
+					<li>&copy; Phil Leggetter.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- / Footer Wrapper -->
+
+	</div>
+	
+	<script src="/skel/assets/js/jquery.dropotron.min.js"></script>
+	<script src="/skel/assets/js/skel.min.js"></script>
+	<script src="/skel/assets/js/skel-viewport.min.js"></script>
+	<script src="/skel/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/skel/assets/js/main.js"></script>
+	
+	<script src="/bower_components/jquery-smooth-scroll/jquery.smooth-scroll.min.js"></script>
+
+	<script>
+		( function() {
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
+		} )();
+	</script>
+
+  <script src="/libs/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+	<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-513034-10', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+	<!-- realtime benchmarks -->
+	<!--script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script-->
+	<!-- <script src="http://localhost:5000/benchmark.js"></script> -->
+	<!--script src="https://realtime-latency-stats.herokuapp.com/benchmark.js"></script-->
+</body>
+</html>
+<!--
+Escape Velocity by HTML5 UP
+html5up.net | @n33co
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->

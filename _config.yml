@@ -1,8 +1,0 @@
-name: "Phil Leggetter - Developer Experience & Relations Leader"
-highlighter: true
-relative_permalinks: false
-plugins: [jekyll-paginate]
-paginate: 10
-excerpt_separator: "\n\n"
-
-base_url: https://www.leggetter.co.uk

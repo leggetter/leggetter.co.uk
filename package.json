@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "bundle exec gulp deploy",
+    "deploy": "git subtree push --prefix _site origin gh-pages",
     "dev": "bundle exec jekyll serve -w --future -l",
     "build": "bundle exec jekyll build",
     "copy-images": "cp -r ./_includes/realtime-web-technologies-guide/images ./_site/real-time-web-technologies-guide/images",
@@ -29,14 +29,6 @@
     "url": "https://github.com/leggetter/leggetter.co.uk/issues"
   },
   "homepage": "https://github.com/leggetter/leggetter.co.uk",
-  "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-gh-pages": "^0.5.2",
-    "gulp-sync": "^0.1.4"
-  },
-  "dependencies": {
-    "gulp-run": "^1.6.10"
-  },
   "resolutions": {
     "graceful-fs": "^4.2.4",
     "gift": "^0.10.2"

@@ -1,0 +1,261 @@
+html {
+	scroll-behavior: smooth;
+  }
+
+body, input, textarea, select {
+  color: rgba(0,0,0,0.8);
+  font-size: 1.2em;
+}
+
+div.highlight {
+  margin-bottom: 2em;
+}
+
+small {
+	font-size: 0.7em;
+}
+
+#nav img.logo-sml {
+	vertical-align: middle;
+	margin-right: 20px;
+}
+
+.fa1 {
+	font-size: 1em;
+}
+
+.fa2 {
+	font-size: 2em;
+}
+
+.fa3 {
+	font-size: 3em;
+}
+
+#header-wrapper {
+	background: linear-gradient(rgba(0, 0, 0, 0.7),rgba(0, 0, 0, 0.3)), url('/images/1500x500-loveism.jpeg') center center;
+	background-size: cover;
+}
+
+#header {
+	padding: 10em 0 !important;
+}
+
+.main-wrapper {
+	padding-top: 3.5em !important;
+}
+
+.wrapper .title {
+	padding-top: 1.5em !important;
+}
+
+.wrapper .title img {
+	vertical-align: middle;
+}
+
+/** don't put margins on internal lists */
+#content ul ul,
+#content ol ol {
+	margin-bottom: 0 !important;
+}
+
+#content h1 {
+	font-size: 1.8em;
+}
+
+#content header.style1 {
+	margin-bottom: -1em !important;
+}
+
+#content img {
+	max-width: 100%;
+	height: auto;
+}
+
+#content ul,
+#content ol {
+	list-style: inherit;
+	margin-left: 15px;
+}
+
+#content li {
+	padding: 0;
+	padding-left: 15px;
+}
+
+#content ul.toc,
+#content ol.toc {
+	list-style-type: disc !important;
+	list-style: disc !important;
+	list-style-position: inside !important;
+	overflow: visible !important;
+
+	background: #e97770 url('images/overlay.png');
+	color: #fff;
+	padding: 0.5em 2.25em 0.5em 0.25em;
+	border-radius: 0.35em;
+}
+
+#content ul.toc a,
+#content ul.toc a:visited,
+#content ol.toc a,
+#content ol.toc a:visited {
+	color: #fff;
+}
+
+#content ul.toc li,
+#content ol.toc li {
+	float: none !important;
+	list-style-type: disc !important;
+	list-style: disc !important;
+	list-style-position: inside !important;
+	margin: 0 !important;
+	padding: 0px 0px 0px 15px !important;
+	text-align: left !important;
+	background: transparent !important;
+}
+
+#content .post-list-thumb {
+	float: right;
+	margin-left: 20px;
+	max-width: 250px;
+	max-height: 200px;
+}
+
+body.rtw-guide #content h2 {
+	text-transform: uppercase;
+}
+
+/** tag bullet points **/
+body.rtw-guide #content ul {
+	margin-bottom: 20px;
+	overflow: auto;
+}
+
+body.rtw-guide #content li {
+	float: left;
+	list-style: none;
+	background-color: #F2F2F2;
+	border-radius: 8px;
+	border: 2px #f5f5f5;
+	margin: 3px;
+	padding: 4px;
+	text-align: center;
+}
+
+/** From GitHub README CSS */
+h2, h3, h4, h5,  h6 {
+	position: relative;
+	margin-top: 1em;
+	margin-bottom: 16px;
+	font-weight: bold;
+	line-height: 1.4;
+}
+
+h2 {
+	padding-bottom: 0.3em;
+	font-size: 1.75em;
+	line-height: 1.225;
+	/*border-bottom: 1px solid #eee;*/
+}
+
+h3 {
+	font-size: 1.5em;
+	line-height: 1.43;
+}
+
+h4 {
+	font-size: 1.25em;
+}
+
+#content .alignright.size-thumbnail,
+#content .alignright.size-full,
+#content .alignright.size-medium {
+	float: right;
+	margin-left: 20px;
+}
+
+.pagination {
+	text-align: center;
+	font-weight: bold;
+}
+
+div.highlight {
+	margin-bottom: 2em;
+}
+
+#mce-EMAIL, 
+#mc-embedded-subscribe {
+  font-size: 0.8em;
+}
+
+#content section.about {
+	margin-bottom: 2em;
+}
+
+#content h1 {
+	font-size: 2.2em;
+	line-height: 1.2em;
+	margin-bottom: 1em;
+}
+
+#nav > ul {
+	background-color: #222835;
+}
+
+#logo {
+	top: 40%;
+}
+
+@media screen and (max-width: 736px) {
+
+}
+
+#logo h1, #logo p {
+	color: #fff;
+	font-weight: 600;
+}
+
+#logo p {
+	font-size: 1em;
+}
+
+.dropotron a, #navPanel .link {
+	text-transform: none;
+	letter-spacing: 0.1em;
+}
+
+@media screen and (max-width: 736px) {
+	#header-wrapper {
+		padding: 2em 2em 6em 2em;
+	}
+}
+
+@media screen and (max-width: 736px) {
+	#header {
+	  padding: 0em 0 !important;
+	}
+}
+
+figure {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+figcaption {
+	background-color: #413e3e;
+	color: white;
+}
+
+.meta {
+	font-weight: bold;
+}
+
+blockquote > p:last-child {
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+#header-wrapper:before {
+	content: none;
+}

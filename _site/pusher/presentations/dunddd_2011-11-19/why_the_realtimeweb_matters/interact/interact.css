@@ -1,0 +1,76 @@
+#interact {
+  width: 100%;
+  position: absolute;
+  top: 0px;
+  z-index: 10000;
+  
+  overflow: auto;
+}
+
+#interact .salesy {
+  margin: auto;
+  position: relative;
+  width: 300px;
+  text-align: center;
+  
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 11px;
+  
+  background-color: #E9EAEE;
+  
+  -webkit-border-bottom-right-radius: 5px;
+  -webkit-border-bottom-left-radius: 5px;
+  -moz-border-radius-bottomright: 5px;
+  -moz-border-radius-bottomleft: 5px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  
+  border: 1px solid #000;
+}
+
+.thermometer .title, .thermometer .percent {
+  margin-right: 5px;
+  vertical-align: super;
+}
+
+.thermometer .bulb {
+  display: inline-block;
+  width: 20px;
+  border-radius: 20px;
+  height: 20px;
+}
+
+.thermometer .neck {
+  position: relative;
+  display: inline-block;
+  left: -8px;        
+  height: 10px;
+  top: -5px;
+  width: 0;
+}
+
+.thermometer.none .bulb, .thermometer.none .neck {
+  background-color: #44ff33;
+}
+
+.thermometer.careful .bulb, .thermometer.careful .neck {
+  background-color: #aaff11;
+}
+
+.thermometer.caution .bulb, .thermometer.caution .neck {
+  background-color: #ff8822;
+}
+
+.thermometer.warning .bulb, .thermometer.warning .neck {
+  background-color: #ff4411;
+}
+
+.thermometer.failing .bulb, .thermometer.failing .neck {
+  background-color: red;
+}
+
+.thermometer.failed {
+  background-color: red;
+  color: white;
+  font-weight: bold;
+}

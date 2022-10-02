@@ -1,0 +1,9 @@
+blink {
+  text-shadow:1px 1px 0px #333333;
+  color: yellow;
+}
+
+.slides.template-pusher article.internet-of-things {
+  background: white url(internet_of_things.png) no-repeat bottom right !important;
+  background-size: 60%;
+}

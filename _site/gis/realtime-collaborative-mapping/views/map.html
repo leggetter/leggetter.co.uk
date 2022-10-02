@@ -1,0 +1,44 @@
+<div id="map"></div>
+<div id="toolbar">
+	<button class="btn {{ ( drawType=='FREEHAND_POLYGON' ) && 'btn-success' || 'btn-inverse' }}"
+  				ng-click="toolbar( 'FREEHAND_POLYGON' )">
+  	Freehand Polygon
+  </button>
+  <button class="btn {{ ( drawType=='EXTENT' ) && 'btn-success' || 'btn-inverse' }}"
+  				ng-click="toolbar( 'EXTENT' )">
+  	Extent
+	</button>
+	<button class="btn {{ ( drawType=='POINT' ) && 'btn-success' || 'btn-inverse' }}"
+					ng-click="toolbar( 'POINT' )">
+		Point
+	</button>
+  <button class="btn {{ ( drawType=='MULTI_POINT' ) && 'btn-success' || 'btn-inverse' }}"
+  				ng-click="toolbar( 'MULTI_POINT' );">
+  	Multipoint
+ 	</button>
+	<button class="btn {{ ( drawType=='POLYLINE' ) && 'btn-success' || 'btn-inverse' }}"
+					ng-click="toolbar( 'POLYLINE' )">
+		Polyline
+	</button>
+  <button class="btn {{ ( drawType=='POLYGON' ) && 'btn-success' || 'btn-inverse' }}"
+  				ng-click="toolbar( 'POLYGON' )">
+  	Polygon
+ 	</button>
+  <button class="btn {{ ( drawType=='FREEHAND_POLYLINE' ) && 'btn-success' || 'btn-inverse' }}"
+  				ng-click="toolbar( 'FREEHAND_POLYLINE' );">
+  	Freehand Polyline
+  </button>
+  <button class="btn {{ ( drawType=='LINE' ) && 'btn-success' || 'btn-inverse' }}"
+  				ng-click="toolbar( 'LINE' )">Line</button>
+
+  <button class="btn" ng-click="toolbar( '' )">Drag</button>
+  <button class="btn btn-danger" 	ng-click="toolbar( 'CLEAR' )">
+  	Clear All
+  </button>
+
+</div> 
+
+<div id="share">
+	<img src="https://chart.googleapis.com/chart?cht=qr&chs=100x100&chl={{encodedShareUrl}}" />
+	<input type="text" value="{{shareUrl}}" />
+</div>

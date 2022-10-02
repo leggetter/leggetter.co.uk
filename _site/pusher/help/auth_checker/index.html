@@ -1,0 +1,137 @@
+<html>
+  <head>
+    <script src="../libs/LAB.min.js"></script>
+    <script>
+      var authChecker = {};
+      var pusher;
+    
+      authChecker._loadDependencies = function(callback) {
+        $LAB
+          .script("../libs/json2.js")
+          .script("http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js")
+          .script('//js.pusher.com/3.0/pusher.min.js')
+          .script("./bower_components/pusher-js-client-auth/dist/pusher-js-client-auth.js").wait(callback);
+      };
+      
+      function getAuthCredentials() {
+        return {
+          appKey: $("#app_key").val(),
+          appSecret: $("#app_secret").val(),
+          socketId: $("#socket_id").val(),
+          channelName: $("#channel_name").val(),
+          channelData: JSON.parse($("#channel_data").val())
+        };
+      }
+      
+      function generateHash() {
+        var authCreds = getAuthCredentials();
+        
+        var authorizer = new ClientAuthorizer({
+          key: authCreds.appKey,
+          secret: authCreds.appSecret
+        });
+        var stringToSign =
+          ClientAuthorizer.createStringToSign(
+                              authCreds.socketId,
+                              authCreds.channelName,
+                              authCreds.channelData);
+            
+        var authData = authorizer.auth(
+                          authCreds.socketId,
+                          authCreds.channelName,
+                          authCreds.channelData);
+        
+        $("#string_to_sign").val(stringToSign);
+        $("#auth_string").val(authData.auth);
+        $("#auth_json").val(JSON.stringify(authData));
+        
+        return false;
+      }
+      
+      function testSubscribe() {
+        if(pusher) {
+          pusher.disconnect();
+        }
+        
+        var authCreds = getAuthCredentials();
+        if(!authCreds.appSecret) {
+          alert('Please provide an application secret');
+          return;
+        }
+        
+        pusher = new Pusher(authCreds.appKey, {
+          encrypted: true,
+          authTransport: 'client',
+          clientAuth: {
+            key: authCreds.appKey,
+            secret: authCreds.appSecret,
+            user_id: authCreds.channelData.user_id,
+            user_info: authCreds.channelData.user_info
+          }
+        });
+        
+        // setTimeout(function() {
+          console.log('subscribing to %s...', authCreds.channelName);
+          pusher.subscribe(authCreds.channelName);
+        // }, 2000);
+      }
+      
+      function dependenciesLoaded() {
+        Pusher.log = function(msg) {
+          console.log(msg);
+          
+          var logEl = $('#pusher_js_output');
+          var text = logEl.text(msg + '\n' + logEl.val());
+        };
+        
+        $("#generate_hash_btn").click(generateHash);
+        $('#test_subscribe_btn').click(testSubscribe)
+      }
+      
+      authChecker._loadDependencies(dependenciesLoaded);
+    </script>
+    
+    <style type="text/css">
+      .section {
+        overflow: auto;
+        clear: both;
+      }
+      .section label, .section input, .section textarea {
+        float: left;
+        width: 400px;
+      }
+      .section label {
+        clear: left;
+        width: 200px;
+        height: 45px;
+      }
+      
+      .input textarea, .output textarea {
+        width: 400px;
+        height: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Pusher Auth Hash Checker</h1>
+    
+    <div class="input section">
+      <h2>Input</h2>
+      <label for="app_key">App Key:</label><input type="text" id="app_key" value="006c79b1fe1700c6c10d" />
+      <label for="app_secret">App Secret (Don't share this with anybody)</label><input type="text" id="app_secret" />
+      <label for="socket_id">Socket ID</label><input type="text" id="socket_id" value="1289.861100" />
+      <label for="channel_name">Channel Name</label><input type="text" id="channel_name" value="presence-PusherTShirt_Blue" />
+      <label for="channel_data">Channel Data (JSON)</label><input type="text" id="channel_data" value='{"user_id":"Guest 1","user_info":{"timestamp":634479805683037110}}' />
+      <button id="generate_hash_btn">Generate Hash</button>
+      <button id="test_subscribe_btn">Test Subscription</button>
+    </div>
+    
+    <div class="output section">
+      <h2>Output</h2>
+      <label for="string_to_sign">String to Sign:</label><textarea id="string_to_sign"></textarea>
+      <label for="auth_string">Auth String:</label><textarea id="auth_string"></textarea>
+      <label for="auth_json">Auth JSON:</label><textarea id="auth_json"></textarea>
+      <label for="pusher_js_output">Pusher JS Output:</label><textarea id="pusher_js_output"></textarea>
+    </div>
+  </body>
+</html>

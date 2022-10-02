@@ -1,0 +1,44 @@
+.slides.template-pusher article.biglogo {
+  background: white url(images/pusher_P_w_text.png) 50% 50% no-repeat;
+  background-size: 90%;
+}
+
+.slides.template-pusher > article:not(.nobackground):not(.biglogo) {
+  background: url(images/pusher_logo_small.png) 830px 625px no-repeat #FFF;
+}
+
+.slides.template-pusher .notes {
+  display: none;
+}
+
+.slides.template-pusher > article .use-cases {
+    background: url(images/hero_usecases.png) no-repeat #FFF center right;
+    height: 100%;
+}
+
+/* Size variants */
+
+article.medium p,
+article.medium ul {
+  font-size: 24px;
+  line-height: 28px;
+  letter-spacing: 0;
+}
+article.medium table {
+  font-size: 22px;
+  line-height: 28px;
+  letter-spacing: 0;
+}
+article.medium pre {
+  font-size: 19px;
+  line-height: 24px;
+  letter-spacing: 0;
+}
+article.medium q {
+  font-size: 44px;
+  line-height: 52px;
+}
+article.medium q::before,
+article.medium q::after {
+  font-size: 64px;
+}

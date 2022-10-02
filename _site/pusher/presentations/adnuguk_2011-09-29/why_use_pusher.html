@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<!--
+  Google HTML5 slide template
+
+  Authors: Luke Mahé (code)
+           Marcin Wichary (code and design)
+           
+           Dominic Mazzoni (browser compatibility)
+           Charles Chen (ChromeVox support)
+
+  URL: http://code.google.com/p/html5slides/
+-->
+
+<html>
+  <head>
+    <title>Why use Pusher?</title>
+
+    <meta charset='utf-8'>
+    <!--script src='http://html5slides.googlecode.com/svn/trunk/slides.js'></script>
+    <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'></script>
+    <script src="http://datejs.googlecode.com/svn/trunk/build/core.js"></script>
+    <script src="http://datejs.googlecode.com/svn/trunk/build/date-en-GB.js"></script-->
+    
+    <!-- offline? -->
+    <!--script src="template/js/date-js/date.js"></script-->
+    <script src='template/html5slides-read-only/slides.js'></script>
+    <script src="template/js/jquery-1-6-2.min.js"></script>
+
+    <script src="template/js/jquery.snippet/jquery.snippet.min.js"></script>
+    
+    <script>
+      var Channel = function(){};
+      Channel.prototype.bind = function(){};
+      var Pusher = function(){};
+      Pusher.prototype.subscribe = function(){return new Channel();};
+    
+      $(function(){
+        $(".today").text(new Date().toString().replace(/(20\d\d).*/, "$1"));
+      
+        $("script.example-source").each(function(i, script) {
+          script = $(script);
+          var example = script.siblings(".example");
+          var src = script.html();
+          var match = src.match(/^(\s+)/);
+          var initialSpace = (match?match[0].length:0);
+          var newSrc = "";
+          var lines = src.match(/[^\n]*\n[^\n]*/gi);
+          for(var i = 0, l = lines.length; i < l; ++i) {
+            newSrc += lines[i].substring(initialSpace);
+            if((i+1) < l) {
+              newSrc += "\n";
+            }
+          }
+          example.text(newSrc);
+        });
+        
+        var thanksContent = $("article.intro").clone();
+        thanksContent.find("h3").text("Thanks! Any questions?");
+        $("article.last").html(thanksContent.html());
+      });
+    </script>
+    
+    <link rel="stylesheet" href="template/styles.css" />
+    <link rel="stylesheet" href="template/js/jquery.snippet/jquery.snippet.min.css" />
+    
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-regular template-pusher'>
+      
+      <!-- Your slides (<article>s) go here. Delete or comment out the
+           slides below. -->
+        
+        
+      
+      <article class='biglogo'>
+      </article>
+
+      <article>
+        <h1>
+          Why use Pusher?
+        </h1>
+        <p>
+          <a href="https://www.leggetter.co.uk/">Phil Leggetter</a>
+          <br>
+          <span class="today"></span>
+        </p>
+      </article>
+      
+      <article class="intro">
+        <h3>Introduction</h3>
+        <ul>
+          <li>Phil Leggetter</li>
+          <li>Developer Evangelist, Pusher</li>
+          <li><a href="http://twitter.com/leggetter">@leggetter</a></li>
+          <li><a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a> | <a href="mailto:phil@pusher.com">phil@pusher.com</a></li>
+          <li><a href="https://www.leggetter.co.uk/">https://www.leggetter.co.uk</a></li>
+          <li>Skype: pleggetter | Tel: +44(0)7867 526993</li>
+        </ul>
+        <ul>
+          <li>Pusher</li>
+          <li><a href="http://pusher.com">http://pusher.com</a></li>
+          <li><a href="http://twitter.com/pusherapp">@pusherapp</a></li>
+          <li><a href="http://blog.pusher.com">http://blog.pusher.com</a></li>
+        </ul>
+          
+      </article>
+
+      <article>
+        <h3>
+          Agenda - Why use Pusher?
+        </h3>
+        <ul>
+          <li>What is Pusher?</li>
+          <li>What can you build with Pusher?</li>
+          <li>Business Benefits Overview</li>
+          <li>Tech Example - Polling v Pusher
+            <ul>
+              <li>Code</li>
+              <li>Resource Usage</li>
+            </ul>
+          </li>
+          <li>Any other questions?</li>
+        </ul>
+        
+        <section class="notes">
+          * Why use Pusher? The whole purpose of the talk. Why it makes sense and it's awesome!
+        </section>
+        
+      </article>
+      
+      <article>
+        <h3>
+          What is Pusher?
+        </h3>
+        
+        <ul>
+          <li>
+            Cloud hosted scalable IaaS/SaaS
+          </li>
+          <li>
+            Realtime messaging service
+          </li>
+          <li>
+            Cross-platform support
+          </li>
+          <li>
+            HTML5 WebSocket powered!
+          </li>
+          <li>
+            Server &amp; Client libraries
+          </li>
+          <li>
+            Awesome community of users
+          </li>
+        </ul>
+        
+        <section class="notes">
+          * It's in the cloud - normally works on it's own. Applause from sales/marketing :)
+          * Cross platform support: Web Browsers, Mobile, iPhone, iPad, Desktop
+          * Realtime messaging
+          * WebSockets are the standard for real-time bi-directional full duplex communication between a server and a client.
+            * Previous technology attempts have been hacks or workarounds. This stuff is now a standard and has massive backing from Google, Mozilla, Opera and even Microsoft have prototyped it and it *might* be in IE10. That said, it doesn't matter. There's fallback to Flash which covers 99% of all users according to Adobe.
+            
+          * This all sounds great but what can you build with it?
+        </section>
+      </article>
+      
+      <article class="medium">
+        <h3>
+          What can you build with Pusher?
+        </h3>
+        
+        <ul class="use-cases">
+          <li>Realtime Data updates and visualisations</li>
+          <li>Push notifications &amp; Activity Streams</li>
+          <li>Chat</li>
+          <li>Collaboration</li>
+          <li>Social media reaction/integration</li>
+          <li>Realtime Multiplayer Games</li>
+        </ul>
+        
+        <section class="notes">
+          * Realtime data - financial data, sports data, betting odds, where instant updates matter
+          * Notifications: New tweets, facebook status updates, calendar appointment prompts, users coming online prompt
+          * Customer support chat, user to user chat (facebook chat)
+          * Collaboration: Google Draw, Docs, Spreadsheets
+          * Social media reaction/integration: Tweets, Facebook likes, Blog post notifications, Images from TwitPic or yFrog/ImageShack
+          * Games - whether simple gamification updates or true realtime html5 multiplayer games
+          
+          * Again, awesome! But what does this matter? What are the business benefits?
+        </section>
+      </article>
+      
+      <article>
+        <h3>
+          Business Benefits Overview
+        </h3>
+        
+        <ul>
+          <li>
+            It delivers the realtime web
+          </li>
+          <li>
+            <strong>User Engagement &amp; User Experience</strong>
+          </li>
+          <li>
+            Pusher saves you Time &amp; Money
+          </li>
+          <li>
+            It's awesome!
+          </li>
+          <li>
+            It's easy to integrate and use
+          </li>
+        </ul>
+        
+        <section class="notes">
+          * realtime web - it's not just a buzz term. It means the instant availability of data, and now the delivery of it. It means that data can be instantly used to build a much more engaging user experience.
+          * 2UEs - It's what keeps users on sites and using applications. Without it your website is just a brochure.
+          * Time &amp; Money:
+            * installing and maintaining realtime infrastructure is getting easier but it's still not a cinch.
+            * The WebSockets protocol is stable but still enhancing. Pusher manages this for you.
+            * We are a Cloud service. We scale, so you don't have to.
+            * Realtime push-once. You publish a message once and it's instantly distributed to 1000's of connected clients. If you were having to do this yourself it would be resource intensive. Instead it costs just one REST API call.
+          * Awesome - It just is. Cool real-time updates, instant collaboration and it all working cross device has that wow factor. Whether it's just in your own product or even better if you want to WOW your clients. Just show off the tech!
+          * Easy - I'll show you.
+        </section>
+      </article>
+      
+      <article>
+        <h2>
+          Tech Example
+        </h2>
+      </article>
+      
+      <article>
+        <h3>
+          Polling (Client)
+        </h3>
+        <section>
+          <pre class="example linenums"></pre>
+
+          <script class="example-source">
+            var lastUpdate = new Date();
+            setInterval(function() {
+              $.getJSON('ajax/get_update.php?since=' + lastUpdate, function(data) {
+                 var items = [];
+          
+                 $.each(data, function(key, val) {
+                   items.push('<li id="' + key + '">' + val + '</li>');
+                 });
+          
+                 $('#my_list').prepend(items);
+              });
+              lastUpdate = new Date();
+            }, 10*1000);
+          </script>
+        </section>
+      </article>
+
+      <article>
+        <h3>
+          Polling (Server) - Get the data
+        </h3>
+        <pre class="example linenums"></pre>
+        
+        <script type="text" class="example-source">
+          <?php
+          $update = $_POST['update'];
+          $data = json_decode($update, true);
+
+          $query = sprintf("INSERT INTO updates (key, value) VALUES ('%s', '%s')",
+              mysql_real_escape_string($data['key'], $data['value']));
+
+          $result = mysql_query($query);
+
+          if($result) {
+            header("HTTP/1.1 201 Created")
+          }
+          else { header("HTTP/1.1 418 I'm a teapot"); }
+          ?>
+        </script>
+      </article>
+
+      <article>
+        <h3>
+          Polling (Server) - handle the polling
+        </h3>
+        <pre class="example linenums"></pre>
+        
+        <script type="text" class="example-source">
+          <?php // get_update.php
+          $since = $_GET['since']; // assume format is correct
+
+          $query = sprintf("SELECT updates WHERE created > '%s'",
+              mysql_real_escape_string($since));
+
+          $result = mysql_query($query); // assume no errors
+
+          $rows = array();
+          while($r = mysql_fetch_assoc($result)) {
+              $rows[] = $r;
+          }
+          return json_encode($rows);
+          ?>
+        </script>
+        <section class="notes">
+          * Every polling request = a database query
+        </section>
+      </article>
+      
+      <article>
+        <h2>
+          Polling Demo
+        </h2>
+      </article>
+      
+      <article class="medium">
+        <h3>
+          Polling Resource Usage
+        </h3>
+        <h4>Scenario</h4>
+        <ul class="build">
+          <li>Site average of 10,000 Users</li>
+          <li>Over 1 Hour, with a 10 second polling interval</li>
+          <li>Pages load + resources (HTML, CSS, JS, Images) = 50,000</li>
+          <li>Poll requests per minute = (60 / 10) = 6</li>
+          <li>Poll requests per hour = (6 * 60) = 360</li>
+          <li>Poll requests site wide per hour = (360 * 10,000) = 3,600,000.</li>
+          <li><strong>Total:</strong> 3.65 Million requests<br /><br />Can your server handle this?</li>
+        </ul>
+        <section class="notes">
+          * You can scale yourself but this takes time to set up and incurs recurring costs
+        </section>
+      </article>
+      
+      <article>
+        <h2>
+          Let's make it realtime!
+        </h2>
+      </article>
+      
+      <article>
+        <h3>
+          Less Code
+        </h3>
+        
+        <ul>
+          <li>
+            Faster feature development
+          </li>
+          <li>
+            Cleaner code / reduced complexity
+          </li>
+          <li>
+            Decreases the chances of errors and bugs
+          </li>
+          <li>
+            Reduced maintenance
+          </li>
+        </ul>
+        
+        <section class="notes">
+          * Faster time to market for product
+          * Cleaner code = easier to understand
+        </section>
+      </article>
+
+      <article>
+        <h3>
+          Pusher (Client)
+        </h3>
+        <pre class="example linenums"></pre>
+
+        <script class="example-source">
+          var pusher = new Pusher("APP_KEY");
+          var channel = pusher.subscribe('my-channel');
+          channel.bind('my-event', function(data) {
+            var items = [];
+            $.each(data, function(key, val) {
+                  items.push('<li id="' + key + '">' + val + '</li>');
+            });
+
+            $('#my_list').prepend(items);
+          });
+        </script>
+        
+        <section class="notes">
+          * Ok, only a few lines difference but. Other than it being a bit cleaner there's no big difference.
+            * the pusher object will only be created once.
+            * the channel object may be the same.
+        </section>
+      </article>
+      
+      <article class="smaller">
+        <h3>
+          Pusher (Server) - Get &amp; Push
+        </h3>
+        <pre class="example linenums"></pre>
+        
+        <script type="text" class="example-source">
+          <?php
+          require('Pusher.php'); // new
+          
+          $update = $_POST['update'];
+          $data = json_decode($update, true);
+
+          $query = sprintf("INSERT INTO updates (key, value) VALUES ('%s', '%s')",
+              mysql_real_escape_string($data['key'], $data['value']));
+
+          $result = mysql_query($query);
+
+          if($result) {
+            $pusher = new Pusher($key, $secret, $app_id); // new
+            $pusher->trigger('my-channel', 'my-event', $data); // new
+            
+            header("HTTP/1.1 201 Created")
+          }
+          else { header("HTTP/1.1 418 I'm a teapot"); }
+          ?>
+        </script>
+      
+        <section class="notes">
+          * We do see a difference on the server.
+            * completely lose the polling PHP file/controller action
+          * 3 lines to replace 14
+            * reduced complexity
+            * realtime updates
+            * guaranteed up to date information in the web browser
+        </section>
+      </article>
+      
+      <article>
+        <h2>
+          Pusher Demo
+        </h2>
+      </article>
+      
+      <article>
+        <h3>
+          Pusher Resource Usage
+        </h3>
+        <h4>Scenario</h4>
+        <ul class="build">
+          <li>Site average of 10,000 Users</li>
+          <li>Over 1 Hour, <strong>no polling</strong></li>
+          <li>Pages load + resources (HTML, CSS, JS, Images) = 50,000.</li>
+          <li>That's it! <strong>Total:</strong> 50,000</li>
+          <li><strong>3.6 Million</strong> less than polling
+        </ul>
+        <section class="notes">
+          * You can scale yourself but this takes time to set up and incurs recurring costs
+        </section>
+      </article>
+      
+      <article>
+        <h3>
+          Summary
+        </h3>
+        <ul>
+          <li>Pusher is an awesome WebSockets realtime messaging platform</li>
+          <li>It can be used for a tonne of cool stuff</li>
+          <li>It helps you build an essential engaging user experience</li>
+          <li>It saves you a bucket load of time &amp; money</li>
+          <li>It stops your server falling over</li>
+          <li>Where do you sign up? <a href="http://pusher.com/pricing#showsignup">here</a></li>
+        </ul>
+      </article>
+      
+      <article class="last">
+
+      </article>
+
+    </section>
+
+  </body>
+</html>

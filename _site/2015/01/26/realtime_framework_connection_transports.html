@@ -1,0 +1,525 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	
+	<title>Realtime Connection Transports - Phil Leggetter - Developer Experience & Relations Leader</title>
+	
+
+	<meta property="og:title" content="Realtime Connection Transports" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/2015/01/26/realtime_framework_connection_transports.html" />
+	<meta property="og:description" content="In this post I'll take a look at why HTTP-based transports are still used by realtime frameworks and services, why don’t all solutions use WebSocket, and which transports are best for different realtime use cases." />
+	
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<meta name="description" content="In this post I'll take a look at why HTTP-based transports are still used by realtime frameworks and services, why don’t all solutions use WebSocket, and which transports are best for different realtime use cases." />
+	
+	<meta name="keywords" content="" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+	
+	
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/skel/assets/css/main.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/skel/assets/css/ie8.css" /><![endif]-->
+	<link rel="stylesheet" href="/css/skel-mods.css" />
+
+  <link rel="stylesheet" href="/libs/highlight/styles/solarized_dark.css" />
+	
+	<script src="/skel/assets/js/jquery.min.js"></script>
+</head>
+<body class="right-sidebar ">
+
+	<!-- Header -->
+	<div id="header-wrapper" class="wrapper">
+		<div id="header">
+
+  <!-- Logo -->
+  <div id="logo">
+    <h1><a href="/">Phil Leggetter</a></h1>
+    <p>VP of Developer Experience at <a href="https://ably.com" style="color: #fff;">Ably</a> and a Developer Experience and Relations Advisor</p>
+  </div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul>
+      <li class="current"><a href="/"><img class="logo-sml" src="/images/leggetter-logo-trans-sml.png" title="Phil Leggetter - Home" alt="Phil Leggetter logo" /></a></li>
+      <li>
+        <a href="/aaarrrp" title="The AAARRRP Developer Relations Strategy Framework">AAARRRP</a>
+      </li>
+      <li>
+        <a href="/real-time-web-technologies-guide/">Realtime Web Guide</a>
+        <ul>
+          <li><a href="/real-time-web-technologies-guide">Realtime Web Technology Guide</a></li>
+          <li><a href="/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a></li>
+          <li><a href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html">Fundamentals of the Realtime Web & Realtime Web Functionality</a></li>
+          <li><a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing your Realtime Web App Tech Stack</a></li>
+          <li><a href="/real-time-web-technologies-guide/developer-tools/">Developer Tools</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-hosted-service-latency/">Realtime Hosted Service Latency Stats</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-data-sources/">Realtime Data Sources</a></li>
+          <li><a href="/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/">Transport Mechanisms</a></li>
+        </ul>
+      </li>
+      <li><a href="/about-phil-leggetter/">About Phil Leggetter</a>
+        <ul>
+          <li><a href="/leggetter-family-tree">The Unique Name of Leggetter</a></li>
+          <li><a href="/mygoffice">My Goffice</a></li>
+        </ul>
+      </li>
+      <li><a href="#contact-me">Contact Me</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+	</div>
+
+	<!-- Main -->
+	<div class="main-wrapper wrapper style2">
+
+    <div class="title">
+			<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+		</div>
+
+    <div id="main" class="container">
+      <div class="row 150%">
+        <div class="8u 12u(mobile)">
+          <div id="content">
+            <h1>Realtime Connection Transports</h1>
+<p class="meta">26 Jan 2015</p>
+
+<div class="post">
+<p>Many tout WebSocket as a long awaited transport technology for realtime communication on the web. For many years developers have hacked around with HTTP to try and achieve “realtime push” (a.k.a. server push), where the server “pushes” data to the client. WebSocket was the solution that was born out of the requirement to provide a standardised solution to replace the hacks. But some solutions are still using HTTP transports such as <strong>Polling</strong>, <strong>Long-Polling</strong> and <strong>Streaming</strong>. So has WebSocket failed to live up to its promise?</p>
+
+<p>In a <a href="https://blog.pusher.com/what-came-before-websockets/">previous post</a> I go into mechanism for achieving HTTP transports. In this post I’ll take a look at why HTTP-based transports are still used by realtime frameworks and services, why all solutions don’t use WebSocket, and which transports are best for different realtime use cases.</p>
+
+<h2 id="what-is-realtime">What is Realtime?</h2>
+
+<p>When we talk about realtime in combination with web apps, mobile apps and IoT devices we mean something different to realtime in vehicle breaking systems or the USS Enterprise warp core safety system. The latter require hard realtime; when antimatter containment is lost that core needs to be ejected within a hard deadline or the ship is lost. Realtime on the web is generally soft; the usefulness of the data can degrade over time without system failure.</p>
+
+<p><img src="https://c2.staticflickr.com/4/3088/4561801219_a4199e3dea_b.jpg" alt="Warp Core Breach" /></p>
+
+<p>So, you don’t want to control your warp core safety system using a realtime web framework. But there are still plenty of use cases and some of those can be business critical. You just need to be aware that you’re reliant on network infrastructure (the Internet) that you many not control to relay messages - and have appropriate fallbacks within your system.</p>
+
+<p>You’re probably wondering how fast are these realtime frameworks then? Based on the stats I’ve gathered from six hosted services the average of all those providers is around 380ms from a message being sent to it being delivered.</p>
+
+<p>The use cases for the technology vary widely but can roughly be broken down in to the following:</p>
+
+<ul>
+  <li>Notifications &amp; Signalling</li>
+  <li>Activity Streams</li>
+  <li>Data displays</li>
+  <li>Chat</li>
+  <li>Second Screen experiences</li>
+  <li>Live geolocation tracking</li>
+  <li>Multi-user collaboration</li>
+  <li>Multiplayer games</li>
+</ul>
+
+<p>Now that we’ve covered a bit of background about the technology and how it’s being used let’s have a brief look at the history and current status of the realtime connection transports.</p>
+
+<h2 id="http-long-polling--streaming-hacks">HTTP Long-Polling &amp; Streaming Hacks</h2>
+
+<p>Many years ago - at least as far back as 2000 - there were a few companies that were doing all they could to work around the <a href="http://en.wikipedia.org/wiki/Request%E2%80%93response">request-response</a> limitations of HTTP. Those companies had a use case where they needed to <em>push</em> information from the server to one or more <strong>web browsers</strong> as soon as the data became available (this is way before IoT and connected devices were on anyone’s radar.).</p>
+
+<p>In 2000 the <code>XMLHttpRequest</code> object didn’t exist within web browsers and the term <em>AJAX</em> hadn’t even been invented. Realtime Web pioneers would work around browser limitations with Java Applets (remember those?), FRAMES, IFRAMES, dynamically generated script tags, ActiveX controls and all number of hacks to try to maintain a long-held connection between client and server.</p>
+
+<p>Even when the <code>XMLHttpRequest</code> object arrived it didn’t help because it started out being only available in IE (created for Outlook Web). Even when the other browsers adopted it, it wasn’t easy to maintain a persistent connection between client and server. Browser quirks and security limitations held realtime technology advancement, adoption and usage exploration back.</p>
+
+<p><em>Note: For a more in-depth look at the types of hacks please check out the <a href="http://en.wikipedia.org/wiki/Comet_(programming)">Comet (Programming) Wikipedia page</a> and <a href="http://blog.pusher.com/what-came-before-websockets/">What came before WebSocket?</a>.</em></p>
+
+<p><img src="http://images.kino.de/flbilder/max96/bf96/bf20_21/b9620021/w964.jpg" alt="Hackers" /></p>
+
+<p>So we hacked! And hacked! And worked around the imposed limitations.. And this is why HTTP-based solutions like HTTP-Streaming and HTTP Long-Polling are traditionally hacks; they worked around protocol and browser limitations and restrictions; they did this in inconsistent ways and played on browser quirks to achieve the desired server-push functionality.</p>
+
+<p><em>Note: If you’re also interested in a higher level background about how realtime went mainstream take a look at the <a href="https://www.leggetter.co.uk/2013/10/28/history-background-benefits-use-cases-realtime.html">History, Background, Benefits &amp; Use Cases of Realtime</a> part of my realtime web tech guide.</em></p>
+
+<h2 id="why-still-use-http-transports">Why still use HTTP transports?</h2>
+
+<p>If HTTP-based solutions are so “hacky” why do so many realtime solutions still use them? Remember those browser quirks? Well, <em>we now have standards!</em> The ways you would achieve in-browser HTTP Streaming and HTTP Long-Polling became standardised and much easier to achieve, no matter which browser is used.</p>
+
+<p>So are HTTP Streaming and HTTP Long-Polling still hacks? These HTTP-based solutions are used in so many frameworks and there are use cases where they are a good fit. Specifically, when the majority of communication is from server to client (see <em>HTTP Shortcomings</em> below).</p>
+
+<p>In fact you could considered HTTP Streaming and Long-Polling as standardised as <a href="http://en.wikipedia.org/wiki/Server-sent_events">Server-Sent Events</a>. All browsers <a href="http://caniuse.com/#feat=eventsource">other than IE</a> presently offer an <code>EventSource</code> API within the browser.</p>
+
+<p>Looking at the glass half full, HTTP does work everywhere. Proxies and firewalls understand HTTP and know how to work with it. There are still pieces of network infrastructure that don’t like long-held connections so we do still need Long-Polling and even standard polling right now.</p>
+
+<p>WebSocket, on the other hand, is still a comparatively new technology with <a href="http://caniuse.com/#feat=websockets">great browser support</a> that is unfortunately hindered by ageing network infrastructure that <em>also gets in the way of progressive HTTP connectivity</em>. Not only that, but the WebSocket protocol went through a number of revisions on the way to <a href="https://tools.ietf.org/html/rfc6455">RFC 6455</a>. And, because the process was quite a long one, there are a number of clients that are using older incompatible versions of the protocol. As a result, solutions that support WebSocket ideally should support these older protocol versions.</p>
+
+<p>A final reason why frameworks and services may still be using HTTP over WebSocket is that you still need polling and at least some sort of long-polling and streaming for those scenarios where a WebSocket connection can’t be established. This means that frameworks or services must have some form of connection management and strategy to support failover between connection transports. Managing the ability to connect over HTTP and WebSocket within a framework, service and supporting libraries can be complex: some opt to stick with HTTP only, although <em>nearly</em> all major services and frameworks now offer WebSocket and HTTP connectivity.</p>
+
+<p>You can find out more about the complexity of multi-transport connection management in Pusher’s post on <a href="http://blog.pusher.com/pusher-2-0-0-cutting-edge-websockets-with-comprehensive-legacy-support/">adding HTTP fallback</a> to compliment their WebSocket-focused service.</p>
+
+<h2 id="http-shortcomings">HTTP Shortcomings</h2>
+
+<p>If you decided to read <a href="http://blog.pusher.com/what-came-before-websockets/">what came before WebSocket article</a> before reading this far you already know why HTTP falls short. For those that didn’t read that article it’s pretty simple: HTTP supports the request-response cycle so you can initially send data to the server. But once the server has initiated the response the client can’t send any additional information to it over that same connection. You can think of the initial request as a kind of handshake and from that point on it’s essentially a uni-directional communications channel from server to client. Even with Keep-Alive where the underlying TCP connection can be reused between requests and HTTP Pipelining <strong>you can’t achieve bi-directional communication over a single persistent HTTP connection</strong>.</p>
+
+<p>Why does any of this matter? As we start to build applications with more interactive functionality we’re going to see a dramatic increase in the communication that takes place between client and server. Realtime technologies will be fundamental to supporting that level of communication whilst maintaining a great user experience. Underpinning all of this will be the requirement to provide bi-directional communication support over a single efficient connection.</p>
+
+<p><strong>And that’s why we need WebSocket.</strong></p>
+
+<h2 id="why-we-need-websocket">Why we need WebSocket</h2>
+
+<p>The main purpose of WebSocket is to provide a standardised way to solve all the problems we get with HTTP.</p>
+
+<p>A WebSocket connection is a single bi-directional <a href="http://en.wikipedia.org/wiki/Duplex_%28telecommunications%29#Full-duplex">full-duplex</a> connection between the client and server. The protocol itself is also much less verbose than HTTP resulting in smaller message payloads. The bi-directional full-duplex connectivity along with the <strong>smaller payloads</strong> results in <strong>lower latency</strong> messaging and more <strong>efficient connections</strong><sup>†</sup>. In a world where increasingly content is being consumed over mobile devices, this will directly impact customer satisfaction, thanks to increased battery life, lesser usage of the data plan, speed, etc. As a result, WebSocket is becoming the must have transport in any realtime framework or service.</p>
+
+<p><em><sup>†</sup> See <a href="#additional_reading">Additional Reading</a> for more justification on the above statements.</em></p>
+
+<h2 id="transports--their-most-suited-realtime-uses-cases">Transports &amp; Their Most Suited Realtime Uses Cases</h2>
+
+<p>Finally, I’d like to provide some information on where I believe the available realtime transports are most suitable. I’ll do this based on the following criteria:</p>
+
+<ul>
+  <li><strong>Message frequency</strong> - how often messages should be sent</li>
+  <li><strong>Bi-directional</strong> - support for two-way communication over a single connection</li>
+  <li><strong>Message latency</strong> - latency between the message being published and delivered</li>
+  <li><strong>Connection efficiency</strong> - data over the wire and general resource usage on client and server</li>
+  <li><strong>User experience</strong> - appropriate usage to maintain a reasonable user experience</li>
+</ul>
+
+<p>I’ll then provide the most appropriate use case for each of the realtime connection transport types.</p>
+
+<h3 id="http-polling-short-polling">HTTP Polling (Short-Polling)</h3>
+
+<p>HTTP Polling is fine for updates that don’t need to be delivered quickly <em>and</em> where updates happen infrequently. As frequency of polling increases, so does the load on the server and strain on the client. You can use the request to send data to the server and the response to get the fresh data. However, this means client data must be queued until the next request is sent. Each request outside of the polling cycle results in an additional connection.</p>
+
+<p>Along with being inefficient, the user experience is impacted if the data within the application needs to maintain context. If the data is delivered late then it’s of no use to the user of the app.</p>
+
+<p>HTTP Polling is therefore suitable for lots of use cases where the data doesn’t update all that frequently and where the data being stale (out of date) doesn’t really matter.</p>
+
+<h3 id="http-long-polling">HTTP Long-Polling</h3>
+
+<p>You won’t waste as many round trips with this transport as you do with standard polling. As the folks at Fanout say, <a href="http://blog.fanout.io/2013/03/04/long-polling-doesnt-totally-suck/">it doesn’t totally suck</a>. But during the reconnect cycle you <em>could</em> be seeing stale data during request-response cycle where there’s no server-client connection. And If updates come in frequently then there could be a lot of highly inefficient request-response cycles.</p>
+
+<p>Data can be sent to the server as part of the request but that means new client data will need to wait for the next poll interval. Additional server requests can be made which result in an additional open connection.</p>
+
+<p>When the freshness of data is not essential and client to server communication is infrequent then Long-Polling is a suitable solution. It’s not ideal for things like financial trading where freshness of data is imperative or multiplayer games and collaborative experiences where messages representing important changes in data are being sent from client to server.</p>
+
+<h3 id="http-streaming">HTTP Streaming</h3>
+
+<p>HTTP Streaming is generally the best of the HTTP solutions and probably as efficient as WebSocket for pushing data from the server to the client.</p>
+
+<p>However, it’s a uni-directional connection meaning that a second connection needs to be made to achieve bi-directional communication. When data needs to be sent to the server a second connection must be opened. And if lots of data is being sent to the server then data is queued until the previous client to server request has completed or further additional connections need to be established. This is a problem for realtime interactive applications that want to offer the best possible latency and performance.</p>
+
+<p>A solid solution for apps where data needs to be instantly pushed from client to server, where the freshness of data is important. Data displays, dashboards, realtime maps etc. are good fits. HTTP Streaming  suffers the same problems as HTTP Long-Polling when it comes to client to server communication so use cases like multiplayer games and truly interactive collaborative experiences.</p>
+
+<p>And this is where WebSocket wins out.</p>
+
+<h3 id="websocket">WebSocket</h3>
+
+<p>WebSocket perfectly suits increasingly interactive functionality and higher frequency bi-directional communication as you really start to see the benefits of low latency, efficiency and small payloads.</p>
+
+<p>The bi-directional connectivity also starts to be highly important as we can use a single connection per client to do the majority of our message passing. And this is clearly much more efficient than multiple HTTP connections.</p>
+
+<p>If your data doesn’t update all that frequently then maintaining your own infrastructure to support WebSocket is probably an overhead. However, as soon as the frequency of data increases and the experiences become interactive WebSocket shines. Data displays, highly active chat, fast moving activity streams, collaborative experiences, second screen experiences that need to stay in sync, collaborative apps and multiplayer games all massively benefit from what WebSocket has to offer.</p>
+
+<h4 id="note-its-not-just-user-driven-interactions">Note: It’s not just user-driven interactions</h4>
+
+<p>WebSocket is essential where bi-directional communication is required. The initial thought is obviously that this is user driven interaction - and until now I’ve done nothing to say otherwise. However, that’s not always the case. It could be that your solution requires a relative interactive protocol e.g. for updating data subscriptions. Again, WebSocket is the best solution for this.</p>
+
+<h3 id="http-polling-v-http-long-polling-v-http-streaming-v-websocket">HTTP Polling v HTTP Long-Polling v HTTP Streaming v WebSocket</h3>
+
+<p>To summarise, here’s a comparison of where I see each of the realtime connection transports fitting.</p>
+
+<table class="default"><thead>
+<tr>
+<th>Transport</th>
+<th>Suitable Message Frequency</th>
+<th>Bi-directional Communication</th>
+<th>Message Latency</th>
+<th>Connection Efficiency</th>
+<th>User Experience</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><em>HTTP Polling</em></td>
+<td>Low</td>
+<td>No</td>
+<td>High</td>
+<td>Low</td>
+<td>Fine at low message frequency</td>
+</tr>
+<tr>
+<td><em>HTTP Long-Polling</em></td>
+<td>Medium</td>
+<td>No</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Fine at medium message frequency</td>
+</tr>
+<tr>
+<td><em>HTTP Streaming</em></td>
+<td>High</td>
+<td>No</td>
+<td>Low</td>
+<td>High</td>
+<td>Good for received data. Average for interactive experiences</td>
+</tr>
+<tr>
+<td><em>WebSocket</em></td>
+<td>High</td>
+<td>Yes</td>
+<td>Low</td>
+<td>High</td>
+<td>Good for both receiving data and interactive experiences</td>
+</tr>
+</tbody></table>
+
+<p>You can also look at suitability in terms of well-known applications that you’ll be able to map to their common use cases:</p>
+
+<table class="default"><thead>
+<tr>
+<th>Scenario</th>
+<th>HTTP Polling</th>
+<th>HTTP Long-Polling</th>
+<th>HTTP Streaming</th>
+<th>WebSocket</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Facebook Wall</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Twitter User Stream</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Uber Taxi Tracking</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Google Realtime Analytics</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>WhatsApp</td>
+<td>No</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Google Docs</td>
+<td>No</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+<tr>
+<td>QuizUp (Multiplayer games)</td>
+<td>No</td>
+<td>Low</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+</tbody></table>
+
+<h2 id="websocket-everywhere">WebSocket Everywhere!</h2>
+
+<p>My - hopefully informed - opinion is that WebSocket is by far the best realtime connection transport. If it weren’t for problems with legacy browsers, firewalls and proxies WebSocket would be the <em>only</em> realtime transport that we would need for use case where realtime really matters. We’re not all that far from making that possible. Based on the stats that Pusher has this means 90% of connections use WebSocket and the rest use either Flash WebSocket emulation or HTTP.</p>
+
+<p>I’m always open to opinion and feedback on all of this. I’m more than willing to change my opinion based on solid arguments - believe it or not it took time for me to be convinced about the benefits of WebSocket. So, if you’ve any questions then please don’t hesitate to <a href="mailto:phil@leggetter.co.uk">get in touch</a>.</p>
+
+<p><a name="additional_reading"></a></p>
+<h2 id="additional-reading">Additional reading</h2>
+
+<ul>
+  <li><a href="http://chimera.labs.oreilly.com/books/1230000000545/ch11.html">Ilya Grigorik’s High Performance Browser Networking HTTP 1.X chapter</a></li>
+  <li><a href="http://stackoverflow.com/a/14711517/39904">WebSockets protocol vs HTTP on StackOverflow</a></li>
+  <li><a href="http://www.websocket.org/quantum.html">HTML5 Web Sockets:
+A Quantum Leap in Scalability for the Web</a></li>
+  <li><a href="http://blog.fanout.io/2013/03/04/long-polling-doesnt-totally-suck/">Long-Polling doesn’t totally suck</a></li>
+  <li><a href="https://www.leggetter.co.uk/real-time-web-technologies-guide">Realtime Web Technology Guide</a></li>
+  <li><a href="https://www.leggetter.co.uk/2013/12/09/choosing-realtime-web-app-tech-stack.html">Choosing Your Realtime Web App Technology Stack</a></li>
+</ul>
+
+</div>
+
+<hr />
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+var disqus_shortname = 'leggetter';
+var disqus_url = 'https://www.leggetter.co.uk/2015/01/26/realtime_framework_connection_transports.html';
+
+
+
+var disqus_identifier = '/2015/01/26/realtime_framework_connection_transports.html';
+
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+          </div>
+        </div>
+        <div class="4u 12u(mobile)">
+          <!-- Sidebar -->
+<div id="sidebar">
+
+  <section class="box">
+
+  <form action="https://leggetter.us2.list-manage.com/subscribe/post?u=75fcbc606555d96262c1cd5bd&amp;id=e0524b92e7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+    <header>
+      <h2>Get posts via email</h2>
+    </header>
+    <div class="mc-field-group" style="margin-top: -25px;">
+      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address" style="display:inline-block; margin:0; width: auto;">
+      <input type="submit" value="Go" name="subscribe" id="mc-embedded-subscribe" class="button" style="display:inline-block; min-width: inherit; line-height: 1em;
+      height: 3.1em;
+      vertical-align: top;">
+    </div>
+    <div id="mce-responses" class="clear">
+      <div class="response" id="mce-error-response" style="display:none"></div>
+      <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_75fcbc606555d96262c1cd5bd_e0524b92e7" value=""></div>
+  </form>
+
+  <!--End mc_embed_signup-->
+</section>
+
+
+  <section class="box about">
+
+  <img class="avatar grav-hashed grav-hijack" src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400" align="center" alt="Phil Leggetter - Realtime Web Technology Evangelist" id="grav-ecc56977271e781991b6172c16248459-0" originals="200" width="200" height="200" src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200" scale="2" style="margin: auto; margin-bottom: 2em; display: inherit;">
+  <p>My name is <strong>Phil Leggetter</strong>. I'm VP of Developer Experience at <a href="https://ably.com">Ably</a> and a <strong>Developer Experience and Relations advisor</strong> at <a href="https://tru.id">tru.ID</a> and <a href="https://crosser.io">Crosser</a>.</p>
+
+</section>
+
+
+  <!-- <section class="box">
+  <header>
+    <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
+  </header>
+  <div style="text-align: center; margin-top: 10px;">
+    <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20"><img border="0" src="https://www.leggetter.co.uk/wp-content/uploads/2013/04/realtime-web-apps-sml.jpg" scale="0"></a><img src="https://www.assoc-amazon.com/e/ir?t=phillegg-20&amp;l=as2&amp;o=1&amp;a=1430246200" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" scale="0">
+    <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
+  </div>
+</section>
+ -->
+
+</div>
+
+        </div>
+      </div>
+    </div>
+	</div>
+	<!-- /Main -->
+
+	<!-- Footer Wrapper -->
+	<div id="footer-wrapper" class="wrapper">
+		<div class="title">Get In Touch</div>
+		<div id="footer" class="container">
+
+				<!-- Contact -->
+				<a name="contact-me" id="contact-me"></a>
+				<section class="feature-list small">
+					<div class="row">
+	          <div class="-2u 4u">
+	            <section>
+	              <h3 class="icon fa-comment">Social</h3>
+	              <p>
+									<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+	              </p>
+	            </section>
+	          </div>
+						<div class="-1u 4u">
+							<section>
+								<h3 class="icon fa-envelope">Email</h3>
+								<p>
+									<a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+								</p>
+							</section>
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+			<hr />
+
+			<div id="copyright">
+				<ul>
+					<li>&copy; Phil Leggetter.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- / Footer Wrapper -->
+
+	</div>
+	
+	<script src="/skel/assets/js/jquery.dropotron.min.js"></script>
+	<script src="/skel/assets/js/skel.min.js"></script>
+	<script src="/skel/assets/js/skel-viewport.min.js"></script>
+	<script src="/skel/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/skel/assets/js/main.js"></script>
+	
+	<script src="/bower_components/jquery-smooth-scroll/jquery.smooth-scroll.min.js"></script>
+
+	<script>
+		( function() {
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
+		} )();
+	</script>
+
+  <script src="/libs/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+	<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-513034-10', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+	<!-- realtime benchmarks -->
+	<!--script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script-->
+	<!-- <script src="http://localhost:5000/benchmark.js"></script> -->
+	<!--script src="https://realtime-latency-stats.herokuapp.com/benchmark.js"></script-->
+</body>
+</html>
+<!--
+Escape Velocity by HTML5 UP
+html5up.net | @n33co
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->

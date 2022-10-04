@@ -6,12 +6,14 @@ permalink: /blog/devex-devrel-my-next-role-2021
 
 ---
 
+**Updated: 4th October 2022**
+
 Over the next few weeks or months, as I search for my next role, I'm hoping that I'm going to have a few conversations. The purpose of this post is to clarify what I can bring to any company that is considering employing me and what I'm looking for in my next role.
 
 ## TL;DR / Exec Summary
 
-- [What I'll bring](#what-i'll-bring):
-    - See [my LinkedIn profile](https://www.linkedin.com/in/leggetter/). In particular, my time at Nexmo (acquired by Vonage)
+- [What I'll bring](#what-ill-bring):
+    - See [my LinkedIn profile](https://www.linkedin.com/in/leggetter/). In particular, my time at Nexmo (acquired by Vonage) and my more recent experience at Ably
     - A successful servant leader and award-winning Developer Experience & Relations team builder
     - A product-first approach that must start with the developer experience
     - Business understanding and the ability to achieve strategic alignment with developer-focused initiatives
@@ -49,7 +51,8 @@ These teams delivered business value and [won multiple awards](https://www.nexmo
 
 I have a background in software engineering, so I am a developer and understand what developers need and care about. You have to start with a product that solves a real problem and provides a really good developer experience.
 
-> There's no point in driving developer awareness of a product that provides a poor developer experience.
+> You must get the fundamentals of developer experience right before driving developer awareness of a product
+> or you risk losing developer trust.
 > 
 > -- Phil Leggetter
 

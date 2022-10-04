@@ -6,3 +6,7 @@ pusher/presentations/adnuguk_2011-09-29/template/
 node_modules
 output/jekyll
 .publish
+_site/README.md
+_site/package.json
+_site/npm-shrinkwrap.json
+_site/yarn.lock

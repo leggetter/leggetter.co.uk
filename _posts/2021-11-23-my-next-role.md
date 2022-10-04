@@ -1,12 +1,10 @@
 ---
 layout: post
-title: "My Next Developer Experience and Relations Role"
+title: "My Next Developer Experience and Relations Role (Updated: Oct 2022)"
 excerpt: "Over the next few weeks or months, as I search for my next role, I'm hoping that I'm going to have a few conversations. The purpose of this post is to clarify what I can bring to any company that employs me and what I'm looking for in my next role."
 permalink: /blog/devex-devrel-my-next-role-2021
 
 ---
-
-**Updated: 4th October 2022**
 
 Over the next few weeks or months, as I search for my next role, I'm hoping that I'm going to have a few conversations. The purpose of this post is to clarify what I can bring to any company that is considering employing me and what I'm looking for in my next role.
 

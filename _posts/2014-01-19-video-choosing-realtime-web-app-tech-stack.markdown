@@ -30,7 +30,9 @@ excerpt: "I recently did a short interview with Future Insights. As part of that
 thumb: /images/thumb/choosing-realtime-web-app-tech-stack-still.png
 ---
 
-<p>I recently did a short <a href="http://www.futureinsights.com/home/choosing-your-real-time-web-app-tech-stack.html/">interview with Future Insights</a>. As part of that my talk from FOWA 2013 was published.</p>
+<p>I recently did a short <a href="https://web.archive.org/web/20150204011622/https://www.futureinsights.com/home/choosing-your-real-time-web-app-tech-stack.html/">interview with Future Insights</a>. As part of that my talk from FOWA 2013 was published.</p>
+
+**Future Insights stopped operating so content for their accounts, including their YouTube, has been lost forever :(** So, if this interests you, you'll need to read the blog posts.
 
 <iframe width="640" height="360" src="//www.youtube.com/embed/VENVNimklWg" frameborder="0" allowfullscreen></iframe>
 

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "git subtree push --prefix _site origin gh-pages",
-    "dev": "bundle exec jekyll serve -w --future -l",
+    "dev": "bundle exec jekyll serve -w --future -l --incremental",
     "build": "bundle exec jekyll build",
     "copy-images": "cp -r ./_includes/realtime-web-technologies-guide/images ./_site/real-time-web-technologies-guide/images",
     "prebuild": "git submodule init && git submodule sync && git submodule update"

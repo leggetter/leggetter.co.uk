@@ -6,11 +6,11 @@ permalink: /aaarrrp/
 
 # The AAARRRP Developer Relations Strategy Framework
 
-**AAARRRP** is a framework that helps you define your Developer Relations strategy. In its simplest form it provides a mechanism for **mapping the company goals for developer relations at a company through to the activities that will help you achieve those goals**. Since activities for some goals naturally feed into helping you achieve other goals you can adopt AAARRRP as a funnel or a loop.
+**AAARRRP** is a framework that helps you define your Developer Relations strategy. In its simplest form, it provides a mechanism for **mapping the company goals for developer relations through to the activities that will help you achieve those goals**. Since activities for some goals naturally feed into helping you achieve other goals, you can potentially adopt AAARRRP as a funnel or a loop.
  
 ### What does the acronym AAARRRP stand for?
  
-AAARRRP was adapted and inspired by [AARRR pirate metrics](https://www.slideshare.net/dmc500hats/startup-metrics-for-pirates-long-version) in 2016 by [Phil Leggetter](https://twitter.com/leggetter). But, where as AARRR was focused on "Startup metrics for Product Marketing and Product Management" and stood for:
+AAARRRP was adapted and inspired by [AARRR pirate metrics](https://www.slideshare.net/dmc500hats/startup-metrics-for-pirates-long-version) in 2016 by [Phil Leggetter](https://x.com/leggetter). But, where as AARRR was focused on "Startup metrics for Product Marketing and Product Management" and stood for:
  
 * **Acquisition** - users come to the site from various channels
 * **Activation** - users enjoy 1st visit: "happy user experience"
@@ -26,7 +26,7 @@ AAARRRP is a framework for defining a Developer Relations strategy where each ac
 * **Retention** - users continue to use the product and potentially increase usage
 * **Referral** - users like product and company brand enough to refer others
 * **Revenue** - users conduct some monetizing behavior
-* **Product** - users and the developer relations team help define and build the product as well as gathering feedback from users to enhance your product
+* **Product** - users and the developer relations team help define and build the product as well as gather feedback from users to enhance your product
  
 ## AAARRRP Goals
  
@@ -35,7 +35,7 @@ Each acronym in AAARRRP represents a potential goal that your company can have f
 Here are a few different scenarios where a company will have different AAARRP goals:
  
 * An **API platform startup** with an overarching goal of demonstrating clear interest in a product to their investors may have goals of Awareness, Acquisition and Referral to drive further awareness and acquisition.
-* A **SaaS company with an API product offering** may want to see increased Activation, Product enhancements that will enable that activation and Revenue from the increase in activations.
+* A **SaaS company with an API product offering** may want to see increased Activation, Product enhancements that will enable that activation, and Revenue from the increase in activations.
 An open source framework may be looking to build a community through Referral to then help improve the Product offering through feedback and contribution.
 
 The company goals for a Developer Relations team may also change depending on a number of other factors.
@@ -50,9 +50,9 @@ The company goals for a Developer Relations team may also change depending on a 
 
 ## Mapping AAARRRP Goals to Activities
 
-In it's simplest form AAARRRP can be seen as a mechanism of mapping company goals to Developer Relations activites. Activities are the pieces of work that a Developer Relations team will undertake and those activities will differ depending on the company goals.
+In its simplest form, AAARRRP can be seen as a mechanism for mapping company goals to Developer Relations activities. Activities are the pieces of work that a Developer Relations team will undertake and those activities will differ depending on the company goals.
 
-If the Developer Relations goals focus on Product then activities are likely to be around documentation, sample code, libraries and SDKs. If Awareness and Acquisition are the goals then blog content, events, webinars, live streams (e.g. Twitch) and talk are the types of activities that will align with those goals.
+If the Developer Relations goals focus on Product, then activities will likely be around documentation, sample code, libraries, and SDKs. If Awareness and Acquisition are the goals, then blog content, events, webinars, live streams (e.g. Twitch) and talk are the types of activities that will align with those goals.
 
 The image below (from [a Nexmo AAARRRP Google Sheet](https://docs.google.com/spreadsheets/d/1HeKG9-h2yT4ahpaSsq6_6z6uDt7RWVtlRcj7jBMxEQI/edit#gid=0)) shows the work we did a Nexmo in 2016 to 2017 where are goals were **Product**, **Awareness** and **Activation** with Product and Awareness being the priority goals.
 
@@ -63,7 +63,7 @@ We added some additional columns to the spreadsheet:
 * **Product Weighting**: to provide a deeper indication of how well the activity aligned with the Product goal
 * **Awareness Weighting**: to provide a deeper indication of how well the activity aligned with the Awareness goal
 * **Goal Alignment**: counting how many of the goals (Awareness, Activation & Product) the activity aligned with
-* **Score**: A forumla to help us identify which activities we should choose (`(Product Weighting + Awareness Weighting) * Goal Alignment`).
+* **Score: A formula to help us identify which activities we should choose (`(Product Weighting + Awareness Weighting) * Goal Alignment`).
 
 This helped us identify that we should focus on the following to achieve the company goals:
 

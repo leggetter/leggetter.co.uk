@@ -703,7 +703,7 @@ activities.bind('deleted', function(activity) {
 <p><small>This was originally written by me and published on the <a href="https://blog.pusher.com/how-to-describe-publish-consume-real-time-data/">Pusher blog</a></small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 25 May 2017 00:00:00 +0100</pubDate>
+      <pubDate>Thu, 25 May 2017 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -833,7 +833,7 @@ activities.bind('deleted', function(activity) {
 <p><small>This was originally written by me and published on the <a href="https://blog.pusher.com/using-your-real-time-data-features/">Pusher blog</a></small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 24 May 2017 00:00:00 +0100</pubDate>
+      <pubDate>Wed, 24 May 2017 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -1000,7 +1000,7 @@ winston.log('critical', errorEventPayload)
 <p><small>Originally written by me and published on the <a href="https://blog.pusher.com/real-time-data-discovery-in-your-apps/">Pusher blog</a></small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sun, 14 Aug 2016 00:00:00 +0100</pubDate>
+      <pubDate>Sun, 14 Aug 2016 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -1058,7 +1058,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p><small>Quoted definitions are taken from the <a href="https://en.wikipedia.org/wiki/Real-time_computing">Real-Time Computing entry</a> on Wikipedia</small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 22 Apr 2016 00:00:00 +0100</pubDate>
+      <pubDate>Fri, 22 Apr 2016 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -1577,7 +1577,7 @@ Now that we’ve clarified and classified the types of real-time and addressed t
 <p><strong>~Learn. Create. Share~</strong></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 13 Apr 2015 00:00:00 +0100</pubDate>
+      <pubDate>Mon, 13 Apr 2015 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -2127,7 +2127,7 @@ A Quantum Leap in Scalability for the Web</a></li>
 <iframe width="640" height="360" src="//www.youtube.com/embed/E2GhY9NaDkQ?rel=0" frameborder="0" allowfullscreen=""></iframe>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 29 Sep 2014 00:00:00 +0100</pubDate>
+      <pubDate>Mon, 29 Sep 2014 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -2274,7 +2274,7 @@ a place to discuss and evolve web component best-practices</a></li>
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 06 Aug 2014 00:00:00 +0100</pubDate>
+      <pubDate>Wed, 06 Aug 2014 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -2874,7 +2874,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 18 Oct 2013 09:24:15 +0100</pubDate>
+      <pubDate>Fri, 18 Oct 2013 08:24:15 +0000</pubDate>
     </item>
     
     <item>
@@ -2903,7 +2903,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 <p><em>Note: I've just realised I've probably upped the prices we'll have to pay to <a href="https://cooperpress.com/mediakit2013.pdf">advertise in JavaScript Weekly</a> :)</em></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 21 Sep 2013 17:51:40 +0100</pubDate>
+      <pubDate>Sat, 21 Sep 2013 16:51:40 +0000</pubDate>
     </item>
     
     <item>
@@ -2951,7 +2951,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 <p>Pic 'n' mix web development tooling is popular right now, but maybe the day will come when a number of proven quality selection box developer toolkits - consisting of the very best of the pic 'n' mix - will return to popularity?</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 18 Jul 2013 01:21:42 +0100</pubDate>
+      <pubDate>Thu, 18 Jul 2013 00:21:42 +0000</pubDate>
     </item>
     
     <item>
@@ -3132,7 +3132,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 04 Jul 2013 19:16:08 +0100</pubDate>
+      <pubDate>Thu, 04 Jul 2013 18:16:08 +0000</pubDate>
     </item>
     
     <item>
@@ -3220,7 +3220,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 <p><script async="" class="speakerdeck-embed" data-id="3542d1d0ac01013071af5a1918864baf" data-ratio="1.2994923857868" src="//speakerdeck.com/assets/embed.js"></script></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 06 Jun 2013 14:57:20 +0100</pubDate>
+      <pubDate>Thu, 06 Jun 2013 13:57:20 +0000</pubDate>
     </item>
     
     <item>
@@ -3306,7 +3306,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 <p>Not bad for a few hours work whilst at Stacked13! What are you waiting for? Start playing with the <span style="text-decoration: line-through">realtime collaborative Windows Azure Mobile Service To Do app</span>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 09 Apr 2013 15:18:14 +0100</pubDate>
+      <pubDate>Tue, 09 Apr 2013 14:18:14 +0000</pubDate>
     </item>
     
     <item>
@@ -3534,7 +3534,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 <p style="text-align: center"><a href="http://pusher.com"><img src="http://f.cl.ly/items/090j0o1X1y1G14443L24/pusher_logo.png" style="margin:auto; height:40px" /></a>&lt;/a&gt;</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 25 Oct 2012 01:00:00 +0100</pubDate>
+      <pubDate>Thu, 25 Oct 2012 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -3612,7 +3612,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 24 Oct 2012 10:14:29 +0100</pubDate>
+      <pubDate>Wed, 24 Oct 2012 09:14:29 +0000</pubDate>
     </item>
     
     <item>
@@ -3638,7 +3638,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 <p>They work for a business and although in the present conversation you are the customer and they are the service provider you should still think of them as a customer. If you handle the situation correctly, and treat them as you would like to be treated, they may well be a customer some day. If you are difficult and unfair then it may mean that they will be highly unlikely to use any service that you are part of.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 14 Sep 2012 12:44:44 +0100</pubDate>
+      <pubDate>Fri, 14 Sep 2012 11:44:44 +0000</pubDate>
     </item>
     
     <item>
@@ -3666,7 +3666,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 <p>I was also really excited to hear that I'd be working with <a href="http://andyyoungdesign.wordpress.com/">Andy Young</a> of <a href="http://wearesnook.com/snook/">Snook</a>. Andy is a products and services designer so I'm undoubtedly going to learn a bunch of stuff from him. Well, I already have, but I'll save that for another post.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 11 Aug 2012 13:18:45 +0100</pubDate>
+      <pubDate>Sat, 11 Aug 2012 12:18:45 +0000</pubDate>
     </item>
     
     <item>
@@ -3734,7 +3734,7 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 <p>Finally, a big thanks to Bobby, John and Rich. It was really great to work with you all and I look forward to diving in and out of the project over the coming months to continue the learning experience - and you never know, there might be another opportunity to use what we've built in the future!</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 16 Jul 2012 14:42:49 +0100</pubDate>
+      <pubDate>Mon, 16 Jul 2012 13:42:49 +0000</pubDate>
     </item>
     
     <item>
@@ -3763,7 +3763,7 @@ I'm attending <a href="http://hackathonlondon.com/">Hackathon London</a> this we
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 29 Jun 2012 11:01:28 +0100</pubDate>
+      <pubDate>Fri, 29 Jun 2012 10:01:28 +0000</pubDate>
     </item>
     
     <item>
@@ -3780,7 +3780,7 @@ I'm attending <a href="http://hackathonlondon.com/">Hackathon London</a> this we
 <p><strong>I wonder how much this increase in traffic was influence by this new awesome realtime functionality?</strong></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 27 Jun 2012 23:37:53 +0100</pubDate>
+      <pubDate>Wed, 27 Jun 2012 22:37:53 +0000</pubDate>
     </item>
     
     <item>
@@ -3806,7 +3806,7 @@ I'm attending <a href="http://hackathonlondon.com/">Hackathon London</a> this we
 <p><iframe width="560" height="315" src="http://www.youtube.com/embed/Z897fkPn7Rw" frameborder="0" allowfullscreen=""></iframe></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 31 May 2012 08:32:09 +0100</pubDate>
+      <pubDate>Thu, 31 May 2012 07:32:09 +0000</pubDate>
     </item>
     
     <item>
@@ -3819,7 +3819,7 @@ I'm attending <a href="http://hackathonlondon.com/">Hackathon London</a> this we
 <p><img src="http://www.html5devconf.com/img/header-15.png" alt="" /></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 21 May 2012 19:45:51 +0100</pubDate>
+      <pubDate>Mon, 21 May 2012 18:45:51 +0000</pubDate>
     </item>
     
     <item>
@@ -4145,7 +4145,7 @@ I'm attending <a href="http://hackathonlondon.com/">Hackathon London</a> this we
 <p><img src="https://is1.4sqi.net/pix/Pm0piJ0EiVZW4nviGwDrqNZsm7yyJXLQKb26f42i8tY.jpg" alt="" /></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sun, 20 May 2012 00:04:18 +0100</pubDate>
+      <pubDate>Sat, 19 May 2012 23:04:18 +0000</pubDate>
     </item>
     
     <item>
@@ -4162,7 +4162,7 @@ I'm attending <a href="http://hackathonlondon.com/">Hackathon London</a> this we
 </small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 09 May 2012 14:51:50 +0100</pubDate>
+      <pubDate>Wed, 09 May 2012 13:51:50 +0000</pubDate>
     </item>
     
     <item>
@@ -4222,7 +4222,7 @@ I'm attending <a href="http://hackathonlondon.com/">Hackathon London</a> this we
 </p></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sun, 22 Apr 2012 19:58:14 +0100</pubDate>
+      <pubDate>Sun, 22 Apr 2012 18:58:14 +0000</pubDate>
     </item>
     
     <item>
@@ -4703,7 +4703,7 @@ Pusher is a cloud hosted service and API that makes it really easy to add cool r
 <p>All this feeds in very well to chapter 3 of <a href="http://www.amazon.co.uk/gp/product/0273755676/ref=as_li_ss_tl?ie=UTF8&amp;tag=philleggsoftc-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0273755676">Zoom!</a>, "Getting to grips with your mission. Why you need to understand what's driving you". More to come as I read on.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 21 Sep 2011 16:50:48 +0100</pubDate>
+      <pubDate>Wed, 21 Sep 2011 15:50:48 +0000</pubDate>
     </item>
     
     <item>
@@ -4716,7 +4716,7 @@ Pusher is a cloud hosted service and API that makes it really easy to add cool r
 <p><a href="/2011/09/07/qa-are-websockets-ready-for-commercial-use.html#disqus_thread">View Q&amp;A/Comments</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 07 Sep 2011 12:48:43 +0100</pubDate>
+      <pubDate>Wed, 07 Sep 2011 11:48:43 +0000</pubDate>
     </item>
     
     <item>
@@ -4752,7 +4752,7 @@ Pusher is a cloud hosted service and API that makes it really easy to add cool r
 <p><strong>But now we have <a href="http://pusher.com/websockets">WebSockets</a></strong>!</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 25 Aug 2011 01:00:00 +0100</pubDate>
+      <pubDate>Thu, 25 Aug 2011 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -4838,7 +4838,7 @@ my.new.namespace.SomeClass = function() {
 <p>I'd be interested to hear what you think about this approach. Do you have a better one?</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 23 Aug 2011 17:09:24 +0100</pubDate>
+      <pubDate>Tue, 23 Aug 2011 16:09:24 +0000</pubDate>
     </item>
     
     <item>
@@ -4861,7 +4861,7 @@ my.new.namespace.SomeClass = function() {
 <p>Ironically, I'm sitting on the train next to a young girl who has booked travel using her company credit card. The ticket she's booked means she needs to bring this credit card with her. After she had booked the ticket she noticed this term so treble-checked with <a href="http://www.eastcoast.co.uk">East Coast</a> who told her it would be fine as long as she had ID with her. She had her driving licence with her but was told by the conductor that this wasn't acceptable and was asked to pay for a new ticket. I piped up and said this wasn't fair and couldn't the conductor apply some common sense. No. If it were me I'd have made the common sense decision to ignore this missed rule and taken into account that the girl had actually checked this with East Coast and been mis-informed. The conductor didn't have this authority, nor it seemed really cared - maybe she deals with "chancers" all the time. What the young girl, who clearly isn't lying, has been able to do is provide here contact information so that she doesn't have to pay now and can appeal against the penalty later by post.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 18 Aug 2011 10:57:44 +0100</pubDate>
+      <pubDate>Thu, 18 Aug 2011 09:57:44 +0000</pubDate>
     </item>
     
     <item>
@@ -5120,7 +5120,7 @@ $(".entrybody img")<br />
 </script></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 04 Aug 2011 01:00:00 +0100</pubDate>
+      <pubDate>Thu, 04 Aug 2011 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -5237,7 +5237,7 @@ public ActionResult Index()
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 05 Jul 2011 01:00:00 +0100</pubDate>
+      <pubDate>Tue, 05 Jul 2011 00:00:00 +0000</pubDate>
     </item>
     
     <item>
@@ -5257,7 +5257,7 @@ public ActionResult Index()
 </div>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 28 Jun 2011 23:14:35 +0100</pubDate>
+      <pubDate>Tue, 28 Jun 2011 22:14:35 +0000</pubDate>
     </item>
     
     <item>
@@ -5282,7 +5282,7 @@ public ActionResult Index()
 Originally written by me and <a href="http://blog.programmableweb.com/2011/06/02/collecta-gets-dispensed-was-it-solving-a-hard-enough-problem/">posted on Programmable Web</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 02 Jun 2011 08:00:47 +0100</pubDate>
+      <pubDate>Thu, 02 Jun 2011 07:00:47 +0000</pubDate>
     </item>
     
     <item>
@@ -5362,7 +5362,7 @@ undefined == null // true
 <p>Finally, a big thanks to <a href="http://twitter.com/#%21/czerskip">Pawe? Czerski</a> and <a href="http://twitter.com/#%21/varjs">Damian Wielgosik</a> who organised Falsy Values. Well done guys!</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 24 May 2011 22:32:59 +0100</pubDate>
+      <pubDate>Tue, 24 May 2011 21:32:59 +0000</pubDate>
     </item>
     
     <item>
@@ -5378,7 +5378,7 @@ undefined == null // true
 <p>Please drop me an <a href="mailto:phil@leggetter.co.uk?subject=Goodbye%20Kwwika,%20Hello%20Pusher%21">email</a> or send me a <a href="http://twitter.com/leggetter">tweet</a> if you have any questions at all.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 21 May 2011 13:15:17 +0100</pubDate>
+      <pubDate>Sat, 21 May 2011 12:15:17 +0000</pubDate>
     </item>
     
     <item>
@@ -5403,7 +5403,7 @@ undefined == null // true
 <p>Originally written by me and <a href="http://blog.programmableweb.com/2011/05/18/glug-glug-guzzle-ayup-a-hosted-pubsubhubbub-hub-service/">posted on Programmable Web</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 18 May 2011 08:00:22 +0100</pubDate>
+      <pubDate>Wed, 18 May 2011 07:00:22 +0000</pubDate>
     </item>
     
     <item>
@@ -5433,7 +5433,7 @@ undefined == null // true
 <div><a href="http://thehighlandfling.com/"><img class="aligncenter" style="max-width: 800px;" src="/wp-content/uploads/2011/05/thehighlandfling.png" alt="" width="244" height="243" /></a></div>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 12 May 2011 19:36:08 +0100</pubDate>
+      <pubDate>Thu, 12 May 2011 18:36:08 +0000</pubDate>
     </item>
     
     <item>
@@ -5468,7 +5468,7 @@ Here's the schedule from the day and below that there are links to even more inf
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 09 May 2011 21:42:50 +0100</pubDate>
+      <pubDate>Mon, 09 May 2011 20:42:50 +0000</pubDate>
     </item>
     
     <item>
@@ -5491,7 +5491,7 @@ Here's the schedule from the day and below that there are links to even more inf
 <p>If I'm not wrong why is this the case and what are Microsoft doing about it? What are we doing about it?</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 28 Apr 2011 14:32:09 +0100</pubDate>
+      <pubDate>Thu, 28 Apr 2011 13:32:09 +0000</pubDate>
     </item>
     
     <item>
@@ -5521,7 +5521,7 @@ Here's the schedule from the day and below that there are links to even more inf
 <p>Originally written by me for <a href="http://blog.programmableweb.com/2011/04/05/publishmydata-helps-you-set-your-data-free/">Programmable Web</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 05 Apr 2011 17:00:01 +0100</pubDate>
+      <pubDate>Tue, 05 Apr 2011 16:00:01 +0000</pubDate>
     </item>
     
     <item>
@@ -5538,7 +5538,7 @@ Here's the schedule from the day and below that there are links to even more inf
 </p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 31 Mar 2011 09:00:23 +0100</pubDate>
+      <pubDate>Thu, 31 Mar 2011 08:00:23 +0000</pubDate>
     </item>
     
     <item>
@@ -6188,7 +6188,7 @@ Okay, that last line is a bit long and maybe counts as 4!</p>
 <p>	| <a href="http://leggetter.posterous.com/government-invests-200m-in-technology-centres#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 25 Oct 2010 16:01:13 +0100</pubDate>
+      <pubDate>Mon, 25 Oct 2010 15:01:13 +0000</pubDate>
     </item>
     
     <item>
@@ -6216,7 +6216,7 @@ Okay, that last line is a bit long and maybe counts as 4!</p>
 </p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 18 Oct 2010 19:30:11 +0100</pubDate>
+      <pubDate>Mon, 18 Oct 2010 18:30:11 +0000</pubDate>
     </item>
     
     <item>
@@ -6242,7 +6242,7 @@ Okay, that last line is a bit long and maybe counts as 4!</p>
 </p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 15 Oct 2010 16:06:49 +0100</pubDate>
+      <pubDate>Fri, 15 Oct 2010 15:06:49 +0000</pubDate>
     </item>
     
     <item>
@@ -6269,7 +6269,7 @@ Okay, that last line is a bit long and maybe counts as 4!</p>
 <p>	| <a href="http://leggetter.posterous.com/east-coast-trains-drop-free-wifi-time-to-cons#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 13 Oct 2010 08:31:00 +0100</pubDate>
+      <pubDate>Wed, 13 Oct 2010 07:31:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6297,7 +6297,7 @@ My point? Some people will say "thank you" and expect nothing in return. Others,
 <p>	| <a href="http://leggetter.posterous.com/were-starting-to-live-in-a-thank-you-economy#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 08 Oct 2010 11:39:00 +0100</pubDate>
+      <pubDate>Fri, 08 Oct 2010 10:39:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6316,7 +6316,7 @@ My point? Some people will say "thank you" and expect nothing in return. Others,
 <p>	| <a href="http://leggetter.posterous.com/google-doesnt-always-get-it-right#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 28 Sep 2010 10:52:00 +0100</pubDate>
+      <pubDate>Tue, 28 Sep 2010 09:52:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6334,7 +6334,7 @@ My point? Some people will say "thank you" and expect nothing in return. Others,
 <p>	| <a href="http://leggetter.posterous.com/google-adsense-could-easily-be-better#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 24 Sep 2010 08:47:38 +0100</pubDate>
+      <pubDate>Fri, 24 Sep 2010 07:47:38 +0000</pubDate>
     </item>
     
     <item>
@@ -6370,7 +6370,7 @@ My point? Some people will say "thank you" and expect nothing in return. Others,
 <p>	| <a href="http://leggetter.posterous.com/thoughts-on-an-seo-question-raised-in-the-soc#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 18 Sep 2010 11:43:33 +0100</pubDate>
+      <pubDate>Sat, 18 Sep 2010 10:43:33 +0000</pubDate>
     </item>
     
     <item>
@@ -6446,7 +6446,7 @@ My point? Some people will say "thank you" and expect nothing in return. Others,
 | <a href="http://leggetter.posterous.com/xmpp-pubsub-or-pubsubhubbub-for-real-time-ser#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 17 Sep 2010 09:32:00 +0100</pubDate>
+      <pubDate>Fri, 17 Sep 2010 08:32:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6484,7 +6484,7 @@ My point? Some people will say "thank you" and expect nothing in return. Others,
 <p><a href="http://blog.programmableweb.com/2010/09/14/client-push-services-open-up-real-time-to-everyone/">Originally posted on Programmable Web</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 14 Sep 2010 05:00:58 +0100</pubDate>
+      <pubDate>Tue, 14 Sep 2010 04:00:58 +0000</pubDate>
     </item>
     
     <item>
@@ -6503,7 +6503,7 @@ Now, because it&#39;s two guys of 31 it&#39;s funny. We can deal with it. We can
 | <a href="http://leggetter.posterous.com/hit-roond-around-the-heed-head-by-a-faash-fis#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sun, 12 Sep 2010 23:21:23 +0100</pubDate>
+      <pubDate>Sun, 12 Sep 2010 22:21:23 +0000</pubDate>
     </item>
     
     <item>
@@ -6525,7 +6525,7 @@ Now, because it&#39;s two guys of 31 it&#39;s funny. We can deal with it. We can
 </p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 10 Sep 2010 16:19:52 +0100</pubDate>
+      <pubDate>Fri, 10 Sep 2010 15:19:52 +0000</pubDate>
     </item>
     
     <item>
@@ -6540,7 +6540,7 @@ I got distracted by <a href="http://groups.google.com/group/foursquare-api/brows
 | <a href="http://leggetter.posterous.com/bookmarking-sections-of-podcasts#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 31 Aug 2010 16:43:00 +0100</pubDate>
+      <pubDate>Tue, 31 Aug 2010 15:43:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6556,7 +6556,7 @@ I got distracted by <a href="http://groups.google.com/group/foursquare-api/brows
 <p>	| <a href="http://leggetter.posterous.com/google-realtime-search-isnt-real-time#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 27 Aug 2010 14:19:56 +0100</pubDate>
+      <pubDate>Fri, 27 Aug 2010 13:19:56 +0000</pubDate>
     </item>
     
     <item>
@@ -6573,7 +6573,7 @@ I got distracted by <a href="http://groups.google.com/group/foursquare-api/brows
 <p>This post was <a href="http://blog.programmableweb.com/2010/08/26/real-time-news-reader-shows-off-push-to-browser/">originally posted on Programmable Web</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 26 Aug 2010 08:00:39 +0100</pubDate>
+      <pubDate>Thu, 26 Aug 2010 07:00:39 +0000</pubDate>
     </item>
     
     <item>
@@ -6603,7 +6603,7 @@ I got distracted by <a href="http://groups.google.com/group/foursquare-api/brows
 <p>This post was <a href="http://blog.programmableweb.com/2010/08/23/geo-grandfather-esri-makes-strides-on-the-web/">originally on Programmable Web</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 23 Aug 2010 13:30:09 +0100</pubDate>
+      <pubDate>Mon, 23 Aug 2010 12:30:09 +0000</pubDate>
     </item>
     
     <item>
@@ -6625,7 +6625,7 @@ Just had a little idea for a website/web application that allows you to check wh
 <p>| <a href="http://leggetter.posterous.com/amidueanupgradecom-and-variations#comment">Leave a comment  »</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 21 Aug 2010 12:41:05 +0100</pubDate>
+      <pubDate>Sat, 21 Aug 2010 11:41:05 +0000</pubDate>
     </item>
     
     <item>
@@ -6645,7 +6645,7 @@ A google for Le Grest &amp; Co. only turns up a few links. It would appear that 
 <p>	| <a href="http://leggetter.posterous.com/le-grest-co-58-fairfield-street-sw18#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 21 Aug 2010 11:03:00 +0100</pubDate>
+      <pubDate>Sat, 21 Aug 2010 10:03:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6667,7 +6667,7 @@ A google for Le Grest &amp; Co. only turns up a few links. It would appear that 
 <p>	| <a href="http://blog.kwwika.com/plotting-tweets-in-real-time-using-smoothie-c#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 13 Aug 2010 01:35:00 +0100</pubDate>
+      <pubDate>Fri, 13 Aug 2010 00:35:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6704,7 +6704,7 @@ This alone would take a massive load off of the sports website infrastructure, b
 <p>Thanks to <a title="Zen Elements Web Design &amp; Development Company | Dundee, Scotland" href="http://zenelements.com/">Zen Elements Web Design &amp; Development</a> for the diagrams</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 12 Aug 2010 12:02:00 +0100</pubDate>
+      <pubDate>Thu, 12 Aug 2010 11:02:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6736,7 +6736,7 @@ With the sorts of tactics that WeBuyAnyCar.com are applying it won't be long unt
 <p>| <a href="http://leggetter.posterous.com/webuyanycarcom-shock-and-scare-tactics-leads#comment">Leave a comment  »</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 12 Aug 2010 08:56:00 +0100</pubDate>
+      <pubDate>Thu, 12 Aug 2010 07:56:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6769,7 +6769,7 @@ It's also important to remember that this is a pretty simple demo and that this 
 <p>	| <a href="http://blog.kwwika.com/kwwika-superfeedr-real-time-demo-available#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 10 Aug 2010 15:30:00 +0100</pubDate>
+      <pubDate>Tue, 10 Aug 2010 14:30:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6787,7 +6787,7 @@ It's also important to remember that this is a pretty simple demo and that this 
 <p>This post on <a href="http://www.asp.net/mvc/tutorials/passing-data-to-view-master-pages-cs">Passing Data to View Master Pages</a> may also be useful.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 04 Aug 2010 12:05:28 +0100</pubDate>
+      <pubDate>Wed, 04 Aug 2010 11:05:28 +0000</pubDate>
     </item>
     
     <item>
@@ -6803,7 +6803,7 @@ It's also important to remember that this is a pretty simple demo and that this 
 <p>| <a href="http://blog.kwwika.com/the-death-of-f5-ah-i-get-it#comment">Leave a comment  »</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 22 Jul 2010 10:47:00 +0100</pubDate>
+      <pubDate>Thu, 22 Jul 2010 09:47:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6831,7 +6831,7 @@ request.Headers[&quot;Authorization&quot;] = &quot;Basic &quot; + Convert.ToBase
 <p>	| <a href="http://blog.kwwika.com/basic-authentication-against-the-superfeedr-h#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sun, 04 Jul 2010 10:58:00 +0100</pubDate>
+      <pubDate>Sun, 04 Jul 2010 09:58:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6862,7 +6862,7 @@ request.Headers[&quot;Authorization&quot;] = &quot;Basic &quot; + Convert.ToBase
 <p>	| <a href="http://blog.kwwika.com/want-to-try-out-the-kwwika-api-but-dont-want#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 19 Jun 2010 10:28:00 +0100</pubDate>
+      <pubDate>Sat, 19 Jun 2010 09:28:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6925,7 +6925,7 @@ Here's how to use it.</p>
 | <a href="http://blog.kwwika.com/jquery-real-time-push-kwwika-plugin-v01-relea#comment">Leave a comment  »</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 16 Jun 2010 00:41:00 +0100</pubDate>
+      <pubDate>Tue, 15 Jun 2010 23:41:00 +0000</pubDate>
     </item>
     
     <item>
@@ -6966,7 +6966,7 @@ The BBC have adapted their standard look and feel to incorporate a video or audi
 <p>	| <a href="http://blog.kwwika.com/the-real-time-web-world-cup-experience#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sun, 13 Jun 2010 16:41:48 +0100</pubDate>
+      <pubDate>Sun, 13 Jun 2010 15:41:48 +0000</pubDate>
     </item>
     
     <item>
@@ -6983,7 +6983,7 @@ The BBC have adapted their standard look and feel to incorporate a video or audi
 <p>| <a href="http://blog.kwwika.com/kwwika-world-cup-2010-real-time-push-web-app#comment">Leave a comment  »</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 11 Jun 2010 12:49:00 +0100</pubDate>
+      <pubDate>Fri, 11 Jun 2010 11:49:00 +0000</pubDate>
     </item>
     
     <item>
@@ -7028,7 +7028,7 @@ In Safari the results when using the .ready() callback were exactly the same.</p
 <p>| <a href="http://blog.kwwika.com/chromesafari-webkit-real-time-push-always-loa#comment">Leave a comment  »</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 04 Jun 2010 10:42:00 +0100</pubDate>
+      <pubDate>Fri, 04 Jun 2010 09:42:00 +0000</pubDate>
     </item>
     
     <item>
@@ -7053,7 +7053,7 @@ In Safari the results when using the .ready() callback were exactly the same.</p
 <p>	| <a href="http://blog.kwwika.com/add-real-time-news-to-your-site-with-google-a#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 18 May 2010 10:05:00 +0100</pubDate>
+      <pubDate>Tue, 18 May 2010 09:05:00 +0000</pubDate>
     </item>
     
     <item>
@@ -7070,7 +7070,7 @@ In Safari the results when using the .ready() callback were exactly the same.</p
 <p>	| <a href="http://blog.kwwika.com/kwwika-silverlight-api-chat-example#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 10 May 2010 19:30:49 +0100</pubDate>
+      <pubDate>Mon, 10 May 2010 18:30:49 +0000</pubDate>
     </item>
     
     <item>
@@ -7086,7 +7086,7 @@ In Safari the results when using the .ready() callback were exactly the same.</p
 </p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 10 May 2010 18:30:49 +0100</pubDate>
+      <pubDate>Mon, 10 May 2010 17:30:49 +0000</pubDate>
     </item>
     
     <item>
@@ -7111,7 +7111,7 @@ In Safari the results when using the .ready() callback were exactly the same.</p
 <p><a href="/contact-me">https://www.leggetter.co.uk/contact-me</a>/</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 04 May 2010 12:33:33 +0100</pubDate>
+      <pubDate>Tue, 04 May 2010 11:33:33 +0000</pubDate>
     </item>
     
     <item>
@@ -7212,7 +7212,7 @@ We built this as a demo. It's not a product. So, if you would like to build some
 <p>	| <a href="http://blog.kwwika.com/leadersdebate-demo-retrospective#comment">Leave a comment&nbsp;&nbsp;&raquo;</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 30 Apr 2010 15:42:00 +0100</pubDate>
+      <pubDate>Fri, 30 Apr 2010 14:42:00 +0000</pubDate>
     </item>
     
     <item>
@@ -7234,7 +7234,7 @@ We built this as a demo. It's not a product. So, if you would like to build some
 </p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 27 Apr 2010 21:09:49 +0100</pubDate>
+      <pubDate>Tue, 27 Apr 2010 20:09:49 +0000</pubDate>
     </item>
     
     <item>
@@ -7270,7 +7270,7 @@ We built this as a demo. It's not a product. So, if you would like to build some
 [12:24:52] Phil Leggetter: Ok. This is a great example of a valuable by-product of general work: http://scrambledup.blogspot.com/2010/04/what-are-your-business-by-products.html</p></blockquote>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 09 Apr 2010 12:40:39 +0100</pubDate>
+      <pubDate>Fri, 09 Apr 2010 11:40:39 +0000</pubDate>
     </item>
     
     <item>
@@ -7406,7 +7406,7 @@ var oKwwika = new Kwwika({<br />
 <p>I'd love to get you feedback so please leave your comments below or email me directly using <a href="mailto:phil@leggetter.co.uk?subject=Defining the Kwwika API">phil@leggetter.co.uk</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 02 Apr 2010 12:34:48 +0100</pubDate>
+      <pubDate>Fri, 02 Apr 2010 11:34:48 +0000</pubDate>
     </item>
     
     <item>
@@ -8286,7 +8286,7 @@ void PrintOddNumbersBetween1And99()<br />
 </int></code></li></ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 23 Oct 2009 18:44:57 +0100</pubDate>
+      <pubDate>Fri, 23 Oct 2009 17:44:57 +0000</pubDate>
     </item>
     
     <item>
@@ -8315,7 +8315,7 @@ void PrintOddNumbersBetween1And99()<br />
 <p>I've not read up to see if this is expected but I thought it was quite unexpected and may be of use to somebody else in the future.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 06 Oct 2009 22:21:13 +0100</pubDate>
+      <pubDate>Tue, 06 Oct 2009 21:21:13 +0000</pubDate>
     </item>
     
     <item>
@@ -8347,7 +8347,7 @@ void PrintOddNumbersBetween1And99()<br />
 &lt;InputEndpoint name="HttpIn" protocol="http" port="80" /&gt;</p></blockquote>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 28 Aug 2009 00:44:57 +0100</pubDate>
+      <pubDate>Thu, 27 Aug 2009 23:44:57 +0000</pubDate>
     </item>
     
     <item>
@@ -8364,7 +8364,7 @@ void PrintOddNumbersBetween1And99()<br />
 <p>I found <a href="http://social.msdn.microsoft.com/Forums/en-US/netservices/thread/c2e49731-9e72-49b6-9fb3-1243c85b265d">the solution</a>, detailed above, on the<a href="http://social.msdn.microsoft.com/Forums/en-US/netservices/thread/c2e49731-9e72-49b6-9fb3-1243c85b265d"> Azure Services Platform Developer Centre forum</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 26 Aug 2009 00:51:12 +0100</pubDate>
+      <pubDate>Tue, 25 Aug 2009 23:51:12 +0000</pubDate>
     </item>
     
     <item>
@@ -8386,7 +8386,7 @@ void PrintOddNumbersBetween1And99()<br />
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 05 Aug 2009 23:43:07 +0100</pubDate>
+      <pubDate>Wed, 05 Aug 2009 22:43:07 +0000</pubDate>
     </item>
     
     <item>
@@ -8401,7 +8401,7 @@ void PrintOddNumbersBetween1And99()<br />
 <p>Do you agree with this definition? What web 2.0 platforms do you think have helped define what "real-time web" is? What technologies do you believe have pushed the "real-time web" into such prominence?</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 09 Jul 2009 15:43:23 +0100</pubDate>
+      <pubDate>Thu, 09 Jul 2009 14:43:23 +0000</pubDate>
     </item>
     
     <item>
@@ -8426,7 +8426,7 @@ void PrintOddNumbersBetween1And99()<br />
 <p><iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://maps.google.co.uk/maps/ms?hl=en&amp;ie=UTF8&amp;t=h&amp;msa=0&amp;msid=102530182531195924138.00046de70ca69d3c833ad&amp;ll=51.802989,-0.062013&amp;spn=0.018576,0.036478&amp;z=14&amp;output=embed"></iframe><br /><small>View <a href="http://maps.google.co.uk/maps/ms?hl=en&amp;ie=UTF8&amp;t=h&amp;msa=0&amp;msid=102530182531195924138.00046de70ca69d3c833ad&amp;ll=51.802989,-0.062013&amp;spn=0.018576,0.036478&amp;z=14&amp;source=embed" style="color:#0000FF;text-align:left">Run around Hertford 04-07-2009</a> in a larger map</small></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 04 Jul 2009 22:19:05 +0100</pubDate>
+      <pubDate>Sat, 04 Jul 2009 21:19:05 +0000</pubDate>
     </item>
     
     <item>
@@ -8462,7 +8462,7 @@ void PrintOddNumbersBetween1And99()<br />
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 01 Jul 2009 20:07:02 +0100</pubDate>
+      <pubDate>Wed, 01 Jul 2009 19:07:02 +0000</pubDate>
     </item>
     
     <item>
@@ -8507,7 +8507,7 @@ It would appear the event is being attended by a number of web 2.0, social media
 <p>Please let me know if you have any questions that you'd like asked and I'll do my best to ask them. You can do this in a number of ways. During the event the hashtag in use will be <strong><a href="http://search.twitter.com/search?q=%23meetbing">#meetbing</a></strong>. Prior to the event I'd suggest people maybe use <strong><a href="http://search.twitter.com/search?q=%23askbing">#askbing</a></strong>. Failing that you can contact me directly or leave a comment on this blog post.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 27 Jun 2009 10:56:53 +0100</pubDate>
+      <pubDate>Sat, 27 Jun 2009 09:56:53 +0000</pubDate>
     </item>
     
     <item>
@@ -8531,7 +8531,7 @@ It would appear the event is being attended by a number of web 2.0, social media
 <p>I should have phoned up and tried to cancel my contract as soon as I was displeased with the service. I then would have been put straight through to the "retention team" at O2 who would have done everything within their power to keep me. This most probably would have included getting the XDA Serra (HTC Touch Pro) for a discounted price and getting a better general tarriff. You live and learn.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 01 Jun 2009 22:01:41 +0100</pubDate>
+      <pubDate>Mon, 01 Jun 2009 21:01:41 +0000</pubDate>
     </item>
     
     <item>
@@ -8553,7 +8553,7 @@ It would appear the event is being attended by a number of web 2.0, social media
 <p><script charset="utf-8" type="text/javascript" src="http://ws.amazon.co.uk/widgets/q?ServiceVersion=20070822&amp;MarketPlace=GB&amp;ID=V20070822/GB/philleggsoftc-21/8005/d4de186c-f463-4338-af25-42515191fa6f"> </script> <noscript><a href="http://ws.amazon.co.uk/widgets/q?ServiceVersion=20070822&amp;MarketPlace=GB&amp;ID=V20070822%2FGB%2Fphilleggsoftc-21%2F8005%2Fd4de186c-f463-4338-af25-42515191fa6f&amp;Operation=NoScript">Amazon.co.uk Widgets</a></noscript></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 07 May 2009 19:01:47 +0100</pubDate>
+      <pubDate>Thu, 07 May 2009 18:01:47 +0000</pubDate>
     </item>
     
     <item>
@@ -8564,7 +8564,7 @@ It would appear the event is being attended by a number of web 2.0, social media
 <p>View the <a href="http://blog.caplin.com/2009/04/20/what-is-the-real-time-web/">What is the real-time web?</a> article <a href="http://blog.caplin.com/2009/04/20/what-is-the-real-time-web/">here</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 28 Apr 2009 16:27:40 +0100</pubDate>
+      <pubDate>Tue, 28 Apr 2009 15:27:40 +0000</pubDate>
     </item>
     
     <item>
@@ -8628,7 +8628,7 @@ The first thing to do, as others have done, is understand what the term &#8220;r
 </p></div>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Mon, 20 Apr 2009 11:00:54 +0100</pubDate>
+      <pubDate>Mon, 20 Apr 2009 10:00:54 +0000</pubDate>
     </item>
     
     <item>
@@ -8885,7 +8885,7 @@ private void RequestButton_Click(object sender, RoutedEventArgs e)<br />
 [/csharp]</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 24 Oct 2008 12:16:18 +0100</pubDate>
+      <pubDate>Fri, 24 Oct 2008 11:16:18 +0000</pubDate>
     </item>
     
     <item>
@@ -8900,7 +8900,7 @@ private void RequestButton_Click(object sender, RoutedEventArgs e)<br />
 <p>I've been looking into <a href="http://weblogs.asp.net/jgalloway/archive/2008/09/17/running-silverlight-2-on-google-chrome-using-the-chrome-dev-channel.aspx">getting SilverLight to work with Google Chrome</a> or Chromium and came across a <a href="http://weblogs.asp.net/jgalloway/archive/2008/09/17/running-silverlight-2-on-google-chrome-using-the-chrome-dev-channel.aspx">post</a> about something called <em>Chrome Channel Switcher</em> which looks like it automatically updates your Chrome install to either Beta or Development builds. Could be useful! There are links directly to the executable download from <a href="http://weblogs.asp.net/jgalloway/archive/2008/09/17/running-silverlight-2-on-google-chrome-using-the-chrome-dev-channel.aspx">Jon Galloway's blog post</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 24 Sep 2008 19:16:39 +0100</pubDate>
+      <pubDate>Wed, 24 Sep 2008 18:16:39 +0000</pubDate>
     </item>
     
     <item>
@@ -8920,7 +8920,7 @@ private void RequestButton_Click(object sender, RoutedEventArgs e)<br />
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 26 Jun 2008 22:45:32 +0100</pubDate>
+      <pubDate>Thu, 26 Jun 2008 21:45:32 +0000</pubDate>
     </item>
     
     <item>
@@ -8946,7 +8946,7 @@ private void RequestButton_Click(object sender, RoutedEventArgs e)<br />
 <p>I certainly hope to go back again.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Wed, 25 Jun 2008 00:39:20 +0100</pubDate>
+      <pubDate>Tue, 24 Jun 2008 23:39:20 +0000</pubDate>
     </item>
     
     <item>
@@ -8965,7 +8965,7 @@ private void RequestButton_Click(object sender, RoutedEventArgs e)<br />
 <p>If it works all the time and does everything you need then leave it alone. If it works most of the time then redesign and fix it - most of the time isn't good enough.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 05 Jun 2008 08:49:20 +0100</pubDate>
+      <pubDate>Thu, 05 Jun 2008 07:49:20 +0000</pubDate>
     </item>
     
     <item>
@@ -9009,7 +9009,7 @@ private void RequestButton_Click(object sender, RoutedEventArgs e)<br />
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 20 May 2008 22:50:20 +0100</pubDate>
+      <pubDate>Tue, 20 May 2008 21:50:20 +0000</pubDate>
     </item>
     
     <item>
@@ -9020,7 +9020,7 @@ private void RequestButton_Click(object sender, RoutedEventArgs e)<br />
 <p><a href="/wp-content/uploads/2008/05/devicesettings.jpg"><img src="/wp-content/uploads/2008/05/devicesettings.jpg" alt="Synaptics Touchpad device settings" height="524" width="458" /></a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 17 May 2008 10:15:02 +0100</pubDate>
+      <pubDate>Sat, 17 May 2008 09:15:02 +0000</pubDate>
     </item>
     
     <item>
@@ -9035,7 +9035,7 @@ private void RequestButton_Click(object sender, RoutedEventArgs e)<br />
 <p>I'm surprised that this isn't in place as I think that the green and useful sides of this idea make it a winner. Maybe there's something that I've not considered?</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 01 Apr 2008 20:06:48 +0100</pubDate>
+      <pubDate>Tue, 01 Apr 2008 19:06:48 +0000</pubDate>
     </item>
     
     <item>
@@ -9066,7 +9066,7 @@ sn -vf myTestSN.dll</p></blockquote>
 <p><a href="/edinburgh-leith-loft-apartment-for-sale/" title="Loft Apartment for Sale in The Shore (Leith), Edinburgh">Loft Apartment for Sale in The Shore (Leith), Edinburgh</a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 09 Oct 2007 13:22:11 +0100</pubDate>
+      <pubDate>Tue, 09 Oct 2007 12:22:11 +0000</pubDate>
     </item>
     
     <item>
@@ -9102,7 +9102,7 @@ sn -vf myTestSN.dll</p></blockquote>
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 11 Sep 2007 12:11:37 +0100</pubDate>
+      <pubDate>Tue, 11 Sep 2007 11:11:37 +0000</pubDate>
     </item>
     
     <item>
@@ -9115,7 +9115,7 @@ sn -vf myTestSN.dll</p></blockquote>
 <p>It's also worth noting that the best place for Buffalo downloads is the <a href="http://www.buffalotech.com/support/downloads/">http://www.buffalotech.com/support/downloads/</a> url and NOT the http://www.buffalo-technology.com/support/downloads/ url. The first of the options seems to have more available; e.g. it has the patch for the Linkstation.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Tue, 22 May 2007 22:32:59 +0100</pubDate>
+      <pubDate>Tue, 22 May 2007 21:32:59 +0000</pubDate>
     </item>
     
     <item>
@@ -9132,7 +9132,7 @@ sn -vf myTestSN.dll</p></blockquote>
 <p><a href="/wp-content/uploads/2007/05/googlelookcomparison.jpg" title="Google Look Comparison"><img src="/wp-content/uploads/2007/05/googlelookcomparison.jpg" alt="Google Look Comparison" border="0" height="100%" width="100%" /></a></p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 17 May 2007 09:15:32 +0100</pubDate>
+      <pubDate>Thu, 17 May 2007 08:15:32 +0000</pubDate>
     </item>
     
     <item>
@@ -9162,7 +9162,7 @@ sn -vf myTestSN.dll</p></blockquote>
 <p>Click the build button or select Documentation -&gt; Build Project and your documentation should eventually be build in your selected OutputPath.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Fri, 11 May 2007 13:02:59 +0100</pubDate>
+      <pubDate>Fri, 11 May 2007 12:02:59 +0000</pubDate>
     </item>
     
     <item>
@@ -9174,7 +9174,7 @@ sn -vf myTestSN.dll</p></blockquote>
 <p>Read more on the <a href="http://www.mysociety.org/2007/03/08/neighbourhood-fix-it-launches/" title="Neighbourhood Fix It Launch">launch of Neighbourhood Fix It</a>.</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Sat, 21 Apr 2007 13:30:25 +0100</pubDate>
+      <pubDate>Sat, 21 Apr 2007 12:30:25 +0000</pubDate>
     </item>
     
     <item>
@@ -9188,7 +9188,7 @@ sn -vf myTestSN.dll</p></blockquote>
 <p>Why not visit <a href="#" style="text-decoration: line-through;" title="England Goals">England Goals</a> and let me know what you think?</p>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 29 Mar 2007 10:04:16 +0100</pubDate>
+      <pubDate>Thu, 29 Mar 2007 09:04:16 +0000</pubDate>
     </item>
     
     <item>
@@ -9367,7 +9367,7 @@ permalink: /2007/02/02/get-windows-temporary-directory.html
 </ul>
 ]]></description>
       <dc:creator>Phil Leggetter</dc:creator>
-      <pubDate>Thu, 30 Jun 2005 08:05:01 +0100</pubDate>
+      <pubDate>Thu, 30 Jun 2005 07:05:01 +0000</pubDate>
     </item>
     
   </channel>

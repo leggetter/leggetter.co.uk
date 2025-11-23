@@ -23,11 +23,32 @@ docker build -t leggetter-jekyll .
 
 ## Running the site locally
 
-Start the Jekyll server in Docker:
+### Quick Start (Recommended)
+
+Run everything with one command (submodules, family tree generation, Docker build, and server):
 
 ```sh
-docker run --rm -p 4000:4000 -v $(pwd):/site leggetter-jekyll
+npm run dev:docker
 ```
+
+### Manual Steps
+
+If you prefer to run steps individually:
+
+1. Initialize submodules (first time only):
+   ```sh
+   git submodule init && git submodule sync && git submodule update
+   ```
+
+2. Generate the family tree:
+   ```sh
+   npm run generate-family-tree
+   ```
+
+3. Build and run the Docker container:
+   ```sh
+   docker run --rm -p 4000:4000 -v $(pwd):/site leggetter-jekyll
+   ```
 
 The site will be available at http://localhost:4000
 

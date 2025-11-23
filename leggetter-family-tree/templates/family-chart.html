@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Tree - Interactive Chart</title>
+    <script src="https://unpkg.com/d3@7"></script>
+    <link rel="stylesheet" href="https://unpkg.com/family-chart@latest/dist/styles/family-chart.css">
+    <script type="module" src="https://unpkg.com/family-chart@latest"></script>
+    <style>
+{{CSS}}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌳 Leggetter Family Tree</h1>
+        <p>Interactive Family Chart - {{COUNT}} family members • Version: {{VERSION}}</p>
+    </div>
+    
+    <div class="controls-container">
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search for a person...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+        <button class="reset-btn" id="resetBtn" title="Reset to initial view">
+            🔄 Reset View
+        </button>
+    </div>
+    
+    <div id="tree-container">
+        <div id="FamilyChart" class="f3"></div>
+    </div>
+    
+    <script type="module">
+{{SCRIPT}}
+    </script>
+</body>
+</html>

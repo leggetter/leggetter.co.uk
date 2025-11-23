@@ -25,14 +25,26 @@ template: default
 
 <h2>The Leggetter Family Tree</h2>
 
-<p>The <strong>Leggetter</strong> Family Tree is now available as a modern, searchable web page with information on over 200 family members.</p>
+<p>The <strong>Leggetter</strong> Family Tree contains genealogical data for over 200 family members, tracing relationships through multiple generations.</p>
 
 <p style="text-align: center; margin: 30px 0;">
-  <a href="/leggetter-family-tree/view/" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">🌳 View the Interactive Family Tree</a>
+  <a href="/leggetter-family-tree/view/" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    🌳 View Interactive Family Tree
+  </a>
 </p>
 
-<p>This family tree was taken from another site on the Internet so if anybody has any problems with it being here just <a href="mailto:phil@leggetter.co.uk">e-mail me</a> and I'll take it down. Also, if you are a <strong>Leggetter</strong> and are not happy with this information being freely available just <a href="mailto:phil@leggetter.co.uk">let me know</a>.</p>
+<p>The interactive family tree features:</p>
+<ul>
+  <li>Visual tree structure showing parent-child relationships</li>
+  <li>Search functionality to find specific family members</li>
+  <li>Click any person to center the tree on them</li>
+  <li>Birth, death, and marriage information where available</li>
+</ul>
 
-<p>The information here isn't entirely correct nor, I'm guessing, is it completely up to date but it does provide some interesting information.</p>
+<h3>Raw Data</h3>
+<p>For those interested in the original genealogy data file, you can download the <a href="/leggetter-family-tree/0001tree.gen">raw .gen file</a> in Geneo format.</p>
 
-<p><em>Note: The raw genealogy data is available in the <a href="/leggetter-family-tree/0001tree.gen">Geneo format file</a> (0001tree.gen).</em></p>
+<h3>About This Data</h3>
+<p>This family tree was originally sourced from the Internet. If anybody has any concerns about this information being here, please <a href="mailto:phil@leggetter.co.uk">e-mail me</a>. If you are a <strong>Leggetter</strong> and are not happy with this information being freely available, please <a href="mailto:phil@leggetter.co.uk">let me know</a>.</p>
+
+<p><em>Note: The information may not be entirely complete or up to date, but it provides interesting historical genealogical information about the Leggetter family.</em></p>

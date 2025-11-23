@@ -11,3 +11,8 @@ _site/package.json
 _site/npm-shrinkwrap.json
 _site/yarn.lock
 leggetter-family-tree/view/index.html
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class

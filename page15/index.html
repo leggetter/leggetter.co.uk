@@ -1,0 +1,631 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	
+	<title>Phil Leggetter - Developer Experience & Relations Leader</title>
+	
+
+	<meta property="og:title" content="" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://www.leggetter.co.uk/page15/" />
+	<meta property="og:description" content="Developer Experience and Relations Leader, Team Builder and Advisor" />
+	
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<meta name="description" content="Developer Experience and Relations Leader, Team Builder and Advisor" />
+	
+	<meta name="keywords" content="Developer Relations, Developer Experience, Team Building, DevRel, DevEx" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+	
+	
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/skel/assets/css/main.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="/skel/assets/css/ie8.css" /><![endif]-->
+	<link rel="stylesheet" href="/css/skel-mods.css" />
+
+  <link rel="stylesheet" href="/libs/highlight/styles/solarized_dark.css" />
+	
+	<script src="/skel/assets/js/jquery.min.js"></script>
+</head>
+<body class="right-sidebar ">
+
+	<!-- Header -->
+	<div id="header-wrapper" class="wrapper">
+		<div id="header">
+  <!-- Logo -->
+  <div id="logo">
+    <h1><a href="/">Phil Leggetter</a></h1>
+    <p>
+      Head of PLG and Developer Relations at <a href="https://hookdeck.com?ref=leggetter" style="color: #fff;">Hookdeck</a>
+    </p>
+  </div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul>
+      <li class="current">
+        <a href="/"
+          ><img
+            class="logo-sml"
+            src="/images/leggetter-logo-trans-sml.png"
+            title="Phil Leggetter - Home"
+            alt="Phil Leggetter logo"
+        /></a>
+      </li>
+      <li>
+        <a
+          href="/aaarrrp"
+          title="The AAARRRP Developer Relations Strategy Framework"
+          >AAARRRP</a
+        >
+      </li>
+      <li>
+        <a href="/real-time-web-technologies-guide/">Realtime Web Guide</a>
+        <ul>
+          <li>
+            <a href="/real-time-web-technologies-guide"
+              >Realtime Web Technology Guide</a
+            >
+          </li>
+          <li>
+            <a
+              href="/2013/10/28/history-background-benefits-use-cases-realtime.html"
+              >History, Background, Benefits &amp; Use Cases of Realtime</a
+            >
+          </li>
+          <li>
+            <a
+              href="/2013/10/31/fundamentals-realtime-web-realtime-web-functionality.html"
+              >Fundamentals of the Realtime Web & Realtime Web Functionality</a
+            >
+          </li>
+          <li>
+            <a href="/2013/12/09/choosing-realtime-web-app-tech-stack.html"
+              >Choosing your Realtime Web App Tech Stack</a
+            >
+          </li>
+          <li>
+            <a href="/real-time-web-technologies-guide/developer-tools/"
+              >Developer Tools</a
+            >
+          </li>
+          <li>
+            <a
+              href="/real-time-web-technologies-guide/realtime-hosted-service-latency/"
+              >Realtime Hosted Service Latency Stats</a
+            >
+          </li>
+          <li>
+            <a href="/real-time-web-technologies-guide/realtime-data-sources/"
+              >Realtime Data Sources</a
+            >
+          </li>
+          <li>
+            <a
+              href="/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/"
+              >Transport Mechanisms</a
+            >
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="/about-phil-leggetter/">About Phil Leggetter</a>
+        <ul>
+          <li>
+            <a href="/leggetter-family-tree/">Leggetter Family Tree</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+	</div>
+
+	<!-- Main -->
+	<div class="main-wrapper wrapper style2">
+
+    <div class="title">
+			<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+		</div>
+
+    <div id="main" class="container">
+      <div class="row 150%">
+        <div class="8u 12u(mobile)">
+          <div id="content">
+            
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/10/06/response-redirect-in-windows-azure.html">
+      <h2>Response.Redirect in Windows Azure</h2>
+    </a>
+    <div class="post-date">06 Oct 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>I've recently created an application called GetGravatar that allows you to update your Twitter profile picture with your Gravatar. Once I'd set up my Windows Azure custom domain name I decided I wanted the web address for this new service site to be without "www" as seems to be all the rage (to keep the web address short). So, I looked at doing a Response.Redirect to catch any attempts to access my domain with "www" in it. I'm very sure that there are better ways of doing this but I added the following to my Site.master file:
+
+    if (Request.Url.ToString().StartsWith("http://www."))
+    {
+        Response.StatusCode = (int)System.Net.HttpStatusCode.MovedPermanently;
+        string responseUrl = Request.Url.ToString().Replace("http://www.", "http://");
+        Response.Redirect(responseUrl, true);
+    }
+
+So, if somebody types in http://www.getgravatar.com (see it works) or anything with a "www." in the URL they will be redirected to a non-www page. However, the redirect seemed to go to the correct URL but with port 20000. I've no idea why this is so I had to add a special case in to remove the port.
+
+    if (Request.Url.ToString().StartsWith("http://www."))
+    {
+        Response.StatusCode = (int)System.Net.HttpStatusCode.MovedPermanently;
+        string responseUrl = Request.Url.ToString().Replace("http://www.", "http://");
+        responseUrl = responseUrl.Replace(":20000", "");
+        Response.Redirect(responseUrl, true);
+    }
+
+I've not read up to see if this is expected but I thought it was quite unexpected and may be of use to somebody else in the future.
+</p>
+    <p><a href="/2009/10/06/response-redirect-in-windows-azure.html" title="Response.Redirect in Windows Azure">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/08/28/windows-azure-503-service-unavailable.html">
+      <h2>Windows Azure - 503 Service Unavailable</h2>
+    </a>
+    <div class="post-date">27 Aug 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>I finally got around to trying out ASP.NET MVC and while I was at it I thought I'd also give Windows Azure a whirl. Windows Azure doesn't support ASP.NET MVC out of the box but Jim over on MSDN Blogs has written up the details of how to get ASP.Net MVC Projects running on Windows Azure.
+Problem
+So, I followed the instruction from the blog and uploaded the package and configuration file, waited for the staging application to get into a runnable state, and clicked on the staging link...
+Windows Azure - 503 Service Unavailable
+Clearly not a good thing! In addition to this error I occasionally got a random network error or a full-on connection error reported by the browser.
+I tried googling for this error but there was nothing about this problem after deploying to the real Windows Azure hosting (the cloud). As far as I can tell there's no way of getting any debug information or logs to work out what's going wrong. Maybe this is something that Microsoft will add later on?
+Solution
+Then it struck me that I hadn't actually set up any kind of TableStorage on my Windows Azure hosting so I removed all mentions of storage and database connections from the MVC application. This included editing Web.config and removing the following.
+
+The &lt;section name="authenticationService" type="System.Web.Configuration.ScriptingAuthenticationServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication" /&gt; section element.
+The &lt;connectionStrings&gt; element
+The &lt;membership&gt;element
+The &lt;authentication mode="Forms"&gt; element
+The &lt;profile&gt; element
+The &lt;roleManager&gt;element
+
+Update: I've found that without the &lt;authentication&gt;element I started getting the error below so you may want to instead replace it with :
+CCT: Role instances did not start within the time allowed.  Please try again.  If you continue to encounter this behavior please try shutting down the Development Fabric.
+I'm guessing that not all of these elements actually need to be removed but doing so resulted in the MVC ASP.NET application working in Windows Azure.
+Update 2: ServiceDefinition.csdef
+If you happen to get network timeouts or 404 network connection issues it's worth checking your ServiceDefinition.csdef to make sure that you've got port 80 configured. I noticed that mine had updated to port 8080 so obviously I couldn't access the staging site on port 80 like I was trying. If you do have the port set to something else other than port 80 you can use that port to access your application but the ServiceDefinition.csdef does have a comment in there telling you your application should be on port 80 so you are probably best to stick with that.
+&lt;!-- Must use port 80 for http and port 443 for https when running in the cloud --&gt;
+&lt;InputEndpoint name="HttpIn" protocol="http" port="80" /&gt;
+</p>
+    <p><a href="/2009/08/28/windows-azure-503-service-unavailable.html" title="Windows Azure - 503 Service Unavailable">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/08/26/system-security-securityexception-that-assembly-does-not-allow-partially-trusted-callers.html">
+      <h2>System.Security.SecurityException: That assembly does not allow partially trusted callers</h2>
+    </a>
+    <div class="post-date">25 Aug 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>I was writing a Windows Azure ASP.NET MVC application and when making a call to a page I received the following exception:
+System.Security.SecurityException: That assembly does not allow partially trusted callers
+In my application I'm using Castle Windsor for dependency injection and when trying to resolve a service using:
+}
+IGravatar gravatar = MvcApplication.Container.Resolve&lt;IGravatar&gt;();
+I received this message. To solve things I needed to update the WebRole element in the ServiceDefinitions.csdef file so that enableNativeCodeExecution is enabled.
+&lt;WebRole name="TwitterGravatarMVC" enableNativeCodeExecution="true"&gt;
+I found the solution, detailed above, on the Azure Services Platform Developer Centre forum.
+</p>
+    <p><a href="/2009/08/26/system-security-securityexception-that-assembly-does-not-allow-partially-trusted-callers.html" title="System.Security.SecurityException: That assembly does not allow partially trusted callers">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/08/05/book-review-juggle-rethink-work-reclaim-your-life.html">
+      <h2>Book review: Juggle! Rethink work, reclaim your life</h2>
+    </a>
+    <div class="post-date">05 Aug 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>Many times in the past I've said or heard the term "work life balance". In job interviews, in chats with my line managers and work colleagues, or in conversation with friends and family. It tends to be used when anybody is talking about finding time for family, friends, entertainment and enjoyment outside of work. It also suggests that there is a dividing line between work and life that can be easily drawn and stepped over. Finally it suggests that we want that separation between work and life and that work doesn't fit into life; that it can't, and potentially shouldn't, be integrated.
+For some people this statement holds true. They don't want to do or think about work outside of their 9:00 to 5:30 job. There is a definite line to be drawn. For other people, such as Ian Sanders, work is enjoyable because he's working on things he's passionate about. Ian integrates work and life because he enjoys what he does and understands the benefits it provides. Many other people feel the same way and Ian interviews a select few in his book.
+
+In "Juggle! Rethink work, reclaim your life" Ian discusses the motivations behind his choice to live in the "scrambled up world of work" where he integrates work and life. He provides hints and tips on how he, and others including Gary Vaynerchuk (a personal favourite of mine), manage to "live the juggle life" and the benefits that this provides. Being a juggler certainly isn't all plain sailing and the book also covers valuable information on the challanges and extra responsibilities that you may face if you make take the plunge.
+Ian's first book, "LEAP!: Ditch Your Job, Start Your Own Business &amp; Set Yourself Free", introduced some similar concepts to those covered in Juggle!. I actually read Juggle! before I read LEAP! and there is some crossover, but not enough to take anything away from either book. Juggle!, in contrast to the title of Ian's first book, even suggests you should consider staying with your current employer and suggests way of negotiating or fashioning a role and a lifestyle that suits you.
+Juggle! Rethink work, reclaim your life contains 198 pages packed with thought provoking content and discussion. The book is very accessible and contains short, informative and well structured sections and chapters. So much so I would almost class the book as a reference and I'll certainly be going back again to read through the a number of chapters or work my way though some of the great lists that Ian has compiled in the near future.
+Relevant links:
+
+Ian Sanders website
+Ian Sanders Blog
+Juggle! Rethink work, reclaim your life on Amazon.co.uk
+Ian's first book LEAP!: Ditch Your Job, Start Your Own Business &amp; Set Yourself Free on Amazon.co.uk
+
+</p>
+    <p><a href="/2009/08/05/book-review-juggle-rethink-work-reclaim-your-life.html" title="Book review: Juggle! Rethink work, reclaim your life">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/07/09/wikipedia-now-has-a-definition-for-real-time-web.html">
+      <h2>Wikipedia now has a definition for Real-Time Web</h2>
+    </a>
+    <div class="post-date">09 Jul 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>A while ago a wrote a blog article called What is the real-time Web?. At this time (19/04/2009) even Wikipedia did not have a definition for what "real-time web" was. It does now.
+The definition is short and sweet:
+Real-time web is the concept of searching for and finding information online as it is produced. Advancements in web search technology coupled with growing use of social media enable online activities to be queried as they occur.
+A traditional web search crawls and indexes web pages periodically, returning results based on relevance to the search query. The real time web delivers the most popular topics recently discussed or posted by users. The content is often "soft" in that it is based on the social web - people's opinions, attitudes, thoughts and interests - as opposed to hard news or facts.
+At present there is no mention of the technology behind the real-time web. Nothing about Twitter and FriendFeed helping to form the definition.
+Do you agree with this definition? What web 2.0 platforms do you think have helped define what "real-time web" is? What technologies do you believe have pushed the "real-time web" into such prominence?
+</p>
+    <p><a href="/2009/07/09/wikipedia-now-has-a-definition-for-real-time-web.html" title="Wikipedia now has a definition for Real-Time Web">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/07/04/running-in-hertford.html">
+      <h2>Running in Hertford</h2>
+    </a>
+    <div class="post-date">04 Jul 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>My girlfriend was out at the Take That concert at Wembley so I was left on my own this Saturday afternoon. Not knowing what to do with myself as the evening approached I decided to go for a run. Normally I find running quite difficult. As I run my mind tends to concentrate on my breathing which puts me off the run. The difference today was that I went exploring.
+</p>
+    <p><a href="/2009/07/04/running-in-hertford.html" title="Running in Hertford">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/07/01/microsoft-bing-com-round-table-thoughts.html">
+      <h2>Microsoft Bing.com round table thoughts</h2>
+    </a>
+    <div class="post-date">01 Jul 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>A couple of days ago I blogged that I was going to attend a Microsoft bing round table. I've now attended and here are the key points and interesting facts that I took from the event. You can also search for #meetbing on twitter for relevant tweets.
+</p>
+    <p><a href="/2009/07/01/microsoft-bing-com-round-table-thoughts.html" title="Microsoft Bing.com round table thoughts">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/06/27/bing-com-round-table.html">
+      <h2>Bing.com round table</h2>
+    </a>
+    <div class="post-date">27 Jun 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>On Monday between 19:00 and 21:00 I'm going to a Bing roundtable (round table) in London. The event is being organise by Colin Mercer and is described as:
+a small round-table event to discuss Bing and since we saw your recent tweet regarding comparative search results between Bing and Google, we thought that you might be interested in coming along. The idea would be to get your initial thoughts and you'll get an update on the future steps for Bing which are being developed specifically for the UK. During the session you’ll have the chance to talk with Microsoft representatives and other people from social media like yourself, who have expressed some early opinion.
+</p>
+    <p><a href="/2009/06/27/bing-com-round-table.html" title="Bing.com round table">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/06/01/the-o2-mobile-phone-upgrade-saga-concludes.html">
+      <h2>The O2 Mobile Phone Upgrade saga concludes</h2>
+    </a>
+    <div class="post-date">01 Jun 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>Conclusion
+I finally managed to get the O2 XDA Serra (HTC Touch Pro) but boy was it a hassle! (See Trying to upgrade my O2 mobile phone) I had to start a new contract with O2 and lose my old one that I'd had since 2004. I now know that this means I've lost 5 years of loyalty bonus points (or similar). I only found this out when I tried to get my PAC for my old O2 contract and the "retention team" offered me 18 months free with 250 text messages and 75 minutes. Yes, FREE.
+Other problems along the way were:
+
+"You can't take an existing simplicity tariff number onto a new O2 online tariff"
+Paying for two contracts for a number of days whilst O2 muddle along
+O2 actually trying to get me to keep two mobile contracts. Why would I want two mobile phone contracts? I can only use one phone at a time!
+Plenty of mis-communication
+Numerous calls to and from O2 Customer Services
+No offer of a "sweetener" to say sorry although they did end up manually transferring my phone number after I threatened to cancel both contracts.
+
+When my 24 month contract is up I will do everything in my power to use an alternative mobile phone network.
+I now have my O2 XDA Serra (HTC Touch Pro) and I'm very happy with it.
+What I should have done
+I should have phoned up and tried to cancel my contract as soon as I was displeased with the service. I then would have been put straight through to the "retention team" at O2 who would have done everything within their power to keep me. This most probably would have included getting the XDA Serra (HTC Touch Pro) for a discounted price and getting a better general tarriff. You live and learn.
+</p>
+    <p><a href="/2009/06/01/the-o2-mobile-phone-upgrade-saga-concludes.html" title="The O2 Mobile Phone Upgrade saga concludes">Read more...</a></p>
+  </div>
+
+</article>
+
+<article class="box post">
+
+  <header class="style1">
+    <a href="/2009/05/07/trying-to-upgrade-my-o2-mobile.html">
+      <h2>Trying to upgrade my O2 mobile</h2>
+    </a>
+    <div class="post-date">07 May 2009</div>
+  </header>
+
+  <div class="posts-list">
+    
+    <p>I’ve been out of contract with O2 for probably around two years now and during this time I’ve been perfectly happy with the XDA IQ that I’ve got. I also carry around a Blackberry that I have for work so use that to browse the Internet, check email, and send tweets. I’ve not also got a 3G USB dongle from work that I can use on the train. All these gadgets have become a bit of a burden and I’ve been considering upgrading my phone to something that I can use as a 3G modem for my laptop, has a reasonable mobile browser, GPS, and has a good set of other applications for it such as Google Maps, a Twitter client, and a Yammer client. I want to replace three gadgets with one.
+I’ve been looking at the HTC phones for quite a while since they run windows (I like Microsoft stuff), I can easily sync my contacts and calendar (ActiveSync is still the best for this), I can write .NET compact framework applications for it (I’ve already said I like Microsoft stuff), and HTC are generally up there as one of the best phone/PDA manufacturers.
+[caption id="attachment_171" align="alignnone" width="300" caption="HTC Touch Pro"][/caption]
+So, I was delighted when I recently went to the O2 website to see that they have the XDA Serra which is actually the HTC Touch Pro. The HTC Touch Pro HD and
+HTC Touch Pro II are available but I would have needed to fork out for the whole phone myself. I’m an existing customer so I went straight to the Upgrades section of the website, requested my upgrade code, chose the Online 20 tariff, and looked for the Web Bolt-on to give me unlimited* data on my phone. The Web Bolt-on isn’t available.
+[caption id="attachment_176" align="alignnone" width="300" caption="O2 Upgrade Page"][/caption]
+From here I decided to find out if I would get this option I were a new O2 customer. I found out that not only can a new customer add the Web bolt-on but also they get the O2 XDA Serra around £50 cheaper than an existing customer. So, I decided to phone up a “online upgrades advisor” (0800 1313136) to see if they could help me order by phone with the Web bolt-on and at the same price as a new customer would pay. The “online upgrades advisor” was of very little. I was informed that they “don’t have the phone on the system” so the only way to get it was to upgrade online (for a more expensive price and without the Web bolt-on) – No thanks!
+[caption id="attachment_175" align="alignnone" width="300" caption="O2 New Customer Page"][/caption]
+After phone calls to O2’s main number as an existing customer (08442 020202) and customer services, and Hertford’s O2 shop I had to phone new sales. They informed me that since I was on the rolling Simplicity deal I would be treated as a new customer anyway. So, I had to set up a new contract, do a credit check, set up a new O2 account, and set up a new direct debit. I also now have to cancel my existing simplicity one when I get my new phone. In addition, if I could have done the upgrade one I could have selected where I wanted my new phone to be sent to. Since I've made my purchase of a new contract over the phone I've had to get my new phone delivered to my registered address and I know I won't be in meaning I'll have to drive out to the delivery depot to collect it.
+What’s my point?
+My point is that I wanted to pay £200 for a new phone and sign up for a 24 month contract worth a good few quid and nobody at O2 seemed too bothered to help me out. Also, I can't believe that O2 force you to get your phone delivered to your registered address. Most people don't work from home so won't be there to receive the delivery. How much customer and delivery driver time must this waste?!
+I’m sticking with O2 at the moment simply because they offer the best coverage for where I live. When this contract is up I’ll probably have moved so I’ll certainly consider another mobile provider above O2.
+ Amazon.co.uk Widgets
+</p>
+    <p><a href="/2009/05/07/trying-to-upgrade-my-o2-mobile.html" title="Trying to upgrade my O2 mobile">Read more...</a></p>
+  </div>
+
+</article>
+
+
+<hr />
+
+<div class="pagination">
+  
+  <a href="/page14" class="previous">Previous</a>
+  
+  <span class="page_number ">Page: 15 of 19</span>
+  
+  <a href="/page16" class="next">Next</a>
+  
+</div>
+
+          </div>
+        </div>
+        <div class="4u 12u(mobile)">
+          <!-- Sidebar -->
+<div id="sidebar">
+
+  <section class="box">
+
+  <form action="https://leggetter.us2.list-manage.com/subscribe/post?u=75fcbc606555d96262c1cd5bd&amp;id=e0524b92e7" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+    <header>
+      <h2>Get posts via email</h2>
+    </header>
+    <div class="mc-field-group" style="margin-top: -25px;">
+      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address" style="display:inline-block; margin:0; width: auto;">
+      <input type="submit" value="Go" name="subscribe" id="mc-embedded-subscribe" class="button" style="display:inline-block; min-width: inherit; line-height: 1em;
+      height: 3.1em;
+      vertical-align: top;">
+    </div>
+    <div id="mce-responses" class="clear">
+      <div class="response" id="mce-error-response" style="display:none"></div>
+      <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_75fcbc606555d96262c1cd5bd_e0524b92e7" value=""></div>
+  </form>
+
+  <!--End mc_embed_signup-->
+</section>
+
+
+  <section class="box about">
+  <img
+    class="avatar grav-hashed grav-hijack"
+    src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400"
+    align="center"
+    alt="Phil Leggetter - Realtime Web Technology Evangelist"
+    id="grav-ecc56977271e781991b6172c16248459-0"
+    originals="200"
+    width="200"
+    height="200"
+    src-orig="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=200"
+    scale="2"
+    style="margin: auto; margin-bottom: 2em; display: inherit"
+  />
+  <p>
+    My name is <strong>Phil Leggetter</strong>. I'm Head of PLG and DevRel at <a href="https://hookdeck.com?ref=leggetter">Hookdeck</a>, an Event Gateway for event-driven applications.</p>
+    <p>I'm a hands-on Developer
+    Experience, Developer Relations, Developer Marketing, and PLG (Product-Led
+    Growth) Leader and Advisor. I'm currently advising
+    <a href="https://crosser.io">Crosser</a>.
+  </p>
+</section>
+
+
+  <!-- <section class="box">
+  <header>
+    <h2><a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Realtime Web Apps: With HTML5 WebSocket, PHP, and jQuery</a></h2>
+  </header>
+  <div style="text-align: center; margin-top: 10px;">
+    <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_il?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20"><img border="0" src="https://www.leggetter.co.uk/wp-content/uploads/2013/04/realtime-web-apps-sml.jpg" scale="0"></a><img src="https://www.assoc-amazon.com/e/ir?t=phillegg-20&amp;l=as2&amp;o=1&amp;a=1430246200" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" scale="0">
+    <p>Buy the book I co-write with <a href="http://lengstorf.com/">Jason Lengstorf</a> via <a href="http://www.amazon.com/gp/product/1430246200/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=1430246200&amp;linkCode=as2&amp;tag=phillegg-20">Amazon.com</a> or <a href="http://j.mp/realtime-web-apps-uk">Amazon.co.uk</a></p>
+  </div>
+</section>
+ -->
+
+</div>
+
+        </div>
+      </div>
+    </div>
+	</div>
+	<!-- /Main -->
+
+	<!-- Footer Wrapper -->
+	<div id="footer-wrapper" class="wrapper">
+		<div class="title">Get In Touch</div>
+		<div id="footer" class="container">
+
+				<!-- Contact -->
+				<a name="contact-me" id="contact-me"></a>
+				<section class="feature-list small">
+					<div class="row">
+	          <div class="-2u 4u">
+	            <section>
+	              <h3 class="icon fa-comment">Social</h3>
+	              <p>
+									<a href="https://twitter.com/leggetter"><i class="fa fa-twitter-square fa2"></i></a>
+<a href="http://www.linkedin.com/in/leggetter"><i class="fa fa-linkedin-square fa2"></i></a>
+<a href="https://github.com/leggetter"><i class="fa fa-github-square fa2"></i></a>
+<a href="http://stackoverflow.com/users/39904/leggetter"><i class="fa fa-stack-overflow fa2"></i></a>
+
+	              </p>
+	            </section>
+	          </div>
+						<div class="-1u 4u">
+							<section>
+								<h3 class="icon fa-envelope">Email</h3>
+								<p>
+									<a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+								</p>
+							</section>
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+			<hr />
+
+			<div id="copyright">
+				<ul>
+					<li>&copy; Phil Leggetter.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- / Footer Wrapper -->
+
+	</div>
+	
+	<script src="/skel/assets/js/jquery.dropotron.min.js"></script>
+	<script src="/skel/assets/js/skel.min.js"></script>
+	<script src="/skel/assets/js/skel-viewport.min.js"></script>
+	<script src="/skel/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/skel/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/skel/assets/js/main.js"></script>
+	
+	<script src="/bower_components/jquery-smooth-scroll/jquery.smooth-scroll.min.js"></script>
+
+	<script>
+		( function() {
+			try {
+				$( 'a[href="#contact-me"]' ).smoothScroll();
+			} catch(e){}
+		} )();
+	</script>
+
+  <script src="/libs/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+	<script>
+  !(function (t, e) {
+    var o, n, p, r;
+    e.__SV ||
+      ((window.posthog = e),
+      (e._i = []),
+      (e.init = function (i, s, a) {
+        function g(t, e) {
+          var o = e.split(".");
+          2 == o.length && ((t = t[o[0]]), (e = o[1])),
+            (t[e] = function () {
+              t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+            });
+        }
+        ((p = t.createElement("script")).type = "text/javascript"),
+          (p.async = !0),
+          (p.src = s.api_host + "/static/array.js"),
+          (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(
+            p,
+            r
+          );
+        var u = e;
+        for (
+          void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
+            u.people = u.people || [],
+            u.toString = function (t) {
+              var e = "posthog";
+              return (
+                "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e
+              );
+            },
+            u.people.toString = function () {
+              return u.toString(1) + ".people (stub)";
+            },
+            o =
+              "capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys".split(
+                " "
+              ),
+            n = 0;
+          n < o.length;
+          n++
+        )
+          g(u, o[n]);
+        e._i.push([i, s, a]);
+      }),
+      (e.__SV = 1));
+  })(document, window.posthog || []);
+  posthog.init("phc_VMuGu6EgGpm2uG3qwglsFzUaAeKEw1kQJkzkiIBWSZH", {
+    api_host: "https://eu.posthog.com",
+  });
+</script>
+
+
+	<!-- realtime benchmarks -->
+	<!--script src="//cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script-->
+	<!-- <script src="http://localhost:5000/benchmark.js"></script> -->
+	<!--script src="https://realtime-latency-stats.herokuapp.com/benchmark.js"></script-->
+</body>
+</html>
+<!--
+Escape Velocity by HTML5 UP
+html5up.net | @n33co
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->

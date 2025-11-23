@@ -9,7 +9,8 @@
     "dev": "bundle exec jekyll serve -w --future -l --incremental",
     "build": "bundle exec jekyll build",
     "copy-images": "cp -r ./_includes/realtime-web-technologies-guide/images ./_site/real-time-web-technologies-guide/images",
-    "prebuild": "git submodule init && git submodule sync && git submodule update"
+    "prebuild": "git submodule init && git submodule sync && git submodule update",
+    "generate-family-tree": "mkdir -p leggetter-family-tree/view && python3 leggetter-family-tree/parser.py leggetter-family-tree/0001tree.gen > leggetter-family-tree/view/index.html"
   },
   "repository": {
     "type": "git",

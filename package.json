@@ -7,10 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "git subtree push --prefix _site origin gh-pages",
     "dev": "bundle exec jekyll serve -w --future -l --incremental",
+    "dev:docker": "git submodule init && git submodule sync && git submodule update && npm run generate-family-tree && docker build -t leggetter-jekyll . && docker run --rm -p 4000:4000 -v $(pwd):/site leggetter-jekyll",
     "build": "bundle exec jekyll build",
     "copy-images": "cp -r ./_includes/realtime-web-technologies-guide/images ./_site/real-time-web-technologies-guide/images",
     "prebuild": "git submodule init && git submodule sync && git submodule update",
-    "generate-family-tree": "mkdir -p leggetter-family-tree/view && python3 leggetter-family-tree/parser.py leggetter-family-tree/0001tree.gen > leggetter-family-tree/view/index.html"
+    "generate-family-tree": "python3 leggetter-family-tree/tree-view-family-chart.py leggetter-family-tree/0001tree.gen --output-jekyll"
   },
   "repository": {
     "type": "git",

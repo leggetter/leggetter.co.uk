@@ -8,3 +8,10 @@ excerpt_separator: "\n\n"
 base_url: https://www.leggetter.co.uk
 
 keep_files: [real-time-web-technologies-guide/images]
+
+exclude:
+  - leggetter-family-tree/__pycache__
+  - leggetter-family-tree/templates
+  - leggetter-family-tree/geneo_parser.py
+  - leggetter-family-tree/tree-view-family-chart.py
+  - leggetter-family-tree/README.md

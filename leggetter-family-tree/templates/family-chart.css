@@ -1,0 +1,127 @@
+/* Fullscreen layout adjustments */
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Container for the tree view info and search */
+.tree-info {
+    text-align: center;
+    color: #666;
+    margin-bottom: 10px;
+    font-size: 14px;
+    padding: 5px 0;
+}
+
+.controls-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.search-container {
+    position: relative;
+}
+
+.reset-btn {
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+    background: white;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 3em;
+    line-height: 3em;
+}
+
+.reset-btn:hover {
+    background: #f5f5f5;
+    border-color: #999;
+}
+
+.search-box {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    width: 250px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.search-box:focus {
+    outline: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.search-results {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    max-height: 300px;
+    overflow-y: auto;
+    width: 250px;
+    display: none;
+    z-index: 1000;
+}
+
+.search-result-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background: #f5f7fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+#tree-container {
+    width: 100%;
+    height: calc(100vh - 150px);
+    overflow: auto;
+    background: white;
+    margin: 0;
+    padding: 0;
+}
+
+#FamilyChart.f3 {
+    width: 100%;
+    height: 100%;
+    min-height: calc(100vh - 150px);
+}
+
+/* Ensure SVG and connection lines are visible */
+#FamilyChart svg {
+    width: 100%;
+    height: 100%;
+}
+
+#FamilyChart .link {
+    stroke: #999;
+    stroke-width: 2px;
+    fill: none;
+}
+
+.f3 div.card-image-rect {
+    width: 250px;
+}
+
+/* Hide all add buttons and edit controls */
+.f3-add-relative,
+.f3-add-btn,
+.f3-card-add,
+button[class*="add"],
+.card-add-btn,
+button.addRelative {
+    display: none !important;
+}

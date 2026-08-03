@@ -1,0 +1,13 @@
+// Cloudflare Workers deployment config (Workers Builds git integration runs
+// `npm run build` then `npx wrangler deploy`, which serves dist/ as static
+// assets — including dist/_redirects for the legacy-URL 301s).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "leggetter-co-uk",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

@@ -19,8 +19,7 @@ My name is **Phil Leggetter**. I'm Head of PLG and DevRel at
 event-driven applications.
 
 I'm a hands-on Developer Experience, Developer Relations, Developer Marketing,
-and PLG (Product-Led Growth) Leader and Advisor. I'm currently advising
-<a href="https://crosser.io">Crosser</a>.
+and PLG (Product-Led Growth) Leader and Advisor.
 
 From 2016 to 2020 I had the pleasure of supporting,
 enabling and growing a Developer Relations and Platform Experience team at

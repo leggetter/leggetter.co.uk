@@ -1,0 +1,58 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getSortedPosts, type BlogPost } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getSortedPosts();
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+interface Props {
+  post: BlogPost;
+}
+
+const { post } = Astro.props;
+const { entry, date, excerpt, originalUrl, originalHost } = post;
+const { Content } = await render(entry);
+
+const formatted = date.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+const tags = entry.data.tags ?? [];
+---
+
+<Base
+  title={entry.data.title}
+  description={excerpt}
+  image={entry.data.image_url ?? entry.data.thumb}
+  article
+>
+  <article>
+    <header class="post-header">
+      <h1>{entry.data.title}</h1>
+      <p class="post-header__meta">
+        <time datetime={date.toISOString().slice(0, 10)}>{formatted}</time>
+      </p>
+      {
+        originalUrl && (
+          <p class="post-header__origin">
+            Originally published on <a href={originalUrl}>{originalHost}</a>.
+          </p>
+        )
+      }
+    </header>
+    <Content />
+    {
+      tags.length > 0 && (
+        <div class="post-tags">
+          {tags.map((tag) => (
+            <span>{tag}</span>
+          ))}
+        </div>
+      )
+    }
+  </article>
+</Base>

@@ -1,0 +1,72 @@
+---
+import Header from '../components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
+import SocialIcons from '../components/SocialIcons.astro';
+import Analytics from '../components/Analytics.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../lib/site.mjs';
+import '../styles/global.css';
+
+interface Props {
+  title?: string | undefined;
+  description?: string | undefined;
+  image?: string | undefined;
+  article?: boolean;
+  sidebar?: boolean;
+  fullWidth?: boolean;
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  image,
+  article = false,
+  sidebar = true,
+  fullWidth = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title} - ${SITE_TITLE}` : SITE_TITLE;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(image, Astro.site) : undefined;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Phil Leggetter's Blog" href="/rss.xml" />
+
+    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="og:title" content={title ?? SITE_TITLE} />
+    <meta property="og:type" content={article ? 'article' : 'website'} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:site" content="@leggetter" />
+  </head>
+  <body>
+    <Header />
+    <main class:list={['page', { 'page--with-sidebar': sidebar }]}>
+      <div class:list={['content', { 'content--full': fullWidth }]}>
+        <slot />
+      </div>
+      {sidebar && <Sidebar />}
+    </main>
+    <footer class="site-footer" id="contact-me">
+      <div class="site-footer__inner">
+        <div class="site-footer__contact">
+          <SocialIcons />
+          <p><a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a></p>
+        </div>
+        <p>&copy; Phil Leggetter</p>
+      </div>
+    </footer>
+    <Analytics />
+  </body>
+</html>

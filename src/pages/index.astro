@@ -1,0 +1,104 @@
+---
+import Base from '../layouts/Base.astro';
+import SocialIcons from '../components/SocialIcons.astro';
+import { getSortedPosts } from '../lib/posts';
+import { SITE_DESCRIPTION } from '../lib/site.mjs';
+
+const FEATURED_SLUGS = [
+  'defining-developer-relations',
+  'seeding-growing-scaling-developer-relations',
+  'what-came-before-websockets',
+  'choosing-realtime-web-app-tech-stack',
+  'technical-customer-service-is-hard-thoughts-from-converge-conf-2013',
+  'state-componentised-web',
+];
+
+const posts = await getSortedPosts();
+const featured = FEATURED_SLUGS.map((slug) => {
+  const post = posts.find((p) => p.slug === slug);
+  if (!post) throw new Error(`Featured post not found: ${slug}`);
+  return post;
+});
+
+const knownFor = [
+  {
+    href: '/aaarrrp/',
+    title: 'The AAARRRP Framework',
+    blurb:
+      'A widely-referenced framework for defining Developer Relations strategy by mapping company goals to the activities that achieve them.',
+  },
+  {
+    href: '/real-time-web-technologies-guide/',
+    title: 'Realtime Web Technologies Guide',
+    blurb:
+      'A long-running guide to realtime web technology: hosted services, self-hosted servers, and WebSocket libraries.',
+  },
+  {
+    href: '/talks/',
+    title: 'Talks',
+    blurb:
+      'Videos and slides from years of conference talks on webhooks, event-driven applications, developer relations, and realtime web technology.',
+  },
+];
+---
+
+<Base description={SITE_DESCRIPTION} sidebar={false} fullWidth>
+  <section class="home-hero">
+    <img
+      class="home-hero__avatar"
+      src="https://www.gravatar.com/avatar/ecc56977271e781991b6172c16248459?s=400"
+      alt="Phil Leggetter"
+      width="200"
+      height="200"
+    />
+    <div class="home-hero__intro">
+      <h1>Hi, I'm Phil Leggetter.</h1>
+      <p>
+        I'm Head of PLG and DevRel at <a href="https://hookdeck.com?ref=leggetter">Hookdeck</a>, an
+        Event Gateway for event-driven applications.
+      </p>
+      <p>
+        I'm a hands-on Developer Experience, Developer Relations, Developer Marketing, and PLG
+        (Product-Led Growth) leader and advisor.
+        <a href="/about-phil-leggetter/">More about me&nbsp;&rarr;</a>
+      </p>
+      <div class="home-hero__links">
+        <SocialIcons />
+        <a href="mailto:phil@leggetter.co.uk">phil@leggetter.co.uk</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <h2>Things I'm known for</h2>
+    <ul class="card-grid">
+      {
+        knownFor.map(({ href, title, blurb }) => (
+          <li>
+            <a class="card" href={href}>
+              <h3>{title}</h3>
+              <p>{blurb}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="home-section">
+    <h2>Selected writing</h2>
+    <ul class="featured-posts">
+      {
+        featured.map((post) => (
+          <li>
+            <a href={post.url}>{post.entry.data.title}</a>
+            <span class="featured-posts__year">{post.date.getFullYear()}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p>
+      <a href="/blog/">Browse all {posts.length} posts&nbsp;&rarr;</a>
+    </p>
+  </section>
+</Base>

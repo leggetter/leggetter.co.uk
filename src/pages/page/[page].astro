@@ -1,0 +1,49 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import Pagination from '../../components/Pagination.astro';
+import { getSortedPosts, PAGE_SIZE, type BlogPost } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getSortedPosts();
+  const totalPages = Math.ceil(posts.length / PAGE_SIZE);
+  const paths = [];
+  // Page 1 lives at "/" (see ../index.astro); /page/2/ onwards live here.
+  for (let page = 2; page <= totalPages; page++) {
+    paths.push({
+      params: { page: String(page) },
+      props: {
+        page,
+        totalPages,
+        posts: posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+      },
+    });
+  }
+  return paths;
+}
+
+interface Props {
+  page: number;
+  totalPages: number;
+  posts: BlogPost[];
+}
+
+const { page, totalPages, posts } = Astro.props;
+---
+
+<Base title={`Blog - Page ${page}`}>
+  <ul class="post-list">
+    {
+      posts.map((post) => (
+        <PostCard
+          url={post.url}
+          title={post.entry.data.title}
+          date={post.date}
+          excerpt={post.excerpt}
+          thumb={post.entry.data.thumb}
+        />
+      ))
+    }
+  </ul>
+  <Pagination page={page} totalPages={totalPages} />
+</Base>

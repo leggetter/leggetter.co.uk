@@ -1,16 +1,18 @@
+# Astro
+dist/
+node_modules/
+.astro/
+
+# Build-time copies (see scripts/copy-guide-images.mjs)
+public/real-time-web-technologies-guide/
+public/leggetter-family-tree/
+
+# Old repo-content exclusions still worth keeping
 _ignore
 _org_posts
-pusher/presentations/dunddd_2011-11-19/template
-pusher/pusher-presentations/template/
-pusher/presentations/adnuguk_2011-09-29/template/
-node_modules
-output/jekyll
-.publish
-_site/README.md
-_site/package.json
-_site/npm-shrinkwrap.json
-_site/yarn.lock
-leggetter-family-tree/view/index.html
+public/pusher/presentations/dunddd_2011-11-19/template
+public/pusher/pusher-presentations/template/
+public/pusher/presentations/adnuguk_2011-09-29/template/
 
 # Python cache files
 __pycache__/

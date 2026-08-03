@@ -1,0 +1,57 @@
+---
+import Base from '../../layouts/Base.astro';
+// The guide content lives in the leggetter/realtime-web-technologies-guide
+// git submodule (vendor/). Importing it as markdown runs it through the same
+// pipeline as everything else, including the legacy heading-anchor slugs its
+// table of contents relies on.
+import { Content as Guide } from '../../../vendor/realtime-web-technologies-guide/guide.md';
+---
+
+<Base
+  title="Real-Time Web Technologies Guide"
+  description="A guide to realtime web technologies: hosted realtime services, self-hosted realtime servers, and WebSocket client libraries."
+>
+  <h1>Real-Time Web Technologies Guide</h1>
+
+  <p>
+    <em>
+      Note: This page is a work in progress. I plan to update it with new technologies as I find
+      them and increase the information on each as I find the time. If you know of a technology that
+      should be included in this guide then please
+      <a href="https://github.com/leggetter/realtime-web-technologies-guide">raise a pull request</a>.
+      If you have any questions please drop me an
+      <a href="mailto:phil@leggetter.co.uk?subject=Real-Time Technology Guide">email</a>.
+    </em>
+  </p>
+
+  <p>
+    <strong>
+      As above, you can contribute to the list by making a pull request to the
+      <a href="https://github.com/leggetter/realtime-web-technologies-guide"
+        >Realtime Web Technologies Guide github repo</a
+      >.
+    </strong>
+  </p>
+
+  <ul class="toc">
+    <li>
+      <a href="#hosted-services">Hosted Realtime Services</a>
+      <ul>
+        <li>
+          <a href="#hosted-client"
+            >Messaging: with focus on delivery to clients (e.g. Web Browsers)</a
+          >
+        </li>
+        <li><a href="#hosted-data-sync">Data Synchronisation, Persistence, Full Stack</a></li>
+        <li><a href="#hosted-servers">Messaging: with focus on delivery to servers</a></li>
+        <li>
+          <a href="#hosted-other">Other services: which don&#8217;t clearly fit into any of the above.</a>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#self-hosted">Self Hosted Realtime Services</a></li>
+    <li><a href="#websocket-client-libraries">WebSocket Client Libraries</a></li>
+  </ul>
+
+  <Guide />
+</Base>

@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import Pagination from '../components/Pagination.astro';
+import { getSortedPosts, PAGE_SIZE } from '../lib/posts';
+import { SITE_DESCRIPTION } from '../lib/site.mjs';
+
+const posts = await getSortedPosts();
+const totalPages = Math.ceil(posts.length / PAGE_SIZE);
+const pagePosts = posts.slice(0, PAGE_SIZE);
+---
+
+<Base description={SITE_DESCRIPTION}>
+  <h1 class="visually-hidden" style="position:absolute;left:-9999px">Phil Leggetter's Blog</h1>
+  <ul class="post-list">
+    {
+      pagePosts.map((post) => (
+        <PostCard
+          url={post.url}
+          title={post.entry.data.title}
+          date={post.date}
+          excerpt={post.excerpt}
+          thumb={post.entry.data.thumb}
+        />
+      ))
+    }
+  </ul>
+  <Pagination page={1} totalPages={totalPages} />
+</Base>

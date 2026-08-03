@@ -547,6 +547,65 @@ pre:not(.astro-code) {
   color: var(--color-text-muted);
 }
 
+.card--static h3 {
+  color: var(--color-heading);
+}
+
+.card__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-s);
+}
+
+.card__list a {
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+.card__list span {
+  font-size: var(--step--1);
+  color: var(--color-text-muted);
+}
+
+/* --- Talks page ---------------------------------------------------------- */
+
+.talks-year h2 {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-xs);
+}
+
+.talks-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-m);
+}
+
+.talks-list li {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.talks-list__title {
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.talks-list__event {
+  color: var(--color-text-muted);
+  font-size: var(--step--1);
+}
+
+.talks-list__links {
+  display: flex;
+  gap: var(--space-m);
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
 .featured-posts {
   list-style: none;
   margin: 0 0 var(--space-m);

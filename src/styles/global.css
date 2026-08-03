@@ -547,28 +547,6 @@ pre:not(.astro-code) {
   color: var(--color-text-muted);
 }
 
-.card--static h3 {
-  color: var(--color-heading);
-}
-
-.card__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-s);
-}
-
-.card__list a {
-  font-size: var(--step--1);
-  font-weight: 600;
-}
-
-.card__list span {
-  font-size: var(--step--1);
-  color: var(--color-text-muted);
-}
-
 /* --- Talks page ---------------------------------------------------------- */
 
 .talks-year h2 {

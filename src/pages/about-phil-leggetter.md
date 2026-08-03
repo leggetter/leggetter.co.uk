@@ -1,7 +1,7 @@
 ---
 layout: ../layouts/MarkdownPage.astro
 title: About Phil Leggetter
-description: "About Phil Leggetter: Head of PLG and DevRel at Hookdeck; Developer Experience, Developer Relations, Developer Marketing, and Product-Led Growth leader and advisor."
+description: "About Phil Leggetter: Head of Developer Experience & Relations at Hookdeck; Developer Experience, Developer Relations, Developer Marketing, and Product-Led Growth leader and advisor."
 sidebar: false
 ---
 
@@ -14,7 +14,7 @@ sidebar: false
   height="200"
 />
 
-My name is **Phil Leggetter**. I'm Head of PLG and DevRel at
+My name is **Phil Leggetter**. I'm Head of Developer Experience & Relations at
 <a href="https://hookdeck.com?ref=leggetter">Hookdeck</a>, an Event Gateway for
 event-driven applications.
 

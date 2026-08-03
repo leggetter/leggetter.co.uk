@@ -1,7 +1,8 @@
 # leggetter.co.uk website
 
 Personal website and blog, built with [Astro](https://astro.build) and deployed
-on [Cloudflare Pages](https://pages.cloudflare.com/).
+to [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/)
+(static assets) via the Workers Builds git integration.
 
 ## Prerequisites
 
@@ -28,20 +29,21 @@ npm run verify    # post-build checks: legacy 301s, expected routes, no legacy c
 
 ## Deployment
 
-Pushing to `main` deploys automatically — Cloudflare Pages builds the site
-(`npm run build`, output `dist/`) and publishes it. Pull requests get preview
-URLs. There is no manual deploy step.
+Pushing to `main` deploys automatically — Cloudflare Workers Builds runs
+`npm run build` then `npx wrangler deploy`, which publishes `dist/` as static
+assets (see `wrangler.jsonc`). Non-production branches get preview URLs.
+There is no manual deploy step.
 
-### One-time Cloudflare Pages setup
+### One-time Cloudflare setup
 
-1. Cloudflare dashboard → Workers & Pages → Create → Pages → connect the
+1. Cloudflare dashboard → Workers & Pages → Create → import the
    `leggetter/leggetter.co.uk` GitHub repo.
-   - Production branch: `main`
    - Build command: `npm run build`
-   - Build output directory: `dist`
-2. Add the custom domain `www.leggetter.co.uk` to the Pages project (the DNS
-   zone is already on Cloudflare) and make sure an apex → www redirect rule
-   exists for `leggetter.co.uk`.
+   - Deploy command: `npx wrangler deploy`
+   - Keep "Builds for non-production branches" enabled for preview URLs
+2. In the Worker → Settings → Domains & Routes, add the custom domain
+   `www.leggetter.co.uk` (the DNS zone is already on Cloudflare) and make sure
+   an apex → www redirect rule exists for `leggetter.co.uk`.
 3. Once verified, disable GitHub Pages in the repo settings and delete the old
    `gh-pages` branch.
 
@@ -49,7 +51,7 @@ URLs. There is no manual deploy step.
 
 The Jekyll-era post URLs (dated `/2010/07/22/....html`, category-prefixed, and
 `/pageN/` pagination) were replaced with clean `/blog/{slug}/` URLs. Every old
-local URL gets a real **301** via `dist/_redirects` (Cloudflare Pages format),
+local URL gets a real **301** via `dist/_redirects` (Cloudflare format),
 generated at build time by `src/lib/redirects.mjs` from the posts' legacy
 `permalink` front matter. `npm run verify` asserts every redirect targets a
 page that exists.

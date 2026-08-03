@@ -40,24 +40,6 @@ const knownFor = [
       'Videos and slides from years of conference talks on webhooks, event-driven applications, developer relations, and realtime web technology.',
   },
 ];
-
-const books = [
-  {
-    href: 'https://www.devrelbook.com/',
-    title: 'Developer Relations: How to Build and Grow a Successful Developer Program',
-    role: 'Technical editor',
-  },
-  {
-    href: 'https://www.amazon.com/dp/1430246200',
-    title: 'Realtime Web Apps',
-    role: 'Co-author',
-  },
-  {
-    href: 'https://www.oreilly.com/library/view/html5-hacks/9781449335052/',
-    title: 'HTML5 Hacks',
-    role: 'Contributor',
-  },
-];
 ---
 
 <Base description={SITE_DESCRIPTION} sidebar={false} fullWidth>
@@ -100,20 +82,6 @@ const books = [
           </li>
         ))
       }
-      <li>
-        <div class="card card--static">
-          <h3>Books</h3>
-          <ul class="card__list">
-            {
-              books.map(({ href, title, role }) => (
-                <li>
-                  <a href={href}>{title}</a> <span>({role})</span>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-      </li>
     </ul>
   </section>
 

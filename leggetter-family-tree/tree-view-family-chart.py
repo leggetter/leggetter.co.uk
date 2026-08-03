@@ -162,11 +162,11 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 template_dir = os.path.join(script_dir, "templates")
 
 # Determine which template to use based on command line argument
-use_jekyll = len(sys.argv) > 2 and sys.argv[2] == "--jekyll"
-output_to_jekyll = len(sys.argv) > 2 and sys.argv[2] == "--output-jekyll"
+use_fragment = len(sys.argv) > 2 and sys.argv[2] in ("--jekyll", "--astro")
+output_to_site = len(sys.argv) > 2 and sys.argv[2] in ("--output-jekyll", "--output-astro")
 
 # Read template files
-if use_jekyll or output_to_jekyll:
+if use_fragment or output_to_site:
     template_file = "family-chart-jekyll.html"
 else:
     template_file = "family-chart.html"
@@ -190,26 +190,28 @@ html = html.replace("{{SCRIPT}}", js_content)
 html = html.replace("{{COUNT}}", str(len(nodes)))
 html = html.replace("{{VERSION}}", version_timestamp)
 
-# If --output-jekyll flag is used, update the Jekyll markdown file
-if output_to_jekyll:
-    jekyll_page_path = os.path.join(
-        os.path.dirname(script_dir), "pages", "leggetter-family-tree-view.markdown"
+# If --output-astro (or legacy --output-jekyll) is used, update the committed
+# HTML fragment that src/pages/leggetter-family-tree/view.astro imports.
+if output_to_site:
+    fragment_path = os.path.join(
+        os.path.dirname(script_dir), "src", "generated", "family-tree.html"
     )
 
-    # Read the existing markdown file
-    with open(jekyll_page_path, "r") as f:
-        markdown_content = f.read()
+    # Read the existing fragment
+    with open(fragment_path, "r") as f:
+        fragment_content = f.read()
 
     # Find the placeholder comments
     begin_marker = "<!-- BEGIN GENERATED FAMILY TREE CONTENT -->"
     end_marker = "<!-- END GENERATED FAMILY TREE CONTENT -->"
 
-    begin_index = markdown_content.find(begin_marker)
-    end_index = markdown_content.find(end_marker)
+    begin_index = fragment_content.find(begin_marker)
+    end_index = fragment_content.find(end_marker)
 
     if begin_index == -1 or end_index == -1:
         print(
-            "Error: Could not find placeholder markers in Jekyll page", file=sys.stderr
+            "Error: Could not find placeholder markers in fragment file",
+            file=sys.stderr,
         )
         sys.exit(1)
 
@@ -217,24 +219,24 @@ if output_to_jekyll:
     insert_start = begin_index + len(begin_marker)
     # Find the newline after the begin marker
     while (
-        insert_start < len(markdown_content) and markdown_content[insert_start] == "\n"
+        insert_start < len(fragment_content) and fragment_content[insert_start] == "\n"
     ):
         insert_start += 1
 
     # Build the new content with the generated HTML between the markers
     new_content = (
-        markdown_content[:insert_start]
+        fragment_content[:insert_start]
         + "\n"
         + html
         + "\n"
-        + markdown_content[end_index:]
+        + fragment_content[end_index:]
     )
 
     # Write back to the file
-    with open(jekyll_page_path, "w") as f:
+    with open(fragment_path, "w") as f:
         f.write(new_content)
 
-    print(f"Successfully updated {jekyll_page_path}")
+    print(f"Successfully updated {fragment_path}")
     print(f"Generated content: {len(html)} characters")
     print(f"Total people in tree: {len(nodes)}")
 else:

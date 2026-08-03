@@ -1,0 +1,78 @@
+---
+import { SITE_TITLE, SITE_TAGLINE_HTML } from '../lib/site.mjs';
+
+const guideMenu = [
+  { href: '/real-time-web-technologies-guide/', label: 'Realtime Web Technology Guide' },
+  {
+    href: '/blog/history-background-benefits-use-cases-realtime/',
+    label: 'History, Background, Benefits & Use Cases of Realtime',
+  },
+  {
+    href: '/blog/fundamentals-realtime-web-realtime-web-functionality/',
+    label: 'Fundamentals of the Realtime Web & Realtime Web Functionality',
+  },
+  {
+    href: '/blog/choosing-realtime-web-app-tech-stack/',
+    label: 'Choosing your Realtime Web App Tech Stack',
+  },
+  { href: '/real-time-web-technologies-guide/developer-tools/', label: 'Developer Tools' },
+  {
+    href: '/real-time-web-technologies-guide/realtime-hosted-service-latency/',
+    label: 'Realtime Hosted Service Latency Stats',
+  },
+  {
+    href: '/real-time-web-technologies-guide/realtime-data-sources/',
+    label: 'Realtime Data Sources',
+  },
+  {
+    href: '/real-time-web-technologies-guide/realtime-web-technology-transport-mechanisms/',
+    label: 'Transport Mechanisms',
+  },
+];
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <div class="site-header__identity">
+      <a class="site-header__logo" href="/">
+        <img
+          src="/images/leggetter-logo-trans-sml.png"
+          alt={`${SITE_TITLE} logo`}
+          width="56"
+          height="56"
+        />
+      </a>
+      <div>
+        <p class="site-header__name"><a href="/">{SITE_TITLE}</a></p>
+        <p class="site-header__tagline" set:html={SITE_TAGLINE_HTML} />
+      </div>
+    </div>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/blog/">Blog</a></li>
+        <li>
+          <a href="/aaarrrp/" title="The AAARRRP Developer Relations Strategy Framework">AAARRRP</a>
+        </li>
+        <li>
+          <a href="/real-time-web-technologies-guide/">Realtime Web Guide</a>
+          <ul>
+            {
+              guideMenu.map(({ href, label }) => (
+                <li>
+                  <a href={href}>{label}</a>
+                </li>
+              ))
+            }
+          </ul>
+        </li>
+        <li>
+          <a href="/about-phil-leggetter/">About</a>
+          <ul>
+            <li><a href="/leggetter-family-tree/">Leggetter Family Tree</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

@@ -73,6 +73,7 @@ const expected = [
   '/rss.xml',
   '/sitemap-index.xml',
   '/aaarrrp/',
+  '/blog/',
   '/about-phil-leggetter/',
   '/contact-me/',
   '/mygoffice/',

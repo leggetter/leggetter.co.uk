@@ -6,7 +6,7 @@ interface Props {
 
 const { page, totalPages } = Astro.props;
 
-const prevUrl = page === 2 ? '/' : page > 2 ? `/page/${page - 1}/` : null;
+const prevUrl = page === 2 ? '/blog/' : page > 2 ? `/page/${page - 1}/` : null;
 const nextUrl = page < totalPages ? `/page/${page + 1}/` : null;
 ---
 

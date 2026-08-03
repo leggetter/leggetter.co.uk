@@ -462,6 +462,123 @@ pre:not(.astro-code) {
   cursor: pointer;
 }
 
+/* --- Homepage ------------------------------------------------------------ */
+
+.home-hero {
+  display: flex;
+  gap: var(--space-xl);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-xl);
+}
+
+.home-hero__avatar {
+  width: 11rem;
+  height: 11rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.home-hero__intro {
+  flex: 1;
+  min-width: min(100%, 24rem);
+  max-width: var(--measure);
+}
+
+.home-hero__intro h1 {
+  margin-bottom: var(--space-s);
+}
+
+.home-hero__intro p {
+  font-size: var(--step-1);
+  line-height: 1.5;
+}
+
+.home-hero__links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-m);
+  margin-top: var(--space-m);
+}
+
+.home-section {
+  margin-top: var(--space-xl);
+}
+
+.home-section > h2 {
+  margin-top: 0;
+}
+
+.card-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-m);
+}
+
+.card {
+  display: block;
+  height: 100%;
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: var(--space-l);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--color-accent);
+}
+
+.card h3 {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--step-1);
+  color: var(--color-accent);
+}
+
+.card p {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--color-text-muted);
+}
+
+.featured-posts {
+  list-style: none;
+  margin: 0 0 var(--space-m);
+  padding: 0;
+  max-width: var(--measure);
+}
+
+.featured-posts li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-m);
+  padding: var(--space-s) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.featured-posts a {
+  font-size: var(--step-0);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.featured-posts a:hover {
+  text-decoration: underline;
+}
+
+.featured-posts__year {
+  color: var(--color-text-muted);
+  font-size: var(--step--1);
+  flex-shrink: 0;
+}
+
 /* --- Post listing -------------------------------------------------------- */
 
 .post-list {

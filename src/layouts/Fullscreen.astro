@@ -1,0 +1,87 @@
+---
+import Analytics from '../components/Analytics.astro';
+import { SITE_TITLE } from '../lib/site.mjs';
+
+interface Props {
+  title?: string | undefined;
+  description?: string | undefined;
+  backHref?: string;
+  backLabel?: string;
+}
+
+const {
+  title,
+  description,
+  backHref = '/leggetter-family-tree/',
+  backLabel = 'Family Tree',
+} = Astro.props;
+
+const pageTitle = title ? `${title} - ${SITE_TITLE}` : SITE_TITLE;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      #minimal-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 10px 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #minimal-header h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+      #minimal-header a {
+        text-decoration: none;
+        color: #333;
+      }
+      #content-wrapper {
+        padding-top: 50px;
+        height: 100vh;
+        box-sizing: border-box;
+      }
+      #fullscreen-content {
+        width: 100vw;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="minimal-header">
+      <h1><a href="/">{SITE_TITLE}</a> / <a href={backHref}>{backLabel}</a></h1>
+      <nav>
+        <a href={backHref}>&larr; Back</a>
+      </nav>
+    </div>
+    <div id="content-wrapper">
+      <div id="fullscreen-content">
+        <slot />
+      </div>
+    </div>
+    <Analytics />
+  </body>
+</html>

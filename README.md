@@ -62,12 +62,10 @@ attribution — their full content was always in this repo.
 
 ## Analytics
 
-- **PostHog** is active (see `src/lib/site.mjs`).
-- **Google Analytics** is dormant: the old Universal Analytics property
-  (`UA-513034-10`) died with Google's UA shutdown. To re-enable, create/locate
-  the GA4 property at analytics.google.com and put its `G-XXXXXXXXXX`
-  measurement ID in `GA4_MEASUREMENT_ID` in `src/lib/site.mjs`. The GA snippet
-  is omitted from the site until that ID is set.
+**PostHog** only (see `src/lib/site.mjs`). Google Analytics was removed in the
+Astro migration: the old Universal Analytics property (`UA-513034-10`) had
+captured nothing since Google's UA shutdown on 1 July 2023, so PostHog (added
+Sept 2023) was already the only working analytics.
 
 ## Family tree
 

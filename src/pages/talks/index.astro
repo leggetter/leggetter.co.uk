@@ -1,0 +1,143 @@
+---
+import Base from '../../layouts/Base.astro';
+
+interface Talk {
+  title: string;
+  event: string;
+  year: number;
+  video?: string;
+  slides?: string;
+  page?: string;
+}
+
+const talks: Talk[] = [
+  {
+    title: 'Reliably Handling Webhooks at Scale: Best Practices and Lessons Learned',
+    event: 'Shopify Partners North Developers Meetup',
+    year: 2026,
+    slides:
+      'https://noti.st/leggetter/RqpGVK/reliably-handling-webhooks-at-scale-best-practices-and-lessons-learned',
+  },
+  {
+    title: 'Webhooks at Scale: Best Practices and Lessons Learned',
+    event: 'Stripe London',
+    year: 2025,
+    slides: 'https://noti.st/leggetter/rEOMmR/webhooks-at-scale-best-practices-and-lessons-learned',
+  },
+  {
+    title: 'Beyond Webhooks: The Future of Scalable API Event Delivery',
+    event: 'apidays New York',
+    year: 2025,
+    slides:
+      'https://noti.st/leggetter/PBgnKQ/beyond-webhooks-the-future-of-scalable-api-event-delivery',
+  },
+  {
+    title: 'From Funnels to Flywheels: Tools for Thinking About DevRel',
+    event: 'DevRelCon New York 2024',
+    year: 2024,
+    slides: 'https://noti.st/leggetter/pVCgtC/from-funnels-to-flywheels-tools-for-thinking-about-devrel',
+  },
+  {
+    title: "A DevRel Hiring Manager's Advice",
+    event: 'DevRel interview',
+    year: 2023,
+    video: 'https://www.youtube.com/watch?v=H47og50MS30',
+  },
+  {
+    title: 'Where does DevRel fit into an org?',
+    event: 'Flyless',
+    year: 2021,
+    slides: 'https://noti.st/leggetter/fpa7Wv/where-does-devrel-fit-into-an-org',
+  },
+  {
+    title: 'Defining the Roles within Developer Relations',
+    event: 'Flyless',
+    year: 2021,
+    slides:
+      'https://noti.st/leggetter/9B23EW/defining-the-roles-within-developer-relations-v0-1-0',
+  },
+  {
+    title: 'DevRel Metrics panel',
+    event: 'DevRelCon Earth 2020',
+    year: 2020,
+    video: 'https://www.youtube.com/watch?v=D8-vWDInwMk',
+  },
+  {
+    title: 'DevRel in the Time of Coronavirus',
+    event: 'DevRel.net interview',
+    year: 2020,
+    video: 'https://www.youtube.com/watch?v=BDNzdfqG4tU',
+  },
+  {
+    title: 'Developer Relations: From Startup to Enterprise',
+    event: 'DevRelCon London 2019',
+    year: 2019,
+    video: 'https://www.youtube.com/watch?v=Vn4mdEa8f2Q',
+    slides: 'https://noti.st/leggetter/35pVik/developer-relations-from-startup-to-enterprise',
+  },
+  {
+    title: 'Developer Relations: From Startup to Enterprise',
+    event: 'DevRelCon San Francisco 2019',
+    year: 2019,
+    slides: 'https://noti.st/leggetter/WmL1SF/developer-relations-from-startup-to-enterprise',
+  },
+  {
+    title: 'Introduction to the AAARRRP DevRel Strategy Framework',
+    event: 'DevRelCon London 2016',
+    year: 2016,
+    video: 'https://www.youtube.com/watch?v=i7EZDYYfFmc',
+    page: '/aaarrrp/',
+  },
+  {
+    title: 'Realtime Web Apps in the Wild',
+    event: 'Hackference 2013',
+    year: 2013,
+    slides: '/talks/hackference-2013/',
+  },
+  {
+    title: 'Realtime Web Apps in the Wild',
+    event: 'Conference talk',
+    year: 2013,
+    slides: '/talks/realtime-web-apps-in-the-wild.html',
+  },
+];
+
+const years = [...new Set(talks.map((t) => t.year))].sort((a, b) => b - a);
+---
+
+<Base
+  title="Talks"
+  description="Talks by Phil Leggetter on webhooks, event-driven applications, developer relations, and realtime web technology - with videos and slides."
+>
+  <h1>Talks</h1>
+  <p>
+    A selection of talks I've given over the years on webhooks and event-driven applications,
+    Developer Relations, and realtime web technology. More can be found on
+    <a href="https://noti.st/leggetter">Notist</a>,
+    <a href="https://www.youtube.com/c/PhilLeggetter">YouTube</a>, and (for the older ones)
+    <a href="https://www.slideshare.net/leggetter">SlideShare</a>.
+  </p>
+
+  {
+    years.map((year) => (
+      <section class="talks-year">
+        <h2>{year}</h2>
+        <ul class="talks-list">
+          {talks
+            .filter((t) => t.year === year)
+            .map((talk) => (
+              <li>
+                <span class="talks-list__title">{talk.title}</span>
+                <span class="talks-list__event">{talk.event}</span>
+                <span class="talks-list__links">
+                  {talk.video && <a href={talk.video}>Video</a>}
+                  {talk.slides && <a href={talk.slides}>Slides</a>}
+                  {talk.page && <a href={talk.page}>Framework</a>}
+                </span>
+              </li>
+            ))}
+        </ul>
+      </section>
+    ))
+  }
+</Base>

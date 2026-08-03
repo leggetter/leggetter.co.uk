@@ -146,6 +146,7 @@ for (const pattern of [
   'disqus.com/embed',
   'disqus_shortname',
   'google-analytics.com/analytics.js',
+  'googletagmanager.com',
   'UA-513034',
 ]) {
   // Old static one-off pages (public/talks, public/pusher, ...) are exempt —

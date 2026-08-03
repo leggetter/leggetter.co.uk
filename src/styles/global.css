@@ -136,12 +136,25 @@ a:hover {
 }
 
 img,
-video,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Keep iframes' authored height (height: auto would collapse them to 150px);
+   video embeds get a proper responsive 16:9 box instead. */
 iframe,
 embed,
 object {
   max-width: 100%;
+}
+
+iframe[src*="youtube.com"],
+iframe[src*="youtube-nocookie.com"],
+iframe[src*="player.vimeo.com"] {
+  width: 100%;
   height: auto;
+  aspect-ratio: 16 / 9;
 }
 
 hr {

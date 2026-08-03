@@ -8,9 +8,7 @@ title: "Developer Tools"
 <h3>Capturing WebHooks</h3>
 <p>Sometimes you simply want to capture the WebHook call. There are tools that can help you with that:</p>
 <ul>
-<li><a href="http://inspectb.in/">Inspectb.in</a></li>
-<li><a href="http://requestb.in/">Requestb.in</a></li>
-<li><a href="https://www.runscope.com/docs/request-capture">Runscope request capture</a></li>
+<li><a href="https://pipedream.com/requestbin">RequestBin (now part of Pipedream)</a></li>
 </ul>
 <h3>WebHooks to your local development environment</h3>
 <p>When developing against WebHooks exposed by a hosted service you want the WebHook calls from the service to reach your local development environment. In order to do that you need to set the WebHook endpoint to be a publicly visible URL. There are a few tools that help you:</p>
@@ -19,7 +17,6 @@ title: "Developer Tools"
 <li>Makes your local development environment temporarily visible via that URL</li>
 </ol>
 <ul>
-<li><a href="http://progrium.com/localtunnel/">localtunnel</a></li>
-<li><a href="https://www.runscope.com/docs/passageway">Passageway</a></li>
+<li><a href="https://github.com/localtunnel/localtunnel">localtunnel</a></li>
 <li><a href="http://www.ultrahook.com/">UltraHook</a></li>
 </ul>

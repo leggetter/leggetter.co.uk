@@ -359,15 +359,12 @@ pre:not(.astro-code) {
 .nav-toggle {
   display: none;
   align-items: center;
-  gap: var(--space-xs);
+  justify-content: center;
   background: rgb(255 255 255 / 0.1);
   color: #fff;
   border: 1px solid rgb(255 255 255 / 0.25);
   border-radius: 6px;
-  padding: var(--space-xs) var(--space-m);
-  font: inherit;
-  font-size: var(--step--1);
-  font-weight: 600;
+  padding: var(--space-xs);
   cursor: pointer;
   margin-bottom: var(--space-s);
 }

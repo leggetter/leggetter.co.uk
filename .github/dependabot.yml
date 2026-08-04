@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # One consolidated monthly PR bumping all npm dependencies together.
+  # Cloudflare builds it (preview URL + npm run verify) before merge.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+
+  # Track the realtime-web-technologies-guide submodule so content updates
+  # to the guide surface as a PR here too.
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "monthly"

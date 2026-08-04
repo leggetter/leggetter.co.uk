@@ -355,7 +355,52 @@ pre:not(.astro-code) {
   color: var(--color-accent);
 }
 
+/* Mobile: hamburger-toggled menu */
+.nav-toggle {
+  display: none;
+  align-items: center;
+  gap: var(--space-xs);
+  background: rgb(255 255 255 / 0.1);
+  color: #fff;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: 6px;
+  padding: var(--space-xs) var(--space-m);
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: var(--space-s);
+}
+
+.nav-toggle svg {
+  display: none;
+}
+
+.site-nav:not(.site-nav--open) .nav-toggle__open,
+.site-nav--open .nav-toggle__close {
+  display: block;
+}
+
 @media (max-width: 640px) {
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .site-nav > ul {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    padding-bottom: var(--space-s);
+  }
+
+  .site-nav--open > ul {
+    display: flex;
+  }
+
+  .site-nav a {
+    border-radius: 6px;
+  }
+
   .site-nav ul ul {
     position: static;
     display: block;

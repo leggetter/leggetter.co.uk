@@ -48,7 +48,31 @@ const guideMenu = [
       </div>
     </div>
     <nav class="site-nav" aria-label="Main">
-      <ul>
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-label="Menu"
+        aria-expanded="false"
+        aria-controls="site-nav-menu"
+      >
+        <svg class="nav-toggle__open" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path
+            d="M3 6h18M3 12h18M3 18h18"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            fill="none"></path>
+        </svg>
+        <svg class="nav-toggle__close" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path
+            d="M5 5l14 14M19 5L5 19"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            fill="none"></path>
+        </svg>
+      </button>
+      <ul id="site-nav-menu">
         <li><a href="/">Home</a></li>
         <li><a href="/blog/">Blog</a></li>
         <li>
@@ -76,3 +100,12 @@ const guideMenu = [
     </nav>
   </div>
 </header>
+
+<script>
+  const toggle = document.querySelector('.nav-toggle');
+  const nav = document.querySelector('.site-nav');
+  toggle?.addEventListener('click', () => {
+    const open = nav?.classList.toggle('site-nav--open');
+    toggle.setAttribute('aria-expanded', String(Boolean(open)));
+  });
+</script>

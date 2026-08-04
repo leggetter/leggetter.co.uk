@@ -33,7 +33,7 @@
   "dependencies": {
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.4.1",
-    "astro": "^5.12.0",
+    "astro": "^7.1.6",
     "markdown-it": "^15.0.0"
   },
   "devDependencies": {

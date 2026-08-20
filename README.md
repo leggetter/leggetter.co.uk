@@ -47,6 +47,36 @@ There is no manual deploy step.
 3. Once verified, disable GitHub Pages in the repo settings and delete the old
    `gh-pages` branch.
 
+## Writing posts from session extracts
+
+Some posts start life as a Claude Code session — a design decision with the
+reasoning still attached. [`session-mine`](https://github.com/leggetter/session-mine)
+(private) archives those sessions before Claude Code's 30-day retention sweep
+deletes them, and extracts readable markdown into `drafts/`.
+
+`drafts/` is **gitignored**. Extracts are raw transcripts of real work and
+contain unpublished detail, private-repo paths and internal metrics — they are
+source material, never posts. `drafts/AGENTS.md` (the one committed file there)
+covers conversion and redaction; [AGENTS.md](AGENTS.md) covers the full loop.
+
+To work on one with an agent, name the file explicitly — gitignored paths are
+invisible to search tools — and ask for the argument before the draft:
+
+```
+Read AGENTS.md, then drafts/<file>.md.
+
+I want to turn this into a blog post. Before drafting, tell me what
+you think the post is — the argument, not the summary — and what
+you'd cut.
+```
+
+Getting the argument first catches a misread in a paragraph instead of in
+1,200 words. Then: draft, **audit against the source transcript**, publish.
+Ask for the audit by name — it is the step most likely to be skipped, because
+a drifted draft still reads well. To shift emphasis, ask for a re-extract with
+a different filter rather than a rewrite; each draft's frontmatter records the
+exact command that produced it.
+
 ## URLs and redirects
 
 The Jekyll-era post URLs (dated `/2010/07/22/....html`, category-prefixed, and

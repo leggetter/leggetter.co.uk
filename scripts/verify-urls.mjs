@@ -54,8 +54,14 @@ for (const line of fileLines) {
 }
 
 // --- 3. every post page exists; slugs unique ------------------------------
+// Drafts are built (reviewable on a preview URL) but unlisted, so the count
+// guard tracks published posts only and is unaffected by drafts in flight.
 const posts = await collectPosts();
-if (posts.length !== 184) fail(`expected 184 posts, found ${posts.length}`);
+const drafts = posts.filter(({ fm }) => fm.draft);
+const published = posts.filter(({ fm }) => !fm.draft);
+if (published.length !== 184) {
+  fail(`expected 184 published posts, found ${published.length}`);
+}
 const slugs = new Set();
 let externalCount = 0;
 for (const { id, fm } of posts) {
@@ -65,7 +71,10 @@ for (const { id, fm } of posts) {
   if (!(await exists(p))) fail(`post page missing: ${p} (${id})`);
   if (/^https?:\/\//.test(fm.permalink ?? '')) externalCount += 1;
 }
-console.log(`posts: ${posts.length}, ex-external "link posts" now local: ${externalCount}`);
+console.log(
+  `posts: ${published.length} published + ${drafts.length} draft, ` +
+    `ex-external "link posts" now local: ${externalCount}`
+);
 
 // --- 4. expected static routes --------------------------------------------
 const expected = [
@@ -93,7 +102,7 @@ const expected = [
   '/wp-content/uploads/2012/11/mygoffice-1024x613.jpg',
   '/favicon.ico',
 ];
-for (let n = 2; n <= Math.ceil(posts.length / 10); n++) expected.push(`/page/${n}/`);
+for (let n = 2; n <= Math.ceil(published.length / 10); n++) expected.push(`/page/${n}/`);
 for (const p of expected) {
   const rel = p.endsWith('/') && !p.endsWith('.gen') ? p : p;
   const target = p.endsWith('/')
@@ -169,6 +178,36 @@ for (const pattern of [
 
 const posthogHits = grep('posthog.init');
 if (posthogHits.length === 0) fail('PostHog snippet missing from rendered pages');
+
+// --- 7. drafts are built but unlisted -------------------------------------
+// The whole point of `draft: true` is that the page exists and nothing points
+// at it. Assert both halves, or the flag is decoration.
+if (drafts.length > 0) {
+  const feed = await readFile(path.join(dist, 'rss.xml'), 'utf8');
+  const blogIndex = await readFile(path.join(dist, 'blog/index.html'), 'utf8');
+  const home = await readFile(path.join(dist, 'index.html'), 'utf8');
+  const sitemapFiles = (await readdir(dist)).filter((f) => /^sitemap.*\.xml$/.test(f));
+  const sitemaps = (
+    await Promise.all(sitemapFiles.map((f) => readFile(path.join(dist, f), 'utf8')))
+  ).join('\n');
+
+  for (const { id } of drafts) {
+    const p = postPath(id);
+    if (!(await exists(p))) fail(`draft page not built: ${p}`);
+    const html = await readFile(path.join(dist, `${p}index.html`), 'utf8');
+    if (!/<meta name="robots" content="noindex/.test(html)) {
+      fail(`draft page is missing its noindex meta: ${p}`);
+    }
+    if (feed.includes(p)) fail(`draft in rss.xml: ${p}`);
+    if (blogIndex.includes(p)) fail(`draft linked from /blog/: ${p}`);
+    if (home.includes(p)) fail(`draft linked from /: ${p}`);
+    if (sitemaps.includes(p)) fail(`draft in sitemap: ${p}`);
+    if (redirects.has(p) || [...redirects.values()].includes(p)) {
+      fail(`draft appears in the redirect map: ${p}`);
+    }
+  }
+  console.log(`drafts: ${drafts.length} built, unlisted and noindex`);
+}
 
 if (failures) {
   console.error(`\n${failures} verification failure(s)`);

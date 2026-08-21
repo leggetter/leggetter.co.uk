@@ -13,6 +13,8 @@ interface Props {
   article?: boolean;
   sidebar?: boolean;
   fullWidth?: boolean;
+  /** Keep the page out of search results (drafts). */
+  noindex?: boolean;
 }
 
 const {
@@ -22,6 +24,7 @@ const {
   article = false,
   sidebar = true,
   fullWidth = false,
+  noindex = false,
 } = Astro.props;
 
 const pageTitle = title ? `${title} - ${SITE_TITLE}` : SITE_TITLE;
@@ -36,6 +39,7 @@ const ogImage = image ? new URL(image, Astro.site) : undefined;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="sitemap" href="/sitemap-index.xml" />

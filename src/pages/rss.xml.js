@@ -1,6 +1,6 @@
 import rss from '@astrojs/rss';
 import MarkdownIt from 'markdown-it';
-import { getSortedPosts } from '../lib/posts';
+import { getListedPosts } from '../lib/posts';
 import { SITE_TITLE } from '../lib/site.mjs';
 
 // Parity with the old hand-rolled Jekyll feed: every post, full content.
@@ -8,7 +8,7 @@ import { SITE_TITLE } from '../lib/site.mjs';
 const md = new MarkdownIt({ html: true, linkify: false });
 
 export async function GET(context) {
-  const posts = await getSortedPosts();
+  const posts = await getListedPosts();
   return rss({
     title: SITE_TITLE,
     description: "Phil Leggetter's Blog Posts",

@@ -2,9 +2,9 @@
 import Base from '../../layouts/Base.astro';
 import PostCard from '../../components/PostCard.astro';
 import Pagination from '../../components/Pagination.astro';
-import { getSortedPosts, PAGE_SIZE } from '../../lib/posts';
+import { getListedPosts, PAGE_SIZE } from '../../lib/posts';
 
-const posts = await getSortedPosts();
+const posts = await getListedPosts();
 const totalPages = Math.ceil(posts.length / PAGE_SIZE);
 const pagePosts = posts.slice(0, PAGE_SIZE);
 ---

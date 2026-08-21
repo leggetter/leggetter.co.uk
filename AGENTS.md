@@ -10,7 +10,7 @@ Cloudflare Workers.
 
 | Path | What |
 |---|---|
-| `src/content/blog/` | Published posts, `YYYY-MM-DD-slug.md`. Schema in `src/content.config.ts` (`title` required; `excerpt`, `permalink` conventional). |
+| `src/content/blog/` | Posts, `YYYY-MM-DD-slug.md`. Schema in `src/content.config.ts` (`title` required; `excerpt`, `permalink` conventional). `draft: true` keeps a post unlisted — see below. |
 | `drafts/` | **Gitignored.** Raw Claude Code session extracts — source material, not posts. Search tools that honour `.gitignore` will not find these files, so reference them by explicit path. Individual extracts run to hundreds of KB: navigate them with `grep`/targeted reads, or re-extract a narrower slice. Do not read one end to end. |
 | `scripts/verify-urls.mjs` | Post-build check: legacy 301s resolve, routes emitted, no cruft in `dist/`. |
 
@@ -71,8 +71,43 @@ different thread, widen or change `--grep` and re-read. Dropping the filter
 entirely gives the whole session. `./session-mine.py agents <session_id>` maps
 the subagent research, which is usually where unused material is hiding.
 
-**5. Write to `src/content/blog/YYYY-MM-DD-slug.md`.** Leave the draft in
-`drafts/` as provenance. Never move an extract into `src/content/blog/`.
+**5. Write to `src/content/blog/YYYY-MM-DD-slug.md` with `draft: true`.**
+See [Drafts](#drafts) — it stays unlisted but gets a preview URL. Leave the
+extract in `drafts/` as provenance. Never move an extract into
+`src/content/blog/`.
+
+Note the two senses of "draft": the `drafts/` **directory** holds session
+extracts, which are source material and never become posts in place; the
+`draft: true` **flag** marks a real post in `src/content/blog/` that is
+written but not yet published.
+
+## Drafts
+
+`draft: true` in a post's front matter makes it **unlisted, not unbuilt**. The
+page still renders at `/blog/{slug}/`, so a draft can be read on the real
+Cloudflare preview URL — but it is kept out of the blog index, the paginated
+archive, the homepage count, the RSS feed, the sitemap and the redirect map,
+and the page carries `noindex, nofollow` plus a visible draft notice.
+
+The split lives in `src/lib/posts.ts`: `getSortedPosts()` returns everything
+and is used **only** by `src/pages/blog/[slug].astro`; `getListedPosts()` drops
+drafts and is what every listing uses. Adding a new listing? Use
+`getListedPosts()`.
+
+`npm run verify` enforces both halves — that the draft page was built with its
+noindex meta, and that its URL appears in no listing, feed, sitemap or
+redirect. It will not pass if the flag becomes decoration.
+
+**To publish a draft**, in one commit:
+
+1. Delete the `draft: true` line.
+2. Bump the published-post count in `scripts/verify-urls.mjs` (the `!== 184`
+   check) by one. It is a deliberate tripwire, not a nuisance — it is what
+   catches a post appearing or vanishing unintentionally.
+3. Set `date` if the filename's date is no longer the publication date, and
+   rename the file to match. The slug comes from the filename, so renaming
+   changes the URL.
+4. `npm run build && npm run verify`.
 
 ## Publishing
 

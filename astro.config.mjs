@@ -2,13 +2,20 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { unified } from '@astrojs/markdown-remark';
 import { rehypeLegacyHeadingAnchors } from './src/lib/legacy-heading-anchors.mjs';
-import { writeRedirects } from './src/lib/redirects.mjs';
+import { collectDraftIds, writeRedirects } from './src/lib/redirects.mjs';
+import { postPath } from './src/lib/urls.mjs';
+
+// Draft posts are built (so they can be read on a preview URL) but must stay
+// out of the sitemap, same as they stay out of the listings and the feed.
+const draftPaths = new Set((await collectDraftIds()).map(postPath));
 
 export default defineConfig({
   site: 'https://www.leggetter.co.uk',
   trailingSlash: 'ignore',
   integrations: [
-    sitemap(),
+    sitemap({
+      filter: (page) => !draftPaths.has(new URL(page).pathname),
+    }),
     {
       name: 'generate-redirects',
       hooks: {

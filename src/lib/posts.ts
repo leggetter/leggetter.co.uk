@@ -16,8 +16,15 @@ export interface BlogPost {
   /** Set for old "link posts": where the article was originally published. */
   originalUrl: string | null;
   originalHost: string | null;
+  draft: boolean;
 }
 
+/**
+ * Every post, drafts included, newest first. Use this only where a draft is
+ * meant to be reachable: the post page itself (`/blog/{slug}/`), so a draft
+ * can be read on the Cloudflare preview URL. Everything that *lists* posts
+ * wants `getListedPosts()`.
+ */
 export async function getSortedPosts(): Promise<BlogPost[]> {
   const entries = await getCollection('blog');
   const posts = entries.map((entry): BlogPost => {
@@ -31,6 +38,7 @@ export async function getSortedPosts(): Promise<BlogPost[]> {
       excerpt: excerptOf(entry.data.excerpt, entry.body ?? ''),
       originalUrl: external ? permalink : null,
       originalHost: external ? originalSourceHost(permalink) : null,
+      draft: entry.data.draft ?? false,
     };
   });
   posts.sort((a, b) => b.date.valueOf() - a.date.valueOf());
@@ -42,6 +50,11 @@ export async function getSortedPosts(): Promise<BlogPost[]> {
     seen.set(post.slug, post.entry.id);
   }
   return posts;
+}
+
+/** Published posts only: listings, pagination, the feed and the sitemap. */
+export async function getListedPosts(): Promise<BlogPost[]> {
+  return (await getSortedPosts()).filter((post) => !post.draft);
 }
 
 export const PAGE_SIZE = 10;

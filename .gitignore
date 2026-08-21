@@ -19,3 +19,10 @@ public/pusher/presentations/adnuguk_2011-09-29/template/
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Claude Code session extracts (drafts/): raw transcripts of work sessions.
+# They contain unpublished product detail, private-repo file paths, internal
+# metrics and project identifiers. NEVER commit them to this public repo.
+# The guidance file is the deliberate exception.
+drafts/*
+!drafts/AGENTS.md

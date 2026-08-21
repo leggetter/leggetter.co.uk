@@ -4,11 +4,11 @@ draft: true
 excerpt: "Agents rediscover tools at runtime, so a renamed tool is just found under its new name and nothing breaks. That argument is more persuasive than it should be. The tool name is the only identity MCP gives a tool, and half the ecosystem quietly uses it as a primary key."
 ---
 
-I've been reshaping the MCP server in the [Hookdeck CLI](https://github.com/hookdeck/hookdeck-cli), and part of that work renames a batch of tools to give them a proper namespace prefix. I wrote in the release notes that this was a breaking change requiring a major version bump, and moved on.
+I've been reshaping the MCP server in the [Hookdeck CLI](https://github.com/hookdeck/hookdeck-cli), and part of that work renames a batch of tools to give them a proper namespace prefix and changes some parameters. From an API perspective that's straightforwardly breaking: rename the thing, change its arguments, bump the major.
 
-Then I watched [Adam Bird](https://www.linkedin.com/in/adambird/), CEO and co-founder of [Cronofy](https://www.cronofy.com/about), give a talk at the WeAreDevelopers World Congress in Berlin called ["Building APIs for Agents vs Systems. Is MCP the answer?"](https://www.youtube.com/watch?v=GdTJWkbLpGI), which made me wonder whether I'd just imported twenty years of REST habits into a context where they don't apply.
+Then I attended the WeAreDevelopers World Congress in Berlin and watched [Adam Bird](https://www.linkedin.com/in/adambird/), CEO and co-founder of [Cronofy](https://www.cronofy.com/about), give a talk called ["Building APIs for Agents vs Systems. Is MCP the answer?"](https://www.youtube.com/watch?v=GdTJWkbLpGI), and it left me in two minds. If the client re-derives the tool surface every session, whose contract am I actually protecting? Maybe I'd just imported twenty years of REST habits into a context where they don't apply.
 
-So I went and checked, properly, against the spec and the client docs rather than against my instincts. Here's what I found.
+The version number itself turned out to be moot — as far as I can tell that release needed a major bump for other breaking changes regardless. But being in two minds about *why* is a bad place to leave it, so I went looking for the standard: what do the spec and the client docs actually say about renaming, deprecating and versioning a tool? Here's what I found.
 
 ## TL;DR
 
@@ -117,7 +117,7 @@ And `notifications/tools/list_changed` doesn't rescue this. In the current revis
 
 ## Where I've landed
 
-**Calling a rename a breaking change is correct** — but the good reason isn't the one I originally wrote down. "It's a rename, therefore breaking" *is* imported REST intuition. The defensible version is narrower and much stronger:
+**Calling a rename a breaking change is correct** — but the good reason isn't the one I'd have given at the start. "It's a rename, therefore breaking" *is* imported REST intuition. The defensible version is narrower and much stronger:
 
 > The tool name is the only identity the MCP spec gives a tool, and multiple real clients key authorisation state to that identity. Changing it silently invalidates security rules with no warning.
 

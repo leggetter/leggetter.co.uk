@@ -742,6 +742,17 @@ pre:not(.astro-code) {
   color: var(--color-text-muted);
 }
 
+.post-card__draft {
+  margin-left: var(--space-xs);
+  padding: 0.1em 0.5em;
+  border: 1px solid #c2410c;
+  border-radius: 999px;
+  color: #c2410c;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .post-draft-notice {
   margin-bottom: var(--space-l);
   padding: var(--space-s) var(--space-m);

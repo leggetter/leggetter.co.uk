@@ -35,8 +35,9 @@ const tags = entry.data.tags ?? [];
     {
       draft && (
         <p class="post-draft-notice">
-          <strong>Draft.</strong> This post is unlisted — it is not in the blog index, the RSS
-          feed or the sitemap, and search engines are asked not to index it.
+          <strong>Draft.</strong> Unlisted on the published site: it stays out of the blog
+          index, the RSS feed and the sitemap, and search engines are asked not to index
+          it. It is listed locally in <code>npm run dev</code> so you can see it in context.
         </p>
       )
     }

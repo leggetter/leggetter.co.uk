@@ -41,6 +41,7 @@ const { page, totalPages, posts } = Astro.props;
           date={post.date}
           excerpt={post.excerpt}
           thumb={post.entry.data.thumb}
+          draft={post.draft}
         />
       ))
     }

@@ -52,9 +52,17 @@ export async function getSortedPosts(): Promise<BlogPost[]> {
   return posts;
 }
 
-/** Published posts only: listings, pagination, the feed and the sitemap. */
+/**
+ * Posts for listings, pagination, the feed and the sitemap.
+ *
+ * In `npm run dev` drafts are included, so a draft appears everywhere it will
+ * once published and you can see it in context. Every built output — preview
+ * and production alike — excludes them, and `npm run verify` runs against a
+ * production build, so the dev-only listing can never leak.
+ */
 export async function getListedPosts(): Promise<BlogPost[]> {
-  return (await getSortedPosts()).filter((post) => !post.draft);
+  const posts = await getSortedPosts();
+  return import.meta.env.DEV ? posts : posts.filter((post) => !post.draft);
 }
 
 export const PAGE_SIZE = 10;

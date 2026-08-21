@@ -1,15 +1,12 @@
 ---
-layout: post
 title: "Is renaming an MCP tool a breaking change?"
 draft: true
 excerpt: "Agents rediscover tools at runtime, so a renamed tool is just found under its new name and nothing breaks. That argument is more persuasive than it should be. The tool name is the only identity MCP gives a tool, and half the ecosystem quietly uses it as a primary key."
-permalink: /blog/mcp-tool-rename-breaking-change
-
 ---
 
 I've been reshaping the MCP server in the [Hookdeck CLI](https://github.com/hookdeck/hookdeck-cli), and part of that work renames a batch of tools to give them a proper namespace prefix. I wrote in the release notes that this was a breaking change requiring a major version bump, and moved on.
 
-Then I watched [Adam Bird](https://www.linkedin.com/in/adambird/), CEO and co-founder of [Cronofy](https://www.cronofy.com/about), give a talk at WeAreDevelopers in Berlin called ["Building APIs for Agents vs Systems. Is MCP the answer?"](https://www.youtube.com/watch?v=GdTJWkbLpGI), which made me wonder whether I'd just imported twenty years of REST habits into a context where they don't apply.
+Then I watched [Adam Bird](https://www.linkedin.com/in/adambird/), CEO and co-founder of [Cronofy](https://www.cronofy.com/about), give a talk at the WeAreDevelopers World Congress in Berlin called ["Building APIs for Agents vs Systems. Is MCP the answer?"](https://www.youtube.com/watch?v=GdTJWkbLpGI), which made me wonder whether I'd just imported twenty years of REST habits into a context where they don't apply.
 
 So I went and checked, properly, against the spec and the client docs rather than against my instincts. Here's what I found.
 
@@ -17,7 +14,7 @@ So I went and checked, properly, against the spec and the client docs rather tha
 
 - **There is no standard.** The MCP specification has nothing to say about renaming, deprecating or versioning a tool name. Not a convention I disagree with — an absence.
 - **The discovery argument is right about the model and wrong about everything else.** The LLM will happily find your tool under its new name. Every *human* and *config* that wrote the old name down will not.
-- **The tool name is the authorisation join key** in at least six independent clients. There is no mechanism anywhere for expressing "this tool used to be called X".
+- **The tool name is the authorisation join key** across eight surfaces in five independent clients. There is no mechanism anywhere for expressing "this tool used to be called X".
 - **The failure is silent, which is the real problem.** In Claude Code specifically, a stale `deny` rule referencing a renamed MCP tool fails open and produces no warning.
 - So: renaming is a breaking change. But a major version bump is a *signal*, not a mechanism — nothing in MCP will enforce it. Ship a migration note, not just a version number.
 
@@ -88,7 +85,7 @@ Once you go looking, it's everywhere:
 | VS Code Copilot | per-tool approvals as a name→bool map |
 | OpenAI Responses API MCP | `allowed_tools`, `require_approval.never.tool_names` |
 
-That's six independent clients where the tool name is the authorisation join key, against zero mechanisms anywhere for saying "this tool used to be called something else".
+That's eight surfaces across five independent clients where the tool name is the authorisation join key, against zero mechanisms anywhere for saying "this tool used to be called something else".
 
 Rename a tool and you don't break the agent's ability to call it. You break the user's *decision* about whether it's allowed to.
 
@@ -128,7 +125,7 @@ And `notifications/tools/list_changed` doesn't rescue this. In the current revis
 
 What I think is actually worth doing:
 
-1. **Ship a transitional alias, unlisted.** Middleware on `tools/call` that maps old names to new ones, forwards the call, and appends a deprecation notice. Keeping it out of `tools/list` matters — it's what avoids doubling your tool count and bloating context, which is the trap the SDK's `aliasTool()` approach ran into. If you'd rather force migration than paper over it, return a *tool execution error* naming the replacement rather than a protocol `Unknown tool` error. The spec is explicit that clients "**SHOULD** provide tool execution errors to language models to enable self-correction", whereas protocol errors are "less likely to result in successful recovery". Either way, an agent calling the old name gets told the new one.
+1. **Ship a transitional alias, unlisted.** Middleware on `tools/call` that maps old names to new ones, forwards the call, and appends a deprecation notice. Keeping it out of `tools/list` matters — it's what avoids doubling your tool count and bloating context. That was the SDK PR's design too: its aliases resolved at call time and were deliberately absent from `tools/list`. It closed over something much narrower — whether a tool should be able to carry a *list* of old names rather than one. If you'd rather force migration than paper over it, return a *tool execution error* naming the replacement rather than a protocol `Unknown tool` error. The spec is explicit that clients "**SHOULD** provide tool execution errors to language models to enable self-correction", whereas protocol errors are "less likely to result in successful recovery". Either way, an agent calling the old name gets told the new one.
 2. **Publish a rename table**, old → new, and tell people to grep their Claude Code settings, Cursor allowlists and saved prompts. **Call out the silent-deny-rule failure explicitly** — that sentence is worth more to a security-conscious reader than the version number.
 3. **Recommend server-scoped rules.** `mcp__yourserver__*` survives any rename. Tool-scoped rules don't. This is the advice that stops the next rename hurting.
 4. **Check your own house too.** Tool names have a habit of ending up hardcoded in your docs, your READMEs, your test suites, in the descriptions of *other* tools that reference their siblings, and — easy to miss — in your own analytics, where a rename quietly re-keys your metrics and dashboards go flat without ever erroring.

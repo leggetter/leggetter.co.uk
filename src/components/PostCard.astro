@@ -5,9 +5,10 @@ interface Props {
   date: Date;
   excerpt: string;
   thumb?: string | undefined;
+  draft?: boolean;
 }
 
-const { url, title, date, excerpt, thumb } = Astro.props;
+const { url, title, date, excerpt, thumb, draft = false } = Astro.props;
 
 const formatted = date.toLocaleDateString('en-GB', {
   day: 'numeric',
@@ -21,6 +22,7 @@ const formatted = date.toLocaleDateString('en-GB', {
     <h2><a href={url}>{title}</a></h2>
     <p class="post-card__meta">
       <time datetime={date.toISOString().slice(0, 10)}>{formatted}</time>
+      {draft && <span class="post-card__draft">Draft</span>}
     </p>
     {
       thumb && (

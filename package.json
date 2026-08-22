@@ -10,7 +10,8 @@
     "predev": "node scripts/copy-guide-images.mjs",
     "preview": "astro preview",
     "verify": "node scripts/verify-urls.mjs",
-    "generate-family-tree": "python3 leggetter-family-tree/tree-view-family-chart.py leggetter-family-tree/0001tree.gen --output-astro"
+    "generate-family-tree": "python3 leggetter-family-tree/tree-view-family-chart.py leggetter-family-tree/0001tree.gen --output-astro",
+    "voice": "node scripts/check-voice.mjs"
   },
   "repository": {
     "type": "git",

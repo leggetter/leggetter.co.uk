@@ -13,6 +13,7 @@ Cloudflare Workers.
 | `src/content/blog/` | Posts, `YYYY-MM-DD-slug.md`. Schema in `src/content.config.ts` (`title` required; `excerpt`, `permalink` conventional). `draft: true` keeps a post unlisted — see below. |
 | `drafts/` | **Gitignored.** Raw Claude Code session extracts — source material, not posts. Search tools that honour `.gitignore` will not find these files, so reference them by explicit path. Individual extracts run to hundreds of KB: navigate them with `grep`/targeted reads, or re-extract a narrower slice. Do not read one end to end. |
 | `scripts/verify-urls.mjs` | Post-build check: legacy 301s resolve, routes emitted, no cruft in `dist/`. |
+| `scripts/check-voice.mjs` | `npm run voice -- <post>`: measures a draft against the published corpus's voice. See [Voice](#voice). |
 
 Legacy WordPress-era frontmatter keys (`wordpress_id`, `status`, `author`)
 exist in older files and keep Disqus threads restorable. Do not copy them into
@@ -21,11 +22,54 @@ new posts.
 ## Voice
 
 First-person singular. Phil's own byline, not a company one. Do **not** apply
-`hookdeck-voice` or `hookdeck-social-voice` — those govern Hookdeck-branded
+`hookdeck-voice` or `hookdeck-social-voice` - those govern Hookdeck-branded
 content and are the wrong register here.
 
 Specific over generic, opinions framed as opinions, and no hype vocabulary. A
 post earns its place by showing reasoning, including where it changed.
+
+### Rules that are actually checkable
+
+These come from measuring the published corpus. `npm run voice -- <post>`
+enforces them; the numbers below are what it compares against, recomputed from
+the published posts on every run.
+
+**Never use an em-dash.** Across 184 posts and 21 years there are zero. The
+habit is a spaced hyphen (`word - word`), or a comma, or two sentences. This is
+the single loudest tell that something else wrote the post.
+
+**Don't announce a point, make it.** The worst tic in generated prose is a
+sentence that says a point is coming instead of being the point:
+
+> ~~One more thing undercuts the discovery argument, and it's recent.~~
+> The current spec revision explicitly blesses caching the tool list.
+
+Test any sentence by deleting it. If nothing is lost, it was scaffolding.
+Watch for `One more thing`, `Here's the thing`, `This is where it gets`,
+`What's interesting is`, `It's worth noting that`, and for a main clause
+followed by a short withholding clause (`..., and it's recent.`) that defers
+the fact to manufacture a beat.
+
+**Headings must stand alone.** Readers skim, deep-link and share them, so a
+heading that only resolves from the one above it is broken. `How Would You
+Signal One?` fails; `How Do You Signal a Breaking Change?` works. Existing
+headings are plain and descriptive, and often questions: "What are Components?",
+"Is the Reason for Moving on Fundamental?", "Why Build Components?".
+
+**Write to the reader, not at them.** The corpus runs about 21 uses of
+"you"/"your" and 4 questions per 1,000 words. Posts ask the reader things
+directly: *"do you really want to have to write code to deal with connection
+fallback?"*, *"Can you change teams?"* An essay that never addresses anyone
+reads like a different author.
+
+**Match the rhythm.** Median sentence is around 18-20 words and only ~7% of
+sentences run to six words or fewer. Stacked fragments for rhetorical punch
+(`Not rejected.` `Fine.` `There isn't one.`) are a register the corpus doesn't
+use. British spelling throughout (authorisation, prioritised, serialising).
+
+Warnings from `npm run voice` are drift worth a look, not automatic faults.
+Errors are things the corpus does zero of, or sentences carrying no
+information, and should be fixed before publishing.
 
 ## Writing a post from a session extract
 
@@ -64,6 +108,13 @@ Check, against the transcript and not from memory:
   Open the links. Cut what does not check out.
 - **Does the post claim more certainty than the session had?** If it was a bet,
   say it was a bet.
+
+Then run the voice check, which catches the tics prose review misses because
+they scan perfectly well:
+
+```sh
+npm run voice -- src/content/blog/<file>.md
+```
 
 **4. Shift emphasis by re-extracting, not by rewriting from memory.** The
 frontmatter records the exact `extract_command` and `filter`. To foreground a
@@ -107,7 +158,8 @@ redirect. It will not pass if the flag becomes decoration.
 3. Set `date` if the filename's date is no longer the publication date, and
    rename the file to match. The slug comes from the filename, so renaming
    changes the URL.
-4. `npm run build && npm run verify`.
+4. `npm run voice -- src/content/blog/<file>.md` and fix any errors.
+5. `npm run build && npm run verify`.
 
 ## Publishing
 
@@ -118,6 +170,19 @@ here, it drifts. The short version:
 npm run dev                      # local preview at localhost:4321
 npm run build && npm run verify  # verify checks 301s, routes, and dist/ cruft
 ```
+
+**The dev server caches content and will lie to you.** Astro's content layer
+keeps a store in `.astro/`, and running `npm run build` while `npm run dev` is
+up clobbers it, so the page keeps serving a previous revision of a post. If
+what you see doesn't match the file, it is this, every time:
+
+```sh
+npx astro dev stop && rm -rf .astro && npm run dev
+```
+
+Don't run a build while the dev server is running, and when checking an edit
+landed, check the *served* page (`curl` it) rather than the source file. The
+file proves the edit was written, not that anyone can see it.
 
 Work reaches `main` by pull request:
 

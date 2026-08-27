@@ -27,10 +27,18 @@ export async function collectPosts() {
   return posts;
 }
 
+/** Post filenames marked `draft: true` in front matter. */
+export async function collectDraftIds() {
+  const posts = await collectPosts();
+  return posts.filter(({ fm }) => fm.draft).map(({ id }) => id);
+}
+
 export async function buildRedirectMap() {
   const posts = await collectPosts();
   const redirects = new Map();
   for (const { id, fm } of posts) {
+    // A draft was never served anywhere, so it has no old URL to 301 from.
+    if (fm.draft) continue;
     const target = postPath(id);
     for (const oldUrl of oldLocalUrls({
       id,

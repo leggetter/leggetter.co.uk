@@ -1,6 +1,5 @@
 ---
 title: "Is renaming an MCP tool a breaking change?"
-draft: true
 excerpt: "Agents rediscover tools at runtime, so a renamed tool is just found under its new name and nothing breaks. That argument is more persuasive than it should be. The tool name is the only identity MCP gives a tool, and half the ecosystem quietly uses it as a primary key."
 ---
 
@@ -56,7 +55,7 @@ There's also a `serverInfo.version` string, but the spec never defines its seman
 
 **The ecosystem has tried to fill this gap and hasn't managed it.** [SEP-1575, "Tool Semantic Versioning"](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1575) proposed a per-tool `version` field plus client-side compatibility constraints, and its motivation is precisely this problem. It's labelled `dormant` and is now closed. Separately, a TypeScript SDK PR adding [`aliasTool()` for tool name fallbacks](https://github.com/modelcontextprotocol/typescript-sdk/pull/1029) was opened in October 2025 and closed the next day, never merged.
 
-That second one didn't fail on its merits. Someone hit the problem independently and built the mitigation, 435 lines and seven passing tests of it, and it drew a single review comment, one 👀 reaction and no maintainer response at all before the author closed it themselves the next morning. It wasn't rejected. There was just nothing for it to attach to.
+That second one didn't fail on its merits. Someone hit the problem independently and built the mitigation, 435 lines and seven passing tests of it, and it drew a single review comment suggesting an enhancement, one 👀 reaction, and no merge before the author closed it themselves the next morning. It wasn't rejected. There was just nothing for it to attach to.
 
 ## Where the Discovery Argument Holds Up
 
@@ -143,7 +142,7 @@ So what should you actually do?
 
 1. **Ship a transitional alias, unlisted.** Add middleware on `tools/call` that maps old names to new ones, forwards the call, and appends a deprecation notice. Keeping it out of `tools/list` matters, because that's what avoids doubling your tool count and bloating context. That was the SDK PR's design too: aliases resolved at call time, deliberately absent from `tools/list`. If you'd rather force migration than paper over it, return a *tool execution error* naming the replacement rather than a protocol `Unknown tool` error. The spec is explicit that clients "**SHOULD** provide tool execution errors to language models to enable self-correction", whereas protocol errors are "less likely to result in successful recovery". Either way, an agent calling the old name gets told the new one.
 2. **Publish a rename table**, old → new, and tell people to grep their Claude Code settings, Cursor allowlists and saved prompts. **Call out the silent-deny-rule failure explicitly.** That sentence is worth more to a security-conscious reader than the version number is.
-3. **Recommend server-scoped rules.** `mcp__yourserver__*` survives any rename, and tool-scoped rules don't. This is the advice that stops the next rename hurting.
+3. **Tell people which rules survive, and what they cost.** `mcp__yourserver__*` survives any rename where a tool-scoped rule doesn't, so it's the advice that stops the next rename hurting. It is also a blanket allow, and that is not a small thing to hand out: the broader the rule, the more rename-proof it is and the less it protects. If reads and writes have different names on your server, that granularity is worth more than the convenience, and the honest advice is the narrow rule plus an occasional re-grant. I don't think this trade-off is settled, and it's the thing I'd think hardest about before telling anyone to paste a wildcard into their settings.
 4. **Check your own house too.** Tool names have a habit of ending up hardcoded in your docs, your READMEs, your test suites, and in the descriptions of *other* tools that reference their siblings. The one that's easiest to miss is your own analytics, where a rename quietly re-keys your metrics and your dashboards go flat without ever erroring.
 
 ## Both Camps Are Right

@@ -1,5 +1,5 @@
 ---
-title: "Is renaming an MCP tool a breaking change?"
+title: "Is Renaming an MCP Tool a Breaking Change?"
 excerpt: "Agents rediscover tools at runtime, so a renamed tool is just found under its new name and nothing breaks. That argument is more persuasive than it should be. The tool name is the only identity MCP gives a tool, and half the ecosystem quietly uses it as a primary key."
 ---
 

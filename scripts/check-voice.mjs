@@ -148,6 +148,31 @@ lines.forEach((l, i) => {
   }
 });
 
+// --- WARN: sentence-case title ---------------------------------------------
+// Every post since 2014 uses Title Case; everything before it is sentence
+// case, so running this over the early archive flags real history rather than
+// false positives. Worth catching because the title is the one line that never
+// appears in the body you are proofreading.
+const MINOR = new Set([
+  'a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'is', 'isn\'t',
+  'nor', 'of', 'on', 'or', 'the', 'to', 'up', 'v', 'via', 'vs', 'with', 'be',
+]);
+const titleLine = lines.find((l) => /^title:\s/.test(l));
+if (titleLine) {
+  const title = titleLine.replace(/^title:\s*/, '').replace(/^["']|["']$/g, '').trim();
+  const words = title.split(/\s+/).filter(Boolean);
+  // Skip the first word, which is capitalised either way, and anything that
+  // isn't a plain alphabetic word: acronyms, code, numbers and bracketed asides.
+  const significant = words
+    .slice(1)
+    .filter((w) => /^[A-Za-z][a-z'-]*[?!:,]?$/.test(w))
+    .map((w) => w.replace(/[?!:,]$/, ''));
+  const lower = significant.filter((w) => !MINOR.has(w.toLowerCase()) && w[0] === w[0].toLowerCase());
+  if (lower.length >= 2) {
+    warns.push(`title looks like sentence case, posts since 2014 use Title Case: "${title}" (lowercase: ${lower.join(', ')})`);
+  }
+}
+
 // --- WARN: rhythm and reader address ---------------------------------------
 const drift = (label, got, want, tol, unit = '') => {
   if (Math.abs(got - want) > tol) {

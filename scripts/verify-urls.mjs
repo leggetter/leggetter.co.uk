@@ -59,8 +59,8 @@ for (const line of fileLines) {
 const posts = await collectPosts();
 const drafts = posts.filter(({ fm }) => fm.draft);
 const published = posts.filter(({ fm }) => !fm.draft);
-if (published.length !== 184) {
-  fail(`expected 184 published posts, found ${published.length}`);
+if (published.length !== 185) {
+  fail(`expected 185 published posts, found ${published.length}`);
 }
 const slugs = new Set();
 let externalCount = 0;

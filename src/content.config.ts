@@ -11,6 +11,11 @@ const blog = defineCollection({
   }),
   schema: z.object({
     title: z.string(),
+    // Unlisted, not unbuilt: a draft still renders at /blog/{slug}/ so it can
+    // be reviewed on the Cloudflare preview URL, but it is kept out of every
+    // listing, the RSS feed, the sitemap and the redirect map, and the page
+    // itself is noindex. Flip to false (or delete the key) to publish.
+    draft: z.boolean().optional().default(false),
     date: z.union([z.string(), z.date()]).optional(),
     excerpt: z.string().optional(),
     permalink: z.string().optional(),

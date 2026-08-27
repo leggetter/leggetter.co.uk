@@ -13,7 +13,7 @@ interface Props {
 }
 
 const { post } = Astro.props;
-const { entry, date, excerpt, originalUrl, originalHost } = post;
+const { entry, date, excerpt, originalUrl, originalHost, draft } = post;
 const { Content } = await render(entry);
 
 const formatted = date.toLocaleDateString('en-GB', {
@@ -28,9 +28,19 @@ const tags = entry.data.tags ?? [];
   title={entry.data.title}
   description={excerpt}
   image={entry.data.image_url ?? entry.data.thumb}
+  noindex={draft}
   article
 >
   <article>
+    {
+      draft && (
+        <p class="post-draft-notice">
+          <strong>Draft.</strong> Unlisted on the published site: it stays out of the blog
+          index, the RSS feed and the sitemap, and search engines are asked not to index
+          it. It is listed locally in <code>npm run dev</code> so you can see it in context.
+        </p>
+      )
+    }
     <header class="post-header">
       <h1>{entry.data.title}</h1>
       <p class="post-header__meta">

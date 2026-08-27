@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import SocialIcons from '../components/SocialIcons.astro';
-import { getSortedPosts } from '../lib/posts';
+import { getListedPosts } from '../lib/posts';
 import { SITE_DESCRIPTION } from '../lib/site.mjs';
 
 const FEATURED_SLUGS = [
@@ -13,7 +13,7 @@ const FEATURED_SLUGS = [
   'state-componentised-web',
 ];
 
-const posts = await getSortedPosts();
+const posts = await getListedPosts();
 const featured = FEATURED_SLUGS.map((slug) => {
   const post = posts.find((p) => p.slug === slug);
   if (!post) throw new Error(`Featured post not found: ${slug}`);

@@ -13,9 +13,9 @@ The version number itself turned out to be moot: we need a major bump for other 
 
 - **There is no standard.** The MCP specification has nothing to say about renaming, deprecating or versioning a tool name. This isn't a convention I disagree with, it simply isn't there.
 - **The discovery argument is right about the model and wrong about everything else.** The LLM will happily find your tool under its new name, but every *human* and every *config file* that wrote the old name down will not.
-- **The tool name is the authorisation join key** across eight surfaces in five independent clients, and there's no mechanism anywhere for expressing "this tool used to be called X".
-- **The failure is silent, which is the real problem.** In Claude Code specifically, a stale `deny` rule referencing a renamed MCP tool fails open and produces no warning at all.
-- **So yes, renaming is a breaking change, but there's no in-band way to say so.** Every lever MCP gives you is out-of-band, and the channels that *are* in-band speak to the model rather than to the config that broke. Ship a migration note, not just a version number.
+- **Permission rules are keyed to the tool name** across eight surfaces in five independent clients, and there's no mechanism anywhere for expressing "this tool used to be called X".
+- **The failure is silent, which is the real problem.** In Claude Code specifically, a stale `deny` rule naming a renamed MCP tool simply stops matching. The guardrail comes off, nothing is blocked, and nobody is told.
+- **So yes, renaming is a breaking change, and the protocol gives you no way to announce it.** MCP can tell the *model* that a tool has moved, through a description or an error message. It has no channel at all to the permission rules and config files that actually broke, so everything that reaches those sits outside the protocol. Ship a migration note, not just a version number.
 
 ## The Case for Renaming Freely
 
@@ -53,7 +53,7 @@ Version-in-the-name is the entire affordance you get.
 
 There's also a `serverInfo.version` string, but the spec never defines its semantics or requires semver, and no MCP client pins a server by version anyway. The [versioning page](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning) covers the *protocol*, negotiated per-request, and places zero obligations on server authors.
 
-**The ecosystem has tried to fill this gap and hasn't managed it.** [SEP-1575, "Tool Semantic Versioning"](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1575) proposed a per-tool `version` field plus client-side compatibility constraints, and its motivation is precisely this problem. It's labelled `dormant` and is now closed. Separately, a TypeScript SDK PR adding [`aliasTool()` for tool name fallbacks](https://github.com/modelcontextprotocol/typescript-sdk/pull/1029) was opened in October 2025 and closed the next day, never merged.
+**The ecosystem has tried to fill this gap and hasn't managed it.** [SEP-1575, "Tool Semantic Versioning"](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1575), one of the protocol's own enhancement proposals, put forward a per-tool `version` field plus client-side compatibility constraints, and its motivation is precisely this problem. It's labelled `dormant` and is now closed. Separately, a TypeScript SDK PR adding [`aliasTool()` for tool name fallbacks](https://github.com/modelcontextprotocol/typescript-sdk/pull/1029) was opened in October 2025 and closed the next day, never merged.
 
 That second one didn't fail on its merits. Someone hit the problem independently and built the mitigation, 435 lines and seven passing tests of it, and it drew a single review comment suggesting an enhancement, one 👀 reaction, and no merge before the author closed it themselves the next morning. It wasn't rejected. There was just nothing for it to attach to.
 
@@ -134,7 +134,7 @@ I went looking for the mechanism and there isn't one. Every lever MCP gives you 
 
 A remote MCP server can run v1 and v2 side by side on different URLs and migrate people gradually, which is more or less the REST playbook. A CLI-distributed server has no endpoint to version, so an upgrade hands over the new tool surface with no seam at all. That's the situation I'm in with the Hookdeck CLI.
 
-MCP *does* give you in-band channels. You can put a deprecation notice in a tool's description, and you can return a tool execution error naming the replacement. Both of those speak **to the model**. The thing that actually broke, your permission rules and your config, has no channel at all. The protocol will happily let you announce the change to precisely the layer that was never in trouble.
+MCP *does* give you channels inside the protocol. You can put a deprecation notice in a tool's description, and you can return a tool execution error naming the replacement. Both of those speak **to the model**. The thing that actually broke, your permission rules and your config, has no channel at all. The protocol will happily let you announce the change to precisely the layer that was never in trouble.
 
 ## What To Do When You Rename a Tool
 

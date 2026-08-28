@@ -12,7 +12,7 @@ The version number itself turned out to be moot: we need a major bump for other 
 ## TL;DR
 
 - **There is no standard.** The MCP specification has nothing to say about renaming, deprecating or versioning a tool name. This isn't a convention I disagree with, it simply isn't there.
-- **The discovery argument is right about the model and wrong about everything else.** The LLM will happily find your tool under its new name, but every *human* and every *config file* that wrote the old name down will not.
+- **Agents rediscover tools every session, and that fixes less than it sounds like.** The model will find your tool under its new name without being told. Every *human* and every *config file* that wrote the old name down will not.
 - **Permission rules are keyed to the tool name** across eight surfaces in five independent clients, and there's no mechanism anywhere for expressing "this tool used to be called X".
 - **The failure is silent, which is the real problem.** In Claude Code specifically, a stale `deny` rule naming a renamed MCP tool simply stops matching. The guardrail comes off, nothing is blocked, and nobody is told.
 - **So yes, renaming is a breaking change, and the protocol gives you no way to announce it.** MCP can tell the *model* that a tool has moved, through a description or an error message. It has no channel at all to the permission rules and config files that actually broke, so everything that reaches those sits outside the protocol. Ship a migration note, not just a version number.

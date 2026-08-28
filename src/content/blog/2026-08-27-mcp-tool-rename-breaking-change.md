@@ -5,7 +5,7 @@ excerpt: "Agents rediscover tools at runtime, so a renamed tool is just found un
 
 In July I was at the WeAreDevelopers World Congress in Berlin, where I watched [Adam Bird](https://www.linkedin.com/in/adambird/), CEO and co-founder of [Cronofy](https://www.cronofy.com/about), give a talk called ["Building APIs for Agents vs Systems. Is MCP the answer?"](https://www.youtube.com/watch?v=GdTJWkbLpGI).
 
-This week I've been reshaping the MCP server in the [Hookdeck CLI](https://github.com/hookdeck/hookdeck-cli), and part of that work renames a batch of tools to give them a proper namespace prefix and changes some parameters. From an API perspective that's straightforwardly breaking: rename the thing, change its arguments, bump the major. Except Bird's talk was still sitting with me, and it left me in two minds. If the client re-derives the tool surface every session, whose contract am I actually protecting? Maybe I'd just imported twenty years of REST habits into a context where they don't apply.
+Last week I was reshaping the MCP server in the [Hookdeck CLI](https://github.com/hookdeck/hookdeck-cli), and part of that work renames a batch of tools to give them a proper namespace prefix and changes some parameters. From an API perspective that's straightforwardly breaking: rename the thing, change its arguments, bump the major. Except Bird's talk was still sitting with me, and it left me in two minds. If the client re-derives the tool surface every session, whose contract am I actually protecting? Maybe I'd just imported twenty years of REST habits into a context where they don't apply.
 
 The version number itself turned out to be moot: we need a major bump for other breaking changes anyway. But being in two minds about *why* is a bad place to leave it, so I went looking for the standard. What do the spec and the client docs actually say about renaming, deprecating and versioning a tool? Here's what I found.
 
@@ -154,3 +154,9 @@ They're right about different layers, and I think this is the line that resolves
 Bird is right that freezing MCP surfaces the way we froze REST would forfeit the best thing about the protocol. The versioning camp is right that names have leaked into permission systems, manifests and prompts faster than anyone planned for, and that the failure mode is uniquely nasty. When a REST integration breaks it throws. When an agent's tool vanishes from under it, it doesn't crash. It improvises around the gap, and you may never see that it happened.
 
 So rename freely. Just don't pretend the name was only ever for the model.
+
+## How This Post Was Written
+
+I didn't write the prose. Claude did, working from transcripts of the sessions where the work happened. I chose the subject, made the decisions it describes, and edited.
+
+Every source is linked, so check anything that matters to you. Errors are mine.

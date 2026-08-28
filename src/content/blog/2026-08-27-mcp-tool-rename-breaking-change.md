@@ -157,8 +157,6 @@ So rename freely. Just don't pretend the name was only ever for the model.
 
 ## How This Post Was Written
 
-I didn't write the prose. I decided what to build, made the calls described here, and directed and edited the drafting. Claude wrote the sentences, working from the transcripts of the sessions where the work actually happened.
+I didn't write the prose. Claude did, working from transcripts of the sessions where the work happened. I chose the subject, made the decisions it describes, and edited.
 
-Judge the citations rather than the style. Every external claim in this post, whether spec text, a changelog, a pull request or a quote, was opened and checked against its source, and several didn't survive that check. Where something is a bet rather than a measurement, the post says so.
-
-Errors are mine.
+Every source is linked, so check anything that matters to you. Errors are mine.

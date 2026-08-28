@@ -4,7 +4,7 @@ draft: true
 excerpt: "We put reads and writes on the same tool under an action parameter, because it grouped things logically and the research backed it. Then a beta user pointed out that permissions are granted per tool name, so 'read freely, ask before changing' is a sentence our design gives them no way to say. A tool name is the unit of human consent, not the unit of enforcement."
 ---
 
-Last week I wrote about [whether renaming an MCP tool is a breaking change](/blog/mcp-tool-rename-breaking-change/). That question came out of reshaping the MCP server in the [Hookdeck CLI](https://github.com/hookdeck/hookdeck-cli) for a 3.0 release. This one comes out of the same work, and it's the decision I was more confident about.
+Last week I wrote about [whether renaming an MCP tool is a breaking change](/blog/mcp-tool-rename-breaking-change/). That question came out of reshaping the MCP server in the [Hookdeck CLI](https://github.com/hookdeck/hookdeck-cli) for a 3.0 release. This one comes out of the same work. It's the decision I was more confident about, and probably the one I got wrong.
 
 We expose one tool per resource with an `action` parameter, rather than one tool per operation. So `gateway_connections` with `action: "list" | "get" | "create" | "delete"`, instead of `gateway_list_connections`, `gateway_get_connection` and the rest. Reads and writes live on the same tool as different values of the same enum. Writes are then gated behind an `--allow-write` flag, and a read-only server rebuilds each tool's enum with the write actions removed.
 

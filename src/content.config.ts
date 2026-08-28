@@ -16,6 +16,9 @@ const blog = defineCollection({
     // listing, the RSS feed, the sitemap and the redirect map, and the page
     // itself is noindex. Flip to false (or delete the key) to publish.
     draft: z.boolean().optional().default(false),
+    // Renders the standing AI provenance note (src/components/AiProvenance.astro)
+    // at the foot of the post. Set on anything whose prose Claude wrote.
+    aiAssisted: z.boolean().optional().default(false),
     date: z.union([z.string(), z.date()]).optional(),
     excerpt: z.string().optional(),
     permalink: z.string().optional(),

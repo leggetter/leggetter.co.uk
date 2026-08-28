@@ -54,6 +54,16 @@ about code and stays.
 approach ("I want to be fair to the earlier reasoning", "this section covers").
 Just do the thing.
 
+**Read the TL;DR as though the body does not exist.** It is written last, in
+the vocabulary the body earned, and then never read cold, so it inherits terms
+and referents the reader has not met yet. Check every bullet for a bare "it",
+"this" or "the shape", for jargon the post defines later, and for a noun phrase
+that only resolves from a section further down. The same applies to the first
+sentence under any heading: bullets, headings and code blocks break the
+continuity that makes a pronoun work in flowing prose, so an opener that points
+backwards sends the reader hunting. `npm run voice` checks that headings stand
+alone; nothing checks that openings do.
+
 **State the thesis once, then call back.** Excerpt, TL;DR and first statement in
 the body are structural and do not count. A fourth full restatement in the
 argument means you are circling.

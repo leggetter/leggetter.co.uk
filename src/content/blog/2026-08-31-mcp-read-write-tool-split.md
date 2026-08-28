@@ -13,16 +13,16 @@ I'd researched that shape rather than guessing at it, and [wrote the conclusion 
 ## TL;DR
 
 - **Permissions are granted per tool name.** Every client that lets you approve tools individually keys that approval to the tool's name, so a tool spanning `list` and `delete` can only be allowed or gated as a unit.
-- **A server-side read-only flag doesn't solve it**, because it's a start-time, process-wide, binary choice. "Read freely, ask before changing" is a thing a user wants *within* one session, and no flag can express it.
+- **Our read-only mode doesn't fix that.** The server takes an `--allow-write` flag, but you choose it once when the server starts and it applies to every tool for the whole session. "Let the agent read freely, ask me before it changes anything" is what people want inside a single session, and no start-up flag can say it.
 - **Almost every production MCP server separates reads from writes at the name level.** Most do it without thinking about it, because one-tool-per-operation with verb-first names gets you the split for free.
 - **Anthropic and OpenAI give directly opposing advice**, and the MCP specification says nothing at all. Anthropic's guidance optimises for how the model navigates your tools and is silent on how a human authorises them.
-- **Annotations don't rescue this.** `readOnlyHint` is a per-tool boolean with no argument-conditional form, and the request to make Claude Code permission on it was closed as not planned.
-- **The shape was chosen before there was a boundary to protect.** Our first MCP release was almost entirely reads, so a pattern that economises on tool names cost nothing. Writes arrived later and inherited it.
-- **A tool name is the unit of human consent, not the unit of enforcement.** Enforce wherever you like, but consent binds to a name, because a name is all a client's approval prompt has to hold on to. Anything finer is invisible to it.
+- **The protocol's own safety labels can't express it either.** MCP lets a tool declare itself read-only or destructive, but those are single true/false flags covering the whole tool, with no way to vary them by action. Claude Code was asked to grant permissions from them and declined.
+- **We chose the tool shape before there was a read/write line to put inside it.** Our first MCP release was almost all reads, so grouping several of them under one tool name cost nothing. The write actions arrived a year later and inherited a design that predated them.
+- **A tool name is the unit of consent, not the unit of enforcement.** Enforcement can live anywhere you can defend it: a flag, a scope, a check on the server. Consent cannot, because the tool name is the only thing a client's "allow this?" prompt can attach to. Put your read/write line below a tool name and the person being asked to approve never sees it.
 
 ## What the Feedback Actually Said
 
-The message was about the write mode we'd just shipped in beta. They'd left it switched off, and they were clear it was a design issue rather than a bug.
+The beta user had left write mode switched off, and was clear that this was a design problem rather than a bug.
 
 The write actions aren't separate tools, they're extra values on the existing tools' `action` parameter. Permissions are granted per tool name. So there's no way to say "read connections freely, ask before changing one". It's either allow `gateway_connections` and accept that an agent can delete a live connection without prompting, or gate the tool and get a prompt on every read. In front of a customer's production event stream, neither of those is acceptable, so the writes went through the CLI instead, where each command can be allowlisted on its own.
 

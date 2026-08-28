@@ -1,5 +1,6 @@
 ---
 import { render } from 'astro:content';
+import AiProvenance from '../../components/AiProvenance.astro';
 import Base from '../../layouts/Base.astro';
 import { getSortedPosts, type BlogPost } from '../../lib/posts';
 
@@ -55,6 +56,7 @@ const tags = entry.data.tags ?? [];
       }
     </header>
     <Content />
+    {entry.data.aiAssisted && <AiProvenance />}
     {
       tags.length > 0 && (
         <div class="post-tags">

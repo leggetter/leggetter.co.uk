@@ -13,6 +13,7 @@ Cloudflare Workers.
 | `src/content/blog/` | Posts, `YYYY-MM-DD-slug.md`. Schema in `src/content.config.ts` (`title` required; `excerpt`, `permalink` conventional). `draft: true` keeps a post unlisted — see below. |
 | `drafts/` | **Gitignored.** Raw Claude Code session extracts — source material, not posts. Search tools that honour `.gitignore` will not find these files, so reference them by explicit path. Individual extracts run to hundreds of KB: navigate them with `grep`/targeted reads, or re-extract a narrower slice. Do not read one end to end. |
 | `scripts/verify-urls.mjs` | Post-build check: legacy 301s resolve, routes emitted, no cruft in `dist/`. |
+| `src/components/AiProvenance.astro` | The standing "How This Post Was Written" note. Rendered by `aiAssisted: true` in a post's front matter. See [AI provenance](#ai-provenance). |
 | `scripts/check-voice.mjs` | `npm run voice -- <post>`: measures a draft against the published corpus's voice. See [Voice](#voice). |
 
 Legacy WordPress-era frontmatter keys (`wordpress_id`, `status`, `author`)
@@ -122,10 +123,10 @@ different thread, widen or change `--grep` and re-read. Dropping the filter
 entirely gives the whole session. `./session-mine.py agents <session_id>` maps
 the subagent research, which is usually where unused material is hiding.
 
-**5. Write to `src/content/blog/YYYY-MM-DD-slug.md` with `draft: true`.**
-See [Drafts](#drafts) — it stays unlisted but gets a preview URL. Leave the
-extract in `drafts/` as provenance. Never move an extract into
-`src/content/blog/`.
+**5. Write to `src/content/blog/YYYY-MM-DD-slug.md` with `draft: true` and
+`aiAssisted: true`.** See [Drafts](#drafts) — it stays unlisted but gets a
+preview URL — and [AI provenance](#ai-provenance). Leave the extract in
+`drafts/` as provenance. Never move an extract into `src/content/blog/`.
 
 Note the two senses of "draft": the `drafts/` **directory** holds session
 extracts, which are source material and never become posts in place; the
@@ -160,6 +161,22 @@ redirect. It will not pass if the flag becomes decoration.
    changes the URL.
 4. `npm run voice -- src/content/blog/<file>.md` and fix any errors.
 5. `npm run build && npm run verify`.
+
+## AI provenance
+
+Any post whose prose Claude wrote carries `aiAssisted: true` in its front
+matter. That renders `src/components/AiProvenance.astro` at the foot of the
+post: one fixed paragraph saying who wrote the prose and who made the
+decisions, plus the note that every source is linked.
+
+The wording lives in the component, not in the posts, so it is identical
+everywhere and changes in one place. Do not copy it into a post body, and do
+not edit it per post.
+
+**It is a provenance note, not a changelog.** It says how the post was made.
+It does not record what changed when a post is revised. If a published post
+turns out to be wrong, correct the claim in place and say so in the prose
+where the reader meets it, which is what the surrounding text is for.
 
 ## Publishing
 

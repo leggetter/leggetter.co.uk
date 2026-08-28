@@ -1,5 +1,6 @@
 ---
 title: "Is Renaming an MCP Tool a Breaking Change?"
+aiAssisted: true
 excerpt: "Agents rediscover tools at runtime, so a renamed tool is just found under its new name and nothing breaks. That argument is more persuasive than it should be. The tool name is the only identity MCP gives a tool, and half the ecosystem quietly uses it as a primary key."
 ---
 
@@ -13,7 +14,7 @@ The version number itself turned out to be moot: we need a major bump for other 
 
 - **There is no standard.** The MCP specification has nothing to say about renaming, deprecating or versioning a tool name. This isn't a convention I disagree with, it simply isn't there.
 - **Agents rediscover tools every session, and that fixes less than it sounds like.** The model will find your tool under its new name without being told. Every *human* and every *config file* that wrote the old name down will not.
-- **Permission rules are keyed to the tool name** across eight surfaces in five independent clients, and there's no mechanism anywhere for expressing "this tool used to be called X".
+- **Permission rules are keyed to the tool name** across nine surfaces in five independent clients, and there's no mechanism anywhere for expressing "this tool used to be called X".
 - **The failure is silent, which is the real problem.** In Claude Code specifically, a stale `deny` rule naming a renamed MCP tool simply stops matching. The guardrail comes off, nothing is blocked, and nobody is told.
 - **So yes, renaming is a breaking change, and the protocol gives you no way to announce it.** MCP can tell the *model* that a tool has moved, through a description or an error message. It has no channel at all to the permission rules and config files that actually broke, so everything that reaches those sits outside the protocol. Ship a migration note, not just a version number.
 
@@ -51,7 +52,7 @@ The closest the spec comes to acknowledging versioning at all is, wonderfully, o
 
 Version-in-the-name is the entire affordance you get.
 
-There's also a `serverInfo.version` string, but the spec never defines its semantics or requires semver, and no MCP client pins a server by version anyway. The [versioning page](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning) covers the *protocol*, negotiated per-request, and places zero obligations on server authors.
+There's also a `serverInfo.version` string, but the spec never defines its semantics or requires semver, and nothing in the protocol lets a client ask for a particular version of a server, or notice that it got a different one. The [versioning page](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning) covers the *protocol*, negotiated per-request, and places zero obligations on server authors.
 
 **The ecosystem has tried to fill this gap and hasn't managed it.** [SEP-1575, "Tool Semantic Versioning"](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1575), one of the protocol's own enhancement proposals, put forward a per-tool `version` field plus client-side compatibility constraints, and its motivation is precisely this problem. It's labelled `dormant` and is now closed. Separately, a TypeScript SDK PR adding [`aliasTool()` for tool name fallbacks](https://github.com/modelcontextprotocol/typescript-sdk/pull/1029) was opened in October 2025 and closed the next day, never merged.
 
@@ -63,7 +64,7 @@ Credit where it's due, because this part is real and it covers most of the surfa
 
 - **Model-side discovery just works.** The LLM re-reads tool descriptions each session, so a renamed tool is exactly as findable as it was before. You don't need to do anything.
 - **Server-scoped permission rules survive.** A rule like `mcp__hookdeck__*` doesn't care what the tools underneath are called.
-- **Enterprise MCP controls in Claude Code are server-scoped**, matching on server name or command rather than on tool names, so a rename can't break an org allowlist.
+- **Enterprise server allowlists in Claude Code survive.** [`allowedMcpServers` and `deniedMcpServers`](https://code.claude.com/docs/en/managed-mcp#policy-based-control-with-allowlists-and-denylists) match a server by URL, by the exact command that starts it, or by name, never by tool name, so no rename can affect them. There's a second, per-tool enterprise control that doesn't survive, and I come back to that below.
 
 If those were the only surfaces, Bird would be straightforwardly right.
 
@@ -77,14 +78,15 @@ Once you go looking, it's everywhere:
 |---|---|
 | MCP dispatch itself | `tools/call` `params.name`; unknown name → `-32602` |
 | Claude Code allow/deny/ask rules | the literal `mcp__server__tool` string |
-| Claude Code "don't ask again" | saved as a name-keyed rule in `.claude/settings.local.json` |
+| Claude Code "don't ask again" | any approval you keep becomes an `mcp__server__tool` rule, the only syntax there is |
+| claude.ai org connector controls | per-tool `ask` and `blocked`, set by an admin |
 | Claude Code hook matchers | matched against the tool name |
 | Claude Desktop per-tool toggles | a local JSON file keyed by connector and tool name |
 | Cursor `mcpAllowlist` | `server:tool` entries |
 | VS Code Copilot | per-tool approvals as a name→bool map |
 | OpenAI Responses API MCP | `allowed_tools`, `require_approval.never.tool_names` |
 
-That's eight surfaces across five independent clients where the tool name is the authorisation join key, against zero mechanisms anywhere for saying "this tool used to be called something else".
+That's nine surfaces across five independent clients where the tool name is the authorisation join key, against zero mechanisms anywhere for saying "this tool used to be called something else".
 
 Rename a tool and you don't break the agent's ability to call it. You break the user's *decision* about whether it's allowed to.
 
@@ -102,7 +104,11 @@ Now think about the direction of failure. A stale *allow* rule fails closed: you
 
 That's not an ergonomics problem, it's a security one, and it's sufficient on its own to call a rename breaking.
 
-There's a related trap in the same family that's worth knowing about regardless of renames. Claude Code hook matchers are regex, but a matcher made only of literal characters is compared as an exact string, so a matcher written the obvious way, `mcp__hookdeck`, matches *nothing*. It has to be `mcp__hookdeck__.*`. If you've written an MCP hook the intuitive way, it may already be dead, so it's worth going and checking now.
+One thing softens it, and it's under-known: deny rules are more expressive than allow rules, which is the right way round for a safety mechanism. Deny and ask rules take a glob in the tool-name position, so a bare `mcp__*` denies every MCP tool across every server. Allow rules don't work that way. They take a glob only after a literal `mcp__<server>__` prefix, and an unanchored allow such as `mcp__*` is skipped with a warning and auto-approves nothing. So **the rename-proof deny already exists**: `mcp__yourserver__*` in the deny list goes on denying whatever you rename underneath it, and a deny that's broader than it strictly needs to be costs the user nothing but convenience. The same is emphatically not true on the allow side, which is the whole of the trade-off further down.
+
+One thing makes it worse, at the layer with the least visibility. Organisations can set [per-tool controls on claude.ai connectors](https://code.claude.com/docs/en/mcp#organization-controls-on-connector-tools), `ask` or `blocked`, and Claude Code enforces them locally. A tool set to `blocked` is filtered out before the model ever sees it. That's a deny, set by someone who isn't the user, keyed to a tool name they don't control, on a server they didn't write, and nothing in MCP tells it that the tool has been renamed. It only reaches remote connectors, so a CLI-distributed server like ours is out of scope. If you ship a remote MCP server, an admin's `blocked` rule is the most consequential thing a rename can quietly detach.
+
+There's a related trap in the same family that's worth knowing about regardless of renames. Claude Code hook matchers are regex, but a matcher made only of literal characters is compared as an exact string, so a matcher written the obvious way, `mcp__hookdeck`, matches *nothing*. It has to be `mcp__hookdeck__.*`. The same string means the opposite thing one file over: written as a *permission* rule, `mcp__hookdeck` matches every tool the server provides. If you've written an MCP hook the intuitive way, it may already be dead, so it's worth going and checking now.
 
 ## Can You Rely on Rediscovery?
 
@@ -118,7 +124,7 @@ And `notifications/tools/list_changed` doesn't rescue this either. In the curren
 
 > The tool name is the only identity the MCP spec gives a tool, and multiple real clients key authorisation state to that identity. Changing it silently invalidates security rules with no warning.
 
-**Be honest about what a major version bump buys you, though, because mechanically it's very little.** MCP has no server-version negotiation. Nobody pins an MCP server by version. Your users run `@latest` or `brew upgrade` and get whatever's current. The version number is a flag that says *read the migration note*, and it protects nobody by itself. Keep the bump for the sake of an honest semver contract, but don't oversell it.
+**Be honest about what a major version bump buys you, though, because mechanically it's very little.** MCP has no version negotiation for servers: nothing in the protocol asks for a version, carries one, or notices when it changes. Pinning is possible, but every form of it sits outside MCP. A remote server can be pinned by URL, a local one by package spec, and the protocol neither surfaces that nor acts on it. Most users don't pin at all. They run `@latest` or `brew upgrade` and get whatever's current. The version number is a flag that says *read the migration note*, and it protects nobody by itself. Keep the bump for the sake of an honest semver contract, but don't oversell it.
 
 ## How Do You Signal a Breaking Change?
 
@@ -126,7 +132,7 @@ I went looking for the mechanism and there isn't one. Every lever MCP gives you 
 
 | Lever | Who it reaches | Does it work? |
 |---|---|---|
-| `serverInfo.version` bump | nobody | Inert. There's no negotiation, and no client pins a server by version. |
+| `serverInfo.version` bump | nobody | Inert. There's no negotiation, and nothing in the protocol reads it. |
 | Version in the tool name (`DATA_EXPORT_v2`) | the model | The spec's only real affordance, but it versions the *tool* rather than the server, and it doubles your tool count. |
 | A new server URL | the human, if they notice | The closest thing to REST's `/v2/`, and only available if your server is remote. |
 | A new server name | everyone, painfully | Also breaks `mcp__yourserver__*`, so it takes out the one rule that survives renames. |
@@ -142,7 +148,7 @@ So what should you actually do?
 
 1. **Ship a transitional alias, unlisted.** Add middleware on `tools/call` that maps old names to new ones, forwards the call, and appends a deprecation notice. Keeping it out of `tools/list` matters, because that's what avoids doubling your tool count and bloating context. That was the SDK PR's design too: aliases resolved at call time, deliberately absent from `tools/list`. If you'd rather force migration than paper over it, return a *tool execution error* naming the replacement rather than a protocol `Unknown tool` error. The spec is explicit that clients "**SHOULD** provide tool execution errors to language models to enable self-correction", whereas protocol errors are "less likely to result in successful recovery". Either way, an agent calling the old name gets told the new one.
 2. **Publish a rename table**, old → new, and tell people to grep their Claude Code settings, Cursor allowlists and saved prompts. **Call out the silent-deny-rule failure explicitly.** That sentence is worth more to a security-conscious reader than the version number is.
-3. **Tell people which rules survive, and what they cost.** `mcp__yourserver__*` survives any rename where a tool-scoped rule doesn't, so it's the advice that stops the next rename hurting. It is also a blanket allow, and that is not a small thing to hand out: the broader the rule, the more rename-proof it is and the less it protects. If reads and writes have different names on your server, that granularity is worth more than the convenience, and the honest advice is the narrow rule plus an occasional re-grant. I don't think this trade-off is settled, and it's the thing I'd think hardest about before telling anyone to paste a wildcard into their settings.
+3. **Tell people which rules survive, and what they cost.** `mcp__yourserver__*` survives any rename where a tool-scoped rule doesn't, so it's the advice that stops the next rename hurting. It is also a blanket allow, and that is not a small thing to hand out: the broader the rule, the more rename-proof it is and the less it protects. There is a middle option I didn't know about when I first wrote this, and it's better than either end of that trade-off. It asks something of the server author rather than the user, which is what the last section of this post is about.
 4. **Check your own house too.** Tool names have a habit of ending up hardcoded in your docs, your READMEs, your test suites, and in the descriptions of *other* tools that reference their siblings. The one that's easiest to miss is your own analytics, where a rename quietly re-keys your metrics and your dashboards go flat without ever erroring.
 
 ## Both Camps Are Right
@@ -155,8 +161,24 @@ Bird is right that freezing MCP surfaces the way we froze REST would forfeit the
 
 So rename freely. Just don't pretend the name was only ever for the model.
 
-## How This Post Was Written
+## Name Tools So the Prefix Does the Work
 
-I didn't write the prose. Claude did, working from transcripts of the sessions where the work happened. I chose the subject, made the decisions it describes, and edited.
+I wrote point 3 above as a straight choice: a server-wide wildcard that survives renames, or individually named tools that don't. Those aren't the only two options, and what I missed was documented on the same page I'd been quoting from all along.
 
-Every source is linked, so check anything that matters to you. Errors are mine.
+[Claude Code allow rules](https://code.claude.com/docs/en/permissions#tool-name-wildcards) take a glob in the tool-name position, so long as the server segment is literal:
+
+> Allow rules accept tool-name globs only after a literal `mcp__<server>__` prefix. The server segment must be glob-free so the rule names a specific server you configured. `mcp__puppeteer__*` matches every tool from the `puppeteer` server, and `mcp__github__get_*` matches its `get_` tools.
+
+`mcp__github__get_*` is neither a blanket allow nor a list of individual tool names. It grants one server's read tools and nothing else, it survives any rename that keeps the `get_` prefix, and it's an ordinary line in a settings file that anyone can write today. The client-side mechanism I said was missing is already shipped.
+
+What's missing is on my side of the wire. A glob can only find a boundary the names already have. If a server's read tools are `get_connection`, `get_event` and `get_request`, one rule covers exactly those. If they're `list_connections`, `retrieve_event` and `search_requests`, no glob catches that set and the user is back to the wildcard or the list. Same permission system, same client, different naming decision taken by the server author months earlier.
+
+So the thing I'd now do first: **put whatever a user might want to draw a permission boundary around at the front of the tool name, immediately after the server prefix.** Usually that's the read/write split. Get it there and the rename-proof rule and the least-privilege rule stop being two different rules.
+
+None of that argues against renaming freely. It's a constraint on where in the name the verb sits, not on how often the name changes, and Bird's per-customer surfaces are untouched by it: a `schedule_interview` with per-customer parameter names still sits behind the same prefix as everything else that writes.
+
+How far this generalises is a fair question, so I checked the other three clients in the table above. [Cursor does the same thing](https://cursor.com/docs/reference/permissions) and goes further. Its allowlist entries are `server:tool` strings, "Glob-style `*` patterns also work inside names (e.g. `my-server:list_*` matches `list_issues`, `list_users`, etc.)", and a `*:my_tool` entry matches that tool name across every server at once. [VS Code](https://code.visualstudio.com/docs/agents/run/approvals) doesn't: you approve an individual tool, or every tool from a server, or everything globally, with no pattern in between. Nor does the [OpenAI Responses API](https://developers.openai.com/api/docs/guides/tools-connectors-mcp), where `allowed_tools` and `require_approval.never.tool_names` are lists of exact names.
+
+So the convention pays off in two of the four, which is a smaller claim than I'd like but it's the true one. In the other two, granular control still means an exact list of names, and every rename means editing that list by hand.
+
+It costs you something on the model side too, because tool names have to read naturally to the thing calling them. Putting `get_` first is free. Anything more elaborate starts trading legibility for a permission boundary most of your users will never write.

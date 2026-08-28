@@ -14,6 +14,7 @@ Cloudflare Workers.
 | `drafts/` | **Gitignored.** Raw Claude Code session extracts — source material, not posts. Search tools that honour `.gitignore` will not find these files, so reference them by explicit path. Individual extracts run to hundreds of KB: navigate them with `grep`/targeted reads, or re-extract a narrower slice. Do not read one end to end. |
 | `scripts/verify-urls.mjs` | Post-build check: legacy 301s resolve, routes emitted, no cruft in `dist/`. |
 | `scripts/check-voice.mjs` | `npm run voice -- <post>`: measures a draft against the published corpus's voice. See [Voice](#voice). |
+| `.claude/skills/blog-review/` | The judgment pass a script can't do: argument quality, and the tells that mark unedited AI drafting. Run it after `npm run voice`, before publishing. |
 
 Legacy WordPress-era frontmatter keys (`wordpress_id`, `status`, `author`)
 exist in older files and keep Disqus threads restorable. Do not copy them into

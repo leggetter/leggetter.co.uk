@@ -154,3 +154,11 @@ They're right about different layers, and I think this is the line that resolves
 Bird is right that freezing MCP surfaces the way we froze REST would forfeit the best thing about the protocol. The versioning camp is right that names have leaked into permission systems, manifests and prompts faster than anyone planned for, and that the failure mode is uniquely nasty. When a REST integration breaks it throws. When an agent's tool vanishes from under it, it doesn't crash. It improvises around the gap, and you may never see that it happened.
 
 So rename freely. Just don't pretend the name was only ever for the model.
+
+## How This Post Was Written
+
+I didn't write the prose. I decided what to build, made the calls described here, and directed and edited the drafting. Claude wrote the sentences, working from the transcripts of the sessions where the work actually happened.
+
+Judge the citations rather than the style. Every external claim in this post, whether spec text, a changelog, a pull request or a quote, was opened and checked against its source, and several didn't survive that check. Where something is a bet rather than a measurement, the post says so.
+
+Errors are mine.

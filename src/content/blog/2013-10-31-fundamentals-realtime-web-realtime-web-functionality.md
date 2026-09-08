@@ -163,7 +163,6 @@ else { header("HTTP/1.1 418 I'm a teapot"); }
 <li><strong>That's it! Our standard web servers handle 50,000 requests</strong></li>
 <li>During the hour our realtime infrastructure maintains 10,000 persistent connections</li>
 </ul>
-<p><img src="/wp-content/uploads/2013/10/comet-hacks.png" alt="" /></p>
 <p>Many developers have understood the benefits of the timely delivery of data, the business value, the resource savings and the reduced complexity that realtime could offer (reduced complexity is a relatively recent thing).</p>
 <p>But in order to achieve a persistent connection we had to use technology in ways it hadn't been intended to be used. Not only that, but the solutions were different depending on the web browser. <strong>We hacked the solutions</strong>.</p>
 <p>Terms you may have heard before include <strong>HTTP Streaming</strong> and <strong>HTTP Long-Polling</strong>. Traditionally these have been hacks. And, just like the UK Comet Superstore, we want those hacky solutions to go away.</p>

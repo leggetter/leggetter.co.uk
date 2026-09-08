@@ -25,7 +25,6 @@ tags:
   - angularjs
   - arcgis javascript
 permalink: /2013/03/29/how-i-won-the-esri-devsummit-100-lines-of-javascript-competition.html
-thumb: /images/thumb/realtime-global-collaboration.jpg
 ---
 
 <p><em>First I'd like to emphasise that this is a blog post on <strong>how</strong> and <strong>not why</strong>. The why comes down to the judges. So, thanks Judges! Secondly I'd like to thank <a href="https://twitter.com/robdunfey">Rob Dunfey</a> for the idea and for providing additional motivation - I'll dig deeper into this later. Finally: what am I going to cover? As the title suggests, I want to cover the <strong>how</strong>.</em></p>
@@ -42,7 +41,6 @@ thumb: /images/thumb/realtime-global-collaboration.jpg
 <li><em>Where next?</em></li>
 </ol>
 <h3>The Idea</h3>
-<p class="alignright size-full"><img src="/wp-content/uploads/2013/03/robs-brain-287x300.jpg" alt="Rob&#039;s Brain" width="287" height="300" class="size-medium wp-image-23711" /><br />Rob's Brain</p>
 <p>I've been friends with <a href="https://twitter.com/robdunfey">Rob Dunfey</a> ever since I worked at ESRI back in 2005. When I worked there my job title became "GIS Consultant" but if I'm honest I was really only ever a Web Developer (<em>that's not a bad thing</em>). Since then we've worked on a couple of projects together - Rob now works as a Geo-Information Consultant at Shell and I'm a "Developer Evangelist" at <a href="http://pusher.com">Pusher</a>. I'm following my passion for <a href="/real-time-web-technologies-guide">Realtime Web Technologies</a> and web development, and Rob is following his passion for GIS.</p>
 <p>However, we do infrequently work on projects together and, to be honest, it's sometimes quite difficult to get Rob to slow down with his ideas about using GIS to solve real problems. One of the things he also sees is the opportunity to use web technologies to solve those problems.</p>
 <p>So, two weeks ago Rob got in touch with me - <em>not to discuss his impending wedding on Monday</em> - but to tell me about the <a href="https://github.com/Esri/100-lines-or-less-js">100 Lines or Less ArcGIS JavaScript Code Challenge</a>!</p>
@@ -55,13 +53,11 @@ thumb: /images/thumb/realtime-global-collaboration.jpg
 <p>The ability to collaboratively edit a map in realtime had clearly been identified as something that people really want - and need - to do: A problem that needed to be solved.</p>
 <p><strong>Could this be done in 100 lines of JavaScript or less?</strong> Yes.</p>
 <h3>The Motivation</h3>
-<p><img src="/wp-content/uploads/2013/03/2-person-collaboration-300x286.jpg" alt="2-person-collaboration" width="300" height="286" class="alignright size-medium wp-image-23737" /></p>
 <p>To succeed at something it's important to be motivated. I'd like to think that in this case the motivation behind the <a href="http://esri.github.com/100-lines-or-less-js/realtime-collaborative-mapping/index.html">Realtime Collaborative Mapping application</a> really helped ensure that the result was successful.</p>
 <p>If you combine my knowledge of realtime web technologies with Rob's knowledge of GIS then the most obvious use case is a realtime collaborative mapping application. So, we've been discussing this idea for quite some time. This competition was the perfect platform to <span style="text-decoration: line-through;">get Rob off my back</span> <strong>prove that the idea we've been bouncing around for months could be achieved</strong>.</p>
 <p>And not only could it be achieved it <strong>could be done in 100 lines of JavaScript or less</strong>.</p>
 <p>Finally, I've been working with realtime web technologies for over 10 years now and I saw this as a great opportunity to <strong>demonstrate the power of realtime web technologies</strong>. And to demonstrate that <strong>using realtime web technologies is really easy</strong>.</p>
 <h3>A Developer's Toolbox?</h3>
-<p><a href="/wp-content/uploads/2013/03/toolbox3.jpg"><img src="/wp-content/uploads/2013/03/toolbox3-262x300.jpg" alt="Developer&#039;s Toolbox" width="262" height="300" class="alignright size-medium wp-image-23710" /></a></p>
 <p>The role of a developer has changed quite a bit since I graduated with a Software Engineering degree in 2001. Up until I joined Pusher my role was primarily a Software Engineer attempting to follow what the industry defined as "best practice"; first documentation through to development (the waterfall model), then an increased focus on testing, which continued with the introduction of agile in the form of Extreme Programming (XP), SCRUM, Kanban etc.</p>
 <p>The reason that things changed when I joined Pusher wasn't because the development team don't follow those best practices (or their own incarnation of them) - they do. It's because I <strong>started to attend hackathons</strong> where the focus is creating something functional - ideally with a <strong>wow factor</strong> - within a short space of time.</p>
 <p>The teams that tend to win such events aren't necessarily the best software engineers, but are those that have a <strong>developer toolbox</strong> that they can look through when they are trying to solve a problem.</p>
@@ -74,7 +70,6 @@ thumb: /images/thumb/realtime-global-collaboration.jpg
 </ol>
 <p>Hosted services - which offer APIs - actually combine productivity tools, application runtimes &amp; frameworks and the functionality offered by 3rd party libraries. This makes them amazingly powerful and, I'd argue, are becoming the most important tools in a developer toolbox.</p>
 <h3>My Developer Toolbox - How the Realtime Collaborative Mapping app was built</h3>
-<p><img src="/wp-content/uploads/2013/03/realtime-global-collaboration1.jpg" alt="Realtime Global Collaboration" width="1000" height="714" class="alignright size-full wp-image-23709" /></p>
 <p>For the Realtime Collaborative Mapping application I used the following tools from my developer toolbox:</p>
 <ul>
 <li>The <a href="http://help.arcgis.com/en/webapi/javascript/arcgis/">ArcGIS API for JavaScript</a> - obviously.</li>

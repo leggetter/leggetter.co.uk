@@ -269,7 +269,7 @@ for (const para of paras) {
   const m = BARE.exec(para);
   if (!m) continue;
   // a noun or number right after the verb means the sentence names its own subject
-  if (/\b(a|an|the|\d|one|two|three|four|five|six|seven|eight|nine|ten)\b/i.test(m[3])) continue;
+  if (/\b(a|an|the|\d|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|twenty)\b/i.test(m[3])) continue;
   warns.push(`paragraph opens with a bare "${m[1]}", which loses its referent across the break: "${para.slice(0, 70)}..."`);
 }
 
@@ -285,6 +285,7 @@ headBlocks.forEach((h, i) => {
   const body = bodyStart.slice(h.index + h[0].length, next);
   const prose = body.replace(/^[-*|\d].*$/gm, ' ');       // a list-only section has no prose to match
   if (prose.split(/\s+/).filter(Boolean).length < 60) return;
+
   const content = (title.toLowerCase().match(/[a-z']{4,}/g) || []).filter((w) => !STOP.has(w));
   if (!content.length) return;
   if (!content.some((w) => prose.toLowerCase().includes(stem(w)))) {

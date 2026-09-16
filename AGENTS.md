@@ -35,6 +35,11 @@ These come from measuring the published corpus. `npm run voice -- <post>`
 enforces them; the numbers below are what it compares against, recomputed from
 the published posts on every run.
 
+**One paragraph, one line.** Posts in `src/content/blog/` are not hard-wrapped. Lines
+run to 800 characters and the editor soft-wraps them. Do not reflow a post to 80 or 90
+columns, and do not "tidy" an existing one by wrapping it, because the diff then hides
+the actual edit.
+
 **Never use an em-dash.** Across 184 posts and 21 years there are zero. The
 habit is a spaced hyphen (`word - word`), or a comma, or two sentences. This is
 the single loudest tell that something else wrote the post.
@@ -53,9 +58,20 @@ the fact to manufacture a beat.
 
 **Headings must stand alone.** Readers skim, deep-link and share them, so a
 heading that only resolves from the one above it is broken. `How Would You
-Signal One?` fails; `How Do You Signal a Breaking Change?` works. Existing
-headings are plain and descriptive, and often questions: "What are Components?",
-"Is the Reason for Moving on Fundamental?", "Why Build Components?".
+Signal One?` fails; `How Do You Signal a Breaking Change?` works. A one-word
+section heading like `Design` or `Running` fails the same test from the other
+direction: it resolves from nothing at all.
+
+**Keep headings short.** Measured across 143 published h2 and h3 headings, the
+median is **4 words** and the mean 4.6. A third are one or two words. Seven-word
+imperatives like `Separate The Value Of Tools From The Value Of Your Content`
+are nearly double the corpus and read as instructions rather than signposts.
+
+**Questions are a minority, not the default.** 14% of published headings end in
+a question mark, so reach for one when the section genuinely answers a question
+the reader is asking. Most headings are plain noun phrases: "HTTP Streaming",
+"Activity Streams", "Both Camps Are Right", "Where the Discovery Argument Holds
+Up".
 
 **Write to the reader, not at them.** The corpus runs about 21 uses of
 "you"/"your" and 4 questions per 1,000 words. Posts ask the reader things
@@ -67,6 +83,43 @@ reads like a different author.
 sentences run to six words or fewer. Stacked fragments for rhetorical punch
 (`Not rejected.` `Fine.` `There isn't one.`) are a register the corpus doesn't
 use. British spelling throughout (authorisation, prioritised, serialising).
+
+**Use contractions.** The corpus runs about 18 per 1,000 words: `it's`, `isn't`,
+`we've`, `you'll`, `don't`. Prose that says "do not", "it is" and "cannot" throughout
+has never been read aloud, and it is the loudest tell after em-dashes. `npm run voice`
+flags a post that runs below half the corpus rate.
+
+**Don't lean on "But" to turn a point.** 88 of 136 posts open no sentence with it at
+all, so the corpus mean is 0.6 per 1,000 words and the median is zero. One or two in a
+long post is fine. One every couple of hundred words is a tic, and the regular spacing
+gives it away as much as the count.
+
+**Don't re-label a sentence you have just finished.** `, which is a gap we have open`,
+`, which is the only question they care about`, `, which is why it matters`. The corpus
+uses this once in 4,000 words. The habit here is a full stop and a fresh short sentence.
+
+**Prefer "instead" to "rather than".** The reference post uses `rather than` zero times
+in 4,000 words and `Instead,` three times. More than three in a post is drift.
+
+**Hedge more than feels natural.** The corpus qualifies constantly: `may` ×13, `likely`
+×8, `often` ×6, `I believe` ×2 in a single post. Generated prose asserts flatly and
+reaches for superlatives ("the best design", "the single best idea", "the most
+consequential choice"). Convert those into first-person positions: "the best I've come
+across", "probably the most important".
+
+**Leave room for an aside.** The corpus averages a dozen parentheticals per long post,
+some of them jokes. A draft with none reads like a report.
+
+### Editorial rules
+
+Ten judgement rules that no checker can catch (name the thing, one name per thing per
+passage, prefer deleting to hedging, don't invent a thesis the piece doesn't have, and
+so on) live in the **`phil-blog-voice`** skill, in `leggetter/phil-skills`. That skill is
+the canonical version of everything in this section and carries the corpus measurements
+behind each rule. Load it before drafting or reviewing a post.
+
+The rules above are kept here because they pair with `npm run voice`, which lives in this
+repo.
 
 Warnings from `npm run voice` are drift worth a look, not automatic faults.
 Errors are things the corpus does zero of, or sentences carrying no

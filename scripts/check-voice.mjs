@@ -57,6 +57,10 @@ function prose(raw) {
   t = t.replace(/<[^>]+>/g, ' ');
   t = t.replace(/^\s*[-*]\s.*$/gm, ' ');
   t = t.replace(/^\s*>.*$/gm, ' ');           // block quotes are other people's words
+  // Headings are signposts, not prose. Leaving them in lets a post with nine
+  // question-shaped headings pass the "asks the reader things" check without
+  // asking the reader anything in the writing itself.
+  t = t.replace(/^#{1,6}\s.*$/gm, ' ');
   t = t.replace(/`[^`]*`/g, 'X');
   t = t.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
   return t;
@@ -82,6 +86,13 @@ function metrics(text) {
     emDashPer1k: per1k((text.match(/—/g) || []).length),
     youPer1k: per1k((text.match(/\b(you|your|you're|yourself)\b/gi) || []).length),
     questionPer1k: per1k((text.match(/\?/g) || []).length),
+    // Contractions are the loudest single tell of generated prose. A hand-written
+    // post runs about 15 per 1k; drafts that have never been contracted run 0.
+    contractionPer1k: per1k((text.match(/\b\w+['\u2019](t|s|ve|ll|re|d|m)\b/gi) || []).length),
+    // Sentence-initial "But" is how the corpus turns a point. Too few reads like a
+    // report; too many reads like a tic, and the draft that prompted this rule had
+    // one every 200 words where the corpus averages one every 580.
+    butInitialPer1k: per1k((text.match(/(?:^|(?<=[.!?]\s))But\s/gm) || []).length),
   };
 }
 
@@ -101,6 +112,10 @@ async function baseline() {
     fragmentPct: pick('fragmentPct'),
     youPer1k: pick('youPer1k'),
     questionPer1k: pick('questionPer1k'),
+    contractionPer1k: pick('contractionPer1k'),
+    // 88 of 136 posts open no sentence with "But", so the median is 0 and useless
+    // as a comparator. The mean is the honest baseline here.
+    butInitialPer1k: all.reduce((n, x) => n + x.butInitialPer1k, 0) / Math.max(all.length, 1),
     emDashTotal: all.reduce((n, m) => n + m.emDashPer1k, 0),
   };
 }
@@ -186,6 +201,34 @@ if (m.youPer1k < base.youPer1k * 0.6) {
 }
 if (m.questionPer1k < base.questionPer1k * 0.5) {
   warns.push(`few questions to the reader: ${m.questionPer1k.toFixed(1)}/1k vs corpus ${base.questionPer1k.toFixed(1)}/1k`);
+}
+
+// --- WARN: contractions ----------------------------------------------------
+// "do not"/"it is"/"cannot" throughout is the single clearest sign that prose was
+// generated and never spoken aloud. Only flags low, never high.
+if (m.contractionPer1k < base.contractionPer1k * 0.5) {
+  warns.push(`few contractions: ${m.contractionPer1k.toFixed(1)}/1k vs corpus ${base.contractionPer1k.toFixed(1)}/1k (it's, isn't, we've, you'll)`);
+}
+
+// --- WARN: sentence-initial "But", in both directions ----------------------
+// Most posts never do it, so only the high side is a fault.
+if (m.butInitialPer1k > base.butInitialPer1k * 2) {
+  warns.push(`"But" opens too many sentences: ${m.butInitialPer1k.toFixed(1)}/1k vs corpus mean ${base.butInitialPer1k.toFixed(1)}/1k`);
+}
+
+// --- WARN: ", which is X" tails --------------------------------------------
+// The corpus almost never re-labels a sentence it has just finished. Generated
+// prose does it constantly. The corpus equivalent is a full stop and a fresh
+// short sentence.
+const whichTails = (text.match(/,\s+which\s+(is|was|are|means)\b/gi) || []).length;
+if (whichTails > 2) {
+  warns.push(`${whichTails} ", which is ..." tails: the corpus ends the sentence and starts a new one instead`);
+}
+
+// --- WARN: "rather than" ---------------------------------------------------
+const ratherThan = (text.match(/\brather than\b/gi) || []).length;
+if (ratherThan > 3) {
+  warns.push(`"rather than" used ${ratherThan} times: the corpus prefers "instead", or a negation and a fresh sentence`);
 }
 
 console.log(`baseline: ${base.posts} published posts`);

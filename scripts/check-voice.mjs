@@ -134,6 +134,7 @@ const lines = raw.split('\n');
 
 const errors = [];
 const warns = [];
+const notes = [];
 
 // --- ERROR: em-dashes. The corpus contains zero. ---------------------------
 lines.forEach((l, i) => {
@@ -231,8 +232,79 @@ if (ratherThan > 3) {
   warns.push(`"rather than" used ${ratherThan} times: the corpus prefers "instead", or a negation and a fresh sentence`);
 }
 
+// --- Four checks a cold read turned up ---------------------------------------
+// These read the raw document, not the prose extract, because they are about
+// structure and reference rather than style.
+
+const bodyStart = raw.replace(/^---[\s\S]*?\n---\n/, '');
+const paras = bodyStart.split(/\n\n+/).map((b) => b.trim()).filter(Boolean);
+
+// 1. Glossary obligation. Defining a term means the reader is entitled to meet it
+// defined before they meet it used, so adding an entry retroactively breaks any
+// earlier use. Only text ABOVE the glossary counts: terms leaning on each other
+// inside the list are fine, and so are ordinary English words used as verbs.
+const glossary = [...bodyStart.matchAll(/^-\s+\*\*([^*]+)\*\*\s*[:.]/gm)];
+const ORDINARY = new Set(['run', 'agent', 'skills', 'harness']); // also plain English; check by hand
+if (glossary.length >= 3) {
+  const glossaryStart = glossary[0].index;
+  const above = bodyStart.slice(0, glossaryStart).replace(/^#.*$/gm, ' ');
+  for (const g of glossary) {
+    const term = g[1].trim();
+    if (term.split(/\s+/).length > 3) continue;
+    if (ORDINARY.has(term.toLowerCase())) continue;
+    const re = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?\\b`, 'i');
+    const used = re.exec(above);
+    if (used) {
+      const snippet = above.slice(Math.max(0, used.index - 45), used.index + 45).replace(/\s+/g, ' ').trim();
+      warns.push(`glossary term "${term}" is used before the glossary: "...${snippet}..."`);
+    }
+  }
+}
+
+// 2. Pronouns lose their referent across a paragraph break. A pronoun that names
+// what it refers to within a few words ("These are nine guidelines") is fine.
+const BARE = /^(It|This|That|They|Those|These)\s+(is|are|was|were|does|do|did|has|have|had|will|would|can|could|should)\s+(.{0,40})/;
+for (const para of paras) {
+  if (/^[#\-*|>0-9]/.test(para)) continue;
+  const m = BARE.exec(para);
+  if (!m) continue;
+  // a noun or number right after the verb means the sentence names its own subject
+  if (/\b(a|an|the|\d|one|two|three|four|five|six|seven|eight|nine|ten)\b/i.test(m[3])) continue;
+  warns.push(`paragraph opens with a bare "${m[1]}", which loses its referent across the break: "${para.slice(0, 70)}..."`);
+}
+
+// 3. A heading should say what its section says. Heuristic: one content word from
+// the heading should survive into the section under it. Catches headings rewritten
+// in a batch without re-reading what sits beneath them.
+const STOP = new Set(['the','a','an','and','or','but','of','in','to','for','your','you','with','is','are','was','were','be','it','its','on','at','by','not','more','than','every','all','out','what','when','how','why','who','do','does','did','if','can','should','from','into','their','them','this','that','these','those','one','two','up','as','so','just','only','place','same','most','some','over','here']);
+const stem = (w) => w.replace(/(ations?|ing|ed|es|s)$/, '');
+const headBlocks = [...bodyStart.matchAll(/^(#{2,4})\s+(.+)$/gm)];
+headBlocks.forEach((h, i) => {
+  const title = h[2].replace(/^\d+\.\s*/, '');
+  const next = i + 1 < headBlocks.length ? headBlocks[i + 1].index : bodyStart.length;
+  const body = bodyStart.slice(h.index + h[0].length, next);
+  const prose = body.replace(/^[-*|\d].*$/gm, ' ');       // a list-only section has no prose to match
+  if (prose.split(/\s+/).filter(Boolean).length < 60) return;
+  const content = (title.toLowerCase().match(/[a-z']{4,}/g) || []).filter((w) => !STOP.has(w));
+  if (!content.length) return;
+  if (!content.some((w) => prose.toLowerCase().includes(stem(w)))) {
+    warns.push(`heading "${title}" shares no content word with its section, so check it still describes what is there`);
+  }
+});
+
+// 4. If you state a count, count it. The arithmetic cannot be verified, so collect
+// the claims in one place and let a human read them together.
+const NUMWORD = /\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/i;
+const counted = sentences(bodyStart.replace(/^#.*$/gm, ' '))
+  .filter((x) => NUMWORD.test(x))
+  .map((x) => `    ${x.replace(/\s+/g, ' ').slice(0, 92)}`);
+if (counted.length > 3) {
+  notes.push(`${counted.length} sentences assert a count. Read them together and check they agree:\n${counted.slice(0, 14).join('\n')}${counted.length > 14 ? `\n    ... and ${counted.length - 14} more` : ''}`);
+}
+
 console.log(`baseline: ${base.posts} published posts`);
 console.log(`checked:  ${target} (${m.words} words of prose)\n`);
+for (const n of notes) console.log(`NOTE  ${n}`);
 for (const w of warns) console.log(`WARN  ${w}`);
 for (const e of errors) console.log(`ERROR ${e}`);
 if (!warns.length && !errors.length) console.log('clean');

@@ -378,6 +378,28 @@ if (banDecl) {
   }
 }
 
+// 2f. Saying a number instead of stating it, and other approximations reached for
+// when the specific thing was available. The voice skill has said "name the thing"
+// since the start and nothing ran it, so it caught nothing while three violations
+// shipped in two days. A rule nobody executes is a note to self.
+//
+// Measured: "that large/big/..." inside a paragraph that already contains a digit
+// occurs 3 times in 125,000 words of the corpus, two of them markup artefacts.
+// "in your/their head" occurs once.
+const MAGNITUDE = /\b(that|this)\s+(large|big|small|high|low|wide|long|short|expensive|cheap)\b/gi;
+const IN_HEAD = /\b(in|into)\s+(your|their|his|her|my)\s+head\b/i;
+for (const para of paras) {
+  if (/^[#\-*|>]/.test(para)) continue;
+  const head = IN_HEAD.exec(para);
+  if (head) {
+    warns.push(`"${head[0]}" stands in for what the reader actually has to do: "${para.slice(0, 60)}..."`);
+  }
+  if (!/\d/.test(para)) continue;           // no figure available, so no approximation
+  for (const m of para.matchAll(MAGNITUDE)) {
+    warns.push(`"${m[0]}" describes a quantity in a paragraph that already carries the number. State it: "${para.slice(0, 60)}..."`);
+  }
+}
+
 // 3. A heading should say what its section says. Heuristic: one content word from
 // the heading should survive into the section under it. Catches headings rewritten
 // in a batch without re-reading what sits beneath them.

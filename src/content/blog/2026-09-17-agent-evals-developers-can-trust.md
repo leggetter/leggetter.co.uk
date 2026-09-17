@@ -4,8 +4,6 @@ aiAssisted: true
 excerpt: "While building Hookdeck's agent evals page, I directed an AI-assisted survey of how other developer platforms publish their results. These fifteen guidelines cover what I'd check before trusting a score, including several things we got wrong ourselves."
 ---
 
-In our 25 August 2026 snapshot a deliberately weak model came out above a frontier one. It hadn't earned it. We were scoring each run as a fraction of the checks that ran, and our scoring stops at the first failure, so the worse an agent did, the smaller the denominator it was marked against. I built that scoring, and it took us a while to see it.
-
 If you ship a developer tool, whether that's an API, a framework, a database or a CLI, agents are already doing some of the work of integrating it, and they may end up doing most of it. That makes an agent a first-class customer of whatever you build, and how well it does depends on how much sense your product makes to a model. Developer platforms have started measuring that, and publishing what they find.
 
 The measurement is called an eval. You write a set of realistic tasks, hand each one to an agent working in a real project, and check whether what it built actually works. Then you run the same tasks again with one thing changed, usually the instructions and documentation you publish for agents to read, the files most people now call skills, and compare the two. What gets published is usually a score for each of the two, and the difference between them.

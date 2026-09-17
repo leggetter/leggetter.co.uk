@@ -4,7 +4,7 @@ aiAssisted: true
 excerpt: "While building Hookdeck's agent evals page, I directed an AI-assisted survey of how other developer platforms publish their results. These fifteen guidelines cover what I'd check before trusting a score, including several things we got wrong ourselves."
 ---
 
-Ask an AI coding agent to wire up webhook handling, or authentication, or a database schema, and how well it does depends on how much sense your product makes to a model. Developer platforms have started measuring that, and publishing what they find.
+If you ship a developer tool, whether that's an API, a framework, a database or a CLI, some of the people integrating it are already agents. How well they do depends on how much sense your product makes to a model. Developer platforms have started measuring that, and publishing what they find.
 
 The measurement is called an eval. You write a set of realistic tasks, hand each one to an agent working in a real project, and check whether what it built actually works. Then you run the same tasks again with one thing changed, usually the instructions and documentation you publish for agents to read, the files most people now call skills, and compare the two. What gets published is usually a score for each of the two, and the difference between them.
 

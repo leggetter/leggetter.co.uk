@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 430" width="760" height="430" role="img" aria-label="Auth0's five evaluation configurations. A single model call with no tools leads to a full agent with file and shell tools, and the step between them is what tool access alone is worth. From that agent, two separate comparisons branch out: agent plus skills, which is what your skills are worth, and agent plus MCP, which is what your MCP server is worth. A fifth configuration runs everything together and measures the compound effect. The skills and MCP configurations are never compared with each other, because two changes separate them.">
+  <style>
+    .box   { fill: none; stroke: #5b6773; stroke-width: 1.5; rx: 6; }
+    .hub   { stroke: #b45309; stroke-width: 2; }
+    .num   { fill: #b45309; font: 600 13px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .name  { fill: #1f2933; font: 600 15px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .sub   { fill: #5b6773; font: 400 13px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .gap   { fill: #b45309; font: 600 13px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .note  { fill: #5b6773; font: 400 13px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .line  { stroke: #b45309; stroke-width: 1.5; fill: none; }
+    .never { stroke: #5b6773; stroke-width: 1.5; stroke-dasharray: 5 5; fill: none; }
+    .head  { fill: #b45309; }
+    @media (prefers-color-scheme: dark) {
+      .box   { stroke: #96a0aa; }
+      .hub   { stroke: #f0a35e; }
+      .num, .gap { fill: #f0a35e; }
+      .name  { fill: #d5dae0; }
+      .sub, .note { fill: #96a0aa; }
+      .line  { stroke: #f0a35e; }
+      .never { stroke: #96a0aa; }
+      .head  { fill: #f0a35e; }
+    }
+  </style>
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="head"/>
+    </marker>
+  </defs>
+
+  <!-- 1. baseline -->
+  <rect class="box" x="280" y="14" width="200" height="56"/>
+  <text class="num"  x="294" y="34">1</text>
+  <text class="name" x="312" y="34">single model call</text>
+  <text class="sub"  x="312" y="54">no tools</text>
+
+  <!-- 1 -> 2 -->
+  <path class="line" d="M 380 70 L 380 122" marker-end="url(#a)"/>
+  <text class="gap" x="392" y="100">what tool access alone is worth</text>
+
+  <!-- 2. the hub -->
+  <rect class="box hub" x="280" y="124" width="200" height="56"/>
+  <text class="num"  x="294" y="144">2</text>
+  <text class="name" x="312" y="144">a full agent</text>
+  <text class="sub"  x="312" y="164">file and shell tools</text>
+
+  <!-- 2 -> 3 and 2 -> 4 -->
+  <path class="line" d="M 330 180 C 300 216, 210 222, 150 250" marker-end="url(#a)"/>
+  <text class="gap" x="66" y="216">what your skills are worth</text>
+
+  <path class="line" d="M 430 180 C 460 216, 550 222, 610 250" marker-end="url(#a)"/>
+  <text class="gap" x="488" y="216">what your MCP server is worth</text>
+
+  <!-- 3 and 4 -->
+  <rect class="box" x="50" y="252" width="200" height="56"/>
+  <text class="num"  x="64" y="272">3</text>
+  <text class="name" x="82" y="272">that agent</text>
+  <text class="sub"  x="82" y="292">plus skills</text>
+
+  <rect class="box" x="510" y="252" width="200" height="56"/>
+  <text class="num"  x="524" y="272">4</text>
+  <text class="name" x="542" y="272">that agent</text>
+  <text class="sub"  x="542" y="292">plus MCP</text>
+
+  <!-- never compared -->
+  <path class="never" d="M 250 280 L 510 280"/>
+  <text class="note" x="380" y="274" text-anchor="middle">never compared</text>
+
+  <!-- 3 and 4 combine into 5 -->
+  <path class="never" d="M 150 308 C 150 340, 230 352, 278 368"/>
+  <path class="never" d="M 610 308 C 610 340, 530 352, 482 368"/>
+
+  <!-- 5 -->
+  <rect class="box" x="280" y="352" width="200" height="56"/>
+  <text class="num"  x="294" y="372">5</text>
+  <text class="name" x="312" y="372">everything together</text>
+  <text class="sub"  x="312" y="392">the compound effect</text>
+</svg>

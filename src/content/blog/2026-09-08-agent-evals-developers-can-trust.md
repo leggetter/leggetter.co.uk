@@ -33,7 +33,7 @@ Here are the terms I use below.
 - **Transcript**: the record of what the agent actually did during a run, as opposed to whether it passed.
 - **Snapshot**: a set of results published as a file you can point at later. Ideally every row in it was measured at the same time. Guidelines 11 and 13 are about what happens when they weren't.
 
-## Fifteen Questions To Ask Of Any Eval
+## Fifteen Questions For Any Eval
 
 1. Do the tasks state a goal, or spell out the steps to follow?
 2. What was in the baseline, stated precisely enough to reproduce?
@@ -59,13 +59,13 @@ The baseline question is the one I'd want above all the others, because most of 
 
 Write each task the way a colleague would file a ticket. State what you want to end up with, and leave the route there.
 
-A task that spells out the steps tests whether an agent can follow instructions, and you already know it can. A task that states a goal and leaves the route open tests whether your product makes sense to an agent that has to work it out. That's the thing you can't learn any other way, and it's the reason to run any of this.
+A task that spells out the steps tests whether an agent can follow instructions, which you already knew it could. A task that states a goal and leaves the route open tests whether the product makes sense to an agent that has to work it out. That's the part that's hard to get any other way, and it's most of the reason to run any of this.
 
-Over-specify and you build a suite that can't fail usefully. The agent follows your requirements list, the board goes green, and the failures your users are hitting were never in it. You'll spend a quarter improving a number that was never measuring them, and nothing in the scores will tell you, because a suite that can't fail looks exactly like a product that works.
+Over-specify and you build a suite that can't fail usefully. The agent follows the requirements list, the board goes green, and the failures real users are hitting were never in it. You may spend a quarter improving a number that was never measuring them, and the scores probably won't warn you, because a suite that can't fail looks exactly like a product that works. From the scores alone, which one are you looking at?
 
 Our rule is that scenarios are ticket-shaped, so an agent "can finish confidently and be wrong". We wrote that down because adding a requirements list suppresses the very failure the scenario was built to catch. There's one deliberate exception: a scenario that exists to catch a hallucination "asks the question and nothing else", because anything you add around the question hands over the answer.
 
-A well-shaped task can still be a useless one, and that costs you every run. We wrote our rule down and still ended up filing an issue about scenarios that don't separate one agent from another ([#47](https://github.com/hookdeck/evals/issues/47)). Guideline 14 has the number.
+Having the rule doesn't save you, and a well-shaped task can still be a useless one that bills you every run. We have it written down and still filed an issue against our own scenarios for not separating one agent from another ([#47](https://github.com/hookdeck/evals/issues/47)). Guideline 14 has the suite-wide count.
 
 Watch the environment as well as the wording. [Stripe](https://stripe.com/blog/can-ai-agents-build-real-stripe-integrations) has the best writing in the survey on this: agents accepted invalid test data and read a `400` as success, and agents got stuck when a highlighted HTML frame stole focus in a browser form. Neither is a badly worded task. Both are the environment misbehaving, and both were scored as the model failing.
 
@@ -127,7 +127,7 @@ Once you know how much your results move on their own, say what that means for r
 
 Publish which of your checks are deterministic and which are decided by a model.
 
-Repeating a scenario, as guideline 5 tells you to, re-runs the grader along with the agent, so the two sources of variance arrive tangled together. Nothing in that process grades the same piece of work twice, and that's the only way to separate them. When a scenario fails you'll be deciding what to fix, and you won't know whether the agent got it wrong or your grader did.
+Repeating a scenario, as guideline 5 tells you to, re-runs the grader along with the agent, so the two sources of variance arrive tangled together. Nothing in that process grades the same piece of work twice, which is usually the way to separate them. When a scenario fails you'll be deciding what to fix, and you won't know whether the agent got it wrong or your grader did.
 
 Both kinds of check fail, and we have one of each. Our language-model judge sampled at default temperature, so judged checks disagreed with themselves between runs ([#22](https://github.com/hookdeck/evals/issues/22)). In one scenario two judged checks disagreed with each other: one rewarded naming the mock destination URL as the cause, the other failed the same answer for attributing the failure to Hookdeck. Three runs of that scenario were marked down for giving the best diagnosis available, and the frontier agent was one of them.
 
@@ -137,11 +137,11 @@ That scenario then got harder as the agents got better. The more of them inspect
 
 When we counted, eight of the twenty failures in our first release were ours, not the agents'. The [release notes](https://github.com/hookdeck/evals/releases/tag/v0.2.0) put the limit on that honestly: twelve remain and some of those will be real, so it isn't a claim that our instrument caused most of the failure. It's that one class of defect in our own scoring outweighed the skills delta, the gap we'd reported between vendors, and every other effect the benchmark said it had measured. A benchmark whose defects are larger than its findings isn't measuring what it claims to yet, and the only reason we could say so is that we went looking. Our [improvement log](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.md) puts the general case better than I can: a pass rate cannot distinguish "the agent could not" from "we misled it".
 
-Decide too what your scorer does when nothing was measured. A rate limit, an expired credential, a sandbox that didn't come up: none of those is the agent failing, and if you count them as failures they leak into your comparison unevenly, because slower agents hit timeouts more often. [Next.js](https://nextjs.org/evals) states its rule outright, that infrastructure failures are discarded and rerun instead of counted. Stripe's focus-stealing browser frame from guideline 1 is the same class of thing, scored the other way.
+Decide too what your scorer does when nothing was measured. A rate limit, an expired credential, a sandbox that never came up: is that the agent failing? Probably not, and counted as failures they'll leak into your comparison unevenly, because slower agents tend to hit timeouts more often. [Next.js](https://nextjs.org/evals) states its rule outright, that infrastructure failures are discarded and rerun instead of counted. Stripe's focus-stealing browser frame from guideline 1 is the same class of thing, scored the other way.
 
-Where publishers do describe their method, they're doing markedly different things. [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) checks its suite with 315 Pest assertions, about as deterministic as this gets. [Auth0](https://auth0.com/agent-experience) scores against a weighted hundred-point rubric with named dimensions, including correctness at 25 points, hallucination at 15 and security at 10. [WorkOS](https://workos.com/blog/writing-my-first-evals) runs both kinds on one harness for its command line installer, grading 40 scenarios across 16 frameworks with a functional grader for whether it worked and a separate quality grader scoring four dimensions from one to five. Those three numbers mean different things, and only the first is reproducible by anyone who reruns it.
+Where publishers do describe their method, they're doing markedly different things. [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) checks its suite with 315 Pest assertions, about as deterministic as this gets. [Auth0](https://auth0.com/agent-experience) scores against a weighted hundred-point rubric with named dimensions, including correctness at 25 points, hallucination at 15 and security at 10. [WorkOS](https://workos.com/blog/writing-my-first-evals) runs both kinds on one harness for its command line installer, grading 40 scenarios across 16 frameworks with a functional grader for whether it worked and a separate quality grader scoring four dimensions from one to five. Those three numbers mean different things, and probably only the first would come back the same if somebody else reran it.
 
-### 7. Say How You Counted Success Across Attempts
+### 7. Say What A Pass Means Across Attempts
 
 Publish both readings of a repeated scenario: how often it succeeded every time, and how often it succeeded at least once. If you'll only print one, say which.
 
@@ -167,7 +167,7 @@ The [.NET team](https://github.com/dotnet/skills) publishes activation as a stan
 
 ## What To Publish
 
-### 9. Publish The Scenarios, Not Just The Scores
+### 9. Publish Scenarios, Not Just Scores
 
 Publish the task behind every scenario and the code that checks it.
 
@@ -177,7 +177,7 @@ A percentage asks a reader to trust you. The scenarios let them decide whether y
 
 There's a real cost, and it gets worse over time. Anything you publish can be read by an agent and will eventually reach training data, so a high score on familiar tasks stops telling you how an agent handles an unfamiliar one. I'd still publish. If you're shipping skills and documentation at all, you're already trying to get your content in front of models, and being selective about only the test while broadcasting everything else is the wrong way round. Publish, expect the scenarios to age, and replace them.
 
-### 10. Publish Transcripts That Outlive The Run
+### 10. Publish Durable Transcripts
 
 Publish a redacted transcript for every result, and keep it reachable for as long as the result is on the page.
 
@@ -247,7 +247,7 @@ Our [improvement procedure](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.
 
 There's a subtler version of the same problem, and it doesn't feel like cheating at all. If you write documentation or skills aimed squarely at the failures your own suite catches, your score improves without telling you anything about tasks outside it. That's still worth doing, and it needs saying. [Convex](https://stack.convex.dev/convex-evals) says it, describing how it targeted the categories models did worst at and tuned its guidelines to pass those cases. The disclosure is what makes the number usable.
 
-## How Many Scenarios, And What It Costs
+## Suite Size And Cost
 
 Neither of these is a guideline, because the honest answer to both is that it depends. They're the first two questions anyone asks, though, and the survey has enough in it to beat a shrug.
 
@@ -261,7 +261,7 @@ Two caveats on our own figure, both of which understate what this really costs. 
 
 How often to run it is the question I can least help with, because almost nobody states a cadence on their results page. Ours runs weekly, at two attempts against the three guideline 5 asks for. That's in the open list above. Netlify's AXIS is built to sit in CI, so that implies every change. Pick a frequency you can afford to repeat at the attempt count guideline 5 asks for, because a weekly single attempt is just the single-attempt problem wearing a calendar.
 
-## Why Not Just Agree On One Benchmark?
+## Why Not One Shared Benchmark?
 
 A payments API and an observability platform involve different work, so I wouldn't expect one shared task suite to answer every vendor's questions. We can still agree on what a published result should disclose, even where the tasks differ.
 
@@ -269,7 +269,7 @@ A payments API and an observability platform involve different work, so I wouldn
 
 I'd take that disclosure principle for agent evals: explain what you gave the agent, how often it tried, when it ran, and what counted as success. The tasks can remain specific to your product without leaving readers to guess how the number was produced.
 
-## What We've Fixed, And What We Haven't
+## What We've Fixed And Haven't
 
 Our own evals are the example of what goes wrong repeatedly above, so it's fair to ask what we did about it. Here's the accounting: five fixed, one decided, six open.
 

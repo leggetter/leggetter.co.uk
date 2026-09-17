@@ -323,11 +323,16 @@ for (const para of paras) {
 // count, it is usually made by accident because the phrasing is neat, and it is
 // nearly always the one that turns out to be unsupported. Zero hits across 186
 // published posts, so a warn here is cheap.
-const N_FOR_N = /\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|\d+)\s+\w+(?:\s+\w+){0,3}?\s+(?:using|with|giving|offering|and)\s+\1\b/i;
+// The bare "and" branch was dropped: it matched "three configurations and three
+// attempts" (a multiplication) and "eleven scenarios to a hundred and eleven" (a
+// range). The real catch, "seven publishers using seven definitions", uses a verb.
+const N_FOR_N = /\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|\d+)\s+\w+(?:\s+\w+){0,3}?\s+(?:using|with|giving|offering)\s+\1\b/i;
 for (const para of paras) {
   if (/^[#\-*|>]/.test(para)) continue;
   const m = N_FOR_N.exec(para);
-  if (m) {
+  // "from eleven scenarios to a hundred and eleven" is a range and a compound
+  // number, not a distinctness claim. Matched one on a draft.
+  if (m && !/ to | hundred | thousand /.test(m[0])) {
     warns.push(`"${m[0]}" claims the count of things equals the count of distinct things, which is a third claim on top of the two counts: "${para.slice(0, 70)}..."`);
   }
 }
@@ -354,6 +359,23 @@ for (const [us, uk] of AMERICAN) {
 }
 if (found.length) {
   errors.push(`${target}  American spelling in a British-spelling corpus: ${found.join(', ')}`);
+}
+
+// 2e. Per-draft banned words. A draft can declare its own kill-list in a comment:
+//   <!-- banned: arm, cell, treatment -->
+// Words struck from a piece for being confusing come back during later rewrites,
+// because nothing re-runs the decision. On one post a banned term returned three
+// times, undefined, in a piece whose glossary defined eleven other terms.
+const banDecl = raw.match(/<!--[\s\S]*?\bbanned:\s*([^\n>]+?)\s*(?:-->|\n)/i);
+if (banDecl) {
+  const words = banDecl[1].split(',').map((w) => w.trim()).filter(Boolean);
+  const hay = prose(raw);
+  const hits = words
+    .map((w) => [w, (hay.match(new RegExp(`\\b${w}s?\\b`, 'gi')) || []).length])
+    .filter(([, n]) => n > 0);
+  if (hits.length) {
+    errors.push(`${target}  banned for this draft: ${hits.map(([w, n]) => `${w} (${n})`).join(', ')}`);
+  }
 }
 
 // 3. A heading should say what its section says. Heuristic: one content word from

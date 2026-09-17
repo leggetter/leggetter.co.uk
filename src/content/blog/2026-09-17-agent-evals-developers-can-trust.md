@@ -20,7 +20,7 @@ These are fifteen guidelines I'd give anyone setting out to build and publish a 
 
 1. Do the tasks state a goal, or spell out the steps to follow?
 2. What was in the baseline you compared against, stated precisely enough to reproduce?
-3. How many configurations were compared, and does each published gap isolate a single change?
+3. How many configurations were compared, and does each gap isolate one change?
 4. What happens when the agent stops and asks a clarifying question?
 5. How many attempts at each test?
 6. Which checks are deterministic, and which are graded by a model?
@@ -35,6 +35,10 @@ These are fifteen guidelines I'd give anyone setting out to build and publish a 
 15. When a test failed, what got fixed: the product, or the test?
 
 The baseline question is the one I'd want above all the others, because most of the rest depends on knowing what was compared. Each one has a section below, with published examples, including several where the thing that needs fixing is ours.
+
+Check what the page is for as well, because a self-audit and a model comparison answer different questions, and the name predicts which one you're getting. Of five pages I compared, the two published at `/skills` and `/evals` open as self-audits: [.NET](https://dotnet.github.io/skills/) tracks "Copilot quality with and without skill plugins", [Supabase](https://supabase.com/evals) evaluates "model experiments across the Supabase developer journey". The three at `/llm-leaderboard` and `/llm-benchmark` lead as model comparisons instead, with [Clerk](https://clerk.com/llm-leaderboard) inviting you to "select the one that best fits your requirements". Clerk and [Paddle](https://developer.paddle.com/llm-benchmark/) both hold the self-audit answer in a toggle on the page, and neither leads with it. Paddle's sits above the table, showing the plain run by default, with what its own tooling is worth one click away.
+
+![Paddle's LLM benchmark page, with a three-way toggle above the results table and the plain run selected](/images/agent-evals-paddle-toggle.png)
 
 Here are the terms I use throughout. I say evals because that's the word the repositories use.
 
@@ -80,9 +84,6 @@ Those are not variations on a theme. An improvement measured against a model wit
 
 [LangChain](https://www.langchain.com/blog/evaluating-skills) carries the largest difference in the survey, 9% to 82%, and its post does describe the setup: Claude Code running in Docker, with evaluation guidance. But you have to go and find that, and seventy-three points is exactly the size of number that gets quoted on its own. Put the definition beside the score instead. Auth0 and Clerk put their definitions in their repository documentation, where anybody can check them. Supabase's page doesn't say, though its repository pairs every experiment with a no-skills twin, so the definition is there for anyone who goes looking in the code. Paddle and Convex each say a sentence on the page. That's more than nothing and less than enough to reproduce from.
 
-Check what the page is for as well, because a self-audit and a model comparison answer different questions, and the name predicts which one you're getting. Of five pages I compared, the two published at `/skills` and `/evals` open as self-audits: [.NET](https://dotnet.github.io/skills/) tracks "Copilot quality with and without skill plugins", [Supabase](https://supabase.com/evals) evaluates "model experiments across the Supabase developer journey". The three at `/llm-leaderboard` and `/llm-benchmark` lead as model comparisons instead, with [Clerk](https://clerk.com/llm-leaderboard) inviting you to "select the one that best fits your requirements". Clerk and [Paddle](https://developer.paddle.com/llm-benchmark/) both hold the self-audit answer in a toggle on the page, and neither leads with it. Paddle's sits above the table, showing the plain run by default, with what its own tooling is worth one click away.
-
-![Paddle's LLM benchmark page, with a three-way toggle above the results table and the plain run selected](/images/agent-evals-paddle-toggle.png)
 
 ### 3. Run More Than Two Configurations
 
@@ -216,7 +217,7 @@ Dating every row is necessary and it isn't sufficient, as we found out. Ours mad
 
 Publish what your evals led you to change, including the changes that didn't work.
 
-Publishing that log is what separates measuring from marketing, and it serves the second of the two reasons to run any of this. A page of scores with no record of what they caused is a page telling you the product is good. A log of what the scores changed is a page telling you the product is improving. That's a different claim, and a more useful one.
+Publishing that log is what separates measuring from marketing, and it's the half of this that improves the product. A page of scores with no record of what they caused is a page telling you the product is good. A log of what the scores changed is a page telling you the product is improving. That's a different claim, and a more useful one.
 
 The failures matter more than the successes here. Our [improvement log](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.md) records the CLI comparison above as a negative result, so a reader can follow the finding, the fix, and the evidence that turned out not to support it.
 

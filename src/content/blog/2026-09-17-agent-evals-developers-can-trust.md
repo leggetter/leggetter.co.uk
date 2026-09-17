@@ -19,13 +19,13 @@ These are fifteen guidelines I'd give anyone setting out to build and publish a 
 ## Fifteen Questions For Any Eval
 
 1. Do the tasks state a goal, or spell out the steps to follow?
-2. What was in the baseline you compared against, stated precisely enough to reproduce?
+2. What was in the baseline it was compared against, stated precisely enough to reproduce?
 3. How many configurations were compared, and does each gap isolate one change?
 4. What happens when the agent stops and asks a clarifying question?
 5. How many attempts at each test?
 6. Which checks are deterministic, and which are graded by a model?
 7. Does a published pass mean once, or every time?
-8. Did the agent open the skill files you publish, and how often?
+8. Did the agent open the skill files the publisher ships, and how often?
 9. Are the tests and the code that scores them published?
 10. Can you still read what the agent did behind an old result?
 11. Is every result dated?
@@ -84,7 +84,6 @@ Those are not variations on a theme. An improvement measured against a model wit
 
 [LangChain](https://www.langchain.com/blog/evaluating-skills) carries the largest difference in the survey, 9% to 82%, and its post does describe the setup: Claude Code running in Docker, with evaluation guidance. But you have to go and find that, and seventy-three points is exactly the size of number that gets quoted on its own. Put the definition beside the score instead. Auth0 and Clerk put their definitions in their repository documentation, where anybody can check them. Supabase's page doesn't say, though its repository pairs every experiment with a no-skills twin, so the definition is there for anyone who goes looking in the code. Paddle and Convex each say a sentence on the page. That's more than nothing and less than enough to reproduce from.
 
-
 ### 3. Run More Than Two Configurations
 
 Add configurations, and publish a gap only between two that differ by a single change. Then every gap you publish is what that one change was worth.
@@ -97,7 +96,7 @@ It runs five:
 
 Every published comparison starts from the second, because it's the one the others each add a single change to. The fifth, everything at once, is the number most publishers report on its own and the only one they report. It's the clearest published design I found, and I didn't come across another publisher running the same five.
 
-Almost everyone runs two, ourselves included. Clerk and Paddle run three. Supabase, Laravel, Firebase and Hookdeck all publish a single with-and-without comparison. LangChain goes further than any of us, running skills consolidated into a few large files against skills split across small ones, and probing phrasing and formatting separately. None of us can say from our own published numbers whether the improvement came from what we wrote or from what the agent was allowed to do.
+Four of the nine here run two, ourselves included. Clerk and Paddle run three. Supabase, Laravel, Firebase and Hookdeck all publish a single with-and-without comparison. LangChain goes further than any of us, running skills consolidated into a few large files against skills split across small ones, and probing phrasing and formatting separately. None of us can say from our own published numbers whether the improvement came from what we wrote or from what the agent was allowed to do.
 
 The objection is cost, and it's fair: at the same attempt count, five configurations need two and a half times as many runs as two. If you can only afford three, pick them around the one distinction you actually need to settle, and say which distinction that was.
 
@@ -163,7 +162,8 @@ Once you run a scenario more than once, "passed" stops being one thing. A model 
 [Grafana](https://o11ybench.ai/) does exactly this, in adjacent columns: success on all three attempts, and success on at least one.
 
 ![Grafana's o11y-bench leaderboard, showing Pass^3 and Pass@3 as adjacent columns alongside per-row cost, tokens and dates](/images/agent-evals-grafana-pass-columns.png)
- It's the most useful reporting idea I came across, because the gap between the two columns is itself information, and a reader can see how much your headline depends on which reading you picked. Publish the strict number alone and you understate a model that's capable but inconsistent. Publish the loose one alone and you flatter everybody.
+
+It's the most useful reporting idea I came across, because the gap between the two columns is itself information, and a reader can see how much your headline depends on which reading you picked. Publish the strict number alone and you understate a model that's capable but inconsistent. Publish the loose one alone and you flatter everybody.
 
 Failing that, state the rule. [Next.js](https://nextjs.org/evals) says plainly that its success rate is at least one pass in four attempts. You may disagree with that choice, but you can't misread the number.
 
@@ -211,13 +211,13 @@ A snapshot can carry old runs forward, so a single page date quietly claims a fr
 
 [Convex](https://www.convex.dev/llm-leaderboard/with-guidelines) marks stale rows where they sit, and carries columns for how old each model is and when it last ran. I didn't find better. [Grafana](https://o11ybench.ai/) dates every row too. [Next.js](https://nextjs.org/evals) dates the rows in its superseded table and gives its current one a single page-level date, the thing this guideline is about.
 
-Dating every row is necessary and it isn't sufficient, as we found out. Ours made it possible to discover that our 25 August 2026 snapshot mixed measurements taken weeks apart. They didn't stop us publishing it, and guideline 13 is about the rule that would have.
+Dating every row is necessary and it isn't sufficient, as we found out. Ours made it possible to discover that our 25 August 2026 snapshot mixed measurements taken twelve days apart. They didn't stop us publishing it, and guideline 13 is about the rule that would have.
 
 ### 12. Log What The Evals Made You Change
 
 Publish what your evals led you to change, including the changes that didn't work.
 
-Publishing that log is what separates measuring from marketing, and it's the half of this that improves the product. A page of scores with no record of what they caused is a page telling you the product is good. A log of what the scores changed is a page telling you the product is improving. That's a different claim, and a more useful one.
+Publishing that log is what separates measuring from marketing, and it's what turns a suite into something that improves the product. A page of scores with no record of what they caused is a page telling you the product is good. A log of what the scores changed is a page telling you the product is improving. That's a different claim, and a more useful one.
 
 The failures matter more than the successes here. Our [improvement log](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.md) records the CLI comparison above as a negative result, so a reader can follow the finding, the fix, and the evidence that turned out not to support it.
 
@@ -322,11 +322,11 @@ The five repairs are shipped:
 
 We scored a run as a fraction of the checks that ran, and our scorers stop at the first failure. So each agent's denominator was set by its own failures: one that fell at the first hurdle was scored out of one check, and one that got four things right and missed the fifth was scored out of five. No two agents were being marked over the same set of checks, so the percentages were never comparable in the first place. On the 25 August 2026 snapshot that put the deliberately weak model above a frontier one. We now count whole scenarios completed, so a scenario counts once whatever happens inside it. That's corrected in [v0.4.0](https://github.com/hookdeck/evals/releases/tag/v0.4.0), in the same release as a batch of smaller harness corrections.
 
-The sixth isn't a repair, which is why it sits outside that count. We took a position on clarifying questions where we'd previously had none, and that closed the issue at the cost of suppressing exactly the caution guideline 4 says is worth measuring. It's defensible and it isn't a win, so counting it as one would be the flattering arithmetic this section exists to avoid.
+The one decided isn't a repair, which is why it sits outside that count. We took a position on clarifying questions where we'd previously had none, and that closed the issue at the cost of suppressing exactly the caution guideline 4 says is worth measuring. It's defensible and it isn't a win, so counting it as one would be the flattering arithmetic this section exists to avoid.
 
 Six are open, and four of them are filed. We still don't publish transcripts that would let you check a result yourself ([#21](https://github.com/hookdeck/evals/issues/21)). A merge can still carry rows forward from an older run without saying so ([#60](https://github.com/hookdeck/evals/issues/60)). And on the 1 September 2026 snapshot eleven of our nineteen scenarios were passed by everything we ran, so most of the suite wasn't doing the job the headline claims for it (#47 again).
 
-The one I'd most like to close is the last of those four, and it's the one we've described least carefully. We've been calling it "our skills make a weaker model worse" ([#2](https://github.com/hookdeck/evals/issues/2)). What we have is four single-attempt measurements of that gap for the weak model, taken on an instrument that didn't change between them. Minus three on 13 August, minus two after we corrected a pair of mis-scoring scenarios, minus one on 1 September, and plus four on 14 September, when the sign flipped. A number that has taken four values in four runs isn't measuring anything yet. The repeated evidence doesn't settle it either: in the diagnostic run from guideline 4, the weak model failed five of eighteen attempts with our skills loaded and seven of eighteen without. It's been open since the first week, and by guideline 5 it stays open until we run it three times.
+The fourth is the one I'd most like to close, and it's the one we've described least carefully. We've been calling it "our skills make a weaker model worse" ([#2](https://github.com/hookdeck/evals/issues/2)). What we have is four single-attempt measurements of that gap for the weak model, taken on an instrument that didn't change between them. Minus three on 13 August, minus two after we corrected a pair of mis-scoring scenarios, minus one on 1 September, and plus four on 14 September, when the sign flipped. A number that has taken four values in four runs isn't measuring anything yet. The repeated evidence doesn't settle it either: in the diagnostic run from guideline 4, the weak model failed five of eighteen attempts with our skills loaded and seven of eighteen without. It's been open since the first week, and by guideline 5 it stays open until we run it three times.
 
 The last two aren't filed, because they're design limits and not defects. I've named them because leaving them out is how this kind of list gets flattering. We run two configurations, so by guideline 3 we can't say whether our gains came from what we wrote or from what the agent was allowed to do. And we ran each scenario once in the 1 September 2026 snapshot, against the three I've just told you to run. The weekly run is still a single attempt.
 
@@ -346,7 +346,7 @@ Finding the problem is the cheap part. Running the evals is what turns a suspici
 
 Don't build the sandboxing and result handling yourself. Two agent-eval harnesses and two general evaluation frameworks are already available, built for different jobs, so the choice is about what you want out the other end.
 
-[Vercel's agent-eval](https://github.com/vercel-labs/agent-eval) is the one to look at first if you want to publish a comparison like the ones in this post. It's MIT licensed and it's the shared engine behind the Next.js, Nuxt and Storybook results, so it has more publishing adopters than anything else I found. Svelte uses it and publishes nothing, which tells you the harness doesn't make you honest on its own. The baseline is an ordinary configuration file with no privileged status, so it will support the single-change designs guideline 3 asks for without imposing one. Its own playground is empty, though, at zero experiments and zero runs, so the adopters are the evidence and not the project itself.
+[Vercel's agent-eval](https://github.com/vercel-labs/agent-eval) is the one to look at first if you want to publish a comparison like the ones in this post. It's MIT licensed and it's the shared engine behind the Next.js, Nuxt and Storybook results, so it has more publishing adopters than anything else I found. I couldn't find published results from Svelte, which uses it, so the harness doesn't make you honest on its own. The baseline is an ordinary configuration file with no privileged status, so it will support the single-change designs guideline 3 asks for without imposing one. Its own playground is empty, though, at zero experiments and zero runs, so the adopters are the evidence and not the project itself.
 
 [Netlify's AXIS](https://axis.run) answers a different question. It describes itself as Lighthouse for agent experience: 23 agent adapters, weighted dimensions and a score out of 100 you can gate a build on. Reach for it if you want a number that goes in CI, not a comparison between configurations. I couldn't find a leaderboard or named scores of its own on the site.
 

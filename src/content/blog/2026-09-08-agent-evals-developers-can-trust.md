@@ -11,7 +11,10 @@ The measurement is called an eval. You write a set of realistic tasks, hand each
 
 [Convex](https://www.convex.dev/llm-leaderboard) has been at it longest. Its repository goes back to January 2025, and for about a year afterwards I can't find anyone else doing it. [Clerk's](https://clerk.com/llm-leaderboard) turned up that October, [Supabase's](https://supabase.com/evals) the following April, and [Auth0's](https://auth0.com/agent-experience) in June. [Rails](https://rubyonrails.org/ai) started on 4 August 2026, and the one I worked on at Hookdeck three days after that. So almost none of this is more than a year old. That's probably most of the reason nothing about it has settled.
 
-Nobody agrees on what to call these, and the name turns out to predict what the page is for. I say evals throughout, because that's the word the repositories use. Of five pages I compared, the two published at `/skills` and `/evals` open as self-audits: [.NET](https://dotnet.github.io/skills/) tracks "Copilot quality with and without skill plugins", [Supabase](https://supabase.com/evals) evaluates "model experiments across the Supabase developer journey". The three at `/llm-leaderboard` and `/llm-benchmark` lead as model comparisons instead, with [Clerk](https://clerk.com/llm-leaderboard) inviting you to "select the one that best fits your requirements". Five pages is an observation and not a rule, and it's worth checking before you read a score, because the two kinds answer different questions. Clerk and [Paddle](https://developer.paddle.com/llm-benchmark/) both hold the self-audit answer in a toggle on the page, and neither leads with it.
+Nobody agrees on what to call these, and the name turns out to predict what the page is for. I say evals throughout, because that's the word the repositories use. Of five pages I compared, the two published at `/skills` and `/evals` open as self-audits: [.NET](https://dotnet.github.io/skills/) tracks "Copilot quality with and without skill plugins", [Supabase](https://supabase.com/evals) evaluates "model experiments across the Supabase developer journey". The three at `/llm-leaderboard` and `/llm-benchmark` lead as model comparisons instead, with [Clerk](https://clerk.com/llm-leaderboard) inviting you to "select the one that best fits your requirements". Five pages is an observation and not a rule, and it's worth checking before you read a score, because the two kinds answer different questions. Clerk and [Paddle](https://developer.paddle.com/llm-benchmark/) both hold the self-audit answer in a toggle on the page, and neither leads with it. Paddle's sits above the table, showing the plain run by default, with what its own tooling is worth one click away.
+
+![Paddle's LLM benchmark page, with a three-way toggle above the results table and the plain run selected](/images/agent-evals-paddle-toggle.png)
+
 
 Platforms run them for two reasons. The published scores are meant to tell a developer which model to trust with an integration. Watching what the agent actually did to earn those scores tells the platform where its own documentation, APIs and tooling fail it. That is hard to learn any other way, because an agent that gets lost doesn't file a support ticket.
 
@@ -75,7 +78,7 @@ Write down exactly what the comparison run had available, and publish it somewhe
 
 Without it your own number is uninterpretable six months later, and nobody else's is usable at all. A reader who sees "+25 points from our skills" has no way to tell whether your skills are good or whether the run you compared against was a model with nothing.
 
-Five of the publishers I looked at say what their baseline is, and between them they describe four different setups. [Auth0's](https://github.com/auth0/auth0-evals) is a single model call with no tools, working from training data alone, and [Clerk](https://github.com/clerk/clerk-evals) also documents a no-tools model baseline. [Vercel](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals) describes its baseline as an agent without documentation, while [ours at Hookdeck](https://github.com/hookdeck/evals) has the command line tool, a live API key and web search available. Say so if yours has search, because a baseline that can search is partly measuring how well other people's blog posts and answers cover your product, and that changes between runs without you touching anything. [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) compares a full agent with and without Boost, its package for giving agents Laravel-specific context.
+Five of the publishers I looked at say what their baseline is, and between them they describe four different setups. [Auth0's](https://github.com/auth0/auth0-evals) is a single model call with no tools, working from training data alone, and [Clerk](https://github.com/clerk/clerk-evals) also documents a no-tools model baseline. [Vercel](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals) describes its baseline as an agent without documentation, while [ours at Hookdeck](https://github.com/hookdeck/evals) has the command line tool, a live API key and web search available. Say so if yours has search, because a baseline that can search is partly measuring how well other people's blog posts and answers cover your product, and that changes between runs without you touching anything. [Convex](https://www.convex.dev/llm-leaderboard) is the one that treats this properly: its leaderboard has three tabs, and web access is a configuration of its own instead of something folded quietly into the baseline. [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) compares a full agent with and without Boost, its package for giving agents Laravel-specific context.
 
 Those are not variations on a theme. An improvement measured against a model with nothing includes everything the agent gained by becoming an agent at all, and an improvement measured against a fully equipped agent doesn't. Present both as a percentage of scenarios completed and they look like the same kind of number.
 
@@ -89,13 +92,9 @@ You'll have to decide what to improve next, and documentation, skills and an MCP
 
 It runs five:
 
-1. a single model call, no tools
-2. a full agent with file and shell tools
-3. that agent, plus skills
-4. that agent, plus MCP
-5. everything together
+![Auth0's five configurations. A single model call with no tools leads to a full agent with file and shell tools; that step is what tool access alone is worth. Two comparisons branch from the agent, one adding skills and one adding MCP, and those two are never compared with each other. A fifth configuration runs everything together.](/images/agent-evals-auth0-configurations.svg)
 
-The comparisons all start from the second, because it's the one the others each add a single change to. The step from the first to the second is what tool access alone is worth. The step from the second to the third is what your skills are worth. The step from the second to the fourth is what your MCP server is worth. The third and fourth are never compared with each other, because two changes separate them. The fifth measures the compound effect of running everything at once. That's the number most publishers report on its own. It's the clearest published design I found, and I didn't come across another publisher running the same five.
+Every published comparison starts from the second, because it's the one the others each add a single change to. The fifth, everything at once, is the number most publishers report on its own and the only one they report. It's the clearest published design I found, and I didn't come across another publisher running the same five.
 
 Almost everyone runs two, ourselves included. Clerk and Paddle run three. Supabase, Laravel, LangChain, Firebase and Hookdeck all publish a single with-and-without comparison. None of us can say from our own published numbers whether the improvement came from what we wrote or from what the agent was allowed to do.
 
@@ -160,7 +159,10 @@ Publish both readings of a repeated scenario: how often it succeeded every time,
 
 Once you run a scenario more than once, "passed" stops being one thing. A model that succeeds three times out of three and one that succeeds once out of three can appear identically on your page. The reader picking between them for production work gets no warning that one of the two will fail them two times in three, and they'll find out in their own codebase instead of on yours.
 
-[Grafana](https://o11ybench.ai/) does exactly this, in adjacent columns: success on all three attempts, and success on at least one. It's the most useful reporting idea I came across, because the gap between the two columns is itself information, and a reader can see how much your headline depends on which reading you picked. Publish the strict number alone and you understate a model that's capable but inconsistent. Publish the loose one alone and you flatter everybody.
+[Grafana](https://o11ybench.ai/) does exactly this, in adjacent columns: success on all three attempts, and success on at least one.
+
+![Grafana's o11y-bench leaderboard, showing Pass^3 and Pass@3 as adjacent columns alongside per-row cost, tokens and dates](/images/agent-evals-grafana-pass-columns.png)
+ It's the most useful reporting idea I came across, because the gap between the two columns is itself information, and a reader can see how much your headline depends on which reading you picked. Publish the strict number alone and you understate a model that's capable but inconsistent. Publish the loose one alone and you flatter everybody.
 
 Failing that, state the rule. [Next.js](https://nextjs.org/evals) says plainly that its success rate is at least one pass in four attempts. You may disagree with that choice, but you can't misread the number.
 
@@ -236,6 +238,10 @@ The next time, we caught it. We added a sentence to the prompt shared by every r
 
 Record the exact versions too, and not just the model name. An agent is a model plus its tools and its loop, so a new release of the command line agent changes what you measured as surely as a prompt edit does, and a provider can move what sits behind an alias without telling you. I'd pin and record the model string, the agent version and the harness version on every row. [Convex](https://www.convex.dev/llm-leaderboard/with-guidelines) gets closest of anyone I saw, with a column for how old each model is, and that still isn't the same as knowing which build answered.
 
+[Convex](https://www.convex.dev/llm-leaderboard) does the reader-facing half of this better than anyone I found. Its leaderboard carries a benchmark version selector, so the page tells you which suite produced the numbers you're looking at and lets you go back to an older one, instead of quietly replacing them. When I looked on 17 September it was showing 112 evals as of 10 September.
+
+![Convex's leaderboard showing a benchmark version selector reading 9 September 2026, 112 evals, above columns for run cost, model age and time since last run](/images/agent-evals-convex-version-and-dates.png)
+
 [tau-bench](https://github.com/sierra-research/tau2-bench) shows how precisely the boundary can be drawn. Its v1.0.1 correction made earlier results for the banking-knowledge domain noncomparable, so it re-graded the affected submissions and kept a tag for reproducing the old behaviour. The other domains were untouched.
 
 ### 14. Keep Easy Scenarios Out Of The Headline
@@ -275,7 +281,7 @@ On size, published suites don't even agree on what they're counting.
 | [Nuxt](https://nuxt.com/evals) | 31 | evals |
 | [Next.js](https://nextjs.org/evals) | 43 | evals |
 | [Grafana](https://o11ybench.ai/) | 63 | tasks |
-| [Convex](https://www.convex.dev/llm-leaderboard) | 111 | evals |
+| [Convex](https://www.convex.dev/llm-leaderboard) | 112 | evals |
 
 That right-hand column is the reason I wouldn't average the middle one. Half of them sit between nineteen and forty-three, so a couple of dozen is unremarkable, and none of them is three scenarios long.
 
@@ -283,7 +289,7 @@ Size matters less than how many of them work. On our 1 September snapshot, eleve
 
 On cost, two figures give you a rate. Ours is about $81 for 114 runs, and [Rails](https://rubyonrails.org/ai) reports 504 runs at $491. That's seventy cents to a dollar a run, from two suites of different sizes against different products, so treat it as a planning number and not a benchmark. Multiply scenarios by configurations by attempts, then by a dollar. Twenty scenarios, three configurations, three attempts: 180 runs, so $130 to $180 a cycle. A single improvement loop, where you re-run only the handful of scenarios a fix should have moved, cost us about $5.
 
-Two caveats on our own figure, both of which understate what this really costs. Agents don't report comparably, so no results page in the survey carries a cost column, ours included: Claude Code reports a cost and Codex reports tokens and no cost, so a per-model breakdown is harder to publish than a total. And compute is the cheap part. Nothing above prices writing the scenarios, writing the scorers, or reading the transcripts, and the transcripts are where our own product findings came from. Budget for a person, not for an API bill.
+Two caveats on our own figure, both of which understate what this really costs. Some publishers do put cost on the page. Grafana carries total and average cost per row, in the same table as its two pass columns above, and Convex carries a run cost. We don't, and our reason is weaker than it sounds: Claude Code reports a cost and Codex reports tokens and no cost, so a breakdown across agents is awkward to assemble. Awkward isn't impossible. And compute is the cheap part. Nothing above prices writing the scenarios, writing the scorers, or reading the transcripts, and the transcripts are where our own product findings came from. Budget for a person, not for an API bill.
 
 How often to run it is the question I can least help with, because almost nobody states a cadence on their results page. Ours runs weekly, at two attempts against the three guideline 5 asks for. That's in the open list above. Netlify's AXIS is built to sit in CI, so that implies every change. Pick a frequency you can afford to repeat at the attempt count guideline 5 asks for, because a single attempt every week is the guideline 5 problem on a schedule.
 

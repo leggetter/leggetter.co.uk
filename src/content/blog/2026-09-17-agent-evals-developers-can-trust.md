@@ -317,7 +317,7 @@ The five repairs are shipped:
 - The skill that never explained how to authenticate without a terminal now says so.
 - The alert scorer from guideline 6 that required a new record, so repairing a broken one scored zero. Corrected in the [v0.2.0 notes](https://github.com/hookdeck/evals/releases/tag/v0.2.0), though the issue it came from is still open for a separate reason.
 - The two contradictory judged checks from guideline 6, now rewritten so they can both be satisfied ([#22](https://github.com/hookdeck/evals/issues/22)).
-- The scoring itself, which took us a while to see.
+- The scoring itself, which took me a while to see.
 
 We scored a run as a fraction of the checks that ran, and our scorers stop at the first failure. So each agent's denominator was set by its own failures: one that fell at the first hurdle was scored out of one check, and one that got four things right and missed the fifth was scored out of five. No two agents were being marked over the same set of checks, so the percentages were never comparable in the first place. On the 25 August 2026 snapshot that put the deliberately weak model above a frontier one. We now count whole scenarios completed, so a scenario counts once whatever happens inside it. That's corrected in [v0.4.0](https://github.com/hookdeck/evals/releases/tag/v0.4.0), in the same release as a batch of smaller harness corrections.
 

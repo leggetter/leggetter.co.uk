@@ -273,6 +273,89 @@ for (const para of paras) {
   warns.push(`paragraph opens with a bare "${m[1]}", which loses its referent across the break: "${para.slice(0, 70)}..."`);
 }
 
+// 2b. A pro-form pointing at something the reader has not met yet. Two shapes,
+// both of which read as unambiguous while you are writing them because the
+// referent is live in your own head:
+//
+//   "If you're building one"   - "one" stands in for a noun last named paragraphs
+//                                ago, often across a heading.
+//   "this is the list"         - a definite article on first mention, pointing
+//                                forward at something not yet introduced.
+//
+// Check 2 above only inspects paragraph openers, so both survive it when they sit
+// in a second clause. Transitions are where these cluster: they get written last,
+// quickly, to bridge two blocks whose content is already settled.
+// "one of two responses" is excluded: the partitive names its noun on the spot,
+// so there is nothing for the reader to hunt for.
+const PROFORM_ONE = /\b(building|running|reading|writing|publishing|shipping|doing|adopting|maintaining|want|wants|need|needs)\s+one\b(?!\s+of\b)/i;
+const DEFINITE_FIRST = /\b(this|that|these|those|it)\s+(?:is|are|'s|was|were)\s+the\s+([a-z]{3,})\b/gi;
+const stemFor = (w) => w.toLowerCase().replace(/(ies|es|s)$/, '');
+// "This is the end", "it was the highest", "this is the second" are idiom or a
+// superlative, not a noun being smuggled in on first mention. Measured against the
+// published corpus: without these exclusions the check fires 12 times across 186
+// posts and every one of them is one of these shapes.
+const NOT_A_HEAD_NOUN = new Set([
+  'end', 'point', 'start', 'beginning', 'case', 'way', 'time', 'day', 'moment',
+  'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth',
+  'ninth', 'tenth', 'last', 'next', 'other', 'same', 'only', 'real', 'main',
+  'right', 'wrong',
+]);
+for (const para of paras) {
+  if (/^[#\-*|>0-9]/.test(para)) continue;
+  const one = PROFORM_ONE.exec(para);
+  if (one) {
+    warns.push(`bare "one" stands in for a noun the reader may have to hunt for: "${one[0]}" in "${para.slice(0, 70)}..."`);
+  }
+  for (const d of para.matchAll(DEFINITE_FIRST)) {
+    const at = bodyStart.indexOf(para) + d.index;
+    const before = bodyStart.slice(0, at).toLowerCase();
+    const st = stemFor(d[2]);
+    if (st.length < 3) continue;
+    if (NOT_A_HEAD_NOUN.has(d[2].toLowerCase()) || /(est|er)$/.test(d[2])) continue;
+    if (!new RegExp(`\\b${st}`).test(before)) {
+      warns.push(`"${d[0]}" puts a definite article on a first mention, so "the ${d[2]}" points forward at something not yet introduced: "${para.slice(0, 70)}..."`);
+    }
+  }
+}
+
+// 2c. "N publishers using N different definitions" claims that the count of things
+// and the count of *distinct* things are equal. That is a separate claim from either
+// count, it is usually made by accident because the phrasing is neat, and it is
+// nearly always the one that turns out to be unsupported. Zero hits across 186
+// published posts, so a warn here is cheap.
+const N_FOR_N = /\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|\d+)\s+\w+(?:\s+\w+){0,3}?\s+(?:using|with|giving|offering|and)\s+\1\b/i;
+for (const para of paras) {
+  if (/^[#\-*|>]/.test(para)) continue;
+  const m = N_FOR_N.exec(para);
+  if (m) {
+    warns.push(`"${m[0]}" claims the count of things equals the count of distinct things, which is a third claim on top of the two counts: "${para.slice(0, 70)}..."`);
+  }
+}
+
+// 2d. British spelling. Measured: posts from 2024 onward run 21 British forms to 0
+// American, while the pre-2018 archive is mixed at 49%, so an old post is not licence
+// for an American form. Proper nouns keep their own spelling (MIT License, an
+// organisation's registered name), so link text and inline code are excluded above.
+const AMERICAN = [
+  ['behavior', 'behaviour'], ['color', 'colour'], ['artifact', 'artefact'],
+  ['center', 'centre'], ['analyze', 'analyse'], ['organize', 'organise'],
+  ['recognize', 'recognise'], ['optimize', 'optimise'], ['summarize', 'summarise'],
+  ['equalize', 'equalise'], ['normalize', 'normalise'], ['prioritize', 'prioritise'],
+  ['categorize', 'categorise'], ['minimize', 'minimise'], ['maximize', 'maximise'],
+  ['favor', 'favour'], ['labor', 'labour'], ['defense', 'defence'],
+];
+const spellingText = prose(raw).toLowerCase();
+const found = [];
+for (const [us, uk] of AMERICAN) {
+  // The stem must start a word or follow a real prefix. Without this, "labor" matches
+  // inside "elaborate" and "collaborate", which it did on a published post.
+  const n = (spellingText.match(new RegExp(`\\b(?:re|un|mis|dis|over|under|pre|non)?${us}\\w*\\b`, 'g')) || []).length;
+  if (n) found.push(`${us} (${n}) -> ${uk}`);
+}
+if (found.length) {
+  errors.push(`${target}  American spelling in a British-spelling corpus: ${found.join(', ')}`);
+}
+
 // 3. A heading should say what its section says. Heuristic: one content word from
 // the heading should survive into the section under it. Catches headings rewritten
 // in a batch without re-reading what sits beneath them.

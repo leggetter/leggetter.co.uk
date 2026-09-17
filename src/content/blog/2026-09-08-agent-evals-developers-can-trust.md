@@ -23,7 +23,7 @@ Here are the terms I use below.
 
 - **Agent**: the thing doing the work. A model, plus the tools it can use, plus a loop that lets it read files, run commands and try again. Claude Code and Codex are agents; a single model call is not.
 - **Scenario**: one test. A task written as a prompt, plus the checks that decide whether the agent did it. One task per scenario, and the scenario is what passes or fails, so it's the unit every score in this post counts.
-- **Scorer**: the code that does that checking, usually by inspecting what the agent built rather than by reading what it said.
+- **Scorer**: the code that does that checking, usually by inspecting what the agent built, not by reading what it said.
 - **Run**: one attempt at one scenario with a particular agent, model and configuration.
 - **Configuration**: what the agent is given for a run besides the model - the tools it can call, and whether your skills, docs or MCP server are available to it. Run three models against two configurations and you get six combinations.
 - **Baseline**: the configuration you compare the others against.
@@ -65,7 +65,7 @@ Over-specify and you build a suite that can't fail usefully. The agent follows y
 
 Our rule is that scenarios are ticket-shaped, so an agent "can finish confidently and be wrong". We wrote that down because adding a requirements list suppresses the very failure the scenario was built to catch. There's one deliberate exception: a scenario that exists to catch a hallucination "asks the question and nothing else", because anything you add around the question hands over the answer.
 
-A well-shaped task can still be a useless one, and that costs you every run. Four of the five scenarios covering one of our products don't tell one agent from another ([#47](https://github.com/hookdeck/evals/issues/47)), so they bill us and settle nothing. Across the whole suite it's eleven of nineteen, which guideline 14 comes back to.
+A well-shaped task can still be a useless one, and that costs you every run. We wrote our rule down and still ended up filing an issue about scenarios that don't separate one agent from another ([#47](https://github.com/hookdeck/evals/issues/47)). Guideline 14 has the number.
 
 Watch the environment as well as the wording. [Stripe](https://stripe.com/blog/can-ai-agents-build-real-stripe-integrations) has the best writing in the survey on this: agents accepted invalid test data and read a `400` as success, and agents got stuck when a highlighted HTML frame stole focus in a browser form. Neither is a badly worded task. Both are the environment misbehaving, and both were scored as the model failing.
 
@@ -79,7 +79,7 @@ Five of the publishers I looked at say what their baseline is, and between them 
 
 Those are not variations on a theme. An improvement measured against a model with nothing includes everything the agent gained by becoming an agent at all, and an improvement measured against a fully equipped agent doesn't. Present both as a percentage of scenarios completed and they look like the same kind of number.
 
-[LangChain](https://www.langchain.com/blog/evaluating-skills) shows what it costs to leave this out. Its baseline is described only as "without any skills loaded", with nothing about whether the agent had tools, documentation or internet access, and it carries the largest published difference in the survey: 9% to 82%. That 9% is either a startling result about skills or an agent that was given almost nothing, and from the page you can't tell which. Auth0 and Clerk put their definitions in their repository documentation, where anybody can check them. Supabase, Paddle and Convex don't define one anywhere I could find.
+[LangChain](https://www.langchain.com/blog/evaluating-skills) carries the largest difference in the survey, 9% to 82%, and its post does describe the setup: Claude Code running in Docker, with evaluation guidance. What the comparison turns on is the phrase "without any skills loaded", and a reader has to hold the rest of the method in their head to size a jump that large. Put the definition next to the number and nobody has to. Auth0 and Clerk put their definitions in their repository documentation, where anybody can check them. Supabase, Paddle and Convex don't define one anywhere I could find.
 
 ### 3. Run More Than Two Configurations
 
@@ -87,7 +87,7 @@ Add configurations, and publish a gap only between two that differ by a single c
 
 You'll have to decide what to improve next, and documentation, skills and an MCP server are separate pieces of work with separate costs. If you compare a baseline against a run that adds all three, and the score goes up, you don't know which of the three moved it. You could spend a month on the MCP server when it was the documentation doing the work. [Auth0's framework](https://github.com/auth0/auth0-evals) puts it plainly in its README: "the delta between configurations tells you where to invest".
 
-It runs five: a single model call with no tools, then a full agent with file and shell tools, then that agent plus skills, then that agent plus MCP, then everything together. The comparisons all run off the second one, because it's the configuration the others each add a single change to. The step from the first to the second is what tool access alone is worth. The step from the second to the third is what your skills are worth. The step from the second to the fourth is what your MCP server is worth. The third and fourth are never compared with each other, because two changes separate them. The fifth measures the compound effect of running everything at once. That's the number most publishers report on its own. It's the clearest published design I found, and nobody else in the survey has copied it.
+It runs five: a single model call with no tools, then a full agent with file and shell tools, then that agent plus skills, then that agent plus MCP, then everything together. The comparisons all run off the second one, because it's the configuration the others each add a single change to. The step from the first to the second is what tool access alone is worth. The step from the second to the third is what your skills are worth. The step from the second to the fourth is what your MCP server is worth. The third and fourth are never compared with each other, because two changes separate them. The fifth measures the compound effect of running everything at once. That's the number most publishers report on its own. It's the clearest published design I found, and I didn't come across another publisher running the same five.
 
 Almost everyone runs two, ourselves included. Clerk and Paddle run three. Supabase, Laravel, LangChain, Firebase and Hookdeck all publish a single with-and-without comparison. None of us can say from our own published numbers whether the improvement came from what we wrote or from what the agent was allowed to do.
 
@@ -117,7 +117,7 @@ A single attempt can't tell a fix from a coincidence, so you'll act on noise. Yo
 
 We did exactly that. We found a real defect in our command line tool, fixed it, and re-ran to measure what the fix bought. All four of the failures we'd expected it to address recovered on the old CLI too, once we ran them again. Our [record of that comparison](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.md) files it as a negative result: the failures were variance, and the evidence we'd have published was worthless. The fix was still correct. We just couldn't prove anything with it.
 
-[Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) published the same discovery alongside its model comparison. Haiku 4.5 went from 7 passing assertions out of 19 to 17 out of 19 on a rerun, and GPT-5.3 Codex flipped from fail to pass on four evaluations, with the model, prompt and setup unchanged.
+[Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) published the same discovery alongside its model comparison. Haiku 4.5 went from 7 out of 19 to 17 out of 19 on one evaluation, rerun, and GPT-5.3 Codex flipped from fail to pass on four evaluations, with the model, prompt and setup unchanged.
 
 Once you know how much your results move on their own, say what that means for reading them. [Rails](https://rubyonrails.org/ai) does, in one line: differences of a few points between models are within run-to-run noise. That sentence tells a reader which of your gaps to ignore, and most published deltas in this survey, ours included, are smaller than the noise the publisher has admitted to.
 
@@ -135,11 +135,11 @@ Deterministic checks fail more quietly, because nothing about them looks uncerta
 
 That scenario then got harder as the agents got better. The more of them inspected the existing state before acting, the more found the broken alert and did the right thing with it, and the more our scorer failed them for it.
 
-When we counted, eight of the twenty failures in our first release were ours, not the agents'. Our [release notes](https://github.com/hookdeck/evals/releases/tag/v0.4.0) put the limit on that honestly: twelve remain and some of those will be real, so it isn't a claim that our instrument caused most of the failure. It's that one class of defect in our own scoring outweighed the skills delta, the gap we'd reported between vendors, and every other effect the benchmark said it had measured. A benchmark whose defects are larger than its findings isn't measuring what it claims to yet, and the only reason we could say so is that we went looking. Our [improvement log](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.md) puts the general case better than I can: a pass rate cannot distinguish "the agent could not" from "we misled it".
+When we counted, eight of the twenty failures in our first release were ours, not the agents'. The [release notes](https://github.com/hookdeck/evals/releases/tag/v0.2.0) put the limit on that honestly: twelve remain and some of those will be real, so it isn't a claim that our instrument caused most of the failure. It's that one class of defect in our own scoring outweighed the skills delta, the gap we'd reported between vendors, and every other effect the benchmark said it had measured. A benchmark whose defects are larger than its findings isn't measuring what it claims to yet, and the only reason we could say so is that we went looking. Our [improvement log](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.md) puts the general case better than I can: a pass rate cannot distinguish "the agent could not" from "we misled it".
 
 Decide too what your scorer does when nothing was measured. A rate limit, an expired credential, a sandbox that didn't come up: none of those is the agent failing, and if you count them as failures they leak into your comparison unevenly, because slower agents hit timeouts more often. [Next.js](https://nextjs.org/evals) states its rule outright, that infrastructure failures are discarded and rerun instead of counted. Stripe's focus-stealing browser frame from guideline 1 is the same class of thing, scored the other way.
 
-Where publishers do describe their method, they're doing markedly different things. [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) checks its seventeen tasks with 315 Pest assertions, about as deterministic as this gets. [Auth0](https://auth0.com/agent-experience) scores against a weighted hundred-point rubric with named dimensions, including correctness at 25 points, hallucination at 15 and security at 10. [WorkOS](https://workos.com/blog/writing-my-first-evals) runs both kinds on one harness for its command line installer, grading 40 scenarios across 16 frameworks with a functional grader for whether it worked and a separate quality grader scoring four dimensions from one to five. Those three numbers mean different things, and only the first is reproducible by anyone who reruns it.
+Where publishers do describe their method, they're doing markedly different things. [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) checks its suite with 315 Pest assertions, about as deterministic as this gets. [Auth0](https://auth0.com/agent-experience) scores against a weighted hundred-point rubric with named dimensions, including correctness at 25 points, hallucination at 15 and security at 10. [WorkOS](https://workos.com/blog/writing-my-first-evals) runs both kinds on one harness for its command line installer, grading 40 scenarios across 16 frameworks with a functional grader for whether it worked and a separate quality grader scoring four dimensions from one to five. Those three numbers mean different things, and only the first is reproducible by anyone who reruns it.
 
 ### 7. Say How You Counted Success Across Attempts
 
@@ -149,7 +149,7 @@ Once you run a scenario more than once, "passed" stops being one thing. A model 
 
 [Grafana](https://o11ybench.ai/) does exactly this, in adjacent columns: success on all three attempts, and success on at least one. It's the most useful reporting idea I came across, because the gap between the two columns is itself information, and a reader can see how much your headline depends on which reading you picked. Publish the strict number alone and you understate a model that's capable but inconsistent. Publish the loose one alone and you flatter everybody.
 
-Failing that, state the rule. [Next.js](https://nextjs.org/evals) says its success rate is at least one pass in four attempts, and that infrastructure failures are discarded and rerun instead of counted. You may disagree with those choices, and you can't misread the number.
+Failing that, state the rule. [Next.js](https://nextjs.org/evals) says plainly that its success rate is at least one pass in four attempts. You may disagree with that choice, but you can't misread the number.
 
 We've avoided the question by not earning it. The snapshot we released with v0.4.0 ran each scenario once in each configuration, so there was nothing to aggregate. Not having to choose is a worse position than choosing badly.
 
@@ -173,7 +173,7 @@ Publish the task behind every scenario and the code that checks it.
 
 A percentage asks a reader to trust you. The scenarios let them decide whether your tests resemble their work. That's what they're really asking. Withhold them and a developer choosing a model for their integration has to assume your tasks are like theirs, and they may not be at all.
 
-[Supabase](https://github.com/supabase/evals) and [Hookdeck](https://github.com/hookdeck/evals) publish their scenarios and their scoring code. [Resend](https://github.com/resend/resend-skills) does something odd and interesting: it publishes prompts, expected outputs and checks in its skills repository, and no scores at all, the inverse of the usual trade.
+[Supabase](https://github.com/supabase/evals) and [Hookdeck](https://github.com/hookdeck/evals) publish their scenarios and their scoring code. [Resend](https://github.com/resend/resend-skills) does something odd and interesting: it publishes prompts, expected outputs and checks in its skills repository, and a worked pass and fail example, without a scoreboard. That's close to the inverse of the usual trade.
 
 There's a real cost, and it gets worse over time. Anything you publish can be read by an agent and will eventually reach training data, so a high score on familiar tasks stops telling you how an agent handles an unfamiliar one. I'd still publish. If you're shipping skills and documentation at all, you're already trying to get your content in front of models, and being selective about only the test while broadcasting everything else is the wrong way round. Publish, expect the scenarios to age, and replace them.
 
@@ -183,7 +183,7 @@ Publish a redacted transcript for every result, and keep it reachable for as lon
 
 A score says an agent failed. The transcript says what it tried, and that's the difference between knowing you have a problem and knowing what to fix. It also lets a reader check your conclusion instead of accepting it, and find the things you missed. Our own product findings came from reading transcripts, not from the scoreboard.
 
-We don't do this. Our published results record how often agents asked for our docs and how often our skills were loaded, but transcripts have depended on expiring workflow artefacts, so nobody can inspect the decisions behind an older result. [Issue #21](https://github.com/hookdeck/evals/issues/21) records the gap.
+We don't do this. The results file behind our page records how often agents asked for our docs and how often our skills were loaded, but transcripts have depended on expiring workflow artefacts, so nobody can inspect the decisions behind an older result. [Issue #21](https://github.com/hookdeck/evals/issues/21) records the gap.
 
 The reason it isn't trivial is redaction. An agent working in a real project handles real credentials, and a transcript is exactly where one ends up. Ours does now refuse to export anything containing a key, a fix that exists because it had to.
 
@@ -205,7 +205,7 @@ Publishing that log is what separates measuring from marketing, and it serves th
 
 The failures matter more than the successes here. Our [improvement log](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.md) records the CLI comparison above as a negative result, so a reader can follow the finding, the fix, and the evidence that turned out not to support it. Anyone can publish the wins.
 
-I didn't find another one, having looked for a changelog, a loop file or a findings section in every repository and results page in the survey. The [Next.js repository](https://github.com/vercel/next-evals-oss) goes the other way and is explicit that its results feed nothing back into Next.js itself.
+I didn't find another running record of the kind, having looked for a changelog, a loop file or a findings section in the repositories linked at the end of this post. [Convex](https://stack.convex.dev/convex-evals) discloses that it tuned its guidelines against the categories models did worst at, and that's the same instinct without the running record.
 
 ## After It Ships
 
@@ -215,7 +215,7 @@ Write down in advance which changes make an old result uncomparable, and enforce
 
 Without that rule you will eventually publish a table whose rows were measured under different conditions, and present the difference between them as progress. It's an easy thing to do accidentally. The suite still runs, the numbers still appear, and nothing warns you that half of them predate a change to the prompt.
 
-We did it. Our 25 August 2026 snapshot carried 22 results measured on 13 August 2026, across intervening changes to the command line tool, the scorers and the prompt. [Issue #60](https://github.com/hookdeck/evals/issues/60) records how the merge mixed those measurements without saying so at snapshot level.
+We did it. Our 25 August 2026 snapshot carried 22 of its 114 rows from measurements taken on 13 August 2026, across intervening changes to the command line tool, the scorers and the prompt. [Issue #60](https://github.com/hookdeck/evals/issues/60) records how the merge mixed those measurements without saying so at snapshot level.
 
 The next time, we caught it. We added a sentence to the prompt shared by every run, telling agents not to ask clarifying questions. That changed the conditions under which every result had been measured, so the totals either side of it couldn't be presented as the agent getting better. We held publishing until a clean run existed, and the [v0.4.0 release notes](https://github.com/hookdeck/evals/releases/tag/v0.4.0) explain why the earlier totals aren't comparable.
 
@@ -251,15 +251,15 @@ There's a subtler version of the same problem, and it doesn't feel like cheating
 
 Neither of these is a guideline, because the honest answer to both is that it depends. They're the first two questions anyone asks, though, and the survey has enough in it to beat a shrug.
 
-On size, published suites don't even agree on what they're counting. [Stripe](https://stripe.com/blog/can-ai-agents-build-real-stripe-integrations) has eleven environments, [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) seventeen tasks, ours nineteen scenarios, [Rails](https://rubyonrails.org/ai) twenty-one, [Nuxt](https://nuxt.com/evals) thirty-one evals, [Next.js](https://nextjs.org/evals) forty-three, [Grafana](https://o11ybench.ai/) sixty-three and [Convex](https://www.convex.dev/llm-leaderboard) a hundred and eleven. Those units are not interchangeable and I wouldn't average them. Half of those sit between nineteen and forty-three, so a couple of dozen is unremarkable. Nobody is running three.
+On size, published suites don't even agree on what they're counting. [Stripe](https://stripe.com/blog/can-ai-agents-build-real-stripe-integrations) has eleven environments, [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) seventeen tasks, ours nineteen scenarios, [Rails](https://rubyonrails.org/ai) twenty-one, [Nuxt](https://nuxt.com/evals) thirty-one evals, [Next.js](https://nextjs.org/evals) forty-three, [Grafana](https://o11ybench.ai/) sixty-three and [Convex](https://www.convex.dev/llm-leaderboard) a hundred and eleven. Those units are not interchangeable and I wouldn't average them. Half of those sit between nineteen and forty-three, so a couple of dozen is unremarkable. None of them is three scenarios long.
 
-Size matters less than how many of them work. Eleven of our nineteen are passed by everything we run, so eight are doing the job, and eight is thin. Count how many distinct things your product asks an agent to do, write one scenario for each, and then check how many of them separate anything.
+Size matters less than how many of them work. On our 1 September snapshot, eleven of our nineteen were passed by everything we ran, so eight were doing the job, and eight is thin. Count how many distinct things your product asks an agent to do, write one scenario for each, and then check how many of them separate anything.
 
-On cost, two figures give you a rate. Ours is about $81 for 114 runs, and [Rails](https://rubyonrails.org/ai) reports 504 runs at $491. That's seventy cents to a dollar a run, from two suites of different sizes against different products, so treat it as a planning number and not a benchmark. Multiply scenarios by configurations by attempts, then by a dollar. Twenty scenarios, three configurations, three attempts: 180 runs, about $180 a cycle. A single improvement loop, where you re-run only the handful of scenarios a fix should have moved, cost us about $5.
+On cost, two figures give you a rate. Ours is about $81 for 114 runs, and [Rails](https://rubyonrails.org/ai) reports 504 runs at $491. That's seventy cents to a dollar a run, from two suites of different sizes against different products, so treat it as a planning number and not a benchmark. Multiply scenarios by configurations by attempts, then by a dollar. Twenty scenarios, three configurations, three attempts: 180 runs, so $130 to $180 a cycle. A single improvement loop, where you re-run only the handful of scenarios a fix should have moved, cost us about $5.
 
 Two caveats on our own figure, both of which understate what this really costs. Agents don't report comparably, so no results page in the survey carries a cost column, ours included: Claude Code reports a cost and Codex reports tokens and no cost, so a per-model breakdown is harder to publish than a total. And compute is the cheap part. Nothing above prices writing the scenarios, writing the scorers, or reading the transcripts, and the transcripts are where our own product findings came from. Budget for a person, not for an API bill.
 
-How often to run it is the question I can least help with, because almost nobody states a cadence on their results page. Ours runs weekly, at one attempt. That's the wrong trade, and it's in the open list above. Netlify's AXIS is built to sit in CI, so that implies every change. Pick a frequency you can afford to repeat at the attempt count guideline 5 asks for, because a weekly single attempt is just the single-attempt problem wearing a calendar.
+How often to run it is the question I can least help with, because almost nobody states a cadence on their results page. Ours runs weekly, at two attempts against the three guideline 5 asks for. That's in the open list above. Netlify's AXIS is built to sit in CI, so that implies every change. Pick a frequency you can afford to repeat at the attempt count guideline 5 asks for, because a weekly single attempt is just the single-attempt problem wearing a calendar.
 
 ## Why Not Just Agree On One Benchmark?
 
@@ -273,37 +273,41 @@ I'd take that disclosure principle for agent evals: explain what you gave the ag
 
 Our own evals are the example of what goes wrong repeatedly above, so it's fair to ask what we did about it. Here's the accounting: five fixed, one decided, six open.
 
-The five repairs are shipped. The command line tool used to work behind your back in a guest project, so an agent could report success having built everything in a throwaway account nobody would find again. That's corrected in CLI 2.5.0. The skill that never explained how to authenticate without a terminal now says so. The scoring was wrong too, and it took us a while to see it. We scored a run as a fraction of the checks that ran, and our scorers stop at the first failure. So each agent's denominator was set by its own failures: one that fell at the first hurdle was scored out of one check, and one that got four things right and missed the fifth was scored out of five. No two agents were being marked over the same set of checks, so the percentages were never comparable in the first place. On the 25 August 2026 snapshot that put the deliberately weak model above a frontier one. We now count whole scenarios completed, so a scenario counts once whatever happens inside it. That's corrected in [v0.4.0](https://github.com/hookdeck/evals/releases/tag/v0.4.0), along with eleven other corrections to the harness.
+The five repairs are shipped. The command line tool used to work behind your back in a guest project, so an agent could report success having built everything in a throwaway account nobody would find again. That's corrected in CLI 2.5.0. The skill that never explained how to authenticate without a terminal now says so. The scoring was wrong too, and it took us a while to see it. We scored a run as a fraction of the checks that ran, and our scorers stop at the first failure. So each agent's denominator was set by its own failures: one that fell at the first hurdle was scored out of one check, and one that got four things right and missed the fifth was scored out of five. No two agents were being marked over the same set of checks, so the percentages were never comparable in the first place. On the 25 August 2026 snapshot that put the deliberately weak model above a frontier one. We now count whole scenarios completed, so a scenario counts once whatever happens inside it. That's corrected in [v0.4.0](https://github.com/hookdeck/evals/releases/tag/v0.4.0), in the same release as a batch of smaller harness corrections.
 
 The other two are the scorers in guideline 6. The alert scorer that required a new record, so that repairing a broken one scored zero, is fixed ([#28](https://github.com/hookdeck/evals/issues/28)), and the judge that sampled at default temperature and disagreed with itself is pinned ([#22](https://github.com/hookdeck/evals/issues/22)).
 
 The sixth isn't a repair, which is why it sits outside that count. We took a position on clarifying questions where we'd previously had none, and that closed the issue at the cost of suppressing exactly the caution guideline 4 says is worth measuring. It's defensible and it isn't a win, so counting it as one would be the flattering arithmetic this section exists to avoid.
 
-Six are open, and four of them are filed. We still don't publish transcripts that would let you check a result yourself ([#21](https://github.com/hookdeck/evals/issues/21)). A merge can still carry rows forward from an older run without saying so ([#60](https://github.com/hookdeck/evals/issues/60)). And eleven of our nineteen scenarios are passed by everything we run, so most of the suite isn't doing the job the headline claims for it (#47 again).
+Six are open, and four of them are filed. We still don't publish transcripts that would let you check a result yourself ([#21](https://github.com/hookdeck/evals/issues/21)). A merge can still carry rows forward from an older run without saying so ([#60](https://github.com/hookdeck/evals/issues/60)). And on that same snapshot eleven of our nineteen scenarios were passed by everything we ran, so most of the suite wasn't doing the job the headline claims for it (#47 again).
 
 The one I'd most like to close is the last of those four: our skills make a weaker model worse ([#2](https://github.com/hookdeck/evals/issues/2)). The question-stopping in guideline 4 explains part of it and not all of it. On the 1 September 2026 run, loading our skills cost Codex GPT-5.4-mini one scenario out of nineteen while gaining Claude Code two. That's been open since the first week.
 
 The last two aren't filed, because they're design limits and not defects, and naming them is the only thing that makes this list honest. We run two configurations, so by guideline 3 we can't say whether our gains came from what we wrote or from what the agent was allowed to do. And we ran each scenario once in the snapshot this post cites, against the three I've just told you to run. The current suite runs two. Better, and still short.
 
-There's a pattern in which of the fifteen we pass, and it isn't flattering. We meet six: define the baseline, publish the scenarios, date every row, keep the change log, declare when results stop being comparable, and fix the product instead of the scenario. Every one of those costs a piece of writing. We fail eight, and every one of those costs compute or engineering time. It would be easy to read the six as discipline. They're the free ones.
+There's a pattern in which of the fifteen we meet, and it isn't flattering. Five outright: define the baseline, publish the scenarios, date every row, keep the change log, and fix the product instead of the scenario. Every one of those costs a piece of writing and nothing else.
+
+Three we half-meet. We declared one prompt change incomparable and held publishing for it, and #60 above means a merge can still carry rows forward silently. We fixed both scorers in guideline 6 without publishing which of our checks a model grades. And we wrote the scenario-shape rule down and still filed #47 against our own scenarios. One more, the clarifying-question policy, we decided rather than fixed.
+
+That leaves six we fail, and five of them cost compute or engineering time we haven't spent. The sixth is guideline 8, publishing the skill-loading count we already record, and that one is as cheap as the five at the top. We haven't done it anyway. Five, three, one and six is fifteen, and it would be easy to read the five as discipline.
 
 Finding the problem is the cheap part. Running the evals is what turns a suspicion into something you can file.
 
 ## Harnesses Worth Starting From
 
-Don't build the sandboxing and result handling yourself. Four are already available, and they're built for different jobs, so the choice is about what you want out the other end.
+Don't build the sandboxing and result handling yourself. Two agent-eval harnesses and two general evaluation frameworks are already available, built for different jobs, so the choice is about what you want out the other end.
 
-[Vercel's agent-eval](https://github.com/vercel-labs/agent-eval) is the one to look at first if you want to publish a comparison like the ones in this post. It's MIT licensed and it's the shared engine behind the Next.js, Nuxt, Svelte and Storybook results, so it has more publishing adopters than anything else I found. The baseline is an ordinary configuration file with no privileged status, so it will support the single-change designs guideline 3 asks for without imposing one. Its own playground is empty, though, at zero experiments and zero runs, so the adopters are the evidence and not the project itself.
+[Vercel's agent-eval](https://github.com/vercel-labs/agent-eval) is the one to look at first if you want to publish a comparison like the ones in this post. It's MIT licensed and it's the shared engine behind the Next.js, Nuxt and Storybook results, so it has more publishing adopters than anything else I found. Svelte uses it and publishes nothing, which tells you the harness doesn't make you honest on its own. The baseline is an ordinary configuration file with no privileged status, so it will support the single-change designs guideline 3 asks for without imposing one. Its own playground is empty, though, at zero experiments and zero runs, so the adopters are the evidence and not the project itself.
 
-[Netlify's AXIS](https://axis.run) answers a different question. It describes itself as Lighthouse for agent experience: 23 agent adapters, weighted dimensions and a score out of 100 you can gate a build on. Reach for it if you want a number that goes in CI, not a comparison between configurations. It publishes no leaderboard and no named scores of its own, and Auth0 is a founding contributor.
+[Netlify's AXIS](https://axis.run) answers a different question. It describes itself as Lighthouse for agent experience: 23 agent adapters, weighted dimensions and a score out of 100 you can gate a build on. Reach for it if you want a number that goes in CI, not a comparison between configurations. I couldn't find a leaderboard or named scores of its own on the site.
 
-[promptfoo](https://promptfoo.dev), which [Shopify](https://github.com/Shopify/agent-skills) names as its skills-evaluation tool, and [Inspect AI](https://inspect.aisi.org.uk), which [Flutter](https://github.com/flutter/evals) builds on, are general LLM evaluation frameworks, not agent-eval harnesses. Start from one of those if your team already runs it for other model testing and you'd rather extend it than adopt something new. Worth knowing that Flutter publishes no scores anywhere, so you'd be further from a worked example.
+[promptfoo](https://promptfoo.dev), which [Shopify](https://github.com/Shopify/agent-skills) names as its skills-evaluation tool, and [Inspect AI](https://inspect.aisi.org.uk), which [Flutter](https://github.com/flutter/evals) builds on, are general LLM evaluation frameworks, not agent-eval harnesses. Start from one of those if your team already runs it for other model testing and you'd rather extend it than adopt something new. Worth knowing that I couldn't find published scores from Flutter, so you'd be further from a worked example.
 
 Whichever you adopt, none of them decides what your baseline represents or what you disclose about it. That part is still yours, and it's guideline 2.
 
 ## The Pages I Looked At
 
-The results pages and posts cited here are a selection from the wider survey. A dash in the code column means no code link is included in this table.
+The results pages and posts cited here are a selection from the wider survey, so the platforms named in this post don't add up to the twenty-three it found. A dash in the code column means no code link is included in this table.
 
 | Publisher | Results | Code |
 |---|---|---|
@@ -334,13 +338,23 @@ practitioner who has already published evals), a mechanical consistency audit af
 and a claims fact-check.
 
 Review status:
-- The claim-by-claim ledger is section 1c of the private working notes. Every claim in this
-  post has a row.
+- The claim-by-claim ledger is section 1c of the private working notes. A 17 September
+  fact-check found roughly 26 claims with no row; the blocking ones were corrected or cut and
+  the rest still need rows before publication. Do not assume coverage is complete.
+- Where two ledger rows conflict, the later narrowing wins. Row 45 was withdrawn for
+  contradicting row 34.
 - Fifteen guidelines. Two were added on 17 September: scenario design and scoring method.
   Inserting them shifted every number from 1 to 13; all cross-references were re-checked.
 - Voice check: zero errors, zero warnings.
-- Citations: 122 occurrences, 60 distinct destinations, all resolving 200 on 17 September.
-  Re-resolve before publishing.
+- Citations: 61 distinct destinations, all resolving 200 on 17 September. Re-resolve before
+  publishing.
+
+OPEN DECISION for Phil:
+- Section 10 of the working notes says run costs "should not be foregrounded in a personal
+  post", and the redaction block below says no internal pricing. The cost section currently
+  publishes $81 for 114 runs and ~$5 for an improvement loop. Those are ledgered `verified`
+  (row 54) but the redaction guidance was never withdrawn. Decide before publishing: keep the
+  figures, or give the per-run rate from Rails alone.
 
 Before publishing:
 - Review the claim corrections recorded in the audit and the updated claims ledger.

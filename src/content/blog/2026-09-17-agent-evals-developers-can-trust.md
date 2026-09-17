@@ -52,8 +52,6 @@ Here are the terms I use throughout. I say evals because that's the word the rep
 - **Transcript**: the record of what the agent actually did during a run, as opposed to whether it passed.
 - **Snapshot**: a set of results published as a file you can point at later. Ideally every row in it was measured at the same time. Guidelines 11 and 13 are about what happens when they weren't.
 
-Two of the words are mine rather than the field's: scenario, and task. Task isn't in the list above because I only use it for the prompt inside a scenario, and that isn't what Laravel, Rails or Grafana mean by it. Of the eight suites I counted sizes for later on, three call a single test an eval, three call it a task, Stripe calls it an environment, and only we call it a scenario. I've used scenario throughout because eval is already busy naming the whole practice. The field hasn't settled this either.
-
 ## Before You Run Anything
 
 ### 1. State The Goal, Not The Steps

@@ -394,9 +394,20 @@ for (const para of paras) {
   if (head) {
     warns.push(`"${head[0]}" stands in for what the reader actually has to do: "${para.slice(0, 60)}..."`);
   }
-  if (!/\d/.test(para)) continue;           // no figure available, so no approximation
-  for (const m of para.matchAll(MAGNITUDE)) {
-    warns.push(`"${m[0]}" describes a quantity in a paragraph that already carries the number. State it: "${para.slice(0, 60)}..."`);
+  // The figure has to be in the same sentence, not merely somewhere nearby: a date
+  // earlier in the paragraph is not the quantity being approximated. Bare years are
+  // excluded for the same reason. Markup is stripped first so image dimensions in
+  // the imported posts don't count as numbers.
+  const bare = para.replace(/<[^>]*>/g, ' ').replace(/\]\([^)]*\)/g, ' ');
+  for (const sentence of bare.split(/(?<=[.!?])\s+/)) {
+    // A whole number, not digits inside an identifier: "nw9440" is a product name,
+    // not a quantity. Same error class as reading a count off "agent-043".
+    const figures = (sentence.match(/(?<![A-Za-z\d-])\d+(?:\.\d+)?%?(?![A-Za-z\d-])/g) || [])
+      .filter((n) => !/^(19|20)\d\d$/.test(n));
+    if (!figures.length) continue;
+    for (const m of sentence.matchAll(MAGNITUDE)) {
+      warns.push(`"${m[0]}" describes a quantity the same sentence already states as ${figures[0]}: "${sentence.trim().slice(0, 60)}..."`);
+    }
   }
 }
 

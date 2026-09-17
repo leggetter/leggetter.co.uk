@@ -42,6 +42,6 @@
   "devDependencies": {
     "js-yaml": "^5.4.1",
     "playwright-core": "^1.62.1",
-    "wrangler": "^4.127.1"
+    "wrangler": "^4.131.0"
   }
 }

@@ -9,7 +9,7 @@ Ask an AI coding agent to wire up webhook handling, or authentication, or a data
 
 The measurement is called an eval. You write a set of realistic tasks, hand each one to an agent working in a real project, and check whether what it built actually works. Then you run the same tasks again with one thing changed, usually the instructions and documentation you publish for agents to read, the files most people now call skills, and compare the two. What gets published is usually a score for each of the two, and the difference between them.
 
-[Convex](https://www.convex.dev/llm-leaderboard) has been at it longest. Its repository goes back to January 2025, and for about a year afterwards I can't find anyone else doing it. [Clerk's](https://clerk.com/llm-leaderboard) turned up that October, [Supabase's](https://supabase.com/evals) the following April, and [Auth0's](https://auth0.com/agent-experience) in June. [Rails](https://rubyonrails.org/ai) started on 4 August 2026, and the one I worked on at Hookdeck three days after that. So almost none of this is more than a year old. That's probably most of the reason nothing about it has settled.
+[Convex](https://www.convex.dev/llm-leaderboard) has been at it longest. Its repository goes back to January 2025, and I can't find another platform's until [Clerk's](https://clerk.com/llm-leaderboard) nine months later, that October. [Supabase's](https://supabase.com/evals) followed the following April, and [Auth0's](https://auth0.com/agent-experience) in June. [Rails](https://rubyonrails.org/ai) started on 4 August 2026, and the one I worked on at Hookdeck three days after that. So almost none of this is more than a year old. That's probably most of the reason nothing about it has settled.
 
 Nobody agrees on what to call these, and the name turns out to predict what the page is for. I say evals throughout, because that's the word the repositories use. Of five pages I compared, the two published at `/skills` and `/evals` open as self-audits: [.NET](https://dotnet.github.io/skills/) tracks "Copilot quality with and without skill plugins", [Supabase](https://supabase.com/evals) evaluates "model experiments across the Supabase developer journey". The three at `/llm-leaderboard` and `/llm-benchmark` lead as model comparisons instead, with [Clerk](https://clerk.com/llm-leaderboard) inviting you to "select the one that best fits your requirements". Five pages is an observation and not a rule, and it's worth checking before you read a score, because the two kinds answer different questions. Clerk and [Paddle](https://developer.paddle.com/llm-benchmark/) both hold the self-audit answer in a toggle on the page, and neither leads with it. Paddle's sits above the table, showing the plain run by default, with what its own tooling is worth one click away.
 
@@ -84,7 +84,7 @@ Five of the publishers I looked at say what their baseline is, and between them 
 
 Those are not variations on a theme. An improvement measured against a model with nothing includes everything the agent gained by becoming an agent at all, and an improvement measured against a fully equipped agent doesn't. Present both as a percentage of scenarios completed and they look like the same kind of number.
 
-[LangChain](https://www.langchain.com/blog/evaluating-skills) carries the largest difference in the survey, 9% to 82%, and its post does describe the setup: Claude Code running in Docker, with evaluation guidance. What the comparison turns on is the phrase "without any skills loaded", and a reader has to hold the rest of the method in their head to size a jump that large. Put the definition next to the number and nobody has to. Auth0 and Clerk put their definitions in their repository documentation, where anybody can check them. Supabase, Paddle and Convex don't define one anywhere I could find.
+[LangChain](https://www.langchain.com/blog/evaluating-skills) carries the largest difference in the survey, 9% to 82%, and its post does describe the setup: Claude Code running in Docker, with evaluation guidance. What the comparison turns on is running Claude Code with skills against the same agent without them, and a reader has to hold the rest of the method in their head to size a jump that large. Put the definition next to the number and nobody has to. Auth0 and Clerk put their definitions in their repository documentation, where anybody can check them. Supabase doesn't define one anywhere I could find. Paddle and Convex each say a sentence about theirs. That's more than nothing and less than enough to reproduce from.
 
 ### 3. Run More Than Two Configurations
 
@@ -115,9 +115,9 @@ There are three positions, and a default you get by not choosing:
 - **Say nothing.** [Supabase](https://github.com/supabase/evals) has no instruction, no canned answers and no detection anywhere in the repo. That's the default, and it's where we were.
 - **Tell the agent not to ask.** [Clerk](https://github.com/clerk/clerk-evals) puts the same line on every path: "Do not ask clarifying questions. Complete the task with the information provided."
 - **Write canned answers per scenario.** Closest to a real support workflow, though an agent asking something you didn't anticipate still stalls.
-- **Let repetition absorb it.** [Vercel's harness](https://github.com/vercel-labs/agent-eval) treats a cached result as at least one passing run, so a single run that stopped to ask doesn't decide the result.
+- **Let repetition absorb it.** [Vercel's harness](https://github.com/vercel-labs/agent-eval) counts a cached result as valid when at least one run passed, so a single run that stopped to ask doesn't decide the result.
 
-One more comes from outside this category, and it's the one I'd steal from. [tau-bench](https://github.com/sierra-research/tau2-bench) goes furthest. Asking is required there, because its simulated user withholds information until asked, and a question the scenario can't answer ends the episode as a recorded outcome instead of a silent zero.
+One more comes from outside this category, and it's the one I'd steal from. [tau2-bench](https://github.com/sierra-research/tau2-bench) goes furthest. Asking is required there, because its simulated user withholds information until asked, and a question the scenario can't answer ends the episode as a recorded outcome instead of a silent zero.
 
 Our position was that we didn't have one. We had copied our prompt from Supabase's and swapped in our own product, so the silence was inherited and never chosen, and we only found out what it was costing us by reading transcripts. We've since taken Clerk's option, and as guideline 13 records, making that change invalidated every result we'd published up to that point.
 
@@ -190,7 +190,7 @@ Publish the task behind every scenario and the code that checks it.
 
 A percentage asks a reader to trust you. The scenarios let them decide whether your tests resemble their work. That's what they're really asking. Withhold them and a developer choosing a model for their integration has to assume your tasks are like theirs, and they may not be at all.
 
-[Supabase](https://github.com/supabase/evals) and [Hookdeck](https://github.com/hookdeck/evals) publish their scenarios and their scoring code. [Resend](https://github.com/resend/resend-skills) does something odd and interesting: it publishes prompts, expected outputs and checks in its skills repository, and a worked pass and fail example, without a scoreboard. That's close to the inverse of the usual trade.
+[Supabase](https://github.com/supabase/evals) and [Hookdeck](https://github.com/hookdeck/evals) publish their scenarios and their scoring code. [Resend](https://github.com/resend/resend-skills) does something odd and interesting: it publishes prompts, expected outputs and checks in its skills repository, without a scoreboard anywhere. That's close to the inverse of the usual trade.
 
 There's a real cost, and it gets worse over time. Anything you publish can be read by an agent and will eventually reach training data, so a high score on familiar tasks stops telling you how an agent handles an unfamiliar one. I'd still publish. If you're shipping skills and documentation at all, you're already trying to get your content in front of models, and being selective about only the test while broadcasting everything else is the wrong way round. Publish, expect the scenarios to age, and replace them.
 
@@ -210,7 +210,7 @@ Put a date on every row, not one date on the page.
 
 A snapshot can carry old runs forward, so a single page date quietly claims a freshness the individual numbers don't have. A reader comparing two models in your table may be comparing measurements taken weeks apart, pick the one that looks better, and never learn the comparison wasn't one.
 
-[Convex](https://www.convex.dev/llm-leaderboard/with-guidelines) handles it best of anyone I looked at: stale rows say so where they sit, and the table carries columns for how old each model is and when it last ran. [Grafana](https://o11ybench.ai/) and [Next.js](https://nextjs.org/evals) both date every row too.
+[Convex](https://www.convex.dev/llm-leaderboard/with-guidelines) handles it best of anyone I looked at: stale rows say so where they sit, and the table carries columns for how old each model is and when it last ran. [Grafana](https://o11ybench.ai/) dates every row too. [Next.js](https://nextjs.org/evals) dates the rows in its superseded table and gives its current one a single page-level date, the thing this guideline is about.
 
 Dating every row is necessary and it isn't sufficient, as we found out. Ours made it possible to discover that one of our snapshots mixed measurements taken weeks apart. They didn't stop us publishing it, and guideline 13 is about the rule that would have.
 
@@ -244,7 +244,7 @@ Record the exact versions too, and not just the model name. An agent is a model 
 
 ![Convex's leaderboard showing a benchmark version selector reading 9 September 2026, 112 evals, above columns for run cost, model age and time since last run](/images/agent-evals-convex-version-and-dates.png)
 
-[tau-bench](https://github.com/sierra-research/tau2-bench) shows how precisely the boundary can be drawn. Its v1.0.1 correction made earlier results for the banking-knowledge domain noncomparable, so it re-graded the affected submissions and kept a tag for reproducing the old behaviour. The other domains were untouched.
+[tau2-bench](https://github.com/sierra-research/tau2-bench) shows how precisely the boundary can be drawn. Its v1.0.1 correction made earlier results for the banking-knowledge domain noncomparable, so it re-graded the affected submissions and kept a tag for reproducing the old behaviour. The other domains were untouched.
 
 ### 14. Keep Easy Scenarios Out Of The Headline
 
@@ -254,7 +254,7 @@ Your headline number is the one people quote, and it should answer the question 
 
 Eleven of the nineteen scenarios in our [1 September 2026 snapshot](https://raw.githubusercontent.com/hookdeck/evals/v0.4.0/results/latest.json) were passed by every one of the six model-and-configuration pairs we ran. [Storybook's page](https://storybook-evals.vercel.app/) likewise shows 100% across four configurations. Both ran a single attempt, so neither of us can say how reliably any of it would happen again. [Our issue on scenarios that don't distinguish agents](https://github.com/hookdeck/evals/issues/47) works through the problem, including a task whose expected difficulty didn't survive contact with the agents.
 
-Convex shows the same squeeze arriving a different way. In the September survey, its top five scores [with guidelines](https://www.convex.dev/llm-leaderboard/with-guidelines) sat within 2.5 points of each other on a hundred-point scale, running 96.4 down to 93.9. [Without them](https://www.convex.dev/llm-leaderboard/no-guidelines) the same five spread over 4.1 points, from 84.7 to 80.6. Improving the thing you're measuring leaves less room to tell the leaders apart. It's a good problem to have and still a problem.
+Convex shows the same squeeze arriving a different way. On the 111-eval benchmark current during the survey, the top five [with guidelines](https://www.convex.dev/llm-leaderboard/with-guidelines) sat within 2.3 points of each other on a hundred-point scale, from 96.4 down to 94.1. The top five [without them](https://www.convex.dev/llm-leaderboard/no-guidelines) spread over 4.1 points, from 84.7 to 80.6. Only three of the five models are common to both lists, so that's two leaderboards compared and not one group measured twice. Improving the thing you're measuring leaves less room to tell the leaders apart. It's a good problem to have and still a problem.
 
 Don't delete these scenarios. Keep them as regression tests, because a scenario everyone passes today is exactly what catches the week somebody stops passing it. Our [README](https://github.com/hookdeck/evals/blob/v0.4.0/README.md) separates regression scenarios from benchmark totals for that reason. Adding harder ones means saying which version of the suite a result came from, or the suite getting harder looks like the models getting worse.
 
@@ -279,9 +279,9 @@ On size, published suites don't even agree on what they're counting.
 | [Stripe](https://stripe.com/blog/can-ai-agents-build-real-stripe-integrations) | 11 | environments |
 | [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel) | 17 | tasks |
 | Hookdeck | 19 | scenarios |
-| [Rails](https://rubyonrails.org/ai) | 21 | tasks |
+| [Rails](https://rubyonrails.org/ai) | 21 + 20 | tasks, in two stages |
 | [Nuxt](https://nuxt.com/evals) | 31 | evals |
-| [Next.js](https://nextjs.org/evals) | 43 | evals |
+| [Next.js](https://nextjs.org/evals) | 31 | evals |
 | [Grafana](https://o11ybench.ai/) | 63 | tasks |
 | [Convex](https://www.convex.dev/llm-leaderboard) | 112 | evals |
 
@@ -289,7 +289,9 @@ That right-hand column is the reason I wouldn't average the middle one. Half of 
 
 Size matters less than how many of them work. On our 1 September snapshot, eleven of our nineteen were passed by everything we ran, so eight were doing the job, and eight is thin. Count how many distinct things your product asks an agent to do, write one scenario for each, and then check how many of them separate anything.
 
-On cost, two figures give you a rate. Ours is about $81 for 114 runs, and [Rails](https://rubyonrails.org/ai) reports 504 runs at $491. That's seventy cents to a dollar a run, from two suites of different sizes against different products, so treat it as a planning number and not a benchmark. Multiply scenarios by configurations by attempts, then by a dollar. Twenty scenarios, three configurations, three attempts: 180 runs, so $130 to $180 a cycle. A single improvement loop, where you re-run only the handful of scenarios a fix should have moved, cost us about $5.
+On cost there's one figure I'd lean on and one I wouldn't. Rails measured it: [504 runs at $491](https://rubyonrails.org/2026/8/13/agents-on-rails-the-first-benchmark-report) for the first stage of its benchmark, or about 97 cents a run. Ours is often quoted as $81 for a 114-run matrix, and that number is arithmetic, not a measurement: it's a real figure for a smaller suite, scaled up. Our own notes say to re-measure instead of re-scaling when a decision turns on it, and they say it because conflating the two once had us reporting the judge at twenty-eight times its real cost.
+
+So take Rails' rate and treat ours as an order of magnitude. Multiply scenarios by configurations by attempts, then by a dollar. Twenty scenarios, three configurations, three attempts: 180 runs, so somewhere under $200 a cycle. A single improvement loop, where you re-run only the handful of scenarios a fix should have moved, cost us about $5, and that one was measured.
 
 Two caveats on our own figure, both of which understate what this really costs. Some publishers do put cost on the page. Grafana carries total and average cost per row, in the same table as its two pass columns above, and Convex carries a run cost. We don't, and our reason is weaker than it sounds: Claude Code reports a cost and Codex reports tokens and no cost, so a breakdown across agents is awkward to assemble. Awkward isn't impossible. And compute is the cheap part. Nothing above prices writing the scenarios, writing the scorers, or reading the transcripts, and the transcripts are where our own product findings came from. Budget for a person, not for an API bill.
 
@@ -362,7 +364,7 @@ The results pages and posts cited here are a selection from the wider survey, so
 | .NET | [dotnet.github.io/skills](https://dotnet.github.io/skills/) | [dotnet/skills](https://github.com/dotnet/skills) |
 | Rails | [rubyonrails.org/ai](https://rubyonrails.org/ai) | [rails/ai-evals](https://github.com/rails/ai-evals) |
 | Tinybird | [llm-benchmark.tinybird.live](https://llm-benchmark.tinybird.live/) | - |
-| Storybook | [storybook-evals.vercel.app](https://storybook-evals.vercel.app/) | [storybookjs/mcp](https://github.com/storybookjs/mcp) |
+| Storybook | [storybook-evals.vercel.app](https://storybook-evals.vercel.app/) | [storybookjs/storybook](https://github.com/storybookjs/storybook/tree/next/agent-eval) |
 | Callstack | [rn-evals.vercel.app](https://rn-evals.vercel.app/) | [callstackincubator/evals](https://github.com/callstackincubator/evals) |
 | Hookdeck | [hookdeck.com/evals](https://hookdeck.com/evals) | [hookdeck/evals](https://github.com/hookdeck/evals) |
 

@@ -1,6 +1,5 @@
 ---
 title: "How to Publish Agent Evals Developers Can Trust"
-draft: true
 aiAssisted: true
 excerpt: "While building Hookdeck's agent evals page, I directed an AI-assisted survey of how other developer platforms publish their results. These fifteen guidelines cover what I'd check before trusting a score, including several things we got wrong ourselves."
 ---
@@ -371,43 +370,3 @@ The results pages and posts cited here are a selection from the wider survey, so
 | Hookdeck | [hookdeck.com/evals](https://hookdeck.com/evals) | [hookdeck/evals](https://github.com/hookdeck/evals) |
 
 Published as a post rather than a page: [Stripe](https://stripe.com/blog/can-ai-agents-build-real-stripe-integrations) ([harness](https://github.com/stripe/ai/tree/main/benchmarks)), [Netlify](https://www.netlify.com/blog/how-we-measure-netlify-agent-experience/), [Laravel](https://laravel.com/blog/which-ai-model-is-best-for-laravel), [Vercel](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals), [LangChain](https://www.langchain.com/blog/evaluating-skills), [Firebase](https://firebase.blog/posts/2026/08/eval-driven-development-agent-skills/), [WorkOS](https://workos.com/blog/writing-my-first-evals), [Convex](https://stack.convex.dev/convex-evals) and [Supabase](https://supabase.com/blog/introducing-supabase-evals).
-
-<!--
-DRAFT NOTES - REMOVE BEFORE PUBLISHING
-
-banned: arm, cell, treatment, context layer, overfitting
-
-Reviewed 16 and 17 September 2026: explanation-shape passes, two cold reads (a builder and a
-practitioner who has already published evals), a mechanical consistency audit after renumbering,
-and a claims fact-check.
-
-Review status:
-- The claim-by-claim ledger is section 1c of the private working notes. A 17 September
-  fact-check found roughly 26 claims with no row; the blocking ones were corrected or cut and
-  the rest still need rows before publication. Do not assume coverage is complete.
-- Where two ledger rows conflict, the later narrowing wins. Row 45 was withdrawn for
-  contradicting row 34.
-- Fifteen guidelines. Two were added on 17 September: scenario design and scoring method.
-  Inserting them shifted every number from 1 to 13; all cross-references were re-checked.
-- Voice check: zero errors, zero warnings.
-- Citations: 61 distinct destinations, all resolving 200 on 17 September. Re-resolve before
-  publishing.
-
-OPEN DECISION for Phil:
-- Section 10 of the working notes says run costs "should not be foregrounded in a personal
-  post", and the redaction block below says no internal pricing. The cost section currently
-  publishes $81 for 114 runs and ~$5 for an improvement loop. Those are ledgered `verified`
-  (row 54) but the redaction guidance was never withdrawn. Decide before publishing: keep the
-  figures, or give the per-run rate from Rails alone.
-
-Before publishing:
-- Review the claim corrections recorded in the audit and the updated claims ledger.
-- Distinguish dated snapshots from current results, and retries from independent repetitions.
-- Keep absence claims scoped to what was searched; never infer absence from a missing link.
-- Run the voice check on the final source and resolve every error.
-- Remove these editorial notes when publishing.
-
-REDACTION: Public repositories, results, issues and releases are citable. Do not include
-internal metrics, revenue, pricing, unreleased work, project or tenant identifiers,
-private-repository paths or local filesystem paths.
--->

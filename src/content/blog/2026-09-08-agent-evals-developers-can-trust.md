@@ -66,7 +66,7 @@ Write each task the way a colleague would file a ticket: what you want to end up
 
 A task that spells out the steps tests whether an agent can follow instructions, which you already knew it could. A task that states a goal and leaves the route open tests whether the product makes sense to an agent that has to work it out. That's the part that's hard to get any other way, and it's most of the reason to run any of this.
 
-Over-specify and you build a suite that can't fail usefully. The agent follows the requirements list, the board goes green, and the failures real users are hitting were never in it. You may spend a quarter improving a number that was never measuring them, and the scores probably won't warn you, because a suite that can't fail looks exactly like a product that works. From the scores alone, which one are you looking at?
+Over-specify and you build a suite that can't fail usefully. The agent follows the requirements list, the board goes green, and the failures real users are hitting were never in it. You may spend a month improving a number that was never measuring them, and the scores probably won't warn you, because a suite that can't fail looks exactly like a product that works. From the scores alone, which one are you looking at?
 
 Our rule is that scenarios are ticket-shaped, so an agent "can finish confidently and be wrong". We wrote that down because adding a requirements list suppresses the very failure the scenario was built to catch. There's one deliberate exception: a scenario that exists to catch a hallucination "asks the question and nothing else", because anything you add around the question hands over the answer.
 
@@ -141,15 +141,15 @@ Once you know how much your results move on their own, say what that means for r
 
 Publish which of your checks are deterministic and which are decided by a model.
 
-Repeating a scenario, as guideline 5 tells you to, re-runs the grader along with the agent, so the two sources of variance arrive tangled together. Nothing in that process grades the same piece of work twice, which is usually the way to separate them. When a scenario fails you'll be deciding what to fix, and you won't know whether the agent got it wrong or your grader did.
+Repeating a scenario, as guideline 5 tells you to, re-runs the grader along with the agent, so the two sources of variance arrive tangled together. Separating them means grading the same piece of work twice, and nothing in that process does. When a scenario fails you'll be deciding what to fix, and you won't know whether the agent got it wrong or your grader did.
 
 Both kinds of check fail, and we have one of each. Our language-model judge sampled at default temperature, so judged checks disagreed with themselves between runs ([#22](https://github.com/hookdeck/evals/issues/22)). In one scenario two judged checks disagreed with each other: one rewarded naming the mock destination URL as the cause, the other failed the same answer for attributing the failure to Hookdeck. Three runs of that scenario were marked down for giving the best diagnosis available, and the frontier agent was one of them.
 
 Deterministic checks fail more quietly, because nothing about them looks uncertain. One of our scorers read a record's creation timestamp. An agent found a broken alert, diagnosed it exactly and repaired it, and scored zero, because repairing something doesn't change when it was created. We had written a check that rewarded leaving the broken alert in place and adding a duplicate beside it.
 
-That scenario then got harder as the agents got better. The more of them inspected the existing state before acting, the more found the broken alert and did the right thing with it, and the more our scorer failed them for it.
+That scenario then punished the agents more as they got better. The more of them inspected the existing state before acting, the more found the broken alert and repaired it, and the more our scorer marked them down for it. The task never changed.
 
-When we counted, eight of the twenty failures in our first release were ours, not the agents'. The [release notes](https://github.com/hookdeck/evals/releases/tag/v0.2.0) put the limit on that honestly: twelve remain and some of those will be real, so it isn't a claim that our instrument caused most of the failure. It's that one class of defect in our own scoring outweighed the skills delta, the gap we'd reported between vendors, and every other effect the benchmark said it had measured. A benchmark whose defects are larger than its findings isn't measuring what it claims to yet, and the only reason we could say so is that we went looking. Our [improvement log](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.md) puts the general case better than I can: a pass rate cannot distinguish "the agent could not" from "we misled it".
+When we counted, eight of the twenty failures in our first release were ours, not the agents'. The [release notes](https://github.com/hookdeck/evals/releases/tag/v0.2.0) put the limit on that honestly: twelve remain and some of those will be real, so it isn't a claim that our instrument caused most of the failure. It's that one class of defect in our own scoring outweighed the skills delta, the gap we'd reported between one model and another, and every other effect the benchmark said it had measured. A benchmark whose defects are larger than its findings isn't measuring what it claims to yet, and the only reason we could say so is that we went looking. Our [improvement log](https://github.com/hookdeck/evals/blob/v0.4.0/LOOPS.md) puts the general case better than I can: a pass rate cannot distinguish "the agent could not" from "we misled it".
 
 Decide too what your scorer does when nothing was measured. A rate limit, an expired credential, a sandbox that never came up: is that the agent failing? Probably not, and counted as failures they'll leak into your comparison unevenly, because slower agents tend to hit timeouts more often. [Next.js](https://nextjs.org/evals) states its rule outright, that infrastructure failures are discarded and rerun instead of counted. Stripe's focus-stealing browser frame from guideline 1 is the same class of thing, scored the other way.
 
@@ -168,7 +168,7 @@ Once you run a scenario more than once, "passed" stops being one thing. A model 
 
 Failing that, state the rule. [Next.js](https://nextjs.org/evals) says plainly that its success rate is at least one pass in four attempts. You may disagree with that choice, but you can't misread the number.
 
-We've avoided the question by not earning it. The snapshot we released with v0.4.0 ran each scenario once in each configuration, so there was nothing to aggregate. Not having to choose is a worse position than choosing badly.
+We haven't had to answer it, which is worse than answering it badly. The snapshot we released with v0.4.0 ran each scenario once in each configuration, so there was nothing to aggregate and no choice to disclose.
 
 ### 8. Check Your Skills Were Opened
 
@@ -202,7 +202,7 @@ A score says an agent failed. The transcript says what it tried, and that's the 
 
 We don't do this. The results file behind our page records how often agents asked for our docs and how often our skills were loaded, but transcripts have depended on expiring workflow artefacts, so nobody can inspect the decisions behind an older result. [Issue #21](https://github.com/hookdeck/evals/issues/21) records the gap.
 
-The reason it isn't trivial is redaction. An agent working in a real project handles real credentials, and a transcript is exactly where one ends up. Ours does now refuse to export anything containing a key, a fix that exists because it had to.
+The reason it isn't trivial is redaction. An agent working in a real project handles real credentials, and a transcript is exactly where one ends up. Ours does now refuse to export anything containing a key. We added that after live credentials reached a public run artefact and had to be rotated ([#20](https://github.com/hookdeck/evals/issues/20)).
 
 ### 11. Date Every Result
 
@@ -240,7 +240,7 @@ The next time, we caught it. We added a sentence to the prompt shared by every r
 
 Record the exact versions too, and not just the model name. An agent is a model plus its tools and its loop, so a new release of the command line agent changes what you measured as surely as a prompt edit does, and a provider can move what sits behind an alias without telling you. I'd pin and record the model string, the agent version and the harness version on every row. [Convex](https://www.convex.dev/llm-leaderboard/with-guidelines) gets closest of anyone I saw, with a column for how old each model is, and that still isn't the same as knowing which build answered.
 
-[Convex](https://www.convex.dev/llm-leaderboard) does the reader-facing half of this better than anyone I found. Its leaderboard carries a benchmark version selector, so the page tells you which suite produced the numbers you're looking at and lets you go back to an older one, instead of quietly replacing them. When I looked on 17 September it was showing 112 evals as of 10 September.
+[Convex](https://www.convex.dev/llm-leaderboard) does the reader-facing half of this better than anyone I found. Its leaderboard carries a benchmark version selector, so the page tells you which suite produced the numbers you're looking at and lets you go back to an older one, instead of quietly replacing them. When I took the screenshot below on 17 September it was showing 112 evals as of 9 September, and it had moved to 10 September within the hour.
 
 ![Convex's leaderboard showing a benchmark version selector reading 9 September 2026, 112 evals, above columns for run cost, model age and time since last run](/images/agent-evals-convex-version-and-dates.png)
 
@@ -256,7 +256,7 @@ Eleven of the nineteen scenarios in our [1 September 2026 snapshot](https://raw.
 
 Convex shows the same squeeze arriving a different way. On the 111-eval benchmark current during the survey, the top five [with guidelines](https://www.convex.dev/llm-leaderboard/with-guidelines) sat within 2.3 points of each other on a hundred-point scale, from 96.4 down to 94.1. The top five [without them](https://www.convex.dev/llm-leaderboard/no-guidelines) spread over 4.1 points, from 84.7 to 80.6. Only three of the five models are common to both lists, so that's two leaderboards compared and not one group measured twice. Improving the thing you're measuring leaves less room to tell the leaders apart. It's a good problem to have and still a problem.
 
-Don't delete these scenarios. Keep them as regression tests, because a scenario everyone passes today is exactly what catches the week somebody stops passing it. Our [README](https://github.com/hookdeck/evals/blob/v0.4.0/README.md) separates regression scenarios from benchmark totals for that reason. Adding harder ones means saying which version of the suite a result came from, or the suite getting harder looks like the models getting worse.
+Don't delete these scenarios. Keep them as regression tests, because a scenario everyone passes today is exactly what catches the week somebody stops passing it. Our [README](https://github.com/hookdeck/evals/blob/v0.4.0/README.md) separates regression scenarios from benchmark totals for that reason. If you add harder ones, say which version of the suite a result came from. Otherwise the suite getting harder looks like the models getting worse.
 
 ### 15. Fix The Product, Not The Scenario
 
@@ -293,21 +293,21 @@ On cost there's one figure I'd lean on and one I wouldn't. Rails measured it: [5
 
 So take Rails' rate and treat ours as an order of magnitude. Multiply scenarios by configurations by attempts, then by a dollar. Twenty scenarios, three configurations, three attempts: 180 runs, so somewhere under $200 a cycle. A single improvement loop, where you re-run only the handful of scenarios a fix should have moved, cost us about $5, and that one was measured.
 
-Two caveats on our own figure, both of which understate what this really costs. Some publishers do put cost on the page. Grafana carries total and average cost per row, in the same table as its two pass columns above, and Convex carries a run cost. We don't, and our reason is weaker than it sounds: Claude Code reports a cost and Codex reports tokens and no cost, so a breakdown across agents is awkward to assemble. Awkward isn't impossible. And compute is the cheap part. Nothing above prices writing the scenarios, writing the scorers, or reading the transcripts, and the transcripts are where our own product findings came from. Budget for a person, not for an API bill.
+One thing that understates all of this, and one that's just worth knowing. Some publishers do put cost on the page. Grafana carries total and average cost per row, in the same table as its two pass columns above, and Convex carries a run cost. We don't, and our reason is weaker than it sounds: Claude Code reports a cost and Codex reports tokens and no cost, so a breakdown across agents is awkward to assemble. Awkward isn't impossible. And compute is the cheap part. Nothing above prices writing the scenarios, writing the scorers, or reading the transcripts, and the transcripts are where our own product findings came from. Budget for a person, not for an API bill.
 
-How often to run it is the question I can least help with, because almost nobody states a cadence on their results page. Ours runs weekly, at two attempts against the three guideline 5 asks for. That's in the open list above. Netlify's AXIS is built to sit in CI, so that implies every change. Pick a frequency you can afford to repeat at the attempt count guideline 5 asks for, because a single attempt every week is the guideline 5 problem on a schedule.
+How often to run it is the question I can least help with, because almost nobody states a cadence on their results page. Ours runs weekly, at two attempts against the three guideline 5 asks for. That's in the open list further down. Netlify's AXIS is built to sit in CI, so that implies every change. Pick a frequency you can afford to repeat at the attempt count guideline 5 asks for, because a single attempt every week is the guideline 5 problem on a schedule.
 
 ## Why Not One Shared Benchmark?
 
-A payments API and an observability platform involve different work, so I wouldn't expect one shared task suite to answer every vendor's questions. We can still agree on what a published result should disclose, even where the tasks differ.
+A payments API and an observability platform involve different work, so I wouldn't expect one shared task suite to answer every platform's questions. We can still agree on what a published result should disclose, even where the tasks differ.
 
 [MLPerf's training rules](https://github.com/mlcommons/training_policies/blob/master/training_rules.adoc) provide a useful precedent for labelling results. Its Closed division constrains the model, preprocessing, training method and quality target, while the Open division permits more variation. Results must name their division, so the reader knows which rules apply.
 
 I'd take that disclosure principle for agent evals: explain what you gave the agent, how often it tried, when it ran, and what counted as success. The tasks can remain specific to your product without leaving readers to guess how the number was produced.
 
-## What We've Fixed And Haven't
+## Hookdeck Against This List
 
-Our own evals are the example of what goes wrong repeatedly above, so it's fair to ask what we did about it. Here's the accounting: five fixed, one decided, six open.
+I've used our own evals as the example of what goes wrong all the way through this, so it's fair to turn the list on them. Here's my accounting: five fixed, one decided, six open.
 
 The five repairs are shipped:
 
@@ -325,13 +325,13 @@ Six are open, and four of them are filed. We still don't publish transcripts tha
 
 The one I'd most like to close is the last of those four: our skills make a weaker model worse ([#2](https://github.com/hookdeck/evals/issues/2)). The question-stopping in guideline 4 explains part of it and not all of it. On the 1 September 2026 run, loading our skills cost Codex GPT-5.4-mini one scenario out of nineteen while gaining Claude Code two. That's been open since the first week.
 
-The last two aren't filed, because they're design limits and not defects, and naming them is the only thing that makes this list honest. We run two configurations, so by guideline 3 we can't say whether our gains came from what we wrote or from what the agent was allowed to do. And we ran each scenario once in the snapshot this post cites, against the three I've just told you to run. The current suite runs two. Better, and still short.
+The last two aren't filed, because they're design limits and not defects. I've named them because leaving them out is how this kind of list gets flattering. We run two configurations, so by guideline 3 we can't say whether our gains came from what we wrote or from what the agent was allowed to do. And we ran each scenario once in the snapshot this post cites, against the three I've just told you to run. The current suite runs two. Better, and still short.
 
-There's a pattern in which of the fifteen we meet, and it isn't flattering. Five outright: define the baseline, publish the scenarios, date every row, keep the change log, and fix the product instead of the scenario. Every one of those costs a piece of writing and nothing else.
+Counting up which of the fifteen we meet, I don't much like the pattern. Five outright: define the baseline, publish the scenarios, date every row, keep the change log, and fix the product instead of the scenario. Every one of those costs a piece of writing and nothing else.
 
 Three we half-meet. We declared one prompt change incomparable and held publishing for it, and #60 above means a merge can still carry rows forward silently. We fixed both scorers in guideline 6 without publishing which of our checks a model grades. And we wrote the scenario-shape rule down and still filed #47 against our own scenarios. One more, the clarifying-question policy, we decided rather than fixed.
 
-That leaves six we fail, and five of them cost compute or engineering time we haven't spent. The sixth is guideline 8, publishing the skill-loading count we already record, and that one is as cheap as the five at the top. We haven't done it anyway. Five, three, one and six is fifteen, and it would be easy to read the five as discipline.
+That leaves six we fail, and five of them cost compute or engineering time we haven't spent. The sixth is guideline 8, publishing the skill-loading count we already record, and that one is as cheap as the five at the top. We haven't done it anyway. Five, three, one and six is fifteen. I'd like to read those five as discipline, and I don't think that's what they are.
 
 Finding the problem is the cheap part. Running the evals is what turns a suspicion into something you can file.
 

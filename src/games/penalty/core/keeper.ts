@@ -49,7 +49,7 @@ const MAX_HAND_Y = 2.35;
  * keeper's read was therefore about a fifth as wide as intended, it reached
  * almost everything, and the release timing had nothing left to influence.
  */
-const MAX_READ_SIGMA = 3.0;
+const MAX_READ_SIGMA = 1.4;
 
 /** Standard deviation of Rng.nextBell, which is four uniforms recentered. */
 const BELL_SD = 0.2887;

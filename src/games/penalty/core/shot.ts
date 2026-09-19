@@ -20,7 +20,6 @@ import {
   TIMING_CENTRE_PULL,
   TIMING_PACE_LOSS,
   TIMING_PULL,
-  TIMING_SCATTER,
   TIMING_SPREAD,
 } from './units.ts';
 import type { Player, Shot, ShotInput } from './types.ts';
@@ -34,17 +33,38 @@ const clamp = (v: number, lo: number, hi: number): number => (v < lo ? lo : v > 
 const unit = (attribute: number): number => clamp(attribute, 0, 100) / 100;
 
 /**
- * Widest the aim can stray at accuracy 0, in meters on the goal plane. At
- * accuracy 100 a shot goes exactly where it was aimed, which makes 100 a
- * deliberate ceiling rather than a number to hand out.
+ * Aim error, as a standard deviation in meters at the goal.
+ *
+ * Every one of these is a sigma, and `scatter` below divides the bell draw by
+ * its own standard deviation so the number you write is the number you get.
+ * The first version treated them as half-ranges and multiplied by a draw whose
+ * sd is 0.29, which made an accuracy-88 striker land within four centimeters
+ * of the aim point every time. Twenty logged shots put sixteen of them beyond
+ * the keeper's maximum possible reach, and it never made a save.
  */
-const MAX_AIM_ERROR = 1.25;
+const MAX_AIM_SIGMA = 1.0;
 
-/** Extra error at full power. A hard shot is a less precise one. */
-const POWER_ERROR = 0.45;
+/**
+ * Square-rooted rather than linear, so precision falls off fast at the top of
+ * the scale. Linear made everything above about 80 indistinguishable from
+ * perfect, which collapsed the whole attribute into a binary.
+ */
+const aimSigma = (accuracy: number): number => MAX_AIM_SIGMA * Math.sqrt(1 - unit(accuracy));
 
-/** Extra error added under pressure, before composure reduces it. */
-const PRESSURE_ERROR = 0.55;
+/** Vertical scatter, as a fraction of the lateral. Height is easier to keep. */
+const VERTICAL_SCATTER = 0.62;
+
+/** Extra sigma at full power. A hard shot is a less precise one. */
+const POWER_SIGMA = 0.28;
+
+/** Extra sigma under full pressure, before composure offsets it. */
+const PRESSURE_SIGMA = 0.4;
+
+/** Extra sigma from the worst possible contact, whoever is taking it. */
+const TIMING_SIGMA = 0.7;
+
+/** Standard deviation of Rng.nextBell, which is four uniforms recentered. */
+const BELL_SD = 0.2887;
 
 export interface ShotContext {
   /** Where the ball is being struck from. */
@@ -82,12 +102,17 @@ export function resolveShot(
   // How far it may stray. Accuracy sets the floor, power and pressure add to
   // it, and composure only offsets the pressure part - a composed player is
   // not a more accurate one, they are one who stays as accurate as usual.
-  const spread =
-    ((1 - unit(player.accuracy)) * MAX_AIM_ERROR +
-      power * POWER_ERROR * (1 - unit(player.accuracy)) +
-      pressure * PRESSURE_ERROR * (1 - unit(player.composure))) *
-      (1 + mistimed * TIMING_SPREAD) +
-    mistimed * TIMING_SCATTER;
+  // Sigmas add. Accuracy sets the floor, power and pressure widen it, and a
+  // bad contact adds on top regardless of who is taking it. Composure offsets
+  // only the pressure part: a composed player is not a more accurate one, they
+  // are one who stays as accurate as usual when it matters.
+  const sigma =
+    aimSigma(player.accuracy) * (1 + mistimed * TIMING_SPREAD) +
+    power * POWER_SIGMA * (1 - unit(player.accuracy)) +
+    pressure * PRESSURE_SIGMA * (1 - unit(player.composure)) +
+    mistimed * TIMING_SIGMA;
+
+  const scatter = (): number => (rng.nextBell() / BELL_SD) * sigma;
 
   // A scuff squirts back toward the middle of the goal and stays low. This is
   // the real cost of bad timing: not that the ball goes somewhere random, but
@@ -96,8 +121,11 @@ export function resolveShot(
 
   // It also drags in a consistent direction, so releasing early pulls it left
   // every time rather than scattering unpredictably.
-  const targetX = intendedX * centred + timing * TIMING_PULL + rng.nextBell() * spread;
-  const targetY = Math.max(0, intendedY * centred + rng.nextBell() * spread);
+  const targetX = intendedX * centred + timing * TIMING_PULL + scatter();
+  // Height is the better-controlled axis. Equal scatter on both put a third of
+  // all shots into the bar or over it, because the goal is only 2.44 m tall and
+  // a miss upward leaves the frame far sooner than a miss sideways.
+  const targetY = Math.max(0, intendedY * centred + scatter() * VERTICAL_SCATTER);
 
   // Strike speed, scaled by the player's power and cut by a poor contact.
   const speed =

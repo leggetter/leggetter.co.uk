@@ -538,6 +538,11 @@ Phases 0 to 3 are the solo build. Phases 4 and 5 are the ones worth handing over
 
 Deliberately two tiers, because the two contributors are at very different points.
 
+The jobs themselves are written up for the people doing them in
+[penalty-shootout-jobs.md](penalty-shootout-jobs.md), which is the document to
+hand somebody rather than this one. What follows is why it is split the way it
+is.
+
 **Tier 1 - data only, no build knowledge, immediate visual feedback.** Every one of these is a single file edit and a page refresh:
 
 - Add players to `content/roster.json`.

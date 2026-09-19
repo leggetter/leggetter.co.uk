@@ -15,7 +15,7 @@ Cloudflare Workers.
 | `scripts/verify-urls.mjs` | Post-build check: legacy 301s resolve, routes emitted, no cruft in `dist/`. |
 | `src/components/AiProvenance.astro` | The standing "How This Post Was Written" note. Rendered by `aiAssisted: true` in a post's front matter. See [AI provenance](#ai-provenance). |
 | `scripts/check-voice.mjs` | `npm run voice -- <post>`: measures a draft against the published corpus's voice. See [Voice](#voice). |
-| `src/games/penalty/` | The penalty shootout game, served from the hidden page at `/penalty/`. **Separately licensed: BSD-3-Clause, see `src/games/penalty/LICENSE`.** The rest of the repo is CC-BY-3.0, which Creative Commons themselves advise against using for software. `npm run test:game` and `npm run typecheck`. Design notes in `docs/penalty-shootout-spec.md`. |
+| `src/games/penalty/` | The penalty shootout game, served from the hidden page at `/penalty/`. **Separately licensed: BSD-3-Clause, see `src/games/penalty/LICENSE`.** The rest of the repo is CC-BY-3.0, which Creative Commons themselves advise against using for software. `npm run test:game` and `npm run typecheck`. Design notes in `docs/penalty-shootout-spec.md`; the doc to hand a new contributor is `docs/penalty-shootout-jobs.md`. |
 | `src/lib/hidden.mjs` | Pages that are built but linked from nowhere and kept out of the sitemap. Same contract as `draft: true`, for pages. `verify-urls.mjs` enforces both halves. |
 
 Legacy WordPress-era frontmatter keys (`wordpress_id`, `status`, `author`)

@@ -986,38 +986,38 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
 
   y += 48;
 
+  // Where the two columns of duel figures sit, and where each name is written
+  // over its own column. Measured rather than a constant: the gap used to be
+  // tuned for "PLAYER 1" and "PLAYER 2", which are the same width as each other
+  // and never change, and two typed names are neither.
+  const labels = [frame.names[0].toUpperCase(), frame.names[1].toUpperCase()];
+  let labelSize = narrow ? 10 : 11;
+  let colGap = narrow ? 92 : 124;
   if (duel) {
-    // Laid out from measured widths rather than a constant gap. The gap was
-    // tuned for "PLAYER 1" and "PLAYER 2", which are the same width as each
-    // other and never change; two typed names are neither.
-    const labels = [frame.names[0].toUpperCase(), frame.names[1].toUpperCase()];
-    const DOT = 5;
-    const PAD = 8;
-    const GAP = narrow ? 20 : 28;
-
-    let size = narrow ? 10 : 11;
-    let cells: number[] = [];
-    let total = 0;
     for (;;) {
-      ctx.font = `600 ${size}px ${FACE}`;
-      cells = labels.map((label) => DOT * 2 + PAD + ctx.measureText(label).width);
-      total = cells[0] + GAP + cells[1];
-      if (total <= width - 24 || size <= 8) break;
-      size -= 1;
+      ctx.font = `600 ${labelSize}px ${FACE}`;
+      const widest = Math.max(...labels.map((l) => ctx.measureText(l).width));
+      colGap = Math.max(narrow ? 92 : 124, widest + (narrow ? 22 : 30));
+      // The row labels sit to the left of the first column and need their own
+      // room, so the pair has to fit in rather less than the full width.
+      if (colGap + widest <= width - (narrow ? 130 : 200) || labelSize <= 8) break;
+      labelSize -= 1;
     }
+  }
+  const cols = [centre - colGap / 2, centre + colGap / 2];
 
-    ctx.textAlign = 'left';
-    let x = centre - total / 2;
+  if (duel) {
+    ctx.font = `600 ${labelSize}px ${FACE}`;
+    ctx.textAlign = 'center';
     labels.forEach((label, i) => {
+      const half = ctx.measureText(label).width / 2;
       ctx.fillStyle = SIDE_COLOURS[i];
       ctx.beginPath();
-      ctx.arc(x + DOT, y - 4, DOT, 0, Math.PI * 2);
+      ctx.arc(cols[i] - half - 10, y - 4, 4.5, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      ctx.fillText(label, x + DOT * 2 + PAD, y - 9);
-      x += cells[i] + GAP;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+      ctx.fillText(label, cols[i], y - 9);
     });
-    ctx.textAlign = 'center';
     y += narrow ? 26 : 30;
   }
 
@@ -1046,7 +1046,52 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
     y += 10;
   };
 
-  if (full) {
+  if (full?.duel && duel) {
+    // Two columns of figures under each name, because the only questions a
+    // duel raises are comparative. Averaging the pair into one set of rates, as
+    // the solo panel does, describes a player who was not there.
+    const [p0, p1] = full.duel.sides;
+
+    const row = (label: string, values: [string, string]): void => {
+      ctx.textAlign = 'right';
+      ctx.font = `500 ${narrow ? 11 : 12}px ${FACE}`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillText(label, cols[0] - colGap / 2 - (narrow ? 8 : 12), y);
+
+      ctx.textAlign = 'center';
+      ctx.font = `600 ${narrow ? 12 : 13}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+      values.forEach((value, i) => {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
+        ctx.fillText(value, cols[i], y);
+      });
+      y += narrow ? 19 : 22;
+    };
+
+    heading('shooting');
+    row('scored', [
+      `${p0.taking.goals}/${p0.taking.shots}`,
+      `${p1.taking.goals}/${p1.taking.shots}`,
+    ]);
+    row('struck clean', [
+      `${p0.taking.clean}/${p0.taking.shots}`,
+      `${p1.taking.clean}/${p1.taking.shots}`,
+    ]);
+    y += 12;
+
+    heading('in goal');
+    row('saved', [
+      `${p0.keeping.saves}/${p0.keeping.faced}`,
+      `${p1.keeping.saves}/${p1.keeping.faced}`,
+    ]);
+    // How close the corner they picked was to where it actually went. The half
+    // of a duel the scoreline never shows: keeping well looks like the other
+    // person shooting badly.
+    row('pick, off by', [
+      p0.keeping.meanPick === null ? '-' : `${p0.keeping.meanPick.toFixed(1)} m`,
+      p1.keeping.meanPick === null ? '-' : `${p1.keeping.meanPick.toFixed(1)} m`,
+    ]);
+    y += 12;
+  } else if (full) {
     const { match, lifetime } = full;
 
     // These five. What the player actually remembers taking.

@@ -417,6 +417,14 @@ Three things follow from names being typed rather than fixed:
   labels were written by this codebase are now measured, because twelve
   characters of anybody's name is wider than `PLAYER 2` and ran off the side of
   a phone.
+- **Full time compares the two, rather than averaging them.** `summarise`
+  answers "how do you play", which is the right question for one person and the
+  wrong one for two: every rate in it describes a player who was not there, and
+  its notes address that player as "you". A duel gets its own panel - scored and
+  struck-clean per side, then saved and how far each keeper's pick was from
+  where the ball actually went. That last figure is the half of a duel the
+  scoreline never shows, because keeping well looks exactly like the other
+  person shooting badly.
 - **No name goes in the shot log.** The log is exported by keypress and handed
   to someone else to read, which makes it the one file in the game that leaves
   the device a name was typed on. `takerSide` already records who did what, and

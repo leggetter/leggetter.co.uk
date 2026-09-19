@@ -183,3 +183,31 @@ describe('a keeper somebody is controlling', () => {
     assert.equal(sim.plan.chosen, null);
   });
 });
+
+describe('playing again', () => {
+  test('a restart stays a duel', () => {
+    // Reported from play: finishing a duel and starting again dropped you into
+    // a solo game while the 2 players button still read as selected. The
+    // reducer was never wrong - the restart went around it, straight to
+    // initialMatch, whose mode argument defaults to solo and was not passed.
+    const done = initialMatch(7, 10, 'duel');
+    const again = reduce(done, { type: 'START', seed: 99, shots: 10 });
+
+    assert.equal(again.mode, 'duel');
+    assert.equal(again.phase, 'keeping');
+    assert.equal(again.taker, 0);
+    assert.deepEqual(again.scores, [0, 0]);
+    assert.equal(again.seed, 99);
+  });
+
+  test('a restart stays solo', () => {
+    const again = reduce(initialMatch(7, 5, 'solo'), { type: 'START', seed: 99 });
+    assert.equal(again.mode, 'solo');
+    assert.equal(again.phase, 'ready');
+  });
+
+  test('an explicit mode still wins, which is what the toggle needs', () => {
+    const swapped = reduce(initialMatch(7, 10, 'duel'), { type: 'START', seed: 99, mode: 'solo' });
+    assert.equal(swapped.mode, 'solo');
+  });
+});

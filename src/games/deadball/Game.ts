@@ -39,7 +39,7 @@ import type { DragGesture, DragPoint, View } from './render/View.ts';
 import { cleanNames, type DuelNames } from './core/names.ts';
 import { KEYS, type Settings, type Storage } from './storage/Storage.ts';
 import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
-import { forMatch, summarise, type FullTime } from './telemetry/analyse.ts';
+import { forMatch, summarise, summariseDuel, type FullTime } from './telemetry/analyse.ts';
 
 /** Simulation step. Fixed so a shot is reproducible; see core/rng.ts. */
 export const STEP = 1 / 120;
@@ -240,8 +240,13 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   function advanceToNext(): void {
     if (match.phase === 'complete') {
-      match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND);
+      // Through the reducer, which carries the mode across. Calling
+      // initialMatch directly meant relying on remembering to pass it, and the
+      // argument was missing: playing again after a duel dropped you into a
+      // solo game while the 2 players button still read as selected.
+      match = reduce(match, { type: 'START', seed: Date.now() & 0x7fffffff, shots: SHOTS_PER_ROUND });
       summary = null;
+      choosing = null;
     } else if (match.phase === 'resolved' && holdRemaining <= 0) {
       match = reduce(match, { type: 'NEXT' });
       // Read across everything ever played on this device, not just these five
@@ -249,9 +254,14 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // point of keeping the log is that the evidence accumulates.
       if (match.phase === 'complete') {
         const all = log.all();
+        const thisMatch = forMatch(all, match.seed);
         summary = {
-          match: summarise(forMatch(all, match.seed)),
+          match: summarise(thisMatch),
           lifetime: summarise(all),
+          // This shootout only. All-time would mix in solo shots and, worse,
+          // every previous duel played by different people on the same device -
+          // sides carry across a log, the people holding them do not.
+          duel: match.mode === 'duel' ? summariseDuel(thisMatch) : null,
         };
       }
     } else {

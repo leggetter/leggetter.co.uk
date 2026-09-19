@@ -71,10 +71,51 @@ usually the first thing to work out about a job.
 
 ## Start here
 
-Three jobs that need no knowledge of anything above, in the order I would do
-them.
+Five jobs that need no knowledge of anything above, in the order I would do
+them. The first two are the easiest things in the project and both change
+something you can see or hear immediately.
 
-### 1. Add a footballer
+### 1. Write the advertising boards
+
+**File:** `src/games/deadball/content/boards.js`
+
+The hoardings behind the goal. A list of short strings with two colours each -
+`panel` is the background, `ink` is the text.
+
+Keep them short. A board is a wide, shallow rectangle seen from twenty metres
+away: ten or twelve characters read, twenty do not.
+
+**Done when:** you can see yours behind the goal. Use the **Angled, from above**
+camera - the boards recede away from you there and it is the best look at them.
+
+**Try this:** make one dark panel with dark ink and see how it disappears. That
+is why every board in the list pairs a light ink with a dark panel or the other
+way round.
+
+### 2. Change how something sounds
+
+**File:** `src/games/deadball/content/sounds.js`
+
+Every sound in the game is made from numbers in this file - nothing is
+recorded, so there is no audio to download or replace.
+
+Start with `FRAME`, the sound of the ball hitting the post. `partials` are the
+frequencies it rings at; make them lower and it sounds like a bigger, heavier
+post. Then try `decay`, which is how long the ring lasts.
+
+Then look at `CROWD.goal` and `CROWD.save`. A cheer and an "ooooh" are the same
+machinery at different frequencies, which is how a mouth works too. `formants`
+are the two or three resonances that make the vowel - move the first number up
+and you get a brighter, more open sound.
+
+**Done when:** you can hear the difference. Press the **&#9834;** button at the
+top if you need to turn it off.
+
+**Watch out:** a low, narrow sound comes out much quieter than a high, wide one
+even at the same `gain`, so if something goes silent, try a bigger number before
+assuming you broke it.
+
+### 3. Add a footballer
 
 **File:** `src/games/deadball/content/players.js`
 
@@ -98,7 +139,7 @@ top-left corner.
 **Try this:** make one with `accuracy: 100` and one with `accuracy: 30`, and
 take five penalties with each. The difference is bigger than it sounds.
 
-### 2. Invent a keeper
+### 4. Invent a keeper
 
 **File:** `src/games/deadball/content/keepers.js`
 
@@ -123,7 +164,7 @@ travelling on, and the spin takes it somewhere else. That is why bending it
 works, and it is not written down anywhere as a rule - it falls out of how the
 keeper is built.
 
-### 3. Break the physics, then put it back
+### 5. Break the physics, then put it back
 
 **File:** `src/games/deadball/core/units.ts`
 

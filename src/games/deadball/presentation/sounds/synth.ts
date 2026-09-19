@@ -119,7 +119,80 @@ export function createSynth(): Synth {
     burst({ cutoff: 2600, q: 0.7, decay: 0.05, gain: FRAME.gain * 0.5 }, force);
   }
 
-  /** The crowd reacting. Same path as the bed, opened up for a moment. */
+  /**
+   * A crowd reacting, as a vowel.
+   *
+   * Noise through two or three resonances is what makes "aaah" rather than a
+   * whoosh, which is all the first version of this managed: it opened the bed
+   * filter and hoped. A cheer and a groan are the same machinery at different
+   * frequencies, which is exactly how a mouth works.
+   */
+  function voices(spec: {
+    formants: number[][];
+    glide: number;
+    attack: number;
+    hold: number;
+    release: number;
+    gain: number;
+    flutter: { rate: number; depth: number };
+    air: number;
+  }): void {
+    if (!ctx || !master || !noise) return;
+    const t = now();
+    const total = spec.attack + spec.hold + spec.release;
+
+    // One envelope for the whole reaction, with a wobble on it. Thousands of
+    // people are never quite together, and without the wobble it is one
+    // enormous person.
+    const envelope = ctx.createGain();
+    envelope.gain.setValueAtTime(0.0001, t);
+    envelope.gain.linearRampToValueAtTime(spec.gain, t + spec.attack);
+    envelope.gain.setValueAtTime(spec.gain, t + spec.attack + spec.hold);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, t + total);
+    envelope.connect(master);
+
+    const flutter = ctx.createOscillator();
+    flutter.frequency.value = spec.flutter.rate;
+    const flutterDepth = ctx.createGain();
+    flutterDepth.gain.value = spec.gain * spec.flutter.depth;
+    flutter.connect(flutterDepth).connect(envelope.gain);
+    flutter.start(t);
+    flutter.stop(t + total);
+
+    const source = ctx.createBufferSource();
+    source.buffer = noise;
+    source.loop = true;
+
+    for (const pair of spec.formants) {
+      const hz = pair[0] ?? 500;
+      const q = pair[1] ?? 6;
+      const formant = ctx.createBiquadFilter();
+      formant.type = 'bandpass';
+      formant.Q.value = q;
+      // Sliding the resonances is the difference between a shout and a word.
+      // Up for a goal, down for everything else.
+      formant.frequency.setValueAtTime(hz, t);
+      formant.frequency.linearRampToValueAtTime(hz * spec.glide, t + total);
+      source.connect(formant).connect(envelope);
+    }
+
+    // Applause and whistling: unshaped and bright, and almost absent from a
+    // groan, which is most of what separates delight from disappointment.
+    if (spec.air > 0.001) {
+      const air = ctx.createBiquadFilter();
+      air.type = 'highpass';
+      air.frequency.value = 2600;
+      const airGain = ctx.createGain();
+      airGain.gain.value = spec.air;
+      source.connect(air).connect(airGain).connect(envelope);
+    }
+
+    source.start(t);
+    source.stop(t + total + 0.05);
+  }
+
+  /** A swell on the bed itself. Used for the intake at the strike, which is a
+   *  sharp breath rather than a word. */
   function swell(spec: { cutoff: number; gain: number; attack: number; hold: number; fall: number }): void {
     if (!bedGain || !bedFilter) return;
     const t = now();
@@ -196,10 +269,10 @@ export function createSynth(): Synth {
           // The crowd is the only thing that distinguishes these, which is the
           // point: a goal and a save sound different because of the people, not
           // because of the ball.
-          if (event.outcome === 'goal') swell(CROWD.goal);
-          else if (event.outcome === 'saved') swell(CROWD.save);
-          else swell(CROWD.groan);
-          if (event.outcome !== 'goal' && event.outcome !== 'saved') {
+          if (event.outcome === 'goal') voices(CROWD.goal);
+          else if (event.outcome === 'saved') voices(CROWD.save);
+          else {
+            voices(CROWD.groan);
             burst(WHISTLE, 0.5);
           }
           break;

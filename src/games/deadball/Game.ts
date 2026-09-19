@@ -307,6 +307,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   const input: DragInput = attachDragInput(canvas, {
     onStart: (gesture: DragGesture) => {
+      // The first press is the only moment a browser will let audio start.
+      // Cheap and idempotent after that, so it is not worth a flag.
+      presentation.unlock();
       if (match.phase === 'keeping') {
         choosing = presentation.diveFromPointer(gesture.current);
         return;

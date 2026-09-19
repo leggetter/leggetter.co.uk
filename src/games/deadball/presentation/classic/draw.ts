@@ -277,6 +277,14 @@ const LIMB = { leg: 0.13, torso: 0.28, arm: 0.12, head: 0.115 };
  */
 const NARROW = 560;
 
+/**
+ * How far down the scrim behind the top bar reaches.
+ *
+ * Has to clear the lowest thing in the bar, which is the pip row on a phone
+ * where the buttons push everything down. See `top` in drawHud.
+ */
+const SCRIM_HEIGHT = 130;
+
 const FACE = 'ui-sans-serif, system-ui, -apple-system, sans-serif';
 
 /**
@@ -1277,6 +1285,21 @@ export const SIDE_COLOURS: readonly [string, string] = ['#4ade80', '#7dd3fc'];
 
 export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: number): void {
   ctx.save();
+
+  // A scrim across the top, under everything in the bar.
+  //
+  // Before the crowd, the HUD sat on sky and needed nothing. A stand behind
+  // the goal fills the upper third with high-contrast speckle, and white text
+  // on it is unreadable - as are the mode and camera buttons, which are HTML
+  // sitting over this canvas and cannot draw their own backdrop over it. A
+  // gradient rather than a band, so it has no edge to notice.
+  const scrim = ctx.createLinearGradient(0, 0, 0, SCRIM_HEIGHT);
+  scrim.addColorStop(0, 'rgba(2, 8, 20, 0.82)');
+  scrim.addColorStop(0.55, 'rgba(2, 8, 20, 0.55)');
+  scrim.addColorStop(1, 'rgba(2, 8, 20, 0)');
+  ctx.fillStyle = scrim;
+  ctx.fillRect(0, 0, width, SCRIM_HEIGHT);
+
   ctx.textBaseline = 'top';
 
   // On a phone the mode buttons move to the top-left corner, which is where

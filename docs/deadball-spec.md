@@ -673,7 +673,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **1.75** ✅ | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
-| **3.5** | Make `render/canvas2d` the `classic` package and lift the camera positions out as data, then a crowd behind the goal, and sound. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
+| **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and synthesised sound. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
@@ -955,10 +955,17 @@ is not. Two techniques, both of which keep the individual animation:
   colour added to it, one `fill`. Eight fills a frame rather than six hundred.
   Individual offsets survive, because the offset is in the path, not in the call.
 
-Numbers to be measured rather than assumed: how many people it takes before a
-mid-range phone drops frames, and whether the atlas or the batched paths wins.
-Both are answerable in an afternoon with the frame loop that already exists, and
-the count is then a constant in `units.ts` like every other tuned number here.
+**Measured, once built.** The atlas won and the count turned out not to be the
+binding constraint at all. 3,576 people hold 60 fps at 1280 px and at 390 px
+with the CPU throttled six times over. 2,451 of them survive culling and become
+one `drawImage` each; the other 31% are rejected on a comparison, before the
+second projection is even computed.
+
+Worth recording that the first attempt was nowhere near this. It put the front
+row five meters behind the net, which made every person eighty pixels tall -
+the camera is necessarily telephoto, because it has to frame a 7.32 m goal from
+17.5 m, so anything near the goal line comes out enormous. The stand went back
+to a realistic distance and the numbers stopped being a problem.
 
 **The crowd cannot touch the match RNG, and that is structural rather than a
 rule to remember.** `createRng(shotSeed(seed, index))` lives in `core/` and the

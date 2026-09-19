@@ -13,7 +13,17 @@ import type { FrameState, ShotInput } from '../../core/types.ts';
 import { vec } from '../../core/vec3.ts';
 import { createProjector, type Camera, type Projector } from '../project.ts';
 import type { DragGesture, View, ViewContext } from '../View.ts';
-import { drawAim, drawBall, drawGoalFrame, drawHud, drawKeeper, drawNet, drawPitch, drawSky } from './draw.ts';
+import {
+  drawAim,
+  drawBall,
+  drawGoalFrame,
+  drawHud,
+  drawKeeper,
+  drawNet,
+  drawPitch,
+  drawShotDial,
+  drawSky,
+} from './draw.ts';
 
 /**
  * Behind and above the taker's shoulder.
@@ -71,6 +81,7 @@ export class BehindTakerView implements View {
     drawGoalFrame(ctx, projector);
     drawAim(ctx, projector, frame);
     drawBall(ctx, projector, frame.ball.position);
+    drawShotDial(ctx, projector, frame);
     drawHud(ctx, frame, this.width, this.height);
   }
 
@@ -103,6 +114,9 @@ export class BehindTakerView implements View {
       power,
       curve: clamp(hook(gesture) / (reference * REFERENCE_HOOK), -1, 1),
       lift: 0.5,
+      // Stamped by the game at release: the view maps the gesture, the game
+      // owns the clock the timing sweep runs on.
+      timing: 0,
     };
   }
 

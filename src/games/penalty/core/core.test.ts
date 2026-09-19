@@ -10,7 +10,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createRng, shotSeed } from './rng.ts';
-import { resolveShot, spotBall } from './shot.ts';
+import { resolveShot, spotBall, sweepAt, timingFromSweep } from './shot.ts';
 import { simulate } from './flight.ts';
 import { classifyCrossing } from './rules.ts';
 import { initialMatch, reduce } from './match.ts';
@@ -22,6 +22,8 @@ import {
   GOAL_WIDTH,
   GRAVITY,
   PENALTY_DISTANCE,
+  SWEEP_PERIOD,
+  SWEEP_SWEET_ZONE,
 } from './units.ts';
 import type { KeeperProfile, Player, ShotInput } from './types.ts';
 
@@ -54,6 +56,9 @@ const aim = (x: number, y: number, extra: Partial<ShotInput> = {}): ShotInput =>
   power: 0.7,
   curve: 0,
   lift: 0.5,
+  // Cleanly struck unless a test says otherwise, so timing is not silently
+  // mixed into results that are measuring something else.
+  timing: 0,
   ...extra,
 });
 
@@ -223,6 +228,67 @@ describe('shot resolution', () => {
       'with no pressure the two are the same player'
     );
     assert.ok(spread(nervous, 1) > spread(calm, 1), 'under pressure composure should tell');
+  });
+});
+
+describe('release timing', () => {
+  test('the sweep runs corner to corner and back at a constant speed', () => {
+    assert.equal(sweepAt(0), -1);
+    assert.ok(Math.abs(sweepAt(SWEEP_PERIOD * 0.25)) < 1e-9, 'quarter way is centre');
+    assert.ok(Math.abs(sweepAt(SWEEP_PERIOD * 0.5) - 1) < 1e-9, 'half way is the far end');
+    assert.ok(Math.abs(sweepAt(SWEEP_PERIOD) + 1) < 1e-9, 'a full period is back to the start');
+
+    for (let t = 0; t < SWEEP_PERIOD * 3; t += 0.01) {
+      const v = sweepAt(t);
+      assert.ok(v >= -1.000001 && v <= 1.000001, `out of range at ${t}: ${v}`);
+    }
+
+    // Constant speed is the point of a triangle over a sine: the sweet spot
+    // has to be as hard to hit coming from one side as the other.
+    const speed = (t: number) => Math.abs(sweepAt(t + 0.001) - sweepAt(t)) / 0.001;
+    assert.ok(Math.abs(speed(0.05) - speed(0.2)) < 0.01);
+  });
+
+  test('anywhere in the sweet zone is a clean strike', () => {
+    assert.equal(timingFromSweep(0), 0);
+    assert.equal(timingFromSweep(SWEEP_SWEET_ZONE * 0.99), 0);
+    assert.equal(timingFromSweep(-SWEEP_SWEET_ZONE * 0.99), 0);
+    assert.ok(timingFromSweep(SWEEP_SWEET_ZONE + 0.01) > 0, 'just outside must cost something');
+    assert.ok(Math.abs(timingFromSweep(1) - 1) < 1e-9);
+    assert.ok(Math.abs(timingFromSweep(-1) + 1) < 1e-9);
+  });
+
+  test('a mistimed strike drags the ball the way it was mistimed', () => {
+    const at = (timing: number) => {
+      const shot = resolveShot(aim(0, 0.4, { timing }), striker, createRng(7), {
+        origin: spotBall(PENALTY_DISTANCE),
+      });
+      const t = -shot.origin.z / shot.velocity.z;
+      return shot.origin.x + shot.velocity.x * t;
+    };
+    // Deterministic pull, not just scatter: releasing early should miss left
+    // every time, which is the part a player can learn from.
+    assert.ok(at(-1) < at(0) - 0.5, 'early release must pull left');
+    assert.ok(at(1) > at(0) + 0.5, 'late release must push right');
+  });
+
+  test('a mistimed strike takes pace off the ball', () => {
+    const speed = (timing: number) =>
+      resolveShot(aim(0, 0.4, { timing }), striker, createRng(7), {
+        origin: spotBall(PENALTY_DISTANCE),
+      }).velocity.z;
+    assert.ok(speed(1) < speed(0), 'a poor contact should be slower');
+  });
+
+  test('timing punishes an accurate player too', () => {
+    // Deliberate: this is the person holding the mouse, not the footballer.
+    const perfect: Player = { ...striker, accuracy: 100 };
+    const clean = take(aim(0, 0.4, { timing: 0 }), statue, 3, perfect);
+    const scuffed = take(aim(0, 0.4, { timing: 1 }), statue, 3, perfect);
+    assert.ok(
+      Math.abs(scuffed.ball.position.x) > Math.abs(clean.ball.position.x) + 0.5,
+      'an accuracy-100 player must still be punished for a bad contact'
+    );
   });
 });
 

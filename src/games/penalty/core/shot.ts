@@ -15,6 +15,11 @@ import {
   MAX_SIDE_SPIN,
   MAX_STRIKE_SPEED,
   MIN_STRIKE_SPEED,
+  SWEEP_PERIOD,
+  SWEEP_SWEET_ZONE,
+  TIMING_PACE_LOSS,
+  TIMING_PULL,
+  TIMING_SPREAD,
 } from './units.ts';
 import type { Player, Shot, ShotInput } from './types.ts';
 import type { Rng } from './rng.ts';
@@ -65,21 +70,32 @@ export function resolveShot(
   const intendedX = clamp(input.aim.x, -1, 1) * AIM_HALF_WIDTH;
   const intendedY = clamp(input.aim.y, 0, 1) * AIM_HEIGHT;
 
+  // How badly this one was struck. Independent of the footballer's attributes
+  // on purpose: this is the person holding the mouse, not the player on the
+  // pitch, and a 100-accuracy striker should still be punished for hitting it
+  // with their shin.
+  const timing = clamp(input.timing, -1, 1);
+  const mistimed = Math.abs(timing);
+
   // How far it may stray. Accuracy sets the floor, power and pressure add to
   // it, and composure only offsets the pressure part - a composed player is
   // not a more accurate one, they are one who stays as accurate as usual.
   const spread =
-    (1 - unit(player.accuracy)) * MAX_AIM_ERROR +
-    power * POWER_ERROR * (1 - unit(player.accuracy)) +
-    pressure * PRESSURE_ERROR * (1 - unit(player.composure));
+    ((1 - unit(player.accuracy)) * MAX_AIM_ERROR +
+      power * POWER_ERROR * (1 - unit(player.accuracy)) +
+      pressure * PRESSURE_ERROR * (1 - unit(player.composure))) *
+    (1 + mistimed * TIMING_SPREAD);
 
-  const targetX = intendedX + rng.nextBell() * spread;
+  // A mistimed contact drags the ball off in a consistent direction as well as
+  // scattering it, so releasing early repeatedly pulls it left every time.
+  const targetX = intendedX + timing * TIMING_PULL + rng.nextBell() * spread;
   const targetY = Math.max(0, intendedY + rng.nextBell() * spread);
 
-  // Strike speed, scaled by the player's power.
+  // Strike speed, scaled by the player's power and cut by a poor contact.
   const speed =
     (MIN_STRIKE_SPEED + (MAX_STRIKE_SPEED - MIN_STRIKE_SPEED) * power) *
-    (0.85 + 0.3 * unit(player.power));
+    (0.85 + 0.3 * unit(player.power)) *
+    (1 - mistimed * TIMING_PACE_LOSS);
 
   const velocity = launchVelocity(origin, targetX, targetY, speed);
 
@@ -145,3 +161,30 @@ function launchVelocity(origin: Vec3, targetX: number, targetY: number, speed: n
 
 /** Where the ball sits before a penalty is struck. */
 export const spotBall = (distance: number): Vec3 => vec(0, BALL_RADIUS, -distance);
+
+/**
+ * Where the timing marker sits after holding the drag for `heldSeconds`.
+ *
+ * A triangle wave from -1 to 1 and back. Triangle rather than a sine so the
+ * marker moves at a constant speed and the sweet spot is as hard to hit at one
+ * end of the sweep as the other: with a sine it dawdles at the extremes and
+ * races through the middle, which would make the window feel arbitrary.
+ */
+export function sweepAt(heldSeconds: number): number {
+  const phase = (heldSeconds / SWEEP_PERIOD) % 1;
+  return phase < 0.5 ? -1 + 4 * phase : 3 - 4 * phase;
+}
+
+/**
+ * Turn a marker position into the timing penalty that goes into the shot.
+ *
+ * Anywhere inside the sweet zone is a clean strike and scores exactly 0, so
+ * there is a real reward for hitting it rather than a continuous gradient that
+ * never quite lets you off.
+ */
+export function timingFromSweep(marker: number): number {
+  const magnitude = Math.abs(marker);
+  if (magnitude <= SWEEP_SWEET_ZONE) return 0;
+  const over = (magnitude - SWEEP_SWEET_ZONE) / (1 - SWEEP_SWEET_ZONE);
+  return marker < 0 ? -over : over;
+}

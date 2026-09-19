@@ -80,6 +80,28 @@ export const AIM_MARGIN = 1.18;
 export const AIM_HALF_WIDTH = (GOAL_WIDTH / 2) * AIM_MARGIN;
 export const AIM_HEIGHT = GOAL_HEIGHT * AIM_MARGIN;
 
+/**
+ * The timing sweep.
+ *
+ * A marker runs back and forth while the drag is held, and where it sits at
+ * the moment of release decides how cleanly the ball was struck. This is the
+ * second skill axis: the drag says what you intend, the release says whether
+ * you managed it.
+ */
+export const SWEEP_PERIOD = 1.15;
+
+/** Marker within this of centre is a clean strike, with no penalty at all. */
+export const SWEEP_SWEET_ZONE = 0.17;
+
+/** Lateral drag on the shot, in meters at the goal, at the worst timing. */
+export const TIMING_PULL = 0.95;
+
+/** How much worse the aim scatter gets at the worst timing. */
+export const TIMING_SPREAD = 1.7;
+
+/** Pace lost to a badly struck ball, as a fraction, at the worst timing. */
+export const TIMING_PACE_LOSS = 0.18;
+
 /** Ground bounce: energy kept vertically, and speed kept horizontally. */
 export const GROUND_RESTITUTION = 0.58;
 export const GROUND_FRICTION = 0.82;

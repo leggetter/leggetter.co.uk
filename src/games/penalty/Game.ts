@@ -12,7 +12,7 @@
 
 import { PENALTY_DISTANCE } from './core/units.ts';
 import { createRng, shotSeed } from './core/rng.ts';
-import { resolveShot, spotBall } from './core/shot.ts';
+import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts';
 import { advance, createFlight, type Flight } from './core/flight.ts';
 import { planKeeper } from './core/keeper.ts';
 import { initialMatch, reduce, SHOTS_PER_ROUND, type MatchState } from './core/match.ts';
@@ -69,6 +69,15 @@ export async function startGame(options: GameOptions): Promise<Game> {
   let aiming: ShotInput | null = null;
   let holdRemaining = 0;
 
+  /**
+   * How long the current drag has been held, in seconds. Drives the timing
+   * sweep. The clock lives here rather than in the view because the view maps
+   * the gesture and the game owns time; a replay reads the recorded `timing`
+   * off the ShotInput and never runs this at all.
+   */
+  let held = 0;
+  let sweepMarker = 0;
+
   /** Keeper standing on the line, before a shot is struck. */
   const idleKeeper = () => planKeeper(keeper, createRng(shotSeed(match.seed, match.shotIndex)));
   let keeperSim = idleKeeper();
@@ -90,6 +99,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     outcomes: match.outcomes,
     lastOutcome: match.outcomes[match.outcomes.length - 1] ?? null,
     aiming,
+    timingMarker: aiming ? sweepMarker : null,
   });
 
   function take(input: ShotInput): void {
@@ -124,15 +134,24 @@ export async function startGame(options: GameOptions): Promise<Game> {
     keeperSim = idleKeeper();
   }
 
+  /** The view maps the gesture; the game stamps it with the release timing. */
+  const intent = (gesture: DragGesture): ShotInput => ({
+    ...view.aimFromDrag(gesture),
+    timing: timingFromSweep(sweepMarker),
+  });
+
   const input: DragInput = attachDragInput(canvas, {
     onStart: (gesture: DragGesture) => {
-      if (match.phase === 'ready') aiming = view.aimFromDrag(gesture);
+      if (match.phase !== 'ready') return;
+      held = 0;
+      sweepMarker = sweepAt(0);
+      aiming = intent(gesture);
     },
     onMove: (gesture: DragGesture) => {
-      if (match.phase === 'ready') aiming = view.aimFromDrag(gesture);
+      if (match.phase === 'ready') aiming = intent(gesture);
     },
     onRelease: (gesture: DragGesture) => {
-      if (match.phase === 'ready') take(view.aimFromDrag(gesture));
+      if (match.phase === 'ready') take(intent(gesture));
       else aiming = null;
     },
     onClick: () => {
@@ -169,6 +188,14 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   function simulate(): void {
     if (holdRemaining > 0) holdRemaining -= STEP;
+
+    // The sweep runs on simulation steps, not frames, so the window is the
+    // same width on a 60 Hz laptop and a 120 Hz phone.
+    if (aiming) {
+      held += STEP;
+      sweepMarker = sweepAt(held);
+      aiming = { ...aiming, timing: timingFromSweep(sweepMarker) };
+    }
 
     if (!flight || flight.outcome) return;
 

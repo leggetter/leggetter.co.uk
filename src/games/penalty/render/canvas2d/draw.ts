@@ -18,6 +18,7 @@ import {
   GOAL_HEIGHT,
   GOAL_WIDTH,
   PENALTY_DISTANCE,
+  SWEEP_SWEET_ZONE,
 } from '../../core/units.ts';
 import type { FrameState, Outcome } from '../../core/types.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
@@ -292,6 +293,19 @@ export function drawKeeper(ctx: Ctx, proj: Projector, hands: Vec3, reach: number
   ctx.restore();
 }
 
+/**
+ * How much bigger than life to draw the ball, by distance.
+ *
+ * At the goal line the ball is 17 m away and honestly about 7 px across, which
+ * is accurate and impossible to follow: the shot reads as the ball vanishing
+ * and a word appearing. Every sports game cheats this. Nothing before the
+ * penalty spot is touched, so the ball at your feet stays the right size and
+ * only the far half of the flight is flattered.
+ */
+function ballBoost(depth: number): number {
+  return Math.min(2.2, 1 + Math.max(0, depth - 7) * 0.085);
+}
+
 export function drawBall(ctx: Ctx, proj: Projector, position: Vec3): void {
   // Shadow first, on the ground directly beneath.
   const ground = proj.project(vec(position.x, 0.01, position.z));
@@ -316,7 +330,7 @@ export function drawBall(ctx: Ctx, proj: Projector, position: Vec3): void {
 
   const p = proj.project(position);
   if (!p) return;
-  const radius = Math.max(2, BALL_RADIUS * p.scale);
+  const radius = Math.max(3, BALL_RADIUS * p.scale * ballBoost(p.depth));
 
   const shade = ctx.createRadialGradient(
     p.x - radius * 0.3,
@@ -384,6 +398,104 @@ export function drawAim(ctx: Ctx, proj: Projector, frame: FrameState): void {
     ctx.lineTo(reticle.x, reticle.y + r * 1.5);
     ctx.stroke();
   }
+  ctx.restore();
+}
+
+/**
+ * The shot dial: power, bend and release timing, drawn at the ball.
+ *
+ * All three sit where the eye already is during a drag. The first version put
+ * power in a thin strip at the bottom of the screen and gave bend no readout
+ * at all, and the honest feedback was that it was not clear what was being
+ * controlled.
+ */
+export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void {
+  const input = frame.aiming;
+  if (!input) return;
+
+  const at = proj.project(frame.ball.position);
+  if (!at) return;
+
+  const radius = Math.max(38, BALL_RADIUS * at.scale * 2.6);
+  const TAU = Math.PI * 2;
+
+  ctx.save();
+  ctx.lineCap = 'round';
+
+  // Power, filling clockwise from the top.
+  ctx.beginPath();
+  ctx.arc(at.x, at.y, radius, 0, TAU);
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.lineWidth = 7;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(at.x, at.y, radius, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, input.power));
+  ctx.strokeStyle = COLORS.aim;
+  ctx.lineWidth = 7;
+  ctx.stroke();
+
+  ctx.font = '600 12px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.fillText(`${Math.round(input.power * 100)}%`, at.x, at.y + radius + 20);
+
+  // Bend, as a needle sliding along a short track above the ring.
+  const trackY = at.y - radius - 18;
+  const trackHalf = radius * 0.85;
+  ctx.beginPath();
+  ctx.moveTo(at.x - trackHalf, trackY);
+  ctx.lineTo(at.x + trackHalf, trackY);
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.lineWidth = 5;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(at.x, trackY);
+  ctx.lineTo(at.x + trackHalf * Math.max(-1, Math.min(1, input.curve)), trackY);
+  ctx.strokeStyle = '#7dd3fc';
+  ctx.lineWidth = 5;
+  ctx.stroke();
+
+  // Centre tick, so straight is visibly a position and not just "small".
+  ctx.beginPath();
+  ctx.moveTo(at.x, trackY - 6);
+  ctx.lineTo(at.x, trackY + 6);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  drawSweep(ctx, at.x, at.y + radius + 40, trackHalf * 1.5, frame.timingMarker);
+  ctx.restore();
+}
+
+/**
+ * The timing sweep: release while the marker is in the green to strike it
+ * cleanly. Released off-centre the shot drags that way, so the bar is laid out
+ * left-to-right to match the direction the error will take.
+ */
+function drawSweep(ctx: Ctx, cx: number, cy: number, half: number, marker: number | null): void {
+  if (marker === null) return;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(cx - half, cy - 6, half * 2, 12, 6);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.fill();
+
+  const sweetHalf = half * SWEEP_SWEET_ZONE;
+  ctx.beginPath();
+  ctx.roundRect(cx - sweetHalf, cy - 6, sweetHalf * 2, 12, 6);
+  ctx.fillStyle = 'rgba(74, 222, 128, 0.85)';
+  ctx.fill();
+
+  const x = cx + half * Math.max(-1, Math.min(1, marker));
+  ctx.beginPath();
+  ctx.moveTo(x, cy - 12);
+  ctx.lineTo(x, cy + 12);
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 3;
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -460,21 +572,10 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
     ctx.font = '500 14px ui-sans-serif, system-ui, -apple-system, sans-serif';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.68)';
     ctx.fillText(
-      'drag from the ball to shoot  ·  further is harder  ·  hook the drag to bend it',
+      'drag to aim  ·  further is harder  ·  hook the drag to bend it  ·  release in the green',
       width / 2,
       height - 40
     );
-  }
-
-  // Power meter, drawn only while a drag is live.
-  if (frame.aiming) {
-    const barW = Math.min(260, width * 0.4);
-    const x = width / 2 - barW / 2;
-    const y = height - 70;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-    ctx.fillRect(x, y, barW, 8);
-    ctx.fillStyle = COLORS.aim;
-    ctx.fillRect(x, y, barW * Math.min(1, frame.aiming.power), 8);
   }
 
   ctx.restore();

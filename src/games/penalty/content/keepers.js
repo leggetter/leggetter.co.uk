@@ -38,11 +38,11 @@ export const KEEPERS = [
   {
     id: 'steady',
     name: 'Ruth Delaney',
-    reactionMs: 300,
-    diveSpeed: 8.4,
-    reach: 0.55,
-    guessBias: 0.2,
-    readAccuracy: 0.72,
+    reactionMs: 255,
+    diveSpeed: 9.6,
+    reach: 0.6,
+    guessBias: 0.15,
+    readAccuracy: 0.85,
   },
   {
     id: 'wall',

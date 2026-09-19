@@ -22,6 +22,16 @@ export interface ShotInput {
   curve: number;
   /** 0..1. Below 0.5 is backspin and floats, above is topspin and dips. */
   lift: number;
+  /**
+   * How badly the strike was timed, and in which direction. 0 is a clean
+   * contact; negative drags the shot left of where it was aimed, positive
+   * pushes it right, and either way it sprays and loses some pace.
+   *
+   * Signed rather than a plain quality score so the mistake is learnable: a
+   * player can see they keep releasing early and pulling it, instead of just
+   * being told the shot went somewhere random.
+   */
+  timing: number;
 }
 
 /** What the simulation runs, after `resolveShot` has applied the player. */
@@ -115,6 +125,12 @@ export interface FrameState {
   lastOutcome: Outcome | null;
   /** Live aim while a drag is in progress, for the preview. */
   aiming: ShotInput | null;
+  /**
+   * Where the timing marker is right now, -1 to 1, or null when not aiming.
+   * Raw sweep position rather than the derived penalty, because this is what
+   * gets drawn and the player needs to see the thing they are reacting to.
+   */
+  timingMarker: number | null;
 }
 
 export type MatchPhase = 'ready' | 'flight' | 'resolved' | 'complete';

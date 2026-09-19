@@ -371,6 +371,16 @@ function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   ctx.restore();
 }
 
+/**
+ * How far in front of the goal line the keeper is drawn, in meters.
+ *
+ * Standing exactly on the line puts the keeper in the same plane as the posts,
+ * so which one is in front comes down to draw order and reads as a keeper set
+ * back into the woodwork. Real ones stand just off it. Drawing only: saves are
+ * still decided where the ball crosses, so this moves nobody's hands.
+ */
+const KEEPER_STANDS_OFF = 0.3;
+
 export function drawKeeper(
   ctx: Ctx,
   proj: Projector,
@@ -408,10 +418,11 @@ export function drawKeeper(
   const alive = isIdle(phase) ? 1 - extension * 4 : 0;
   const breath = wave(clock, BREATH_PERIOD, 0.5) * 0.032 * Math.max(0, alive);
 
+  const z = -KEEPER_STANDS_OFF;
   const stand = {
-    feet: vec(stance, 0.06, 0),
-    shoulder: vec(stance, 1.42 + breath, 0),
-    head: vec(stance, 1.68 + breath * 1.3, 0),
+    feet: vec(stance, 0.06, z),
+    shoulder: vec(stance, 1.42 + breath, z),
+    head: vec(stance, 1.68 + breath * 1.3, z),
   };
 
   // Hip sits on the simulated body, which is one of the two volumes that
@@ -430,7 +441,7 @@ export function drawKeeper(
   };
 
   const blend = (a: Vec3, b: Vec3): Vec3 =>
-    vec(a.x + (b.x - a.x) * extension, a.y + (b.y - a.y) * extension, 0);
+    vec(a.x + (b.x - a.x) * extension, a.y + (b.y - a.y) * extension, z);
 
   const feet = grounded(blend(stand.feet, dive.feet), 0.1, keeper.landed);
   const shoulder = grounded(blend(stand.shoulder, dive.shoulder), 0.32, keeper.landed);
@@ -440,10 +451,10 @@ export function drawKeeper(
   // straddling the point the save test actually uses.
   const spread = 0.24 - extension * 0.1;
   const reaching: [Vec3, Vec3] = [
-    vec(hands.x + spread, hands.y + 0.05, 0),
-    vec(hands.x - spread * 0.7, hands.y - 0.09, 0),
+    vec(hands.x + spread, hands.y + 0.05, z),
+    vec(hands.x - spread * 0.7, hands.y - 0.09, z),
   ];
-  const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, 0), vec(stance - 0.34, 0.92, 0)];
+  const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, z), vec(stance - 0.34, 0.92, z)];
   const held: [Vec3, Vec3] = [
     grounded(reaching[0], 0.18, keeper.landed),
     grounded(reaching[1], 0.14, keeper.landed),
@@ -454,7 +465,7 @@ export function drawKeeper(
     vec(
       feet.x - along.x * extension * k + spreadX * (1 - extension),
       Math.max(0.04, feet.y - along.y * extension * k),
-      0
+      z
     );
 
   drawFigure(ctx, proj, {

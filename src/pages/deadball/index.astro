@@ -3,6 +3,14 @@
 // sitemap, and linked from nowhere. See src/lib/hidden.mjs, which is what
 // astro.config.mjs and scripts/verify-urls.mjs both read.
 import Fullscreen from '../../layouts/Fullscreen.astro';
+import { DEFAULT_VIEW, listViews } from '../../games/deadball/render/registry.ts';
+
+// Rendered here rather than built in the browser. Astro scopes component CSS
+// by stamping an attribute on the elements in the template, so buttons created
+// with document.createElement never matched any of it and came out as bare
+// browser defaults - which is why the selected one looked like the others.
+// Rendering them also means the switcher is there before the game starts.
+const views = listViews();
 ---
 
 <Fullscreen title="Dead Ball" backHref="/" backLabel="Home" noindex>
@@ -14,50 +22,50 @@ import Fullscreen from '../../layouts/Fullscreen.astro';
       and tap targets for nothing. The game only has to be told which one was
       pressed.
     */}
-    <nav id="views" aria-label="Camera angle" hidden>
+    <nav id="views" aria-label="Camera angle">
       <span id="views-label">Camera</span>
+      {
+        views.map(({ id, label }) => (
+          <button type="button" data-view={id} aria-pressed={String(id === DEFAULT_VIEW)}>
+            {label}
+          </button>
+        ))
+      }
     </nav>
   </div>
 </Fullscreen>
 
 <script>
   import { start } from '../../games/deadball/main';
-  import { listViews } from '../../games/deadball/render/registry';
 
   const canvas = document.getElementById('pitch');
-  const nav = document.getElementById('views');
 
   if (canvas instanceof HTMLCanvasElement) {
     start(canvas)
       .then((game) => {
-        if (!(nav instanceof HTMLElement)) return;
-
-        const buttons = listViews().map(({ id, label }) => {
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.textContent = label;
-          button.dataset.view = id;
-          button.addEventListener('click', () => {
-            game.useView(id);
-            paint();
-            // Put focus back on the pitch, or the next space bar press
-            // re-triggers the button instead of doing nothing.
-            canvas.focus();
-          });
-          nav.append(button);
-          return button;
-        });
+        const buttons = [...document.querySelectorAll<HTMLButtonElement>('#views button')];
 
         const paint = () => {
           const current = game.currentViewId();
           for (const button of buttons) {
-            const active = button.dataset.view === current;
-            button.setAttribute('aria-pressed', String(active));
+            button.setAttribute('aria-pressed', String(button.dataset.view === current));
           }
         };
 
+        for (const button of buttons) {
+          button.addEventListener('click', () => {
+            const id = button.dataset.view;
+            if (id) game.useView(id);
+            paint();
+            // Take focus off the button, or the next space bar press
+            // re-triggers it rather than doing nothing.
+            button.blur();
+          });
+        }
+
+        // The markup guesses the default; the game knows what actually loaded,
+        // which may have come from ?view= or from what was stored last time.
         paint();
-        nav.hidden = false;
       })
       .catch((error) => console.error('[deadball] failed to start', error));
   }
@@ -115,14 +123,36 @@ import Fullscreen from '../../layouts/Fullscreen.astro';
   }
 
   #views button:hover {
-    background: rgba(8, 20, 30, 0.8);
+    background: rgba(8, 20, 30, 0.85);
+    border-color: rgba(255, 255, 255, 0.45);
     color: #fff;
   }
 
+  /* Unmistakable rather than merely tinted: filled, darker text, heavier, and
+     carrying a dot no unselected button has. Colour alone is not a signal
+     everybody can read. */
   #views button[aria-pressed='true'] {
-    background: rgba(125, 211, 252, 0.9);
-    border-color: rgba(125, 211, 252, 0.9);
-    color: #06202e;
+    background: #7dd3fc;
+    border-color: #7dd3fc;
+    color: #05202e;
+    font-weight: 700;
+    box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.25);
+  }
+
+  #views button[aria-pressed='true']::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: #05202e;
+    vertical-align: middle;
+  }
+
+  #views button[aria-pressed='true']:hover {
+    background: #a5e2fd;
+    color: #05202e;
   }
 
   #views button:focus-visible {

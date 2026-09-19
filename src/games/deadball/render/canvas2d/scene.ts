@@ -57,9 +57,12 @@ export function drawScene(
     drawGoalFrame(ctx, proj);
     drawNet(ctx, proj);
   } else {
+    // Net, then the frame, then the keeper. The keeper stands in front of the
+    // posts, not behind them: drawn the other way round the woodwork was
+    // painted over their arms, which reads as a keeper stuck in the netting.
     drawNet(ctx, proj);
-    drawKeeper(ctx, proj, frame.keeper, frame.keeperProfile.reach, frame.clock, frame.phase);
     drawGoalFrame(ctx, proj);
+    drawKeeper(ctx, proj, frame.keeper, frame.keeperProfile.reach, frame.clock, frame.phase);
     drawAim(ctx, proj, frame);
     drawTaker(ctx, proj, frame);
     drawBallTrail(ctx, proj, frame.trail);

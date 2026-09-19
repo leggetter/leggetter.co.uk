@@ -56,7 +56,7 @@ A game to build with the kids. The first version gets built solo so there is som
 | Shot mechanic | Drag from the ball: direction, power, and curve in one gesture | Highest skill ceiling of the options considered, and the only one that makes a free kick around a wall interesting |
 | Shot types | Penalties first, free kicks second | Free kicks add a wall, variable distance, and variable angle. Penalties are the same game with all three fixed, so they are strictly a subset |
 | Views in v1 | `behind-taker` and `angled-behind`, swappable at runtime | Undecided which feels better, and the swap costs little once the projection boundary exists |
-| Art | 2D canvas primitives now, pixel art later | Pixel art needs assets, which is the slow part. The renderer interface is what makes it a later decision instead of a rewrite |
+| Art | 2D canvas primitives now, a second package later - see [What else a package could be](#what-else-a-package-could-be) | Pixel art needs assets, which is the slow part. The renderer interface is what makes it a later decision instead of a rewrite |
 | Roster | Invented players shipped as data, plus a custom player editor | No likeness or trademark exposure on a public site, and inventing players is a good first contribution |
 | Language | TypeScript for the engine, JS or JSON for content | Types document the renderer and storage interfaces. The content files stay approachable |
 | Persistence | Interface from day one, `localStorage` implementation | Two-player later needs a remote store. An async interface now avoids a rewrite then |
@@ -440,6 +440,104 @@ Duplication is the right answer here and the asymmetry is the reason: two
 packages drawing crowds differently is two crowds, while two packages computing
 an outcome differently is a bug. Only one of those is worth an abstraction.
 
+### What else a package could be
+
+The boundary above is a considered guess until a second package exists. That is
+stated where the packages are described and it is still true, so this is the
+list of things that would prove it, and what each one would actually test.
+
+**Pixel art.** The one this document has named since Phase 0. A low-resolution
+buffer scaled up with smoothing off, chunky sprites, a chiptune crowd. The
+honest caveat: it is the *weakest* test of the seam, because it still draws
+with a `ctx` - it proves the interface carries two looks, not two
+technologies. It is also the most fun to build and the most visible, and sprite
+sheets and palettes are content-file work, which makes it the only one on this
+list a new contributor could meaningfully own.
+
+**Blueprint.** The physics made visible: trajectory arcs, the keeper's reach as
+a circle, the spin-blind predictor's straight line drawn against the ball's
+actual curved path, the aim cone widening with distance. It shares no drawing
+code at all with `classic`, which makes it a far stronger test of the boundary
+than pixel art, and it is small. It also pays for itself twice: **it is a
+debugging view.** The invisible-curve bug - physically correct, 20 cm over a
+penalty, absent from the game - would have been obvious in one glance instead
+of costing a session.
+
+**Broadcast.** A television feed: a score bug in the corner, lower-thirds
+naming the taker, letterboxing, a replay wipe. Interesting because it is almost
+entirely HUD and framing rather than world drawing, so it exercises a different
+part of the interface from the other two, and it pairs naturally with
+[Watch that again](#watch-that-again).
+
+**High contrast.** Large shapes, heavy outlines, no crowd, the outcome stated
+in type big enough to read across a room. This one reframes a package as an
+**accessibility surface** rather than a style, which is a more useful thing for
+this architecture to turn out to be good at than any amount of pixel art.
+
+#### Something more realistic
+
+Worth taking seriously, and the reason is a piece of luck: **the simulation has
+always run in 3D world space in real meters.** It was never a 2D game with
+depth faked on top. three.js works in meters by convention, so ball position,
+keeper hands, the goal frame and the camera specs in `cameras.ts` - a position,
+a target and a framing rule - map across with no translation layer at all. Most
+2D games would have to be rewritten to do this. This one would not.
+
+**What is actually hard is not the rendering, it is the animation.** A run-up,
+a strike, a dive and a landing are skinned character animation, and that is a
+different discipline from everything in this repo so far. The current figures
+are drawn from a handful of positions the simulation already computes.
+
+Libraries, if it happens:
+
+- **three.js** is the obvious choice and the one to use. Large but not absurd,
+  and its glTF loader, shadow maps and orbit/perspective cameras are the three
+  things this would need.
+- **Babylon.js** is bigger and more batteries-included; no reason to prefer it
+  here.
+- **regl**, **twgl** or raw WebGL are thin enough to keep the weight down and
+  mean writing shadow mapping and a glTF loader by hand. Not a trade worth
+  making for one package.
+
+Models must be **CC0**, for exactly the reason the audio had to be:
+[what not to commit](#what-not-to-commit) applies to a mesh as much as to an
+mp3. Kenney and Quaternius both publish CC0 low-poly character packs with
+animations. **Mixamo is a trap** - free to *use*, but its terms do not cleanly
+permit redistributing the asset files, and committing them to a public repo is
+redistribution. Same shape as the sample licensing question, and it should be
+answered before a file is downloaded rather than after.
+
+What it costs, stated plainly because these are the reasons it is not the next
+phase:
+
+- **Weight.** The whole site is text, and 256 KB of audio was agonised over. A
+  rigged character with animations is measured in megabytes. This is an order
+  of magnitude, not a percentage.
+- **The first runtime dependency.** The game currently has none - every entry
+  in `package.json` is Astro or tooling. That is a property worth naming before
+  it is spent.
+- **It stops being a contribution surface.** Pixel art has sprite sheets a
+  beginner can edit. A three.js package has none of that, and would be a job
+  for whoever is most comfortable with 3D rather than a good first change.
+- **The uncanny valley is real and this game is on the right side of it.** The
+  figures work *because* they are abstract; nobody expects a stick figure to
+  move convincingly. A realistic keeper that animates badly looks worse than
+  the thing it replaced, and animation is the expensive part.
+
+**What not to bring in, under any circumstances: a physics engine.** Rapier and
+cannon-es are excellent and would be exactly backwards here. The physics *is*
+the game - it is deterministic, tested against exact outcomes, and fingerprinted
+so a replay can prove it has not drifted. Handing that to a library would trade
+all of it for realism nobody asked for, in the one place this design does not
+compromise. A renderer may be swapped; `core/` may not.
+
+**The cheap eighty percent, worth doing regardless: shadows.** A ball's shadow
+on the grass tells you how high it is, which is *functional* rather than
+decorative - it is the missing depth cue in every 2D penalty game. It is
+achievable in `classic` today, in canvas2d, with an ellipse and the ball's y.
+If realism is the goal, that is the first thing to try and the cheapest test of
+whether realism is even what makes this better.
+
 ### Switching views
 
 - `?view=angled-behind` in the URL wins, for sharing a specific one.
@@ -702,7 +800,8 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
-| **Later** | A keeper that reads your pattern, free kicks and the wall, pixel art, side-on view, a leaderboard | |
+| **7** | A second presentation package, which is the only thing that proves the boundary. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |
+| **Later** | A keeper that reads your pattern, free kicks and the wall, a realistic 3D package, side-on view, a leaderboard | |
 
 **Free kicks moved to Later.** They were Phase 3 on the grounds that they
 complete the shot model, which is still true and is not the same as being the

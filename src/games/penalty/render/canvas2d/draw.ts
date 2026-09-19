@@ -266,6 +266,26 @@ interface Figure {
 
 const LIMB = { leg: 0.13, torso: 0.28, arm: 0.12, head: 0.115 };
 
+/**
+ * Standing still, breathing.
+ *
+ * Deliberately below the threshold of looking like an animation: a couple of
+ * centimeters of chest, and a centimeter of weight shifting from one foot to
+ * the other on a different period so the two never line up into an obvious
+ * bob. At the taker's distance that is three or four pixels.
+ *
+ * Periods are in seconds. A penalty taker waiting to be told to go is keyed
+ * up rather than resting, so the breathing is a little quicker than idle.
+ */
+const BREATH_PERIOD = 3.1;
+const SWAY_PERIOD = 5.3;
+
+const wave = (clock: number, period: number, phase = 0): number =>
+  Math.sin((clock / period + phase) * Math.PI * 2);
+
+/** Whether anybody is standing about rather than moving. */
+const isIdle = (phase: string): boolean => phase !== 'runup' && phase !== 'flight';
+
 function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   const f = proj.project(figure.feet);
   const s = proj.project(figure.shoulder);
@@ -334,7 +354,14 @@ function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   ctx.restore();
 }
 
-export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach: number): void {
+export function drawKeeper(
+  ctx: Ctx,
+  proj: Projector,
+  keeper: KeeperState,
+  reach: number,
+  clock: number,
+  phase: string
+): void {
   const { hands, body, stance } = keeper;
 
   /**
@@ -359,10 +386,15 @@ export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach
   // now. The whole body lies along this at full stretch.
   const along = thrown > 1e-4 ? { x: dx / thrown, y: dy / thrown } : { x: 0, y: 1 };
 
+  // Bigger than the taker's, because the keeper is twice as far away and the
+  // same two centimeters would land inside a single pixel.
+  const alive = isIdle(phase) ? 1 - extension * 4 : 0;
+  const breath = wave(clock, BREATH_PERIOD, 0.5) * 0.032 * Math.max(0, alive);
+
   const stand = {
     feet: vec(stance, 0.06, 0),
-    shoulder: vec(stance, 1.42, 0),
-    head: vec(stance, 1.68, 0),
+    shoulder: vec(stance, 1.42 + breath, 0),
+    head: vec(stance, 1.68 + breath * 1.3, 0),
   };
 
   // Hip sits on the simulated body, which is one of the two volumes that
@@ -442,12 +474,22 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
   const struck = frame.phase === 'flight' || frame.phase === 'resolved';
   const crouch = lean * 0.2 + (struck ? 0.12 : 0);
 
+  // Breathing, and weight moving from foot to foot. Settles as the drag builds:
+  // they steady themselves over the ball rather than breathing harder.
+  const alive = isIdle(frame.phase) ? 1 - Math.min(1, lean * 3) : 0;
+  const breath = wave(frame.clock, BREATH_PERIOD) * 0.019 * alive;
+  const sway = wave(frame.clock, SWAY_PERIOD, 0.37) * 0.012 * alive;
+
   const feet = vec(
-    waiting.x + (planted.x - waiting.x) * eased,
+    waiting.x + (planted.x - waiting.x) * eased + sway,
     0.04,
     waiting.z + (planted.z - waiting.z) * eased
   );
-  const shoulder = vec(feet.x - side * (0.12 + lean * 0.2), 1.3 - crouch, feet.z - 0.08);
+  const shoulder = vec(
+    feet.x - side * (0.12 + lean * 0.2),
+    1.3 - crouch + breath,
+    feet.z - 0.08
+  );
 
   // Three strides in 0.42 s, which is about what a penalty run-up is. On
   // contact the kicking leg swings through; after it, they come back together.
@@ -468,7 +510,9 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
   drawFigure(ctx, proj, {
     feet,
     shoulder,
-    head: vec(shoulder.x - side * 0.08, shoulder.y + 0.26, shoulder.z),
+    // Head rides a fraction more than the chest, which is what makes a small
+    // movement read as breathing rather than as the whole figure floating.
+    head: vec(shoulder.x - side * 0.08, shoulder.y + 0.26 + breath * 0.35, shoulder.z),
     hands: [hand(-1), hand(1)],
     toes: [toe(-1), toe(1)],
     kit: frame.player.colors.kit,

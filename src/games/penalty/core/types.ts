@@ -176,6 +176,15 @@ export interface FrameState {
   trail: Vec3[];
   /** Run-up progress, 0 to 1. Sits at 1 after contact so the taker stays put. */
   runUp: number;
+  /**
+   * Seconds since the game started, advancing on simulation steps.
+   *
+   * Presentation only: idle animation needs a clock that keeps running when
+   * nothing is happening, and nothing in core/ reads this. It ticks on
+   * simulation steps rather than frames so a breath is the same length on a
+   * 60 Hz laptop and a 120 Hz phone.
+   */
+  clock: number;
   shotIndex: number;
   shotsTotal: number;
   score: number;

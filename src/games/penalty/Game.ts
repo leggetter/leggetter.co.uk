@@ -100,6 +100,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
   /** Computed once at full time, not every frame. */
   let summary: FullTime | null = null;
 
+  /** Seconds since the game started. Drives idle animation, nothing else. */
+  let clock = 0;
+
   /** Recent ball positions for the trail, oldest first. */
   let trail: Vec3[] = [];
   const TRAIL_LENGTH = 14;
@@ -135,6 +138,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     spot: spotBall(PENALTY_DISTANCE),
     trail,
     runUp: match.phase === 'ready' ? 0 : match.phase === 'runup' ? runUp / RUN_UP_SECONDS : 1,
+    clock,
     shotIndex: match.shotIndex,
     shotsTotal: match.shotsTotal,
     score: match.score,
@@ -251,6 +255,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
   let accumulator = 0;
 
   function simulate(): void {
+    clock += STEP;
     if (holdRemaining > 0) holdRemaining -= STEP;
 
     // The sweep runs on simulation steps, not frames, so the window is the

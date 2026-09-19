@@ -10,6 +10,8 @@
     "predev": "node scripts/copy-guide-images.mjs",
     "preview": "astro preview",
     "verify": "node scripts/verify-urls.mjs",
+    "test:game": "node --test src/games/deadball/**/*.test.ts",
+    "typecheck": "tsc --noEmit",
     "generate-family-tree": "python3 leggetter-family-tree/tree-view-family-chart.py leggetter-family-tree/0001tree.gen --output-astro",
     "voice": "node scripts/check-voice.mjs",
     "voice:sections": "node scripts/voice-by-section.mjs"
@@ -27,7 +29,7 @@
     "technology"
   ],
   "author": "Phil Leggetter <phil@leggetter.co.uk> (https://leggetter.co.uk)",
-  "license": "Creative Commons - Attribution 3.0",
+  "license": "CC-BY-3.0",
   "bugs": {
     "url": "https://github.com/leggetter/leggetter.co.uk/issues"
   },
@@ -42,6 +44,7 @@
   "devDependencies": {
     "js-yaml": "^5.4.1",
     "playwright-core": "^1.62.1",
+    "typescript": "^7.0.2",
     "wrangler": "^4.131.0"
   }
 }

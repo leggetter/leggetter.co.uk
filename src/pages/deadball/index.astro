@@ -1,0 +1,29 @@
+---
+// Hidden page: built and reachable, but carrying noindex, absent from the
+// sitemap, and linked from nowhere. See src/lib/hidden.mjs, which is what
+// astro.config.mjs and scripts/verify-urls.mjs both read.
+import Fullscreen from '../../layouts/Fullscreen.astro';
+---
+
+<Fullscreen title="Dead Ball" backHref="/" backLabel="Home" noindex>
+  <canvas id="pitch"></canvas>
+</Fullscreen>
+
+<script>
+  import { start } from '../../games/deadball/main';
+
+  const canvas = document.getElementById('pitch');
+  if (canvas instanceof HTMLCanvasElement) {
+    start(canvas).catch((error) => console.error('[deadball] failed to start', error));
+  }
+</script>
+
+<style>
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Aiming is a drag gesture, and without this it scrolls the page instead. */
+    touch-action: none;
+  }
+</style>

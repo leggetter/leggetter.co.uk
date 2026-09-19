@@ -1,0 +1,42 @@
+/**
+ * Where anything that outlives a page load goes.
+ *
+ * Async even though localStorage is not. That costs a little awkwardness now
+ * and saves a rewrite of every call site later: two-player needs a shared
+ * store, a shared store is over the network, and a network store is async. The
+ * interface is the cheap half of that decision, so it is made now.
+ *
+ * Keys are namespaced `deadball:v1:*`, and the version in the key is the schema, not
+ * the game. See schema.ts for how it moves.
+ */
+
+export interface Storage {
+  get<T>(key: string): Promise<T | null>;
+  set<T>(key: string, value: T): Promise<void>;
+  remove(key: string): Promise<void>;
+  keys(prefix?: string): Promise<string[]>;
+}
+
+/**
+ * Renamed from `ps:` (penalty shootout) when the game became Dead Ball, since
+ * free kicks are coming and it was never going to be only penalties. Anything
+ * already stored under the old prefix is not read: that is a shot log from
+ * before the physics was retuned several times over, which a replay could not
+ * have used anyway.
+ */
+export const NAMESPACE = 'deadball:v1:';
+
+export const key = (...parts: string[]): string => NAMESPACE + parts.join(':');
+
+/** Keys the game reads and writes. Kept together so nothing invents one. */
+export const KEYS = {
+  settings: key('settings'),
+  profile: key('profile'),
+  stats: key('stats'),
+  customRoster: key('roster', 'custom'),
+} as const;
+
+export interface Settings {
+  /** Which camera the player last used. */
+  viewId?: string;
+}

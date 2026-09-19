@@ -1,0 +1,238 @@
+# Working on the Dead Ball game
+
+This is for anyone picking the game up for the first time. It covers how to run
+it, how it is put together, and a list of jobs you can actually take.
+
+You do not need to understand all of it. The game is arranged so that the
+interesting jobs are in files that do not require you to know how the physics
+works.
+
+## Running it
+
+From the top of the repo:
+
+```sh
+npm install     # once
+npm run dev
+```
+
+It prints an address, usually `http://localhost:4321`. The game is at
+**`/deadball/`** - so `http://localhost:4321/deadball/`.
+
+Leave that running. When you save a file, the page reloads itself.
+
+Two commands worth knowing:
+
+```sh
+npm run test:game    # runs the tests. Takes about a second.
+npm run typecheck    # checks the types. Takes a few seconds.
+```
+
+Run both before you ask anyone to look at your change. If either one is unhappy
+it will tell you which file and which line.
+
+## How to play
+
+Press on the ball and drag. Let go to shoot.
+
+- **Where you drag** is where you are aiming.
+- **How far you drag** is how hard you hit it. Further is harder *and* higher.
+- **Hooking the drag sideways** on the way out bends the shot.
+- **A bar sweeps left and right while you hold.** Let go while the marker is in
+  the green and you strike it cleanly. Let go early and the shot pulls left;
+  late and it pushes right.
+
+Five penalties, then a screen telling you how you did.
+
+**Press `L` at any point to save a file of every shot you have taken.** It goes
+to your downloads and nowhere else - nothing is sent anywhere. It is genuinely
+useful: most of the tuning in this game came from reading those files rather
+than from anybody's opinion.
+
+## How the game is put together
+
+Four groups of files, and one rule that holds the whole thing together.
+
+| Folder | What is in it |
+|---|---|
+| `core/` | The rules and the physics. How the ball flies, what the keeper does, whether it was a goal. |
+| `render/` | The drawing. Everything you see. |
+| `input/` | Turning a mouse drag or a finger into a shot. |
+| `content/` | **Data.** The players and the keepers. No code to speak of. |
+
+**The rule: `core/` is not allowed to know that drawing exists.** It never
+touches the screen, the mouse, or anything in a browser. That is what lets the
+game be tested without opening a page, and what will let somebody swap the
+whole look of it later without touching how it plays.
+
+It also means you can change how the game *looks* without any risk of changing
+how it *plays*, and the other way round. Which of those two you are doing is
+usually the first thing to work out about a job.
+
+## Start here
+
+Three jobs that need no knowledge of anything above, in the order I would do
+them.
+
+### 1. Add a footballer
+
+**File:** `src/games/deadball/content/players.js`
+
+Copy one of the blocks and change it. Every skill runs from 0 to 100:
+
+| Skill | What it does |
+|---|---|
+| `power` | How hard they hit it. 100 is a rocket, 20 is a pass. |
+| `accuracy` | How close it goes to where you aimed. Below about 60 the ball starts wandering off on its own. |
+| `curve` | How much bend they get when you hook the drag. |
+| `composure` | Only matters on the last penalty, when it is all on them. Low composure players get worse when it counts. |
+| `foot` | `'left'` or `'right'`. Changes which way the ball naturally drifts. |
+| `colors` | `kit` is the shirt, `trim` is the shorts and socks. Any web colour. |
+
+To play as them, change `DEFAULT_PLAYER_ID` at the bottom of the file to their
+`id`.
+
+**Done when:** you can see their kit colours on the pitch and the name in the
+top-left corner.
+
+**Try this:** make one with `accuracy: 100` and one with `accuracy: 30`, and
+take five penalties with each. The difference is bigger than it sounds.
+
+### 2. Invent a keeper
+
+**File:** `src/games/deadball/content/keepers.js`
+
+Same idea, and this is the fastest way to change how hard the game is.
+
+The three that decide most of it:
+
+- `readAccuracy` (0 to 1) - how good their guess is. This is the main dial.
+- `guessBias` and `anticipation` - how they decide. `guessBias` is how often
+  they pick a side before you hit it and just go. `anticipation` is how often
+  they go at the moment of contact, reading your run-up. Whatever is left over
+  is how often they hang back and watch the ball, which looks patient and is
+  usually too late.
+- `diveSpeed` - how fast their hands travel. There is a note in the file about
+  why this one is more dangerous than it looks.
+
+**Done when:** you can make a keeper you can beat every time, and one you
+cannot beat at all. Then find something in between.
+
+**Worth knowing:** no keeper can see the curve. They read the line the ball is
+travelling on, and the spin takes it somewhere else. That is why bending it
+works, and it is not written down anywhere as a rule - it falls out of how the
+keeper is built.
+
+### 3. Break the physics, then put it back
+
+**File:** `src/games/deadball/core/units.ts`
+
+This one is for finding your way around. Everything the simulation is tuned to
+lives in that one file, in real units - metres, seconds, kilograms - with a
+comment on each saying what it is for.
+
+Change `GRAVITY` from `9.81` to `2` and take a penalty. Then try
+`MAGNUS_FACTOR` at ten times its value and hook the drag as hard as you can.
+
+Then run `npm run test:game` and watch it fail. One of the tests exists purely
+to notice that the physics moved. Put the numbers back and it passes again.
+
+**Done when:** you have made the ball do something ridiculous and then undone
+it. There is nothing to submit; the point is that you now know where the dials
+are and that something is watching them.
+
+## Bigger jobs
+
+These are real features. Each one is self-contained - you should not need to
+touch the physics for any of them.
+
+### Pick your player before the shootout
+
+Right now the game plays as whoever `DEFAULT_PLAYER_ID` says. There should be a
+screen where you choose.
+
+Everything needed is there: the roster is a list, and the game already takes a
+player as an argument. It needs somewhere to show them and something to
+remember the choice, and there is already a place for remembering things
+(`storage/`).
+
+**Start at:** `src/games/deadball/main.ts`, which is where the player is
+currently picked.
+
+### Celebrations
+
+When you score, something should happen. A line of text, a noise, anything.
+
+The interesting part of this job is deciding where it belongs. The words are
+content, so they want to be a data file like the roster. The drawing of them is
+`render/`. Nothing about it goes anywhere near `core/`, because scoring a goal
+does not change the rules.
+
+### A new camera angle
+
+The game can be drawn from anywhere; there is just only one angle written so
+far. A camera is a position, a direction, and a rule for turning a drag into a
+shot. Look at `render/canvas2d/BehindTakerView.ts` - it is short, and most of it
+is the drag.
+
+Two that have been asked for: behind the goal looking back at the taker, and
+side-on so you can see the ball bend.
+
+**This is the job that proves the architecture works.** If you can add a camera
+without editing anything in `core/`, the split was drawn in the right place. If
+you cannot, that is worth saying out loud, because it means we got it wrong.
+
+### Two players
+
+Take five each, alternating. Hardest of these and the one most likely to be fun.
+
+The groundwork is done: the match is already written as a list of things that
+happen rather than as a running program, which means it does not care whether
+the next shot comes from a person sitting next to you, a computer, or eventually
+somebody on another machine. Look at `core/match.ts` first.
+
+### A keeper that spots what you keep doing
+
+Everybody who has played this has ended up shooting at the same spot. The game
+already notices - the screen at full time will tell you if you have gone the
+same way too often - but the keeper does nothing about it.
+
+Go the same way three times and it should start going with you.
+
+**Do the telling before the punishing.** Being read by a keeper is satisfying;
+being read by a keeper that never warned you is just the game cheating.
+
+## Before you ask for your change to be looked at
+
+```sh
+npm run test:game
+npm run typecheck
+```
+
+Both should be quiet. If a test fails, read the message - they are written to
+say what went wrong rather than just that something did.
+
+If you changed a number in `core/units.ts` and the tuning test fails, that is
+expected. It exists so that changing the physics has to be deliberate. Update
+the value it is checking against and say in your description that you retuned
+something.
+
+## Two rules about what goes in
+
+**This repo is public.** Anything committed here is on the internet, for good.
+So: no real names, no real ages, nothing about anybody's school or where they
+live. Not in the code, not in a player's name, not in a celebration line, not in
+a commit message. The roster is made-up people on purpose.
+
+**No real footballers either.** No real names, no club badges, no photos. Not
+worth the argument, and invented ones are more fun anyway.
+
+## Who owns this
+
+The game is licensed BSD-3-Clause - see `src/games/deadball/LICENSE`. In plain
+terms: anyone may use it or build on it, as long as they keep the copyright
+notice with it, and they may not use our names to promote whatever they make
+from it without asking.
+
+The copyright line says **"and contributors"**. If you write part of this, that
+is you. It says it that way rather than listing names because of the rule above.

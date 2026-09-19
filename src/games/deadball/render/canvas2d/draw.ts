@@ -371,6 +371,16 @@ function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   ctx.restore();
 }
 
+/**
+ * How far in front of the goal line the keeper is drawn, in meters.
+ *
+ * Standing exactly on the line puts the keeper in the same plane as the posts,
+ * so which one is in front comes down to draw order and reads as a keeper set
+ * back into the woodwork. Real ones stand just off it. Drawing only: saves are
+ * still decided where the ball crosses, so this moves nobody's hands.
+ */
+const KEEPER_STANDS_OFF = 0.3;
+
 export function drawKeeper(
   ctx: Ctx,
   proj: Projector,
@@ -408,10 +418,11 @@ export function drawKeeper(
   const alive = isIdle(phase) ? 1 - extension * 4 : 0;
   const breath = wave(clock, BREATH_PERIOD, 0.5) * 0.032 * Math.max(0, alive);
 
+  const z = -KEEPER_STANDS_OFF;
   const stand = {
-    feet: vec(stance, 0.06, 0),
-    shoulder: vec(stance, 1.42 + breath, 0),
-    head: vec(stance, 1.68 + breath * 1.3, 0),
+    feet: vec(stance, 0.06, z),
+    shoulder: vec(stance, 1.42 + breath, z),
+    head: vec(stance, 1.68 + breath * 1.3, z),
   };
 
   // Hip sits on the simulated body, which is one of the two volumes that
@@ -430,7 +441,7 @@ export function drawKeeper(
   };
 
   const blend = (a: Vec3, b: Vec3): Vec3 =>
-    vec(a.x + (b.x - a.x) * extension, a.y + (b.y - a.y) * extension, 0);
+    vec(a.x + (b.x - a.x) * extension, a.y + (b.y - a.y) * extension, z);
 
   const feet = grounded(blend(stand.feet, dive.feet), 0.1, keeper.landed);
   const shoulder = grounded(blend(stand.shoulder, dive.shoulder), 0.32, keeper.landed);
@@ -440,10 +451,10 @@ export function drawKeeper(
   // straddling the point the save test actually uses.
   const spread = 0.24 - extension * 0.1;
   const reaching: [Vec3, Vec3] = [
-    vec(hands.x + spread, hands.y + 0.05, 0),
-    vec(hands.x - spread * 0.7, hands.y - 0.09, 0),
+    vec(hands.x + spread, hands.y + 0.05, z),
+    vec(hands.x - spread * 0.7, hands.y - 0.09, z),
   ];
-  const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, 0), vec(stance - 0.34, 0.92, 0)];
+  const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, z), vec(stance - 0.34, 0.92, z)];
   const held: [Vec3, Vec3] = [
     grounded(reaching[0], 0.18, keeper.landed),
     grounded(reaching[1], 0.14, keeper.landed),
@@ -454,7 +465,7 @@ export function drawKeeper(
     vec(
       feet.x - along.x * extension * k + spreadX * (1 - extension),
       Math.max(0.04, feet.y - along.y * extension * k),
-      0
+      z
     );
 
   drawFigure(ctx, proj, {
@@ -741,6 +752,19 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
   const radius = Math.max(38, BALL_RADIUS * at.scale * 2.6);
   const TAU = Math.PI * 2;
 
+  /**
+   * The sweep normally hangs below the ring. Where the ball sits low in frame -
+   * the angled camera, or any narrow screen - there is no room underneath, so
+   * it goes above instead and the bend track moves up out of its way.
+   *
+   * Anchored to the ball either way. Parking it at a fixed spot on the canvas
+   * would fix the clipping and undo the reason the dial is at the ball at all.
+   */
+  const SWEEP_GAP = 40;
+  const room = proj.height - (at.y + radius + SWEEP_GAP + 14);
+  const sweepBelow = room > 0;
+  const sweepY = sweepBelow ? at.y + radius + SWEEP_GAP : at.y - radius - SWEEP_GAP;
+
   ctx.save();
   ctx.lineCap = 'round';
 
@@ -760,12 +784,18 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
   ctx.font = '600 12px ui-monospace, SFMono-Regular, Menlo, monospace';
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillText(`${Math.round(input.power * 100)}%`, at.x, at.y + radius + 20);
+  // Clamped, because the ring is anchored to a ball that can sit very near the
+  // bottom of the frame and the number goes under it.
+  ctx.fillText(
+    `${Math.round(input.power * 100)}%`,
+    at.x,
+    Math.min(at.y + radius + (sweepBelow ? 20 : 8), proj.height - 12)
+  );
 
   // Bend, as a needle sliding along a short track above the ring, labelled.
   // Unlabelled it was a blue line that moved, with nothing to say what it was
   // or what moved it.
-  const trackY = at.y - radius - 22;
+  const trackY = at.y - radius - (sweepBelow ? 22 : 62);
   const trackHalf = radius * 0.85;
   ctx.beginPath();
   ctx.moveTo(at.x - trackHalf, trackY);
@@ -797,7 +827,7 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
     trackY - 22
   );
 
-  drawSweep(ctx, at.x, at.y + radius + 40, trackHalf * 1.5, frame.timingMarker);
+  drawSweep(ctx, at.x, sweepY, trackHalf * 1.5, frame.timingMarker);
   ctx.restore();
 }
 
@@ -1045,7 +1075,9 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
     drawFullTime(ctx, frame, width, height);
   }
 
-  if (frame.phase === 'ready') {
+  // Hidden once a drag is live: the dial is at the ball and says more, and in
+  // the angled view the two were drawn on top of each other.
+  if (frame.phase === 'ready' && !frame.aiming) {
     // Short form on a phone. The long one is four clauses and does not fit.
     const lines =
       width < NARROW

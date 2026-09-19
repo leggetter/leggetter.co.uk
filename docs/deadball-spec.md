@@ -37,13 +37,14 @@ A game to build with the kids. The first version gets built solo so there is som
 - ~~Phase 1 is playable by a person who was not told how it works.~~ Done, and
   two people have put 200 shots through it.
 - Both views get played back to back and one of them wins on feel, not on
-  argument. Still open: there is only one view.
+  argument. **The three exist; which one wins is still open**, and is now a
+  question of playing rather than of building.
 - **The kids each land a merged change.** Still the real measure, and still
   unmet: every commit so far is one person and an assistant. The surfaces exist
   and work, which was the hard part; nobody has been handed them, which is not.
 - A third renderer can be added later without editing anything under `core/`.
-  Testable: if it needs a `core/` change, the boundary was wrong. Untested until
-  Phase 2.
+  **Met.** Two more cameras landed without a line changing under `core/`. Each
+  is about sixty lines and most of that is the camera's own geometry.
 - Tuning comes from measurement rather than opinion. Met: goal rates, timing
   gradients and rebound frequencies are all measured over hundreds of simulated
   shots, and two real sessions have been analysed against them.
@@ -312,6 +313,38 @@ interface View {
 
 `FrameState` is a read-only snapshot: ball, keeper, wall, goal, phase, score, shot index, elapsed time, last outcome, current player. The view gets no reference to the match or the simulation.
 
+### What the second and third cameras cost
+
+The claim was that a camera angle is a projection function rather than a
+rewrite. Holding it to that: `AngledBehindView` and `KeeperCamView` are about
+sixty lines each, nothing under `core/` changed, and two things had to be
+extracted first because they were sitting inside the reference view:
+
+- **`render/aim.ts`** - the drag gesture, shared. Three copies would have
+  drifted into three slightly different control schemes, and then playing them
+  back to back would say which one you had got used to rather than which one is
+  better to look at.
+- **`render/canvas2d/scene.ts`** - the pitch, drawn once. A view is now a
+  camera, a mapping and a call to this.
+
+A camera changes exactly two things beyond its own position, and both are what
+the `View` interface exists for. Going round behind the goal **mirrors the
+drag**, because the taker's right is now on your left. And it **reverses the
+draw order**, because order is depth: the netting and the frame are the nearest
+things in shot rather than the furthest.
+
+One bug worth recording, because it will recur every time a camera is aimed at
+something. The yaw is `atan2(dx, dz)` to match the rotation in `project.ts`, and
+negating the x swings the camera the wrong way by *twice* the angle. The first
+angled camera was looking at an empty stretch of grass with the goal off the
+left-hand edge. Worked out and checked against the projector's own arithmetic
+rather than nudged until it looked right.
+
+The angled camera also aims between the goal and the ball rather than at the
+goal. Pointed straight at the goal the composition is correct and the shot is
+not: the ball and the taker are far nearer the camera, so centring the goal
+pushes them off the bottom corner.
+
 ### Switching views
 
 - `?view=angled-behind` in the URL wins, for sharing a specific one.
@@ -422,7 +455,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **1** ✅ | `core/` (units, vec3, rng, physics, predict, shot, keeper, flight, rules, match), `BehindTakerView`, drag input, one keeper, 5 penalties, in-memory storage, 27 tests | Single-player penalty shootout |
 | **1.5** ✅ | Full-time summary read off the shot log, a taker figure and a run-up, a keeper that shuffles, dives and lands, woodwork rebounds, netting, the save aftermath, release timing, the shot dial | The shootout ends with something, and a shot finishes rather than freezing |
 | **1.75** | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
-| **2** | `AngledBehindView` **and `KeeperCamView`**, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
+| **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **2.5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **3** | Wall, variable position, free kick mode, lift input | Penalties and free kicks |
 | **4** | `roster.json`, attributes into `resolveShot`, `localStorage` implementation, schema versioning, custom player editor | Pick a player, stats persist |

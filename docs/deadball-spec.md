@@ -98,7 +98,7 @@ Everything else falls out of that. A camera view is a projection function. `behi
 
 ```
 src/games/deadball/
-  LICENSE                     # MIT. The rest of the repo is CC-BY-3.0.
+  LICENSE                     # BSD-3-Clause. The rest of the repo is CC-BY-3.0.
   core/                       # TypeScript. No DOM, no canvas, no browser APIs.
     units.ts                  # every tuned constant, in meters and kg
     vec3.ts                   # minimal vector math
@@ -115,20 +115,22 @@ src/games/deadball/
     names.ts                  # what the two people in a duel are called
     events.ts                 # discrete things worth hearing (Phase 3.5)
     wall.ts                   # free kick wall (Later, not built)
-  render/
-    Package.ts                # what a render package implements
+  presentation/               # how it looks AND how it sounds
+    Presentation.ts           # what a presentation package implements
     cameras.ts                # where you may stand. Data, shared by all of them
     registry.ts               # id -> package
     sounds/                   # the default set. Any package may override it.
       Sounds.ts               # an event in, a noise out
-      synth.ts                # the only file that knows AudioContext
+      synth.ts                # generated sound. Knows AudioContext.
       silent.ts               # no-op, for tests and for the mute toggle
     classic/                  # today's look. The only place a ctx exists.
+      ClassicPresentation.ts  # one implementation, told which camera it is on
       draw.ts                 # pitch, goal, net, figures, ball, HUD, full time
+      scene.ts                # draw order, which is depth
       project.ts              # this package's camera maths
       aim.ts                  # drag -> ShotInput, under this projection
       stand.ts                # terracing, hoardings, crowd (Phase 3.5)
-      sounds.ts               # overrides, if any
+      sounds.ts               # this package's overrides and its samples
     pixel/                    # later
   input/
     drag.ts                   # Pointer Events -> DragGesture
@@ -137,7 +139,7 @@ src/games/deadball/
     Storage.ts                # the interface
     memory.ts                 # in-memory, used by tests
     local.ts                  # localStorage
-    schema.ts                 # versioned shapes + migrations (Phase 4)
+    schema.ts                 # versioned shapes + migrations (Phase 4, not built)
   telemetry/
     log.ts                    # one record per shot, on this device only
     analyse.ts                # what the log says, for full time and offline
@@ -152,7 +154,7 @@ src/games/deadball/
   main.ts                     # browser entry, imported by the Astro page
 ```
 
-`core/` importing anything from `render/`, `input/`, or the DOM is the one rule that keeps all of this true. Worth a lint rule or, failing that, a note at the top of each `core/` file.
+`core/` importing anything from `presentation/`, `input/`, or the DOM is the one rule that keeps all of this true. Worth a lint rule or, failing that, a note at the top of each `core/` file.
 
 ## Core concepts
 
@@ -375,8 +377,8 @@ a technique, and a package that wants it uses it without that showing up in its
 name or its interface.
 
 ```
-render/
-  Package.ts        # what a package implements
+presentation/
+  Presentation.ts   # what a package implements
   cameras.ts        # where you are allowed to stand. Data.
   registry.ts       # id -> package
   sounds/           # the default set. Any package may override any of it.
@@ -446,7 +448,7 @@ an outcome differently is a bug. Only one of those is worth an abstraction.
 
 An always-visible switcher in v1, since comparing the two is the entire reason both exist. It can move behind `?dev=1` once one of them wins.
 
-Registered as `id -> factory` in `render/registry.ts`. Adding a view is one file plus one registry line, and that is the test of whether the boundary held.
+Registered as `id -> factory` in `presentation/registry.ts`. Adding a view is one file plus one registry line, and that is the test of whether the boundary held.
 
 ## Input
 
@@ -696,7 +698,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **1.75** ✅ | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
-| **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and synthesised sound. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
+| **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and sound - synthesised impacts, sampled crowd. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
@@ -1059,7 +1061,7 @@ default set every package inherits, which is still synthesised and still
 weighs nothing. But a crowd is thousands of throats that filtered noise never
 quite lies about convincingly, and once the first three samples went in the
 same reasoning took the rest of the crowd with them. The `classic` package now
-ships six CC0 files, which is exactly the escape hatch the package model was
+ships six sample files, which is exactly the escape hatch the package model was
 built with: a package that wants samples ships them and inherits the weight and
 the licence question along with them.
 
@@ -1076,11 +1078,20 @@ What stayed synthesised: the glove, the woodwork, and the referee's whistle.
 Short, physical, and in the frame's case better made than found, because a made
 post can ring at whatever pitch suits.
 
-What the reversal cost, recorded so the trade is visible: 248 KB, and a
+What the reversal cost, recorded so the trade is visible: 256 KB, and a
 `CREDITS.md` naming a source, an author, a licence and a retrieval date for
-each file. Every one is CC0, checked by reading the licence on each sound's own
-page rather than trusting a search filter, because a public repo redistributes
-what it commits. Nothing blocks on them, nothing throws if they are missing,
+each file. Every licence was checked by reading it on that sound's own page
+rather than trusting a search filter, because a public repo redistributes what
+it commits.
+
+**Five of the six are CC0. The cheer is not.** It is under the Pixabay Content
+Licence, which permits free commercial use without attribution but forbids
+distributing content "on a Standalone basis" - and committing an mp3 to a
+public repo is arguably that, while a modified file embedded in a game is
+arguably not. It was chosen knowingly, by ear, over a CC0 alternative taken
+from the same recording as the bed. `CREDITS.md` says so at the top and in the
+entry, so that nobody reads the set as uniformly CC0 and so the decision is
+visible rather than inherited. Nothing blocks on them, nothing throws if they are missing,
 and every branch that cannot play a sample calls straight through to the
 synthesised sound that was always there - verified by deleting the directory
 and playing a shootout.
@@ -1125,7 +1136,7 @@ might.** It is the same class of bet as the curve, which was physically correct
 and inaudible in the game until it was played. The mitigation is the same too -
 it gets judged by listening, not by reasoning - and the fallback is cheap,
 because the seam is an interface. Swapping synthesis for samples changes one file
-behind `render/sounds/Sounds.ts` and nothing that calls it - or, better, changes
+behind `presentation/sounds/Sounds.ts` and nothing that calls it - or, better, changes
 nothing at all and ships as a package that overrides the defaults.
 
 #### The things that are easy to get wrong

@@ -115,20 +115,17 @@ src/games/deadball/
     names.ts                  # what the two people in a duel are called
     events.ts                 # discrete things worth hearing (Phase 3.5)
     wall.ts                   # free kick wall (Later, not built)
-  scene/                      # world units. No canvas, no WebGL, no DOM.
-    camera.ts                 # was render/project.ts
-    aim.ts                    # was render/aim.ts. Camera maths, not drawing
-    cameras.ts                # the three positions. A view is one of these
-    stand.ts                  # rake, seat positions, hoardings (Phase 3.5)
-    crowd.ts                  # per-person constants, and offset at time t
-    boards.ts                 # async load, whatever the source (Phase 3.5)
   render/
-    Renderer.ts               # the interface a backend implements
-    registry.ts               # id -> camera + backend
-    canvas2d/                 # the only directory that knows what a ctx is
+    View.ts                   # the interface. Also the seam a webgl/ would use
+    project.ts                # shared camera + projection
+    aim.ts                    # drag -> ShotInput, shared by every view
+    registry.ts               # id -> view factory
+    canvas2d/
       draw.ts                 # pitch, goal, net, figures, ball, HUD, full time
-      stand.ts                # draws what scene/stand.ts and crowd.ts describe
-    webgl/                    # the reason for the split. Not built.
+      stand.ts                # terracing, hoardings, crowd (Phase 3.5)
+      BehindTakerView.ts
+      AngledBehindView.ts
+      KeeperCamView.ts
   input/
     drag.ts                   # Pointer Events -> DragGesture
     keyboard.ts               # accessible fallback aim mode (not built)
@@ -150,7 +147,7 @@ src/games/deadball/
     players.js
     keepers.js
     sounds.js                 # frequencies and decay times (Phase 3.5)
-    boards.js                 # the default hoardings. One of three sources
+    boards.js                 # what the hoardings say. No real people's names
   Game.ts                     # wiring: input -> match -> view, the frame loop
   main.ts                     # browser entry, imported by the Astro page
 ```
@@ -360,89 +357,72 @@ pushes them off the bottom corner.
 
 ### Swapping the renderer
 
-The design has always claimed the simulation and the display are separable. That
-claim has never been tested, because there has only ever been one way of
-drawing. WebGL later is the reason to test it, and Phase 3.5 is the reason to
-test it *now*: the crowd is the largest body of drawing code this project will
-have, and writing it in the wrong place and moving it afterwards is the expensive
-order to do things in.
+WebGL later is a goal, and the question it raises is what has to be shared
+between two ways of drawing. The answer turns out to be: **less than it looks
+like, and the existing boundary already draws it.**
 
-**Two layers are not enough, because half of `render/` is not drawing.**
+**The model holds game state and emits events. Everything else is the view's
+business** - how many people are in the stand, where they sit, when each one
+stands up, what a post sounds like. None of that is game data. None of it can
+change an outcome. A renderer is free to do all of it however suits the way it
+draws.
 
-- `project.ts` is camera and projection arithmetic. No canvas.
-- `aim.ts` turns a drag into world intent. No canvas.
-- The rake of a stand, where each seat is, and what each person in it is doing
-  at time *t*. No canvas.
+#### The layer that should not exist
 
-Exactly one file touches a `CanvasRenderingContext2D`: `draw.ts`. Everything else
-under `render/` is a model of what exists and where, which a second backend would
-otherwise have to write again - and a second implementation of the seat layout is
-a second implementation that can disagree with the first.
+An earlier draft of this section proposed a third layer between the two: a
+`scene/` that owned the rake of the stand, the seat positions and each person's
+timing, so that a second backend would not have to write them again. It was
+wrong, and the argument against it is one this same section was already making
+about primitives.
 
-So three layers rather than two:
+That layer's API is "person 412 is at this world position, raised by this much",
+called once per person per frame. That shape is exactly what a WebGL crowd
+exists to avoid: WebGL is not a faster way to make six hundred draw calls, it is
+a way to not make them, and a crowd there is instanced geometry with positions in
+a buffer rather than a JS call each. Canvas2d wants a few hundred people it can
+blit; WebGL wants twenty thousand it never touches individually. **Sharing the
+layout would mean sharing the one decision the two backends most need to make
+differently.**
 
-| Layer | Knows about | Never knows about |
-| --- | --- | --- |
-| `core/` | The simulation | Anything visible or audible |
-| `scene/` | What exists, where, in world units | Canvas, WebGL, the DOM |
-| `render/<backend>/` | How to put that on a screen | The match, the reducer, storage |
+Which leaves duplication as the right answer for a stand: cheaper than the wrong
+abstraction, and the thing being duplicated is decoration with no correct value
+to disagree about. Two backends drawing crowds differently is two crowds. Two
+backends computing an outcome differently is a bug.
 
-#### Share the model, not the drawing
+The same reasoning applies one level up and is why nothing is being reorganised
+now: `core/` already has no DOM and no canvas, and `View` is already the seam a
+`render/webgl/` would implement. The boundary has been in the right place since
+Phase 1; it had simply never been asked to prove it.
 
-The trap here is a primitive list - a shared `drawCircle` / `drawRect` /
-`drawSprite` vocabulary that both backends consume. It looks like the portable
-answer and it is the opposite of one. It reimplements the canvas API, badly,
-and then throws away the only reason to want WebGL in the first place: WebGL is
-not a faster way to make six hundred draw calls, it is a way to not make them.
-An abstraction that both backends can express is an abstraction neither can be
-good at.
+#### The one thing that is not free
 
-So the line is drawn at **what and where, not how.** `scene/crowd.ts` answers
-"person 412 is at this world position, currently raised by this much". Canvas2d
-turns that into a `drawImage` from an atlas. WebGL turns it into one row of an
-instance buffer. Those two are not expressible in each other's terms and should
-not be made to be.
+`View` bundles *where the camera is* with *how the drawing happens*, so three
+cameras and two backends is six files rather than five. Real, small, and a
+problem for whoever builds the second backend rather than for now - at which
+point the camera positions are a handful of vectors to lift out, and the
+projection is per-backend anyway because a matrix and a hand-rolled `project()`
+are not the same thing.
 
-The same line already exists one level up and is the reason this project works:
-`core/` says the ball crossed at (1.2, 0.4) and *never* says how wide to draw it.
+Recorded rather than fixed. Fixing it today would be refactoring shipped code
+against a backend that does not exist, using guesses about what it would want.
 
-#### A view is a camera. A renderer is a backend.
+#### Sound sits beside the renderer, not inside it
 
-The `View` interface currently conflates the two. `BehindTakerView` owns both
-where the camera sits *and* the fact that the result is painted with canvas2d.
-Three cameras and two backends must not be six files.
+The distinction worth keeping. "The view decides" is right about *what a save
+sounds like*; it would be wrong if it meant the sound lived inside `canvas2d/`,
+because then swapping to `webgl/` would silence the game and every backend would
+carry its own copy of what a woodwork hit sounds like.
 
-A camera becomes data plus projection maths in `scene/`. A `Renderer` takes a
-camera and a `FrameState` and draws. `aimFromDrag` moves with the **camera**, not
-the backend, which is worth stating because [the view interface](#the-view-interface)
-above already warns that this mapping is "the part most likely to get moved to
-the wrong place later". It was right, and the wrong place turns out not to be the
-input layer: it is the renderer.
+So `audio/` is a sibling of `render/`, not a child. `Game.ts` drains the event
+stream once and hands it to both. Neither knows the other exists, which is also
+what lets muting touch no rendering and a new renderer touch no audio.
 
-#### Sound is not downstream of drawing
+#### What this buys, honestly
 
-Audio hangs off the event stream, which comes from `core/` and lands on
-`FrameState`. `Game.ts` hands it to the audio and to the scene independently, and
-neither knows the other exists.
-
-The consequence is the one that matters: **changing the renderer touches no audio
-at all**, and muting touches no rendering. If the events were drained by the
-renderer - which is the obvious way to write it, and what an earlier draft of the
-crowd section said - then every backend would own a copy of "what does a
-woodwork hit sound like", and swapping backends would silence the game.
-
-#### What this does and does not buy
-
-It makes the **crowd** portable. It does not make the game portable, and it does
-not prove the boundary is in the right place - only a second backend can do
-that, and until one exists this is a considered guess with a good track record
-behind it rather than a demonstrated property. Written down that way on purpose,
-like the cross-client determinism bet.
-
-The refactor is of code that already ships and works, so it needs a definition of
-done that is not "it looks finished": **the game renders identically, and no test
-under `core/` changed.** The existing three cameras are the check - if a camera
-needed edits to survive the split, the split is in the wrong place.
+Nothing new. It is a statement that the existing split is load-bearing, plus a
+decision not to add a layer to defend against a cost that turned out to be
+imaginary. The boundary is still unproven - only a second backend proves it -
+and that is the same status the cross-client determinism bet has.
 
 ### Switching views
 
@@ -682,7 +662,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **1.75** ✅ | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
-| **3.5** | Split `scene/` out of `render/`, then a crowd behind the goal, and sound. See [Swapping the renderer](#swapping-the-renderer) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
+| **3.5** | A crowd behind the goal, and sound. See [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
@@ -873,23 +853,22 @@ stand read as *behind* the goal rather than floating above it, they give the net
 something to be seen against, and they occlude the feet of the front row, which
 is what stops the bottom of the stand looking like it is standing on the pitch.
 
-**The boards are data, they are meant to be changed, and they have three
-possible sources.** The thing worth designing is that nothing except the loader
-knows which one a board came from:
+**The boards are data, and they are meant to be changed.** They come from
+`content/boards.js`, committed - a Tier 1 contribution surface of exactly the
+right shape, a list of short strings, edit and refresh.
 
-1. **`content/boards.js`, committed.** The default set, and a Tier 1
-   contribution surface of exactly the right shape - a list of short strings,
-   edit and refresh.
-2. **A per-device override in storage**, the arrangement custom players already
-   have.
-3. **A remote source, later.** The same backend [Phase 6](#two-devices-later)
-   needs for two devices, serving boards as well as games.
+**Not customisable per device.** Custom players earn their storage override
+because a player is yours; a hoarding is set dressing, and nobody is going to
+sit down and write their own before a shootout. If that turns out to be wrong it
+is a small feature to add later, and adding it now would be building a settings
+screen nobody asked for.
 
-**Which is why the board loader is async from the first line it has.** This
-document already made `Storage` async before anything needed it to be, on the
-grounds that a shared store is over the network and a network store is async,
-and that the interface is the cheap half of that decision. Same argument, same
-decision, and it costs one `await` now against every call site later.
+The one concession to a future source: **the loader is async.** Serving boards
+from the same backend [Phase 6](#two-devices-later) needs is plausible enough to
+be worth one `await` in a startup path that is already async. This document made
+`Storage` async before anything needed it, on the grounds that the interface is
+the cheap half of that decision, and the same argument applies for a great deal
+less code.
 
 Real brands are fine, and whether one goes in is the repo owner's call rather
 than the code's. One factual note, stated once: somebody else's mark is theirs to
@@ -969,12 +948,13 @@ mid-range phone drops frames, and whether the atlas or the batched paths wins.
 Both are answerable in an afternoon with the frame loop that already exists, and
 the count is then a constant in `units.ts` like every other tuned number here.
 
-**The crowd must never touch the match RNG.** `createRng(shotSeed(seed, index))`
-drives the shot. A crowd drawing from that stream would mean the same input gave
-a different flight depending on how many people were on screen, which is exactly
-the class of bug the [Determinism](#determinism) section exists to prevent. The
-crowd gets its own generator, and lives in `scene/`, where `core/` never learns
-it exists and no backend owns it.
+**The crowd cannot touch the match RNG, and that is structural rather than a
+rule to remember.** `createRng(shotSeed(seed, index))` lives in `core/` and the
+crowd lives in the view, which has no reference to it. Worth saying only because
+the failure it prevents is a nasty one: a crowd drawing from that stream would
+make the same input produce a different flight depending on how many people were
+on screen. The crowd randomises from its own generator, seeded however it likes,
+because nothing downstream of it can be wrong.
 
 `prefers-reduced-motion` gets a still crowd: no bob, no rise. The stand and the
 boards are unaffected, being furniture.

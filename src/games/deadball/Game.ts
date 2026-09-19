@@ -18,6 +18,7 @@ import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts'
 import { advance, createFlight, type Flight } from './core/flight.ts';
 import { idleDrift, planKeeper } from './core/keeper.ts';
 import {
+  inSuddenDeath,
   initialMatch,
   keeperSide,
   reduce,
@@ -226,6 +227,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     keeperSide: keeperSide(match),
     scores: match.scores,
     names,
+    suddenDeath: inSuddenDeath(match),
     // Hidden from the taker on purpose: the dive is only ever drawn while its
     // owner is choosing it, never once the device has changed hands.
     dive: match.phase === 'keeping' ? match.dive : null,

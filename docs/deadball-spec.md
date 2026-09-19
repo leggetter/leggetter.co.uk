@@ -488,7 +488,27 @@ solved penalty. **One shoots and the other saves** is a contest, needs no AI
 keeper at all, and the view it wants is the one Phase 2 shipped.
 
 Rounds alternate as a real shootout does. A takes, B keeps. Then B takes, A
-keeps. Five each, ten shots.
+keeps. Five each, ten shots - **and then sudden death if nobody has won**,
+which is how a shootout actually ends and is what stops the format producing
+the one result nobody wants.
+
+The rule is one line and the pair is the unit, not the shot: it is over when
+both have had the same number of attempts *and* one of them is ahead. Ending
+the moment somebody goes in front would end it while the other player still had
+theirs to take, which is not a shootout, it is a race. Nothing caps how long it
+runs, and nothing should.
+
+Nothing in the rules branches on being in sudden death - it is the same
+shootout continuing, which is exactly what sudden death *is* - so the flag the
+screens read is derived from the score rather than stored, and cannot fall out
+of step with it.
+
+**A row of footballs each.** A duel alternates, so a single row of markers
+interleaves the two players and reading your own record off it means counting
+every other position. Two rows, one per player, each football saying scored,
+missed or not yet taken by its fill. They grow a round at a time in sudden
+death, and a round in progress shows the answer still to come - which is the
+state the whole format turns on.
 
 **Both people are named before the first shot.** Starting a duel opens a form
 asking who is playing, and the two names then replace "Player 1" and "Player 2"

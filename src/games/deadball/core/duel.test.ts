@@ -14,6 +14,7 @@ import {
   initialMatch,
   keeperSide,
   reduce,
+  inSuddenDeath,
   shotsTaken,
   type MatchMessage,
   type MatchState,
@@ -106,15 +107,19 @@ describe('a duel', () => {
     assert.deepEqual(state.scores, [2, 0]);
   });
 
-  test('runs ten shots and then completes', () => {
+  test('runs ten shots and then completes, when somebody has won', () => {
+    // This used to score every third shot, which alternates to 2-2 and now
+    // goes to sudden death rather than ending. The old pattern was fine under
+    // the old rule and is a tie under the new one.
     let state = duel();
     for (let i = 0; i < 10; i++) {
       assert.notEqual(state.phase, 'complete', `finished early at shot ${i}`);
-      state = shot(state, i % 3 === 0 ? 'goal' : 'saved');
+      state = shot(state, i % 2 === 0 ? 'goal' : 'saved');
     }
     assert.equal(state.phase, 'complete');
     assert.equal(state.outcomes.length, 10);
     assert.deepEqual(shotsTaken(state), [5, 5], 'five each');
+    assert.deepEqual(state.scores, [5, 0]);
     assert.equal(state.scores[0] + state.scores[1], state.outcomes.filter((o) => o === 'goal').length);
   });
 
@@ -209,5 +214,97 @@ describe('playing again', () => {
   test('an explicit mode still wins, which is what the toggle needs', () => {
     const swapped = reduce(initialMatch(7, 10, 'duel'), { type: 'START', seed: 99, mode: 'solo' });
     assert.equal(swapped.mode, 'solo');
+  });
+});
+
+describe('sudden death', () => {
+  /** Take one shot with a known result and move on. */
+  const take = (state: MatchState, scored: boolean): MatchState => {
+    let next = reduce(state, { type: 'SET_DIVE', dive: { x: 0, y: 1 } });
+    next = reduce(next, { type: 'HANDED_OVER' });
+    next = reduce(next, { type: 'TAKE_SHOT' });
+    next = reduce(next, { type: 'STRIKE' });
+    next = reduce(next, { type: 'RESOLVE', outcome: scored ? 'goal' : 'saved' });
+    return reduce(next, { type: 'NEXT' });
+  };
+
+  /** Play out a whole list of results, one per shot, alternating takers. */
+  const play = (results: boolean[]): MatchState =>
+    results.reduce<MatchState>((state, scored) => take(state, scored), initialMatch(3, 5, 'duel'));
+
+  test('a decided shootout still ends after ten', () => {
+    // Side 0 scores all five, side 1 none.
+    const done = play([true, false, true, false, true, false, true, false, true, false]);
+    assert.equal(done.phase, 'complete');
+    assert.deepEqual(done.scores, [5, 0]);
+  });
+
+  test('a level shootout does not end', () => {
+    const level = play(Array.from({ length: 10 }, () => true));
+    assert.deepEqual(level.scores, [5, 5]);
+    assert.notEqual(level.phase, 'complete');
+    assert.equal(inSuddenDeath(level), true);
+    // And it is side 0's turn again, so the pairs keep alternating cleanly.
+    assert.equal(level.taker, 0);
+  });
+
+  test('going ahead mid-round does not win it', () => {
+    // The whole point. Side 0 scores the eleventh; side 1 must still get the
+    // twelfth, or it is a race rather than a shootout.
+    const level = play(Array.from({ length: 10 }, () => true));
+    const ahead = take(level, true);
+    assert.deepEqual(ahead.scores, [6, 5]);
+    assert.notEqual(ahead.phase, 'complete');
+    assert.equal(ahead.taker, 1, 'the other one still has theirs to take');
+  });
+
+  test('scoring and then missing decides it', () => {
+    const level = play(Array.from({ length: 10 }, () => true));
+    const decided = take(take(level, true), false);
+    assert.equal(decided.phase, 'complete');
+    assert.deepEqual(decided.scores, [6, 5]);
+  });
+
+  test('missing and then scoring decides it the other way', () => {
+    const level = play(Array.from({ length: 10 }, () => true));
+    const decided = take(take(level, false), true);
+    assert.equal(decided.phase, 'complete');
+    assert.deepEqual(decided.scores, [5, 6]);
+  });
+
+  test('both scoring, or both missing, goes round again', () => {
+    const level = play(Array.from({ length: 10 }, () => true));
+    for (const both of [true, false]) {
+      const again = take(take(level, both), both);
+      assert.notEqual(again.phase, 'complete');
+      assert.equal(again.taker, 0);
+      assert.equal(again.scores[0], again.scores[1]);
+    }
+  });
+
+  test('it can run for a while', () => {
+    // Nothing caps it, and nothing should: a shootout goes until somebody
+    // blinks. This one goes eight extra rounds.
+    let state = play(Array.from({ length: 10 }, () => true));
+    for (let round = 0; round < 8; round++) state = take(take(state, true), true);
+    assert.notEqual(state.phase, 'complete');
+    assert.deepEqual(state.scores, [13, 13]);
+    assert.deepEqual(shotsTaken(state), [13, 13]);
+
+    const decided = take(take(state, true), false);
+    assert.equal(decided.phase, 'complete');
+    assert.deepEqual(decided.scores, [14, 13]);
+  });
+
+  test('solo is untouched by any of it', () => {
+    let state = initialMatch(3, 5, 'solo');
+    for (let i = 0; i < 5; i++) {
+      state = reduce(state, { type: 'TAKE_SHOT' });
+      state = reduce(state, { type: 'STRIKE' });
+      state = reduce(state, { type: 'RESOLVE', outcome: 'goal' });
+      state = reduce(state, { type: 'NEXT' });
+    }
+    assert.equal(state.phase, 'complete');
+    assert.equal(inSuddenDeath(state), false);
   });
 });

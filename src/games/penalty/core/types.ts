@@ -40,6 +40,13 @@ export interface Shot {
   velocity: Vec3;
   /** Spin axis times angular velocity, rad/s. */
   spin: Vec3;
+  /**
+   * Where on the goal plane the ball was actually struck toward, before spin
+   * bends it anywhere. This is what a keeper reads off the taker's body shape,
+   * and it is why curve beats an anticipating keeper: they read the line the
+   * boot sent it on, and Magnus takes it somewhere else.
+   */
+  aimPoint: { x: number; y: number };
 }
 
 export interface BallState {
@@ -72,24 +79,52 @@ export interface Player {
   colors: { kit: string; trim: string };
 }
 
+/**
+ * How a keeper decided to go, on this shot.
+ *
+ * A penalty is in the air for about 450 ms and a corner is more than a dive
+ * away, so a keeper who waits to see the ball has already lost. Real ones
+ * commit at or before contact, off the run-up and the plant foot. Reacting is
+ * the exception, not the default, and modelling it the other way round is why
+ * the keeper looked like it was always waiting.
+ */
+export type KeeperStyle =
+  /** Picks a side before the ball is struck and goes, seeing nothing. */
+  | 'guess'
+  /** Commits at contact, reading the taker's body shape. */
+  | 'anticipate'
+  /** Holds, watches the ball, and goes late. Works only on a slow shot. */
+  | 'react';
+
 export interface KeeperProfile {
   id: string;
   name: string;
-  /** How long before it reacts to the ball at all. 180 hard, 420 easy. */
+  /** How long before a reacting keeper moves at all. 180 sharp, 420 slow. */
   reactionMs: number;
   /** Lateral hand speed once committed, m/s. */
   diveSpeed: number;
   /** Radius the hands cover, m. */
   reach: number;
-  /** 0..1 chance of committing before the ball is struck, and guessing. */
+  /** 0..1 share of shots it simply guesses on. */
   guessBias: number;
-  /** 0..1 quality of the read once it does commit. */
+  /** 0..1 share it commits at contact on. Whatever is left over, it reacts. */
+  anticipation: number;
+  /** 0..1 quality of the read, whether off body shape or off the ball. */
   readAccuracy: number;
 }
 
 export interface KeeperState {
   /** Where the hands are now. */
   hands: Vec3;
+  /**
+   * Torso and trailing legs. Lags well behind the hands, so a keeper at full
+   * stretch still occupies the middle of the goal for part of the flight.
+   *
+   * Modelling the keeper as a single point of hands made a slow ball down the
+   * middle unsaveable the moment they committed either way, which made
+   * deliberately scuffing it the best strategy in the game.
+   */
+  body: Vec3;
   /** Where the hands are heading, or null while still standing. */
   target: Vec3 | null;
   /** True once a dive has been committed to, guessed or read. */

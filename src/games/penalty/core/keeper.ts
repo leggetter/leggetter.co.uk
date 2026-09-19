@@ -1,24 +1,37 @@
 /**
  * The keeper.
  *
- * It never sees the ShotInput. It watches the ball, and after its reaction time
- * has passed it predicts where the shot will cross the line and commits to a
- * dive. Everything about how hard it is to beat lives in its profile, so a new
- * keeper is a data file rather than a code change.
+ * It never sees the ShotInput. Everything about how hard it is to beat lives in
+ * its profile, so a new keeper is a data file rather than a code change.
  *
- * One consequence is deliberate and is the most interesting thing here: the
- * prediction extrapolates the ball's current velocity and ignores the Magnus
- * force. A curled shot therefore ends up somewhere the keeper never accounted
- * for, so bending it round a committed keeper works for the same reason it
- * works in life. Nothing special-cases curve to make that happen.
+ * It goes one of three ways on any given shot, and which one is the most
+ * important thing about it. A penalty is airborne for about 450 ms and a corner
+ * is further than that, so a keeper who waits for the ball has already lost:
+ * most of the time it has to commit at or before contact and read the taker
+ * instead. Reacting is the exception. The first version had that backwards,
+ * with reaction as the default, and it showed - the keeper visibly hung about
+ * waiting to see where the ball went.
+ *
+ * What holds across all three: none of them can see spin. An anticipating
+ * keeper reads where the boot sent the ball, a reacting one reads the line it
+ * is travelling on now, and Magnus takes it somewhere neither accounted for.
+ * That is why bending it round a committed keeper works, and nothing
+ * special-cases curve to make it happen.
  */
 
 import { flyToLine } from './predict.ts';
-import type { BallState, KeeperProfile, KeeperState } from './types.ts';
+import type { BallState, KeeperProfile, KeeperState, KeeperStyle } from './types.ts';
 import { vec, type Vec3 } from './vec3.ts';
 
 /** Hands at rest: on the line, centered, about waist height. */
 const STANDING: Vec3 = vec(0, 0.95, 0);
+
+/** Torso height when upright, and how far it drops at full stretch. */
+const BODY_STANDING_Y = 0.9;
+const BODY_DIVE_DROP = 0.42;
+
+/** How far the body follows the hands. Legs trail; they do not keep up. */
+const BODY_FOLLOW = 0.34;
 
 /** Furthest the hands travel sideways from standing. A dive has a limit. */
 const MAX_DIVE_X = 2.75;
@@ -27,8 +40,29 @@ const MAX_DIVE_X = 2.75;
 const MIN_HAND_Y = 0.18;
 const MAX_HAND_Y = 2.35;
 
-/** How wide a misread can be, in meters, at readAccuracy 0. */
-const READ_SPREAD = 2.2;
+/**
+ * Standard deviation of a keeper's misread at readAccuracy 0, in meters.
+ * Scales linearly to zero at readAccuracy 1.
+ *
+ * Expressed as a sigma rather than a spread because the first version quietly
+ * multiplied by `nextBell`, whose standard deviation is 0.29 and not 1. The
+ * keeper's read was therefore about a fifth as wide as intended, it reached
+ * almost everything, and the release timing had nothing left to influence.
+ */
+const MAX_READ_SIGMA = 3.0;
+
+/** Standard deviation of Rng.nextBell, which is four uniforms recentered. */
+const BELL_SD = 0.2887;
+
+/** Vertical reads are better than lateral ones: height is easier to judge. */
+const VERTICAL_READ_FACTOR = 0.6;
+
+/**
+ * How much worse a body-shape read is than watching the ball. Guessing from
+ * the run-up is genuinely harder than reading a ball already in flight; the
+ * compensation is getting to start moving a fifth of a second earlier.
+ */
+const ANTICIPATION_PENALTY = 1.45;
 
 /**
  * Everything random about this keeper on this shot, sampled once when the shot
@@ -36,11 +70,13 @@ const READ_SPREAD = 2.2;
  * how the flight plays out, which is what keeps a replay identical.
  */
 export interface KeeperPlan {
-  guesses: boolean;
+  style: KeeperStyle;
   guessX: number;
   guessY: number;
   readErrorX: number;
   readErrorY: number;
+  /** Where the boot sent it, for an anticipating keeper to read. */
+  aimPoint: { x: number; y: number };
 }
 
 export interface KeeperSim {
@@ -53,18 +89,32 @@ export interface KeeperRng {
   nextBell(): number;
 }
 
-export function planKeeper(profile: KeeperProfile, rng: KeeperRng): KeeperSim {
-  const guesses = rng.next() < profile.guessBias;
-  // A guess is a committed dive to one side, picked before the ball moves.
+export function planKeeper(
+  profile: KeeperProfile,
+  rng: KeeperRng,
+  aimPoint: { x: number; y: number } = { x: 0, y: 1 }
+): KeeperSim {
+  // Guess, anticipate, or react, in that order of the roll. Whatever is not
+  // claimed by the first two is a reaction, so a profile that sets neither
+  // gets the old always-waiting keeper and that is a visible choice.
+  const roll = rng.next();
+  const style: KeeperStyle =
+    roll < profile.guessBias
+      ? 'guess'
+      : roll < profile.guessBias + profile.anticipation
+        ? 'anticipate'
+        : 'react';
+
   const side = rng.next() < 0.5 ? -1 : 1;
   return {
-    state: { hands: STANDING, target: null, committed: false },
+    state: { hands: STANDING, body: bodyFor(STANDING), target: null, committed: false },
     plan: {
-      guesses,
+      style,
       guessX: side * MAX_DIVE_X * (0.55 + rng.next() * 0.45),
       guessY: MIN_HAND_Y + rng.next() * (MAX_HAND_Y - MIN_HAND_Y) * 0.7,
       readErrorX: rng.nextBell(),
       readErrorY: rng.nextBell(),
+      aimPoint,
     },
   };
 }
@@ -85,9 +135,14 @@ export function stepKeeper(
   let { target, committed } = sim.state;
 
   if (!committed) {
-    if (sim.plan.guesses) {
-      // Already moving before the ball was struck. Beatable down the middle.
+    if (sim.plan.style === 'guess') {
+      // Already going before the ball was struck. Beatable down the middle.
       target = vec(sim.plan.guessX, sim.plan.guessY, 0);
+      committed = true;
+    } else if (sim.plan.style === 'anticipate') {
+      // Moving from the moment of contact, off the taker's body shape rather
+      // than off the ball. Blind to spin, so a curled shot beats it.
+      target = readAim(sim.plan, profile);
       committed = true;
     } else if (elapsed * 1000 >= profile.reactionMs) {
       target = readShot(sim.plan, profile, ball);
@@ -97,9 +152,10 @@ export function stepKeeper(
 
   if (!target) return sim;
 
+  const hands = moveToward(sim.state.hands, target, profile.diveSpeed * dt);
   return {
     plan: sim.plan,
-    state: { hands: moveToward(sim.state.hands, target, profile.diveSpeed * dt), target, committed },
+    state: { hands, body: bodyFor(hands), target, committed },
   };
 }
 
@@ -117,13 +173,50 @@ function readShot(plan: KeeperPlan, profile: KeeperProfile, ball: BallState): Ve
   const arrival = flyToLine(ball.position, ball.velocity);
   if (!arrival) return STANDING;
 
-  const miss = (1 - clamp01(profile.readAccuracy)) * READ_SPREAD;
+  const sigma = readSigma(profile, 1);
 
   return vec(
-    clamp(arrival.x + plan.readErrorX * miss, -MAX_DIVE_X, MAX_DIVE_X),
-    clamp(arrival.y + plan.readErrorY * miss * 0.6, MIN_HAND_Y, MAX_HAND_Y),
+    clamp(arrival.x + plan.readErrorX * sigma, -MAX_DIVE_X, MAX_DIVE_X),
+    clamp(arrival.y + plan.readErrorY * sigma * VERTICAL_READ_FACTOR, MIN_HAND_Y, MAX_HAND_Y),
     0
   );
+}
+
+/**
+ * Read the shot off the taker rather than off the ball.
+ *
+ * Takes the point the boot actually sent the ball toward and blurs it. A
+ * body-shape read is worse than watching the ball, so the error is wider here
+ * than in `readShot`. The trade is that this keeper is already moving at
+ * contact, which is the only way to reach a corner in 450 ms.
+ */
+function readAim(plan: KeeperPlan, profile: KeeperProfile): Vec3 {
+  const sigma = readSigma(profile, ANTICIPATION_PENALTY);
+  return vec(
+    clamp(plan.aimPoint.x + plan.readErrorX * sigma, -MAX_DIVE_X, MAX_DIVE_X),
+    clamp(plan.aimPoint.y + plan.readErrorY * sigma * VERTICAL_READ_FACTOR, MIN_HAND_Y, MAX_HAND_Y),
+    0
+  );
+}
+
+/**
+ * How wide this keeper's read is, as a multiplier on a `nextBell` draw.
+ * Divided by BELL_SD so the configured sigma is the sigma you actually get.
+ */
+function readSigma(profile: KeeperProfile, penalty: number): number {
+  return ((1 - clamp01(profile.readAccuracy)) * MAX_READ_SIGMA * penalty) / BELL_SD;
+}
+
+/**
+ * Where the torso and legs are, given where the hands have got to.
+ *
+ * Derived rather than simulated: the body is always a fixed fraction of the way
+ * toward the dive, and drops as the keeper extends. Crude, and enough to mean
+ * the middle of the goal is never simply vacated.
+ */
+export function bodyFor(hands: Vec3): Vec3 {
+  const extension = Math.min(1, Math.abs(hands.x) / MAX_DIVE_X);
+  return vec(hands.x * BODY_FOLLOW, BODY_STANDING_Y - BODY_DIVE_DROP * extension, 0);
 }
 
 function moveToward(from: Vec3, to: Vec3, maxStep: number): Vec3 {

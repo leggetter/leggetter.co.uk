@@ -94,10 +94,32 @@ export const SWEEP_PERIOD = 1.15;
 export const SWEEP_SWEET_ZONE = 0.17;
 
 /** Lateral drag on the shot, in meters at the goal, at the worst timing. */
-export const TIMING_PULL = 0.95;
+export const TIMING_PULL = 0.5;
 
-/** How much worse the aim scatter gets at the worst timing. */
+/** How much worse the aim scatter gets at the worst timing, proportionally. */
 export const TIMING_SPREAD = 1.7;
+
+/**
+ * Extra scatter a bad contact adds regardless of how good the player is, as a
+ * half-range in meters at the goal.
+ *
+ * Absolute rather than a multiplier on the player's own spread, because an
+ * accurate player's base spread is centimeters and multiplying centimeters
+ * gets you centimeters. Without this the release timing had no measurable
+ * effect on whether anyone scored.
+ */
+export const TIMING_SCATTER = 2.2;
+
+/**
+ * How far a bad contact drags the ball back toward the middle of the goal, as
+ * a fraction of how far out it was aimed.
+ *
+ * This is what actually punishes a scuff. A mistimed penalty does not find the
+ * top corner; it squirts toward the middle, low and slow. Whether that beats
+ * the keeper depends on which way they went, which is exactly the gamble a
+ * real scuffed penalty is.
+ */
+export const TIMING_CENTRE_PULL = 0.55;
 
 /** Pace lost to a badly struck ball, as a fraction, at the worst timing. */
 export const TIMING_PACE_LOSS = 0.18;

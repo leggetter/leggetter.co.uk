@@ -9,17 +9,29 @@
  *                 is in the air for about 450 ms, so 200 is frighteningly
  *                 sharp and 450 means they never get going.
  *   diveSpeed     how fast their hands travel once they go, in meters per
- *                 second. About 8 is human. 20 is not.
+ *                 second. About 4.5 is human: a real keeper covers roughly
+ *                 2.5 m in a bit over half a second. Push this much past 6 and
+ *                 they reach every corner inside the flight time, which makes
+ *                 accurate shooting pointless and scuffing it the best tactic.
  *   reach         how big a circle their hands cover, in meters. 0.5 is normal.
- *   guessBias     0 to 1. How often they pick a side before you even hit it.
- *                 A guesser is lethal if they guess right and helpless if not,
- *                 so high guessBias makes the game swingy rather than harder.
- *   readAccuracy  0 to 1. How well they read the shot once they commit. At 1
- *                 they know exactly where a straight ball is going - which is
- *                 why bending it is the answer.
+ *   guessBias     0 to 1. How often they pick a side before you hit it and go,
+ *                 seeing nothing. Lethal when right, helpless when wrong, so
+ *                 this makes a keeper swingy rather than better.
+ *   anticipation  0 to 1. How often they go at the moment of contact, reading
+ *                 your run-up and body shape. This is what real keepers mostly
+ *                 do, because a corner is further away than 450 ms of diving.
+ *                 Whatever is left after guessBias and anticipation is how
+ *                 often they hang back and watch the ball instead - which
+ *                 looks patient and is usually too late.
+ *   readAccuracy  0 to 1. How good the read is, whichever way they went. At 1
+ *                 they know exactly where a straight ball is going.
  *
- * Worth knowing: no keeper can see the curve. They all read the line the ball
- * is travelling on right now. That is not a setting, it is how the game works.
+ * guessBias + anticipation should not add up to more than 1.
+ *
+ * Worth knowing: no keeper can see the curve. Whether they read your body or
+ * the ball, they get the line it is on and not where the spin will take it.
+ * That is not a setting, it is how the game works, and it is the reason
+ * bending it is worth learning.
  */
 
 /** @typedef {import('../core/types.ts').KeeperProfile} KeeperProfile */
@@ -30,28 +42,31 @@ export const KEEPERS = [
     id: 'sunday',
     name: 'Sunday League Dave',
     reactionMs: 400,
-    diveSpeed: 6.2,
-    reach: 0.48,
-    guessBias: 0.55,
-    readAccuracy: 0.35,
+    diveSpeed: 4.0,
+    reach: 0.45,
+    guessBias: 0.5,
+    anticipation: 0.3,
+    readAccuracy: 0.45,
   },
   {
     id: 'steady',
     name: 'Ruth Delaney',
     reactionMs: 255,
-    diveSpeed: 9.6,
-    reach: 0.6,
+    diveSpeed: 4.6,
+    reach: 0.55,
     guessBias: 0.15,
-    readAccuracy: 0.85,
+    anticipation: 0.7,
+    readAccuracy: 0.6,
   },
   {
     id: 'wall',
     name: 'Kasper Nowak',
     reactionMs: 215,
-    diveSpeed: 10.5,
+    diveSpeed: 5.1,
     reach: 0.62,
-    guessBias: 0.08,
-    readAccuracy: 0.93,
+    guessBias: 0.06,
+    anticipation: 0.86,
+    readAccuracy: 0.82,
   },
 ];
 

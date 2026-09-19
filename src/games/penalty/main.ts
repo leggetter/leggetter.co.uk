@@ -7,7 +7,7 @@
  */
 
 import { startGame, type Game } from './Game.ts';
-import { createMemoryStorage } from './storage/memory.ts';
+import { createLocalStorage } from './storage/local.ts';
 import { DEFAULT_PLAYER_ID, ROSTER } from './content/players.js';
 import { DEFAULT_KEEPER_ID, KEEPERS } from './content/keepers.js';
 import type { KeeperProfile, Player } from './core/types.ts';
@@ -16,12 +16,22 @@ export async function start(canvas: HTMLCanvasElement): Promise<Game> {
   const player: Player = ROSTER.find((p) => p.id === DEFAULT_PLAYER_ID) ?? ROSTER[0]!;
   const keeper: KeeperProfile = KEEPERS.find((k) => k.id === DEFAULT_KEEPER_ID) ?? KEEPERS[0]!;
 
-  return startGame({
+  const game = await startGame({
     canvas,
     player,
     keeper,
-    // Phase 4 swaps this for the localStorage implementation. Nothing else
-    // changes, which is the point of there being an interface at all.
-    storage: createMemoryStorage(),
+    storage: createLocalStorage(),
   });
+
+  // Press L to save the shot log. Deliberately a key rather than a button:
+  // it keeps the pitch clean, and nothing about the game depends on it.
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'l' || event.key === 'L') game.log.download();
+  });
+
+  // A console handle, for poking at the log without saving a file.
+  // Nothing is sent anywhere; see telemetry/log.ts.
+  Object.defineProperty(window, 'penaltyLog', { value: game.log, configurable: true });
+
+  return game;
 }

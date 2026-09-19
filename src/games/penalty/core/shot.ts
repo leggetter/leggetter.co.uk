@@ -17,8 +17,10 @@ import {
   MIN_STRIKE_SPEED,
   SWEEP_PERIOD,
   SWEEP_SWEET_ZONE,
+  TIMING_CENTRE_PULL,
   TIMING_PACE_LOSS,
   TIMING_PULL,
+  TIMING_SCATTER,
   TIMING_SPREAD,
 } from './units.ts';
 import type { Player, Shot, ShotInput } from './types.ts';
@@ -84,12 +86,18 @@ export function resolveShot(
     ((1 - unit(player.accuracy)) * MAX_AIM_ERROR +
       power * POWER_ERROR * (1 - unit(player.accuracy)) +
       pressure * PRESSURE_ERROR * (1 - unit(player.composure))) *
-    (1 + mistimed * TIMING_SPREAD);
+      (1 + mistimed * TIMING_SPREAD) +
+    mistimed * TIMING_SCATTER;
 
-  // A mistimed contact drags the ball off in a consistent direction as well as
-  // scattering it, so releasing early repeatedly pulls it left every time.
-  const targetX = intendedX + timing * TIMING_PULL + rng.nextBell() * spread;
-  const targetY = Math.max(0, intendedY + rng.nextBell() * spread);
+  // A scuff squirts back toward the middle of the goal and stays low. This is
+  // the real cost of bad timing: not that the ball goes somewhere random, but
+  // that it stops finding the corners, where the goals are.
+  const centred = 1 - mistimed * TIMING_CENTRE_PULL;
+
+  // It also drags in a consistent direction, so releasing early pulls it left
+  // every time rather than scattering unpredictably.
+  const targetX = intendedX * centred + timing * TIMING_PULL + rng.nextBell() * spread;
+  const targetY = Math.max(0, intendedY * centred + rng.nextBell() * spread);
 
   // Strike speed, scaled by the player's power and cut by a poor contact.
   const speed =
@@ -108,7 +116,18 @@ export function resolveShot(
   // Spin about +x drives the ball down, so lift above 0.5 is topspin.
   const liftSpin = (clamp(input.lift, 0, 1) * 2 - 1) * MAX_LIFT_SPIN;
 
-  return { origin, velocity, spin: vec(liftSpin, sideSpin, 0) };
+  return {
+    origin,
+    velocity,
+    spin: vec(liftSpin, sideSpin, 0),
+    // Deliberately the INTENDED target, not where the ball actually went. A
+    // keeper reads the run-up and the plant foot, so what they get is where
+    // you were trying to put it. Every source of error after this point -
+    // accuracy, nerves, a bad contact - moves the ball away from what they
+    // read. When the keeper read the struck direction instead, mistiming was
+    // invisible to them: the ball moved and they simply followed it.
+    aimPoint: { x: intendedX, y: intendedY },
+  };
 }
 
 /** Passes of the elevation solver, and when to stop early. */

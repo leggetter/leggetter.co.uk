@@ -21,6 +21,7 @@ import { attachDragInput, type DragInput } from './input/drag.ts';
 import { createView, resolveViewId } from './render/registry.ts';
 import type { DragGesture, View } from './render/View.ts';
 import { KEYS, type Settings, type Storage } from './storage/Storage.ts';
+import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
 
 /** Simulation step. Fixed so a shot is reproducible; see core/rng.ts. */
 export const STEP = 1 / 120;
@@ -44,6 +45,8 @@ export interface GameOptions {
 
 export interface Game {
   stop(): void;
+  /** The shot log for this device. Nothing in it leaves the machine. */
+  log: ShotLog;
   /** Swap the camera at runtime. Phase 2 hangs a control off this. */
   useView(id: string): void;
   currentViewId(): string;
@@ -56,6 +59,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
   if (!ctx) throw new Error('penalty: 2d canvas context unavailable');
 
   const settings = (await storage.get<Settings>(KEYS.settings)) ?? {};
+  const session = newSessionId();
+  const log = await createShotLog(storage, session);
   const search = options.search ?? window.location.search;
 
   let view: View = createView(resolveViewId(search, settings.viewId ?? null));
@@ -77,6 +82,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
    */
   let held = 0;
   let sweepMarker = 0;
+
+  /** What was struck, kept until the shot resolves so it can be logged. */
+  let lastInput: ShotInput | null = null;
 
   /** Keeper standing on the line, before a shot is struck. */
   const idleKeeper = () => planKeeper(keeper, createRng(shotSeed(match.seed, match.shotIndex)));
@@ -104,6 +112,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   function take(input: ShotInput): void {
     if (match.phase !== 'ready') return;
+    lastInput = input;
 
     // One stream per shot, drawn from the match seed, so a shot can be
     // reproduced from (matchSeed, shotIndex) alone.
@@ -201,6 +210,22 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     flight = advance(flight, STEP);
     if (flight.outcome) {
+      log.record({
+        at: new Date().toISOString(),
+        session,
+        playerId: player.id,
+        keeperId: keeper.id,
+        viewId: view.id,
+        matchSeed: match.seed,
+        shotIndex: match.shotIndex,
+        input: lastInput ?? { aim: { x: 0, y: 0 }, power: 0, curve: 0, lift: 0.5, timing: 0 },
+        outcome: flight.outcome,
+        flightSeconds: flight.elapsed,
+        crossing: { x: flight.ball.position.x, y: flight.ball.position.y },
+        keeperStyle: flight.keeper.plan.style,
+        keeperHands: { x: flight.keeper.state.hands.x, y: flight.keeper.state.hands.y },
+        viewport: { width, height },
+      });
       match = reduce(match, { type: 'RESOLVE', outcome: flight.outcome });
       holdRemaining = RESOLVE_HOLD_SECONDS;
     }
@@ -232,6 +257,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
   frameId = requestAnimationFrame(frame);
 
   return {
+    log,
+
     stop(): void {
       running = false;
       cancelAnimationFrame(frameId);

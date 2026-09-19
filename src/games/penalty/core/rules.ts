@@ -6,7 +6,7 @@
  */
 
 import { BALL_RADIUS, FRAME_RADIUS, GOAL_HEIGHT, GOAL_WIDTH } from './units.ts';
-import type { Outcome } from './types.ts';
+import type { KeeperState, Outcome } from './types.ts';
 import type { Vec3 } from './vec3.ts';
 
 /** Half the goal mouth, measured to the inside face of the posts. */
@@ -26,7 +26,7 @@ const FRAME_CONTACT = FRAME_RADIUS + BALL_RADIUS;
  * in off the far post; here it is a miss. Simulating frame rebounds is a
  * candidate feature and not a correction to this.
  */
-export function classifyCrossing(at: Vec3, hands: Vec3, reach: number): Outcome {
+export function classifyCrossing(at: Vec3, keeper: KeeperState, reach: number): Outcome {
   const insideWidth = Math.abs(at.x) < HALF_WIDTH;
   const underBar = at.y < GOAL_HEIGHT;
 
@@ -39,14 +39,28 @@ export function classifyCrossing(at: Vec3, hands: Vec3, reach: number): Outcome 
   if (!insideWidth) return 'wide';
   if (!underBar) return 'over';
 
-  return saved(at, hands, reach) ? 'saved' : 'goal';
+  return saved(at, keeper, reach) ? 'saved' : 'goal';
 }
 
-/** The keeper's hands cover a sphere. Close enough for a shot-stopper. */
-export function saved(at: Vec3, hands: Vec3, reach: number): boolean {
-  const dx = at.x - hands.x;
-  const dy = at.y - hands.y;
-  return Math.sqrt(dx * dx + dy * dy) < reach + BALL_RADIUS;
+/** Radius the torso and legs cover. Smaller than the hands, and lower down. */
+const BODY_REACH = 0.52;
+
+/**
+ * Whether the keeper got something on it.
+ *
+ * Two volumes, not one. The hands are the thing that reaches a corner; the
+ * body is the thing that stops a slow ball down the middle from a keeper who
+ * has already dived. Without the second, scuffing it deliberately was the
+ * strongest way to play, because committing either way left the goal empty.
+ */
+export function saved(at: Vec3, keeper: KeeperState, reach: number): boolean {
+  return within(at, keeper.hands, reach) || within(at, keeper.body, BODY_REACH);
+}
+
+function within(at: Vec3, part: Vec3, radius: number): boolean {
+  const dx = at.x - part.x;
+  const dy = at.y - part.y;
+  return Math.sqrt(dx * dx + dy * dy) < radius + BALL_RADIUS;
 }
 
 /** Whether an outcome puts the ball in the net. The only thing scoring asks. */

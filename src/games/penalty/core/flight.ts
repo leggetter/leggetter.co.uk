@@ -26,7 +26,7 @@ export interface Flight {
 export function createFlight(shot: Shot, profile: KeeperProfile, rng: KeeperRng): Flight {
   return {
     ball: { position: shot.origin, velocity: shot.velocity, spin: shot.spin },
-    keeper: planKeeper(profile, rng),
+    keeper: planKeeper(profile, rng, shot.aimPoint),
     profile,
     elapsed: 0,
     outcome: null,
@@ -54,13 +54,19 @@ export function advance(flight: Flight, dt: number): Flight {
   if (before.position.z < 0 && ball.position.z >= 0) {
     const t = (0 - before.position.z) / (ball.position.z - before.position.z);
     const at = lerp(before.position, ball.position, t);
-    const hands = lerp(flight.keeper.state.hands, keeper.state.hands, t);
+    // Interpolate the keeper to the same instant as the ball, or a fast shot
+    // is judged against where the keeper got to a whole step later.
+    const atCrossing = {
+      ...keeper.state,
+      hands: lerp(flight.keeper.state.hands, keeper.state.hands, t),
+      body: lerp(flight.keeper.state.body, keeper.state.body, t),
+    };
     return {
       ...flight,
       ball: { ...ball, position: at },
       keeper,
       elapsed,
-      outcome: classifyCrossing(at, hands, flight.profile.reach),
+      outcome: classifyCrossing(at, atCrossing, flight.profile.reach),
     };
   }
 

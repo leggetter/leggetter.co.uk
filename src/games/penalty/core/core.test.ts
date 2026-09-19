@@ -11,10 +11,11 @@ import assert from 'node:assert/strict';
 
 import { createRng, shotSeed } from './rng.ts';
 import { resolveShot, spotBall, sweepAt, timingFromSweep } from './shot.ts';
-import { simulate } from './flight.ts';
+import { advance, createFlight, simulate } from './flight.ts';
 import { classifyCrossing } from './rules.ts';
 import { initialMatch, reduce } from './match.ts';
 import { acceleration } from './physics.ts';
+import { bodyFor, planKeeper } from './keeper.ts';
 import { cross, vec } from './vec3.ts';
 import {
   BALL_RADIUS,
@@ -48,6 +49,7 @@ const statue: KeeperProfile = {
   diveSpeed: 0,
   reach: 0.4,
   guessBias: 0,
+  anticipation: 0,
   readAccuracy: 0,
 };
 
@@ -259,17 +261,22 @@ describe('release timing', () => {
   });
 
   test('a mistimed strike drags the ball the way it was mistimed', () => {
-    const at = (timing: number) => {
-      const shot = resolveShot(aim(0, 0.4, { timing }), striker, createRng(7), {
-        origin: spotBall(PENALTY_DISTANCE),
-      });
-      const t = -shot.origin.z / shot.velocity.z;
-      return shot.origin.x + shot.velocity.x * t;
+    // Averaged over seeds, because a bad contact scatters as well as drags and
+    // on any single shot the scatter is the larger of the two. The learnable
+    // part is the bias, which only shows in the mean.
+    const meanX = (timing: number) => {
+      let total = 0;
+      for (let seed = 1; seed <= 300; seed++) {
+        const shot = resolveShot(aim(0, 0.4, { timing }), striker, createRng(seed), {
+          origin: spotBall(PENALTY_DISTANCE),
+        });
+        const t = -shot.origin.z / shot.velocity.z;
+        total += shot.origin.x + shot.velocity.x * t;
+      }
+      return total / 300;
     };
-    // Deterministic pull, not just scatter: releasing early should miss left
-    // every time, which is the part a player can learn from.
-    assert.ok(at(-1) < at(0) - 0.5, 'early release must pull left');
-    assert.ok(at(1) > at(0) + 0.5, 'late release must push right');
+    assert.ok(meanX(-1) < meanX(0) - 0.2, 'early release must pull left on average');
+    assert.ok(meanX(1) > meanX(0) + 0.2, 'late release must push right on average');
   });
 
   test('a mistimed strike takes pace off the ball', () => {
@@ -282,30 +289,55 @@ describe('release timing', () => {
 
   test('timing punishes an accurate player too', () => {
     // Deliberate: this is the person holding the mouse, not the footballer.
+    // An accuracy-100 player puts a clean strike in exactly the same place
+    // every time, and a scuffed one all over the place.
     const perfect: Player = { ...striker, accuracy: 100 };
-    const clean = take(aim(0, 0.4, { timing: 0 }), statue, 3, perfect);
-    const scuffed = take(aim(0, 0.4, { timing: 1 }), statue, 3, perfect);
-    assert.ok(
-      Math.abs(scuffed.ball.position.x) > Math.abs(clean.ball.position.x) + 0.5,
-      'an accuracy-100 player must still be punished for a bad contact'
-    );
+    const spreadOf = (timing: number) => {
+      const xs = Array.from({ length: 120 }, (_, i) =>
+        take(aim(0.5, 0.4, { timing }), statue, i + 1, perfect).ball.position.x
+      );
+      return Math.max(...xs) - Math.min(...xs);
+    };
+    assert.ok(spreadOf(0) < 0.001, 'a clean strike from accuracy 100 is exact');
+    assert.ok(spreadOf(1) > 1.0, 'a bad contact must spray it regardless');
+  });
+
+  test('a scuff drags the ball back toward the middle of the goal', () => {
+    // The actual punishment: a mistimed shot stops finding the corners.
+    const meanOffset = (timing: number) => {
+      let total = 0;
+      for (let seed = 1; seed <= 300; seed++) {
+        total += Math.abs(
+          take(aim(0.85, 0.5, { timing }), statue, seed).ball.position.x
+        );
+      }
+      return total / 300;
+    };
+    assert.ok(meanOffset(1) < meanOffset(0) - 0.5, 'a scuff should end up more central');
   });
 });
 
 describe('outcomes', () => {
-  const far = vec(99, 99, 0);
+  /** A keeper who is nowhere near it, hands and body alike. */
+  const away = { hands: vec(99, 99, 0), body: vec(99, 99, 0), target: null, committed: true };
+  const at = (x: number, y: number) => ({
+    hands: vec(x, y, 0),
+    body: bodyFor(vec(x, y, 0)),
+    target: null,
+    committed: true,
+  });
 
   test('classifies the goal mouth', () => {
-    assert.equal(classifyCrossing(vec(0, 1.2, 0), far, 0.4), 'goal');
-    assert.equal(classifyCrossing(vec(5.0, 1.2, 0), far, 0.4), 'wide');
-    assert.equal(classifyCrossing(vec(0, 3.2, 0), far, 0.4), 'over');
-    assert.equal(classifyCrossing(vec(GOAL_WIDTH / 2, 1.2, 0), far, 0.4), 'post');
-    assert.equal(classifyCrossing(vec(0, GOAL_HEIGHT, 0), far, 0.4), 'bar');
+    assert.equal(classifyCrossing(vec(0, 1.2, 0), away, 0.4), 'goal');
+    assert.equal(classifyCrossing(vec(5.0, 1.2, 0), away, 0.4), 'wide');
+    assert.equal(classifyCrossing(vec(0, 3.2, 0), away, 0.4), 'over');
+    assert.equal(classifyCrossing(vec(GOAL_WIDTH / 2, 1.2, 0), away, 0.4), 'post');
+    assert.equal(classifyCrossing(vec(0, GOAL_HEIGHT, 0), away, 0.4), 'bar');
   });
 
   test('a keeper with hands on the ball saves it', () => {
-    assert.equal(classifyCrossing(vec(1, 1, 0), vec(1, 1, 0), 0.4), 'saved');
-    assert.equal(classifyCrossing(vec(1, 1, 0), vec(3, 1, 0), 0.4), 'goal');
+    assert.equal(classifyCrossing(vec(1, 1, 0), at(1, 1), 0.4), 'saved');
+    assert.equal(classifyCrossing(vec(2.9, 1.9, 0), at(-2.5, 0.5), 0.4), 'goal');
   });
 
   test('a well struck penalty beats a statue', () => {
@@ -348,6 +380,7 @@ describe('keeper', () => {
       diveSpeed: 40,
       reach: 1.2,
       guessBias: 0,
+      anticipation: 0,
       readAccuracy: 1,
     };
     assert.equal(take(aim(0.3, 0.3), wall).outcome, 'saved');
@@ -369,10 +402,13 @@ describe('keeper', () => {
       diveSpeed: 9,
       reach: 0.55,
       guessBias: 0,
+      anticipation: 0,
       readAccuracy: 1,
     };
-    const straight = take(aim(0.4, 0.4, { curve: 0 }), reader, 1, striker, 25);
-    const curled = take(aim(0.4, 0.4, { curve: -1 }), reader, 1, striker, 25);
+    // Bent away from the keeper, not back across them: curling it into the
+    // middle now runs into the body, which is exactly what the body is for.
+    const straight = take(aim(0.35, 0.4, { curve: 0 }), reader, 1, striker, 25);
+    const curled = take(aim(0.35, 0.4, { curve: 1 }), reader, 1, striker, 25);
     assert.equal(straight.outcome, 'saved');
     assert.equal(curled.outcome, 'goal');
   });
@@ -386,6 +422,72 @@ describe('keeper', () => {
     assert.ok(Math.abs(bend(-1, 25)) > 0.9, 'free kick curl too weak');
     assert.ok(Math.abs(bend(-1, 25)) < 1.8, 'free kick curl too strong');
     assert.ok(bend(1, 25) > 0 && bend(-1, 25) < 0, 'curve must bend both ways');
+  });
+});
+
+describe('keeper commitment', () => {
+  const profile = (over: Partial<KeeperProfile>): KeeperProfile => ({
+    id: 'k',
+    name: 'K',
+    reactionMs: 250,
+    diveSpeed: 9,
+    reach: 0.55,
+    guessBias: 0,
+    anticipation: 0,
+    readAccuracy: 0.9,
+    ...over,
+  });
+
+  /** Seconds before the keeper's hands first leave the standing position. */
+  const movesAt = (keeper: KeeperProfile, seed: number): number => {
+    const rng = createRng(seed);
+    const shot = resolveShot(aim(0.55, 0.4), striker, rng, {
+      origin: spotBall(PENALTY_DISTANCE),
+    });
+    let flight = createFlight(shot, keeper, rng);
+    const start = flight.keeper.state.hands.x;
+    while (!flight.outcome) {
+      flight = advance(flight, STEP);
+      if (Math.abs(flight.keeper.state.hands.x - start) > 0.01) return flight.elapsed;
+    }
+    return Infinity;
+  };
+
+  test('an anticipating keeper is moving at contact, not halfway through', () => {
+    // The bug this replaced: reaction was the default, so the keeper always
+    // set off around the midpoint of a 450 ms flight and visibly waited.
+    const anticipating = movesAt(profile({ anticipation: 1 }), 1);
+    const reacting = movesAt(profile({ anticipation: 0 }), 1);
+    assert.ok(anticipating <= 2 * STEP, `expected immediate, moved at ${anticipating}`);
+    assert.ok(reacting > 0.2, `expected a late reaction, moved at ${reacting}`);
+  });
+
+  test('the three styles are shared out by their weights', () => {
+    const styles = (keeper: KeeperProfile) => {
+      const counts = { guess: 0, anticipate: 0, react: 0 };
+      for (let seed = 1; seed <= 400; seed++) {
+        counts[planKeeper(keeper, createRng(seed)).plan.style] += 1;
+      }
+      return counts;
+    };
+
+    const mostly = styles(profile({ guessBias: 0.1, anticipation: 0.7 }));
+    assert.ok(mostly.anticipate > mostly.react, 'anticipation should dominate');
+    assert.ok(mostly.anticipate > mostly.guess, 'anticipation should beat guessing');
+    assert.ok(mostly.react > 0 && mostly.guess > 0, 'the tails should still happen');
+
+    // A profile setting neither weight gets the old always-reacting keeper,
+    // which is a legitimate choice and should stay available.
+    const patient = styles(profile({ guessBias: 0, anticipation: 0 }));
+    assert.equal(patient.react, 400);
+  });
+
+  test('an anticipating keeper reads the boot, so curve still beats it', () => {
+    const keeper = profile({ anticipation: 1, readAccuracy: 1, diveSpeed: 12 });
+    const straight = take(aim(0.35, 0.4, { curve: 0 }), keeper, 1, striker, 25);
+    const curled = take(aim(0.35, 0.4, { curve: 1 }), keeper, 1, striker, 25);
+    assert.equal(straight.outcome, 'saved');
+    assert.equal(curled.outcome, 'goal');
   });
 });
 

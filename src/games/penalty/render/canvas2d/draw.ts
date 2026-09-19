@@ -20,7 +20,7 @@ import {
   PENALTY_DISTANCE,
   SWEEP_SWEET_ZONE,
 } from '../../core/units.ts';
-import type { FrameState, Outcome } from '../../core/types.ts';
+import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
 import type { Projector } from '../project.ts';
 
@@ -233,12 +233,14 @@ export function drawGoalFrame(ctx: Ctx, proj: Projector): void {
  * as a dive rather than as a standing figure with a long arm. Crude, and meant
  * to be: this is the part a pixel art renderer replaces wholesale.
  */
-export function drawKeeper(ctx: Ctx, proj: Projector, hands: Vec3, reach: number): void {
+export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach: number): void {
+  const { hands, body } = keeper;
   /** 0 standing, 1 at full stretch. */
   const extension = Math.min(1, Math.abs(hands.x) / 2.75);
   const lean = Math.sign(hands.x) * extension;
 
-  const feet = vec(hands.x * 0.34, 0.06, 0);
+  // Feet sit under the simulated body, so what is drawn is what saves.
+  const feet = vec(body.x, 0.06, 0);
   const shoulderY = 1.42 - 0.72 * extension;
   const shoulder = vec(feet.x + lean * 0.38, shoulderY, 0);
   const head = vec(shoulder.x + lean * 0.16, shoulderY + 0.24, 0);

@@ -77,7 +77,7 @@ export class BehindTakerView implements View {
     drawSky(ctx, projector);
     drawPitch(ctx, projector);
     drawNet(ctx, projector);
-    drawKeeper(ctx, projector, frame.keeper.hands, frame.keeperProfile.reach);
+    drawKeeper(ctx, projector, frame.keeper, frame.keeperProfile.reach);
     drawGoalFrame(ctx, projector);
     drawAim(ctx, projector, frame);
     drawBall(ctx, projector, frame.ball.position);

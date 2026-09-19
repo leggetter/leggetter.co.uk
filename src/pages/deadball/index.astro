@@ -48,12 +48,12 @@ const views = listCameras();
     <dialog id="names" class="ph-no-capture" aria-labelledby="names-heading">
       <form id="names-form">
         <h2 id="names-heading">Who is playing?</h2>
-        <p>Whoever goes first shoots first. You can change these any time by
-          pressing <b>2 players</b> again.</p>
-        <label for="name-0">Shoots first</label>
+        <p id="names-blurb">Whoever goes first shoots first. You can change these any
+          time by pressing <b>2 players</b> again.</p>
+        <label for="name-0" id="label-0">Shoots first</label>
         <input id="name-0" name="name0" type="text" maxlength="12" autocomplete="off"
           spellcheck="false" placeholder="Player 1" />
-        <label for="name-1">Keeps first</label>
+        <label for="name-1" id="label-1">Keeps first</label>
         <input id="name-1" name="name1" type="text" maxlength="12" autocomplete="off"
           spellcheck="false" placeholder="Player 2" />
         <div id="names-actions">
@@ -79,7 +79,7 @@ const views = listCameras();
 
 <script>
   import { start } from '../../games/deadball/main';
-  import { DEFAULT_NAMES } from '../../games/deadball/core/names';
+  import { DEFAULT_NAMES, DEFAULT_TEAM } from '../../games/deadball/core/names';
 
   const canvas = document.getElementById('pitch');
 
@@ -129,6 +129,33 @@ const views = listCameras();
           document.getElementById('name-1'),
         ] as (HTMLInputElement | null)[];
         const cancel = document.getElementById('names-cancel');
+        const heading = document.getElementById('names-heading');
+        const blurb = document.getElementById('names-blurb');
+        const labels = [document.getElementById('label-0'), document.getElementById('label-1')];
+
+        /**
+         * The same dialog, asking a different question.
+         *
+         * A duel wants two people's names, because two people are in the room.
+         * Against the computer there is one side to name and it is a team, not
+         * a person - so the second field goes away rather than being filled in
+         * with something nobody typed.
+         */
+        const dressFor = (mode: 'duel' | 'versus', opponent: string) => {
+          const duel = mode === 'duel';
+          if (heading) heading.textContent = duel ? 'Who is playing?' : 'Name your team';
+          if (blurb) {
+            blurb.textContent = duel
+              ? 'Whoever goes first shoots first. You can change these any time by pressing 2 players again.'
+              : `Five penalties each against ${opponent}, and you go in goal for theirs.`;
+          }
+          if (labels[0]) labels[0].textContent = duel ? 'Shoots first' : 'Your team';
+          if (fields[0]) fields[0].placeholder = duel ? 'Player 1' : 'Your team';
+          // Hiding the label as well as the input, or the form keeps a heading
+          // for a field that is not there.
+          if (labels[1]) labels[1].hidden = !duel;
+          if (fields[1]) fields[1].hidden = !duel;
+        };
 
         const closeNames = () => {
           if (panel?.open) panel.close();
@@ -138,20 +165,32 @@ const views = listCameras();
         // and in one place.
         panel?.addEventListener('close', paintModes);
 
-        const openNames = () => {
+        let pendingMode: 'duel' | 'versus' = 'duel';
+
+        const openNames = (mode: 'duel' | 'versus' = 'duel') => {
+          pendingMode = mode;
           if (!panel || !fields[0] || !fields[1]) {
-            // No form in the page for some reason: start the duel anyway with
-            // whatever names are already stored, rather than stranding the
-            // button. A missing input should cost you the rename, not the game.
-            game.restart('duel');
+            // No form in the page for some reason: start anyway with whatever
+            // names are already stored, rather than stranding the button. A
+            // missing input should cost you the rename, not the game.
+            game.restart(mode);
             paintModes();
             return;
           }
           // Prefilled with the current names, unless they are the untouched
           // defaults - "Player 1" is what the placeholder already says, and
           // making it real text means it has to be cleared before typing.
+          dressFor(mode, game.opponentName());
           const current = game.currentNames();
-          fields[0].value = current[0] === DEFAULT_NAMES[0] ? '' : current[0];
+          const team = game.currentTeam();
+          fields[0].value =
+            mode === 'versus'
+              ? team === DEFAULT_TEAM
+                ? ''
+                : team
+              : current[0] === DEFAULT_NAMES[0]
+                ? ''
+                : current[0];
           fields[1].value = current[1] === DEFAULT_NAMES[1] ? '' : current[1];
           if (!panel.open) panel.showModal();
           fields[0].focus();
@@ -162,7 +201,7 @@ const views = listCameras();
           event.preventDefault();
           // Sent as typed. The game cleans and caps them, so the rules live in
           // one place rather than half here and half there.
-          game.restart('duel', [fields[0]?.value ?? '', fields[1]?.value ?? '']);
+          game.restart(pendingMode, [fields[0]?.value ?? '', fields[1]?.value ?? '']);
           closeNames();
         });
 
@@ -177,14 +216,11 @@ const views = listCameras();
               closeNames();
               game.restart('solo');
             } else if (mode === 'versus') {
-              // No form. One side is you and the other is a footballer with a
-              // name already, so there is nothing to ask for.
-              closeNames();
-              game.restart('versus');
+              openNames('versus');
             } else if (mode === 'duel') {
               // Ask before starting, and ask again if the button is pressed
               // during a duel, which is how you correct a typo mid-shootout.
-              openNames();
+              openNames('duel');
             }
             paintModes();
             button.blur();

@@ -180,10 +180,42 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
  */
 function isOver(state: MatchState, shotIndex: number): boolean {
   if (!alternates(state.mode)) return shotIndex >= state.shotsTotal;
-  if (shotIndex < state.shotsTotal) return false;
-  // Mid-round: the other one still has to answer, however far behind they are.
-  if (shotIndex % 2 !== 0) return false;
-  return state.scores[0] !== state.scores[1];
+
+  // Sudden death, where both have had their five and the pair is the unit.
+  if (shotIndex >= state.shotsTotal) {
+    // Mid-round: the other one still has to answer, however far behind.
+    if (shotIndex % 2 !== 0) return false;
+    return state.scores[0] !== state.scores[1];
+  }
+
+  // Regulation. Over the moment one side cannot be caught, which is how a
+  // shootout actually ends and is why most of them do not reach ten.
+  return decided(state.scores, shotIndex, state.shotsTotal);
+}
+
+/**
+ * Can the side that is behind still catch up?
+ *
+ * The rule every shootout uses and this one did not: if somebody's score is
+ * already higher than the other's *plus every penalty they have left*, the
+ * rest are dead rubbers and nobody takes them.
+ *
+ * Checked after every single penalty rather than at the end of a round,
+ * because it can fall either way round. Scoring your fifth to go 5-3 up with
+ * one of theirs left ends it before they walk up; missing your fifth to stay
+ * 3-3 does not.
+ *
+ * Found by playing: a shootout was won 5-3 and the losing side was still sent
+ * up to take a tenth penalty that could not change anything.
+ */
+function decided(scores: readonly [number, number], taken: number, total: number): boolean {
+  const perSide = total / 2;
+  // Side 0 takes the even-numbered shots, so with an odd number gone it is one
+  // ahead on attempts.
+  const attempts: [number, number] = [Math.ceil(taken / 2), Math.floor(taken / 2)];
+  const left: [number, number] = [perSide - attempts[0], perSide - attempts[1]];
+
+  return scores[0] > scores[1] + left[1] || scores[1] > scores[0] + left[0];
 }
 
 /**

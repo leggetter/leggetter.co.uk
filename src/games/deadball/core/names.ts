@@ -23,6 +23,15 @@ export const MAX_NAME = 12;
 export const DEFAULT_NAMES: DuelNames = ['Player 1', 'Player 2'];
 
 /**
+ * What your side is called against the computer, when you have not said.
+ *
+ * Separate from the duel defaults because it is a different question. A duel
+ * asks who is in the room; the computer is a side rather than a person, so the
+ * thing facing it is a team.
+ */
+export const DEFAULT_TEAM = 'Your Team';
+
+/**
  * Trim, cap, and fall back.
  *
  * Whitespace-only counts as not answering, because a blank name would render
@@ -40,6 +49,18 @@ export function cleanName(raw: string, side: 0 | 1): string {
     .slice(0, MAX_NAME)
     .trim();
   return stripped.length > 0 ? stripped : DEFAULT_NAMES[side];
+}
+
+/**
+ * A team name, through the same cleaning as a person's.
+ *
+ * Same length cap and the same stripping - a team name is drawn onto the same
+ * canvas and a stray right-to-left override moves the same text. Only the
+ * fallback differs.
+ */
+export function cleanTeam(raw: unknown): string {
+  const typed = typeof raw === 'string' ? cleanName(raw, 0) : DEFAULT_NAMES[0];
+  return typed === DEFAULT_NAMES[0] ? DEFAULT_TEAM : typed;
 }
 
 /** Both at once, for whatever arrives from storage or from the form. */

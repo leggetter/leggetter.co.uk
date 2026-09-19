@@ -46,7 +46,7 @@ import {
   type CameraSpec,
 } from './presentation/registry.ts';
 import type { DragGesture, DragPoint, Presentation } from './presentation/Presentation.ts';
-import { cleanNames, type DuelNames } from './core/names.ts';
+import { cleanNames, cleanTeam, type DuelNames } from './core/names.ts';
 import { KEYS, type Settings, type Storage } from './storage/Storage.ts';
 import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
 import { forMatch, summarise, summariseDuel, type FullTime } from './telemetry/analyse.ts';
@@ -103,6 +103,10 @@ export interface Game {
   currentMode(): MatchMode;
   /** What the two sides are called. Cleaned, so never empty. */
   currentNames(): DuelNames;
+  /** Your side's name against the computer. Not a person; a team. */
+  currentTeam(): string;
+  /** What the computer is called, for a screen that has to name it. */
+  opponentName(): string;
   /** The shot log for this device. Nothing in it leaves the machine. */
   log: ShotLog;
   /** Swap the camera at runtime. Phase 2 hangs a control off this. */
@@ -131,6 +135,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
   // input: a stored name is not more trustworthy than a typed one, it is just
   // older, and this store is editable from a browser console.
   let names: DuelNames = cleanNames(settings.duelNames);
+  let teamName: string = cleanTeam(settings.teamName);
 
   // Who the computer is when it takes its turn. A profile rather than a
   // difficulty slider, so it has a name to put on the scoreboard.
@@ -256,7 +261,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     taker: match.taker,
     keeperSide: keeperSide(match),
     scores: match.scores,
-    names: match.mode === 'versus' ? [names[0], takerProfile.name] : names,
+    names: match.mode === 'versus' ? [teamName, takerProfile.name] : names,
     suddenDeath: inSuddenDeath(match),
     // Hidden from the taker on purpose: the dive is only ever drawn while its
     // owner is choosing it, never once the device has changed hands.
@@ -573,9 +578,13 @@ export async function startGame(options: GameOptions): Promise<Game> {
   return {
     log,
 
-    restart(mode: MatchMode, duelNames?: DuelNames): void {
-      if (duelNames) {
-        names = cleanNames(duelNames);
+    restart(mode: MatchMode, typed?: DuelNames): void {
+      if (typed && mode === 'versus') {
+        // One field was shown, so only the first value means anything.
+        teamName = cleanTeam(typed[0]);
+        remember({ teamName });
+      } else if (typed) {
+        names = cleanNames(typed);
         remember({ duelNames: names });
       }
       match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND, mode);
@@ -596,6 +605,10 @@ export async function startGame(options: GameOptions): Promise<Game> {
     currentMode: () => match.mode,
 
     currentNames: () => [names[0], names[1]],
+
+    currentTeam: () => teamName,
+
+    opponentName: () => takerProfile.name,
 
     stop(): void {
       running = false;

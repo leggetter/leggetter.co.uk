@@ -604,6 +604,20 @@ the moment somebody goes in front would end it while the other player still had
 theirs to take, which is not a shootout, it is a race. Nothing caps how long it
 runs, and nothing should.
 
+**And during the regulation five, it stops the moment one side cannot be
+caught.** Found by playing, and missing until then: a shootout was won 5-3 and
+the losing side was still sent up to take a tenth penalty that could not change
+anything. If somebody's score is higher than the other's *plus every penalty
+they have left*, the rest are dead rubbers and nobody takes them - which is why
+most real shootouts do not reach ten.
+
+Checked after every penalty rather than at the end of a round, because it falls
+either way round: scoring your fifth to go 5-3 up with one of theirs left ends
+it before they walk up, and a shootout can therefore finish on an odd number of
+kicks. There is an exhaustive test over all 1,024 ways ten penalties can go,
+asserting two properties - a completed match is never level, and no penalty is
+ever taken after the result was already settled.
+
 Nothing in the rules branches on being in sudden death - it is the same
 shootout continuing, which is exactly what sudden death *is* - so the flag the
 screens read is derived from the score rather than stored, and cannot fall out
@@ -789,8 +803,16 @@ a name is who you are**, and the two answer different questions:
 | Mode | One side | The other |
 | --- | --- | --- |
 | Solo | You | A keeper, from a team |
-| v computer | You, by name | A team |
+| v computer | Your team, named | A team |
 | Two players | A name | A name |
+
+**Half of this is already built.** Starting a game against the computer asks
+you to name your team, in the same dialog a duel uses with one field instead of
+two and different copy. The two are stored apart - `teamName` against
+`duelNames` - because they answer different questions, and sharing one slot
+meant naming your team and then finding it standing in a person's place on the
+two-player scoreboard. What is left for this phase is the *opponent* being a
+team rather than a single taker profile.
 
 Later, a human side could *also* pick a team - which would mean a kit rather
 than a different name, since `Player.colors` already exists and a team is the

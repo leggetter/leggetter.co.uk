@@ -7,6 +7,8 @@ interface Props {
   description?: string | undefined;
   backHref?: string;
   backLabel?: string;
+  /** Keep the page out of search results (hidden pages, see src/lib/hidden.mjs). */
+  noindex?: boolean;
 }
 
 const {
@@ -14,6 +16,7 @@ const {
   description,
   backHref = '/leggetter-family-tree/',
   backLabel = 'Family Tree',
+  noindex = false,
 } = Astro.props;
 
 const pageTitle = title ? `${title} - ${SITE_TITLE}` : SITE_TITLE;
@@ -27,6 +30,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <style>

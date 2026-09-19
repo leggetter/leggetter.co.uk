@@ -10,6 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildRedirectMap, collectPosts } from '../src/lib/redirects.mjs';
 import { postPath } from '../src/lib/urls.mjs';
+import { HIDDEN_PATHS } from '../src/lib/hidden.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const dist = path.join(root, 'dist');
@@ -207,6 +208,37 @@ if (drafts.length > 0) {
     }
   }
   console.log(`drafts: ${drafts.length} built, unlisted and noindex`);
+}
+
+// --- 8. hidden pages are built but pointed at by nothing ------------------
+// Same contract as drafts, one level up: the page exists, carries noindex, is
+// absent from the sitemap, and nothing on the site links to it. Assert every
+// half, or "hidden" is decoration the same way an unenforced draft flag is.
+{
+  const sitemapFiles = (await readdir(dist)).filter((f) => /^sitemap.*\.xml$/.test(f));
+  const sitemaps = (
+    await Promise.all(sitemapFiles.map((f) => readFile(path.join(dist, f), 'utf8')))
+  ).join('\n');
+
+  for (const p of HIDDEN_PATHS) {
+    if (!(await exists(p))) {
+      fail(`hidden page not built: ${p}`);
+      continue;
+    }
+    const own = path.join(dist, `${p}index.html`);
+    const html = await readFile(own, 'utf8');
+    if (!/<meta name="robots" content="noindex/.test(html)) {
+      fail(`hidden page is missing its noindex meta: ${p}`);
+    }
+    if (sitemaps.includes(p)) fail(`hidden page in sitemap: ${p}`);
+    // A page may link to itself (a restart button, say); anything else linking
+    // to it means it has leaked into the site's navigation.
+    const linkers = grep(`href="${p}"`).filter((f) => path.resolve(f) !== own);
+    if (linkers.length > 0) {
+      fail(`hidden page ${p} is linked from: ${linkers.slice(0, 3).join(', ')}`);
+    }
+  }
+  console.log(`hidden pages: ${HIDDEN_PATHS.length} built, unlinked and noindex`);
 }
 
 if (failures) {

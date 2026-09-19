@@ -32,7 +32,7 @@ import {
   type Person,
   type Reaction,
 } from './stand.ts';
-import { OVERRIDES } from './sounds.ts';
+import { createOverrides } from './sounds.ts';
 import { createProjector, type Projector } from './project.ts';
 import { drawScene } from './scene.ts';
 
@@ -42,11 +42,14 @@ export class ClassicPresentation implements Presentation {
 
   private ctx!: CanvasRenderingContext2D;
   private camera: CameraSpec | null = null;
-  // The default set with this package's overrides layered over it. Classic has
-  // none, which is the case worth having work: a package that says nothing
-  // about sound is not a silent package.
+  // The default set with this package's overrides layered over it. Classic
+  // replaces the cheer, the crowd bed and the net with samples and inherits
+  // the rest, which is the case worth having work: owning part of the sound
+  // should not mean reinventing all of it. The overrides are built around the
+  // synth rather than beside it, so anything they cannot play - a file that
+  // has not arrived, or never will - falls through to what was always there.
   private readonly synth: Synth = createSynth();
-  private readonly sound: SoundSet = withOverrides(this.synth, OVERRIDES);
+  private readonly sound: SoundSet = withOverrides(this.synth, createOverrides(this.synth));
   private mood: Mood | null = null;
 
   // Built once. The positions never change; only the offsets do.
@@ -173,7 +176,11 @@ export class ClassicPresentation implements Presentation {
   /** Browsers make no sound until the user has touched something. */
   unlock(): void {
     this.synth.unlock();
-    if (this.mood) this.sound.bed(this.mood);
+    // Unconditional now, where it used to wait for a mood to have been set.
+    // This is the first legal moment there is an AudioContext, and a package
+    // that fetches samples wants to start doing it here rather than a frame
+    // or two later when the phase happens to change.
+    this.sound.bed(this.mood ?? 'idle');
   }
 
   setMuted(muted: boolean): void {

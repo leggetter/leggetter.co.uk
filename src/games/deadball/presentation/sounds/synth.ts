@@ -1,19 +1,20 @@
 /**
- * The default sound set, generated at runtime. The repo ships no audio files.
+ * The default sound set, generated at runtime. Nothing here is a file.
  *
- * Why synthesis: this repo is public, so committing a sample redistributes it
- * and every one would need a licence permitting that plus a source anyone can
- * check - nothing to get wrong beats a rule to follow. The whole site is text,
- * and a usable crowd loop would be the largest thing in it by an order of
- * magnitude. And everything else here is drawn rather than imported, so sound
- * being the one thing fetched from elsewhere would be the odd decision.
+ * Why synthesis, still, for the defaults: a synthesised set cannot 404, cannot
+ * be the wrong licence, and weighs nothing, so a package that says nothing
+ * about sound is never silent and never costs a download. It is the floor, and
+ * a floor should have no dependencies.
  *
- * The risk, stated where it can be seen: a synthesised crowd can sound cheap,
- * and this one might. It gets judged by listening, not by reasoning. If it
- * loses, a package that ships samples overrides these and inherits the weight
- * and the licence question along with the sounds.
+ * The risk was always that a synthesised crowd sounds cheap, and it got judged
+ * by listening rather than by reasoning: `classic` now replaces the cheer, the
+ * bed and the net with samples (see `../classic/sounds.ts`), and inherits the
+ * weight and the licence paperwork along with them. Everything else it hit is
+ * still made here.
  *
- * The only file in the game that knows what an AudioContext is.
+ * This file owns the AudioContext. Anything else that needs one asks for
+ * `graph()` rather than opening a second - two contexts would be two mutes,
+ * and only one of them is wired to the button.
  */
 
 import { BOOT, CROWD, FRAME, GLOVE, NET, WHISTLE } from '../../content/sounds.js';
@@ -32,6 +33,17 @@ function makeNoise(ctx: AudioContext, seconds: number): AudioBuffer {
   return buffer;
 }
 
+/** The context and the one node everything audible passes through. */
+export interface AudioGraph {
+  ctx: AudioContext;
+  /**
+   * The master gain. The mute is a ramp on this, so anything that wants to be
+   * mutable - a package's samples included - connects here and not to
+   * `ctx.destination`.
+   */
+  master: GainNode;
+}
+
 export interface Synth extends SoundSet {
   /**
    * Start the context. Browsers will not make a sound until the user has
@@ -39,6 +51,26 @@ export interface Synth extends SoundSet {
    */
   unlock(): void;
   setMuted(muted: boolean): void;
+
+  /**
+   * The shared graph, or null before the first gesture.
+   *
+   * Exposed so a package that plays its own audio uses this context and this
+   * master rather than building a second one. Two contexts would be two
+   * mutes, and the second one would not be wired to the button.
+   */
+  graph(): AudioGraph | null;
+
+  /**
+   * Scale the synthesised crowd bed, 0..1, over `seconds`.
+   *
+   * A scale rather than a mute because the handover has to be gradual: a
+   * package shipping its own crowd loop still wants this bed for the seconds
+   * before the file has arrived, and wants to walk away from it rather than
+   * cut, once it has.
+   */
+  fadeBed(scale: number, seconds: number): void;
+
   destroy(): void;
 }
 
@@ -55,6 +87,12 @@ export function createSynth(): Synth {
   let bedGain: GainNode | null = null;
   let bedFilter: BiquadFilterNode | null = null;
   let bedSource: AudioBufferSourceNode | null = null;
+  /** How much of this bed to use. A package with its own crowd loop takes it
+   *  to zero once the file has actually arrived. */
+  let bedScale = 1;
+  /** Remembered so a scale change lands on the right resting level, and
+   *  recorded even while muted, when nothing is ramped at all. */
+  let bedMood: Mood = 'idle';
 
   const now = (): number => ctx?.currentTime ?? 0;
 
@@ -197,7 +235,7 @@ export function createSynth(): Synth {
     if (!bedGain || !bedFilter) return;
     const t = now();
     for (const [param, peak, rest] of [
-      [bedGain.gain, spec.gain, CROWD.bed.gain],
+      [bedGain.gain, spec.gain * bedScale, CROWD.bed.gain * bedScale],
       [bedFilter.frequency, spec.cutoff, CROWD.bed.cutoff],
     ] as const) {
       param.cancelScheduledValues(t);
@@ -241,10 +279,22 @@ export function createSynth(): Synth {
       if (master) ramp(master.gain, muted ? 0 : 1, 0.08);
     },
 
+    graph(): AudioGraph | null {
+      return ctx && master ? { ctx, master } : null;
+    },
+
+    fadeBed(scale: number, seconds: number): void {
+      bedScale = Math.max(0, Math.min(1, scale));
+      if (!bedGain) return;
+      const spec = CROWD.moods[bedMood] ?? CROWD.moods.idle;
+      ramp(bedGain.gain, spec.gain * bedScale, seconds);
+    },
+
     bed(mood: Mood): void {
+      bedMood = mood;
       if (!ensure() || !bedGain || !bedFilter) return;
       const spec = CROWD.moods[mood] ?? CROWD.moods.idle;
-      ramp(bedGain.gain, spec.gain, spec.seconds);
+      ramp(bedGain.gain, spec.gain * bedScale, spec.seconds);
       ramp(bedFilter.frequency, spec.cutoff, spec.seconds);
     },
 

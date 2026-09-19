@@ -1049,10 +1049,34 @@ late, or not at all, would be free to, and would be wrong in only one place.
 It also pays for itself beyond this phase. Replay (Phase 5) wants exactly this
 list, and so does any commentary line more specific than the outcome.
 
-#### Synthesised, not sampled
+#### Synthesised by default, sampled where it showed
 
-The decision with consequences. Every sound above is generated at runtime with
-Web Audio, and the repo ships no audio files.
+**Reversed in part, after listening.** The argument below still holds for most
+of the game and the synthesised set is still the default every package
+inherits. But three of them were obviously a synthesiser - the cheer, the crowd
+bed and the netting - and a crowd is thousands of throats that filtered noise
+never quite lies about convincingly. Those three are now CC0 samples shipped by
+the `classic` package, which is exactly the escape hatch the package model was
+built with: a package that wants samples ships them and inherits the weight and
+the licence question along with them.
+
+The impacts stayed synthesised. A boot, a glove and a ringing post are short
+and physical, which synthesis does honestly, and the frame in particular is
+better made than found because it can ring at whatever pitch suits.
+
+What the reversal cost, recorded so the trade is visible: 147 KB, and a
+`CREDITS.md` naming a source, an author, a licence and a retrieval date for
+each file. Every one is CC0, checked by reading the licence on each sound's own
+page rather than trusting a search filter, because a public repo redistributes
+what it commits. Nothing blocks on them, nothing throws if they are missing,
+and every branch that cannot play a sample calls straight through to the
+synthesised sound that was always there - verified by deleting the directory
+and playing a shootout.
+
+#### The synthesis that remains
+
+The decision this section originally made, which still governs everything not
+listed above. Sound is generated at runtime with Web Audio.
 
 A crowd bed is filtered noise with slow modulation on gain and cutoff. A cheer is
 the same source with the envelope opened and the filter swept up. A boot is a

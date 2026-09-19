@@ -152,6 +152,7 @@ src/games/deadball/
     sounds.js                 # frequencies and decay times (Phase 3.5)
     boards.js                 # what the hoardings say. No real people's names
     takers.js                 # the computers you have to save from
+    teams.js                  # squads and kits, by rating (Phase 4.5)
   Game.ts                     # wiring: input -> match -> view, the frame loop
   main.ts                     # browser entry, imported by the Astro page
 ```
@@ -759,9 +760,117 @@ merely accurate; past a point it is just wild.
 **Both sides still use the same footballer.** `resolveShot` is handed the one
 roster player for every shot, so the computer's power and accuracy are the
 player's. That is also true of a duel today, and [Phase 4](#phases) - picking a
-player before a shootout - is what fixes both at once. The computer's *name* on
+player before a shootout - is what fixes both at once.
+
+**And the computer is one profile for the whole shootout**, where a real side
+sends a different player up each round.
+[Teams](#teams-and-a-ladder-to-climb) is what fixes that, and it makes the
+computer harder to read as a side effect rather than as extra work. The computer's *name* on
 the scoreboard comes from its taker profile, so it reads correctly; only the
 attributes are borrowed.
+
+### Teams, and a ladder to climb
+
+Two ideas that turn out to be one idea, which is why they are written up
+together: **the computer opponent should be a team rather than a person**, and
+**a team is the right unit for a difficulty ladder.**
+
+#### Why a team, when the human keeps a name
+
+A shootout is won by a side, not by an individual, and the scoreboard shows it:
+`2 – 4, The Steady One wins` reads oddly because a person does not win a
+shootout. `You 2 – 4 Northgate United` reads correctly.
+
+But a hotseat duel is two people in a room, and their names are the best thing
+about it - the naming form exists so that they see themselves on screen rather
+than PLAYER 1. So this is not a replacement. **A team is what the computer is;
+a name is who you are**, and the two answer different questions:
+
+| Mode | One side | The other |
+| --- | --- | --- |
+| Solo | You | A keeper, from a team |
+| v computer | You, by name | A team |
+| Two players | A name | A name |
+
+Later, a human side could *also* pick a team - which would mean a kit rather
+than a different name, since `Player.colors` already exists and a team is the
+natural owner of one.
+
+#### What a team is
+
+A composition of things this project already has, which is what makes it cheap:
+
+```js
+{
+  id: 'northgate',
+  name: 'Northgate United',
+  kit: { shirt: '#1d4ed8', trim: '#f8fafc' },
+  keeper: 'steady',                      // -> content/keepers.js
+  takers: ['placer', 'steady', 'hammer', 'unreadable', 'placer'],
+  rating: 2,                             // where it sits on the ladder
+}
+```
+
+`content/teams.js` referring to `keepers.js` and `takers.js` rather than
+restating them, so inventing a team is choosing a squad rather than inventing
+numbers, and a good keeper can appear in two teams without being copied.
+
+**The best part of this is the five takers, and it is not a cosmetic detail.**
+A real shootout sends a different player up each round, and a team whose
+takers are `[placer, hammer, placer, unreadable, hammer]` varies shot to shot
+in a way one profile never can. That directly serves the rule
+[the computer taker](#one-player-against-the-computer) is built around: it must
+not be readable. Five profiles in sequence is harder to read than one, and it
+is harder for free, because the mechanism already exists.
+
+It also makes the roster matter. The figure that runs up can be a named
+footballer from `players.js`, wearing the team's kit, and the HUD can say who
+is taking this one - which is a thing shootouts do and this game does not.
+
+#### The ladder
+
+Teams get a `rating`, and you work up through them. The shape worth building is
+a **cup run** rather than a menu of difficulties:
+
+- Eight teams, knockout. Beat one and you draw the next, harder one.
+- Lose and the run is over. Your furthest round is what is remembered.
+- The final is the best team in the file.
+
+A cup is better than a difficulty picker for three reasons. It gives a reason
+to play the next one, which a menu does not. It makes a loss *mean* something
+without punishing you for long, because a fresh run is one tap away. And it
+needs no unlocking logic: you are not granted access to harder teams, you
+simply meet them.
+
+**The same ladder covers solo.** Solo currently faces one keeper forever.
+Facing each team's keeper in turn, getting harder, is the identical structure
+with the sides swapped - and it costs nothing extra once teams own a keeper.
+
+#### What this needs that does not exist yet
+
+- **`content/teams.js`**, and the takers becoming a squad rather than a single
+  profile on the game.
+- **Persistence with a schema.** A cup run is state that has to survive a page
+  load, which is the first thing in this project that genuinely needs
+  `storage/schema.ts` - listed since Phase 1 and still not built. Furthest
+  round reached is a tiny record, but it is a record with a version.
+- **Something at the end of a round.** Winning a cup tie and getting the same
+  full-time panel as a friendly is an anticlimax. This does not need much - a
+  bracket, a next-opponent card - but it needs *something*, or the ladder is
+  invisible.
+
+#### What to be careful of
+
+**Difficulty has to be measured, not asserted.** Every other difficulty claim
+in this project was wrong until it was counted: the keeper was 85% before a
+retune and 63% after, and the computer taker's `technique` did nothing at all
+until it was measured. A ladder of eight teams is eight difficulty claims, and
+the harness that measured the takers should be pointed at each of them before
+any of it ships.
+
+**A team is another place a real name could reach the public web.** Invented
+clubs only, per [what not to commit](#what-not-to-commit) - the same rule the
+roster and the hoardings already follow, and for the same reason.
 
 ### Two devices, later
 
@@ -890,6 +999,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and sound - synthesised impacts, sampled crowd. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **3.75** ✅ | One player against the computer, alternating. See [One player against the computer](#one-player-against-the-computer) | You get to be the keeper without needing a second person |
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
+| **4.5** | Teams, and a cup run against progressively better ones. Solo climbs the same ladder against their keepers. See [Teams, and a ladder to climb](#teams-and-a-ladder-to-climb) | A reason to play the next one |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
 | **7** | A second presentation package, which is the only thing that proves the boundary. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |

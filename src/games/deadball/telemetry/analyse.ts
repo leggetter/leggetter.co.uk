@@ -236,7 +236,10 @@ const mean = (xs: number[]): number | null =>
   xs.length > 0 ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
 
 export function summariseDuel(records: ShotRecord[]): DuelSummary {
-  const duel = records.filter((r) => r.mode === 'duel');
+  // Anything with two sides, which is a duel or a game against the computer.
+  // Filtering on 'duel' alone silently produced an empty summary for every
+  // versus shootout - the figures were all there, and none of them counted.
+  const duel = records.filter((r) => r.mode !== 'solo');
 
   const side = (who: 0 | 1): SideSummary => {
     const took = duel.filter((r) => r.takerSide === who);

@@ -17,7 +17,16 @@ export type MatchMode =
   /** One player, taking penalties against the computer keeper. */
   | 'solo'
   /** Two players on one device: one shoots, the other saves. */
-  | 'duel';
+  | 'duel'
+  /**
+   * One player against the computer, alternating like a duel does.
+   *
+   * The reason this is not just "solo with more shots": it is the only mode
+   * where a single player gets to **keep**. Solo has you taking all five and
+   * never standing in the goal, and until this existed the keeper's half of
+   * the game needed a second person in the room.
+   */
+  | 'versus';
 
 export type Side = 0 | 1;
 
@@ -59,6 +68,23 @@ export type MatchMessage =
   | { type: 'RESOLVE'; outcome: Outcome }
   | { type: 'NEXT' };
 
+/**
+ * What happens at the start of a turn.
+ *
+ * `keeping` means a person has to choose a corner before anything else can
+ * move. That is true in a duel every time, and in `versus` only when the
+ * computer is taking it - when the player is taking it, the computer keeper
+ * plans invisibly and there is nothing to wait for, exactly as in solo.
+ */
+function openingPhase(mode: MatchMode, taker: Side): MatchPhase {
+  if (mode === 'duel') return 'keeping';
+  if (mode === 'versus' && taker === 1) return 'keeping';
+  return 'ready';
+}
+
+/** Both sides alternate unless there is only one of them. */
+const alternates = (mode: MatchMode): boolean => mode !== 'solo';
+
 export function initialMatch(
   seed: number,
   shots: number = SHOTS_PER_ROUND,
@@ -66,12 +92,11 @@ export function initialMatch(
 ): MatchState {
   return {
     mode,
-    // A duel starts with the keeper, because they have to commit blind.
-    phase: mode === 'duel' ? 'keeping' : 'ready',
+    phase: openingPhase(mode, 0),
     seed,
     shotIndex: 0,
-    // Five each in a duel, so ten shots and the sides alternate.
-    shotsTotal: mode === 'duel' ? shots * 2 : shots,
+    // Five each when there are two sides, so ten shots and they alternate.
+    shotsTotal: alternates(mode) ? shots * 2 : shots,
     outcomes: [],
     score: 0,
     taker: 0,
@@ -88,9 +113,15 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
     case 'SET_DIVE':
       // Only while the keeper is on the clock. A dive chosen at any other point
       // is a dive chosen with something visible that should not have been.
-      return state.phase === 'keeping'
-        ? { ...state, phase: 'handover', dive: message.dive }
-        : state;
+      if (state.phase !== 'keeping') return state;
+      // Straight past the handover in `versus`. That screen exists to hide a
+      // choice from the other person while the device changes hands, and there
+      // is no other person: the computer cannot peek and nothing is passed.
+      return {
+        ...state,
+        phase: state.mode === 'versus' ? 'ready' : 'handover',
+        dive: message.dive,
+      };
 
     case 'HANDED_OVER':
       return state.phase === 'handover' ? { ...state, phase: 'ready' } : state;
@@ -124,10 +155,10 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
 
       // Sides swap every shot, so each takes one then keeps one, the way a
       // real shootout alternates rather than giving somebody all five in a row.
-      const taker: Side = state.mode === 'duel' ? (state.taker === 0 ? 1 : 0) : 0;
+      const taker: Side = alternates(state.mode) ? (state.taker === 0 ? 1 : 0) : 0;
       return {
         ...state,
-        phase: state.mode === 'duel' ? 'keeping' : 'ready',
+        phase: openingPhase(state.mode, taker),
         shotIndex,
         taker,
         dive: null,
@@ -148,7 +179,7 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
  * which is not a shootout, it is a race.
  */
 function isOver(state: MatchState, shotIndex: number): boolean {
-  if (state.mode !== 'duel') return shotIndex >= state.shotsTotal;
+  if (!alternates(state.mode)) return shotIndex >= state.shotsTotal;
   if (shotIndex < state.shotsTotal) return false;
   // Mid-round: the other one still has to answer, however far behind they are.
   if (shotIndex % 2 !== 0) return false;
@@ -164,7 +195,7 @@ function isOver(state: MatchState, shotIndex: number): boolean {
  * the score it is derived from.
  */
 export const inSuddenDeath = (state: MatchState): boolean =>
-  state.mode === 'duel' && state.shotIndex >= state.shotsTotal;
+  alternates(state.mode) && state.shotIndex >= state.shotsTotal;
 
 /** Shots left to take, including the one in progress. */
 export const shotsRemaining = (state: MatchState): number =>

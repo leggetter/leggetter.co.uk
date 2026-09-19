@@ -35,7 +35,9 @@ import type {
   ShotInput,
 } from './core/types.ts';
 import { attachDragInput, type DragInput } from './input/drag.ts';
+import { TAKERS, DEFAULT_TAKER_ID } from './content/takers.js';
 import { createEventLog } from './core/events.ts';
+import { decideShot, type TakerProfile } from './core/taker.ts';
 import {
   cameraFor,
   createPackage,
@@ -62,6 +64,15 @@ const MAX_STEPS_PER_FRAME = 8;
  * coming down, and the ball going wherever it went off the gloves.
  */
 const RESOLVE_HOLD_SECONDS = 1.0;
+
+/**
+ * How long the computer stands over the ball before striking.
+ *
+ * Long enough to look at the goal after committing to a corner, short enough
+ * not to feel like waiting. A person takes about this long from placing the
+ * ball to running up.
+ */
+const COMPUTER_THINKS = 1.1;
 
 /**
  * How long the taker takes to run in after the drag is released.
@@ -120,6 +131,25 @@ export async function startGame(options: GameOptions): Promise<Game> {
   // input: a stored name is not more trustworthy than a typed one, it is just
   // older, and this store is editable from a browser console.
   let names: DuelNames = cleanNames(settings.duelNames);
+
+  // Who the computer is when it takes its turn. A profile rather than a
+  // difficulty slider, so it has a name to put on the scoreboard.
+  const takerProfile: TakerProfile =
+    ((TAKERS as TakerProfile[]).find((t) => t.id === DEFAULT_TAKER_ID) ??
+      (TAKERS as TakerProfile[])[0]) as TakerProfile;
+
+  /**
+   * What the computer has already tried this shootout.
+   *
+   * Passed back in so it can avoid repeating itself. This is the whole of its
+   * memory: it never sees where the player dived, because a computer that
+   * reads you is a different and much harder thing, and one this document
+   * files under Later.
+   */
+  let computerShots: ShotInput[] = [];
+
+  /** Seconds the computer waits before striking, so its turn is watchable. */
+  let computerDelay = 0;
   const session = newSessionId();
   // Constant for the life of the page; the physics cannot change under it.
   const tuning = tuningFingerprint();
@@ -226,7 +256,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     taker: match.taker,
     keeperSide: keeperSide(match),
     scores: match.scores,
-    names,
+    names: match.mode === 'versus' ? [names[0], takerProfile.name] : names,
     suddenDeath: inSuddenDeath(match),
     // Hidden from the taker on purpose: the dive is only ever drawn while its
     // owner is choosing it, never once the device has changed hands.
@@ -236,6 +266,10 @@ export async function startGame(options: GameOptions): Promise<Game> {
     summary,
     timingMarker: aiming ? sweepMarker : null,
   });
+
+  /** True when this shot belongs to the computer and it has not gone yet. */
+  const computerIsTaking = (): boolean =>
+    match.mode === 'versus' && match.taker === 1 && match.phase === 'ready';
 
   function take(input: ShotInput): void {
     if (match.phase !== 'ready') return;
@@ -271,8 +305,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
       match = reduce(match, { type: 'START', seed: Date.now() & 0x7fffffff, shots: SHOTS_PER_ROUND });
       summary = null;
       choosing = null;
+      computerShots = [];
+      computerDelay = COMPUTER_THINKS;
     } else if (match.phase === 'resolved' && holdRemaining <= 0) {
       match = reduce(match, { type: 'NEXT' });
+      computerDelay = COMPUTER_THINKS;
       // Read across everything ever played on this device, not just these five
       // shots. A habit needs more than five shots to be a habit, and the whole
       // point of keeping the log is that the evidence accumulates.
@@ -285,7 +322,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
           // This shootout only. All-time would mix in solo shots and, worse,
           // every previous duel played by different people on the same device -
           // sides carry across a log, the people holding them do not.
-          duel: match.mode === 'duel' ? summariseDuel(thisMatch) : null,
+          // Both modes have two sides to compare, and the log records which
+          // side took each shot either way.
+          duel: match.mode === 'solo' ? null : summariseDuel(thisMatch),
         };
       }
     } else {
@@ -416,6 +455,27 @@ export async function startGame(options: GameOptions): Promise<Game> {
     if (!flight && match.phase === 'ready') {
       settling += STEP;
       keeperSim = idleKeeper();
+
+      // The computer's turn. It is in `ready` like a person would be, and
+      // nothing is going to drag the ball, so it takes it itself after a beat.
+      //
+      // The beat is not decoration: the player has just picked a corner and
+      // needs a moment to look at the goal before the ball moves. Striking on
+      // the same frame as the pick makes the save feel like it happened to
+      // them rather than something they did.
+      if (computerIsTaking()) {
+        computerDelay -= STEP;
+        if (computerDelay <= 0) {
+          const input = decideShot(
+            takerProfile,
+            player,
+            createRng(shotSeed(match.seed, match.shotIndex) ^ 0x5f3759df),
+            computerShots
+          );
+          computerShots = [...computerShots, input];
+          take(input);
+        }
+      }
     }
 
     // Boot meets ball at the end of the run-up.
@@ -529,6 +589,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
       settling = 0;
       keeperSim = idleKeeper();
       ballPosition = spotBall(PENALTY_DISTANCE);
+      computerShots = [];
+      computerDelay = COMPUTER_THINKS;
     },
 
     currentMode: () => match.mode,

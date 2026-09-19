@@ -114,6 +114,7 @@ src/games/deadball/
     tuning.ts                 # fingerprint of the constants, for replay
     names.ts                  # what the two people in a duel are called
     events.ts                 # discrete things worth hearing (Phase 3.5)
+    taker.ts                  # the computer deciding a penalty (Phase 3.75)
     wall.ts                   # free kick wall (Later, not built)
   presentation/               # how it looks AND how it sounds
     Presentation.ts           # what a presentation package implements
@@ -150,6 +151,7 @@ src/games/deadball/
     keepers.js
     sounds.js                 # frequencies and decay times (Phase 3.5)
     boards.js                 # what the hoardings say. No real people's names
+    takers.js                 # the computers you have to save from
   Game.ts                     # wiring: input -> match -> view, the frame loop
   main.ts                     # browser entry, imported by the Astro page
 ```
@@ -672,6 +674,95 @@ What stays is the physics: dive speed, reach, the two save volumes, and the same
 clamp on where a keeper can get to. Picking the top corner and being right still
 does not save a shot struck hard and low into it, which is as it should be.
 
+### One player against the computer
+
+Suggested by one of the people this is being built with, and it fills a gap
+nobody had named: **keeping was only available in two-player.** Solo has you
+taking all five and never standing in the goal, so half the game needed a
+second person in the room. This is a duel where one side is the computer, and
+the point of it is the half you could not otherwise play.
+
+Ten shots, five each, alternating, sudden death if it is level - the same rules
+as a duel, because it *is* a duel. The mode is a third value on `MatchMode`
+rather than a flag, and `alternates(mode)` replaced every `mode === 'duel'`
+test that was really asking whether there are two sides.
+
+**The handover disappears entirely.** That screen exists so one person can pass
+the device without the other seeing the reticle, and a computer cannot peek.
+`SET_DIVE` goes straight to `ready`, which is one of those simplifications that
+only looks obvious once the mode exists. There is a test that no handover ever
+appears in ten shots.
+
+#### The computer taking a penalty
+
+New code, in `core/taker.ts`, deliberately shaped like `keeper.ts`: pure,
+seeded, and producing a `ShotInput` - the same type a drag produces. Same seed,
+same shot, so one the computer took can be replayed and logged like any other.
+
+Three numbers describe a taker, and they live in `content/takers.js` where
+anyone can change them:
+
+- **`ambition`** - how far from the middle it likes to aim. Emphatically *not*
+  "how good it is". A taker pinned at 1 aims at a corner every time, which is
+  **easier** to keep against than one that mixes, because you only have to
+  cover the corners.
+- **`technique`** - the odds of a clean strike. The rest mistime.
+- **`variety`** - how willing it is to switch sides after the last one. Low is
+  readable on purpose; a keeper who spots the pattern has earned the save.
+
+**The thing it must never do is find the dominant strategy.** Both logged human
+sessions converged on aim ≈ 0.7 to one side and the game had to be retuned
+because of it. A computer that hunted for the best corner would rebuild that
+flaw and be unbeatable with it - a human keeper guessing against a machine that
+always picks the same spot is not a contest. So the aim is drawn from a spread
+rather than optimised, and it is weighted *against* repeating its last side.
+
+It reads nothing. Not where you dived, not what you did last time. A computer
+that learns your pattern is [a Later item](#phases) and a harder, different
+thing; this one just plays.
+
+#### Tuned against what a person actually does
+
+Not against a difficulty that sounded about right. The shot log knows what a
+human does against this keeper - **63% scored, 15% saved, 18% off target** - so
+that is the target, which makes "am I better than it" a fair question rather
+than a rigged one.
+
+Measured over 2,000 shots per profile against a keeper diving to a random
+corner, which is what a person in goal amounts to: they commit before the ball
+is struck, so they are guessing however hard they concentrate. The logged duel
+agrees - human keepers saved about 22%.
+
+The default taker lands at **71% scored, 15% saved, 14% off.** Saves match a
+person exactly; it misses a little less and scores about eight points more, so
+it is a slight favourite rather than a wall. That is one number in one content
+file away from being changed.
+
+**Two things the tuning found, both worth keeping written down.**
+
+`technique` was a dead parameter. Seventy-three to seventy-five percent scored
+whatever it was set to, because `resolveShot`'s timing scatter moves a shot
+sideways by centimeters and, against a keeper who has already committed to the
+wrong corner, a moved shot is no less likely to go in. The fix is that a
+mistimed penalty now goes **up**: leaning back and skying it is what a mishit
+penalty actually looks like, and it makes the computer miss by mishitting
+rather than by aiming at the corner flag - which was the only other lever and
+made it look like it was not trying.
+
+And aiming wide trades saves for misses at worse than one for one. Pushing
+`ambition` up from 0.5 to 0.82 moved scoring from 75% to 59%, but off-target
+went from 2% to 32% on the way. There is no setting where the computer is
+merely accurate; past a point it is just wild.
+
+#### What it does not do yet
+
+**Both sides still use the same footballer.** `resolveShot` is handed the one
+roster player for every shot, so the computer's power and accuracy are the
+player's. That is also true of a duel today, and [Phase 4](#phases) - picking a
+player before a shootout - is what fixes both at once. The computer's *name* on
+the scoreboard comes from its taker profile, so it reads correctly; only the
+attributes are borrowed.
+
 ### Two devices, later
 
 Wanted, and deliberately not first. The interesting question in Phase 3 is
@@ -797,6 +888,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
 | **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and sound - synthesised impacts, sampled crowd. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
+| **3.75** ✅ | One player against the computer, alternating. See [One player against the computer](#one-player-against-the-computer) | You get to be the keeper without needing a second person |
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
@@ -1350,7 +1442,10 @@ Not worth testing: rendering. Compare views by playing them.
    in Phase 3 reads patterns without any code, and the first logged duel split 23
    left to 20 right against 66/90 in the solo sessions. That is one session and
    not a finding, but it points at the cheaper fix: the dominant strategy may be
-   a symptom of playing alone rather than of the keeper.
+   a symptom of playing alone rather than of the keeper. Phase 3.75 gives that
+   a way to be tested without needing two people: the computer taker is built
+   never to converge on a spot, so a player who finds one anyway is telling us
+   something about the keeper rather than about the format.
 6. **What should the route actually be?** `/deadball/` is the working assumption. A less guessable slug buys very little given the page is `noindex` and linked from nowhere.
 
 ## Licensing

@@ -24,6 +24,7 @@ const views = listCameras();
     */}
     <nav id="modes" aria-label="Players">
       <button type="button" data-mode="solo" aria-pressed="true">1 player</button>
+      <button type="button" data-mode="versus" aria-pressed="false">v computer</button>
       <button type="button" data-mode="duel" aria-pressed="false">2 players</button>
       <button type="button" id="mute" aria-pressed="false" title="Sound">
         <span id="mute-icon" aria-hidden="true">&#9834;</span>
@@ -175,6 +176,11 @@ const views = listCameras();
             if (mode === 'solo') {
               closeNames();
               game.restart('solo');
+            } else if (mode === 'versus') {
+              // No form. One side is you and the other is a footballer with a
+              // name already, so there is nothing to ask for.
+              closeNames();
+              game.restart('versus');
             } else if (mode === 'duel') {
               // Ask before starting, and ask again if the button is pressed
               // during a duel, which is how you correct a typo mid-shootout.

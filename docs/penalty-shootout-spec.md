@@ -91,11 +91,13 @@ src/games/penalty/
     vec3.ts                   # minimal vector math
     rng.ts                    # seeded PRNG (mulberry32), explicit state
     types.ts                  # ShotInput, Shot, FrameState, Outcome, ...
-    shot.ts                   # ShotInput + Player + RNG -> Shot
     physics.ts                # integrate one step: gravity, drag, Magnus
+    predict.ts                # where a SPIN-FREE ball lands. See below.
+    shot.ts                   # ShotInput + Player + RNG -> Shot
     keeper.ts                 # keeper decision model -> dive
-    wall.ts                   # free kick wall placement and collision
-    rules.ts                  # outcome detection, scoring
+    flight.ts                 # one shot start to finish: ball + keeper + rules
+    wall.ts                   # free kick wall placement and collision (Phase 3)
+    rules.ts                  # outcome detection at the goal line
     match.ts                  # pure reducer: (state, MatchMessage) -> state
   render/
     View.ts                   # the interface
@@ -167,6 +169,21 @@ interface Shot {
 ```
 
 `resolveShot(input, player, rng)` is the only place error is introduced. It reads the player's `accuracy` and `composure`, samples the seeded RNG, and perturbs the aim. Same input, same player, same seed, same shot, every time.
+
+### The spin-free predictor
+
+Added during Phase 1, and it turned out to be the load-bearing idea in `core/`. `predict.ts` answers one question: where does a ball with **no spin on it** cross the goal line? Both sides of the contest use it, for opposite reasons.
+
+The striker uses it to solve elevation. The closed-form ballistic launch assumes the ball keeps its speed, and drag means it does not: aimed at 1.15 m from 25 m out, the first implementation arrived at **0.11 m**. That is not a skill gap for a player to learn, it is the model being wrong. So `shot.ts` iterates the real integrator until the trial trajectory arrives at the aim height.
+
+The keeper uses it to read a shot already in the air, for the same reason: a keeper can see how fast a ball is travelling, and a ballistic guess sent its hands a meter too high at range.
+
+Both run with spin zeroed, and that is the whole design:
+
+- **Accounting for drag is not cheating.** A taker knows in their legs how hard to hit a long free kick.
+- **Not accounting for Magnus is the mechanic.** A curled shot finishes somewhere other than where it was pointed, which is what beats a keeper who committed to the line it was on. Nothing special-cases curve. It falls out of this one function being blind to spin, and the test suite asserts it.
+
+One wrinkle worth keeping: the solver flies its trial trajectories with ground contact **off**. With the bounce in, every under-hit trial reports back at ground level, so the solver sees a smaller error than it has and creeps instead of converging. Low shots from range landed a third of a meter under the aim until that was separated.
 
 ### Physics
 
@@ -363,8 +380,8 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 
 | Phase | Contents | Playable at the end |
 | --- | --- | --- |
-| **0** | Hidden page, layout change, sitemap filter, verify assertions, empty canvas, frame loop | Nothing, but the page is live on a preview URL and the plumbing is proven |
-| **1** | `core/` (units, vec3, rng, physics, shot, rules), `BehindTakerView`, drag input, one keeper, 5 penalties, in-memory storage | Single-player penalty shootout |
+| **0** ✅ | Hidden page, layout change, sitemap filter, verify assertions, empty canvas, frame loop | Nothing, but the page is live on a preview URL and the plumbing is proven |
+| **1** ✅ | `core/` (units, vec3, rng, physics, predict, shot, keeper, flight, rules, match), `BehindTakerView`, drag input, one keeper, 5 penalties, in-memory storage, 27 tests | Single-player penalty shootout |
 | **2** | `AngledBehindView`, view registry, `?view=` param, on-screen switcher | Same game, two cameras, compare and choose |
 | **3** | Wall, variable position, free kick mode, lift input | Penalties and free kicks |
 | **4** | `roster.json`, attributes into `resolveShot`, `localStorage` implementation, schema versioning, custom player editor | Pick a player, stats persist |
@@ -411,7 +428,7 @@ Not worth testing: rendering. Compare views by playing them.
 
 ## Open questions
 
-1. **Does the drag gesture read as natural?** Unknown until Phase 1 is in hands. The riskiest assumption in this document. Lean: build it as specified, expect to redesign the lift axis.
+1. **Does the drag gesture read as natural?** Still the riskiest thing here, and now it can be answered by playing it rather than by reasoning. Phase 1 shipped the coupled version: the drag vector sets direction *and* power together, so aiming at the top corner and hitting it softly is not a thing you can do. Lift is not wired to the gesture at all yet, and is pinned at 0.5. That is the axis to design once the rest feels right.
 2. **Which view wins?** That is what Phase 2 is for, and the answer decides whether `keeper-cam` is ever worth building.
 3. **Does cross-client determinism hold?** Untested until two browsers run the same seed. Mitigated by sending the outcome alongside the input, so a divergence degrades to a logged warning rather than a desync.
 4. **How hard should the keeper be by default?** Genuinely open, and it depends on the players. Lean: tune so a thoughtful player scores about 4 in 5, because a shootout you win every time stops being one.

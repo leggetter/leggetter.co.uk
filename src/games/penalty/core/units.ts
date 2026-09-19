@@ -1,0 +1,88 @@
+/**
+ * Every constant in the simulation, in real-world units: meters, seconds,
+ * kilograms, radians.
+ *
+ * Real units cost nothing and buy two things. Every number here can be checked
+ * against reality rather than argued about, and the physics stays something you
+ * can look up instead of something tuned until it felt right.
+ *
+ * Axes, seen from behind the taker looking at the goal:
+ *   x  lateral, positive to the taker's right
+ *   y  vertical, positive up, ground at 0
+ *   z  depth, positive toward the goal
+ *
+ * The origin sits on the goal line at the center of the goal mouth, so a shot
+ * crosses the line at z = 0 and goal detection is a plane test.
+ */
+
+/** Goal mouth, per the Laws of the Game: 8 yards by 8 feet. */
+export const GOAL_WIDTH = 7.32;
+export const GOAL_HEIGHT = 2.44;
+
+/** Posts and crossbar are round, and the radius is what makes a shot rebound. */
+export const FRAME_RADIUS = 0.06;
+
+/** FIFA size 5: 68-70 cm circumference, 410-450 g. */
+export const BALL_RADIUS = 0.11;
+export const BALL_MASS = 0.43;
+
+/** Penalty spot: 12 yards out, centered. */
+export const PENALTY_DISTANCE = 11.0;
+
+export const GRAVITY = 9.81;
+
+/** Air at sea level, 15 C. */
+export const AIR_DENSITY = 1.225;
+
+/**
+ * Drag coefficient. A real football's is not constant: it collapses from about
+ * 0.45 to about 0.15 somewhere near 12 m/s as the boundary layer goes
+ * turbulent, which is what produces a knuckleball. A single mid-range value is
+ * a deliberate simplification, and modelling the drag crisis is a candidate
+ * feature rather than a correction.
+ */
+export const DRAG_COEFFICIENT = 0.25;
+
+/** Cross-sectional area of the ball. */
+export const BALL_AREA = Math.PI * BALL_RADIUS * BALL_RADIUS;
+
+/** Precomputed drag factor: F_drag = DRAG_FACTOR * |v| * v. */
+export const DRAG_FACTOR = 0.5 * AIR_DENSITY * DRAG_COEFFICIENT * BALL_AREA;
+
+/**
+ * Magnus factor: F_magnus = MAGNUS_FACTOR * (spin x velocity).
+ *
+ * Tuned rather than derived, to a target of a hard curl bending about 1.5 m
+ * over a 25 m free kick. At spin 60 rad/s and 23 m/s that needs roughly
+ * 2.5 m/s^2 of lateral acceleration, so about 1.07 N, so 1.07 / (60 * 23).
+ */
+export const MAGNUS_FACTOR = 7.7e-4;
+
+/** Spin bleeds off slowly through the flight. Fraction lost per second. */
+export const SPIN_DECAY = 0.12;
+
+/** Strike speed at power 0 and power 1, before player attributes scale it. */
+export const MIN_STRIKE_SPEED = 16.0;
+export const MAX_STRIKE_SPEED = 32.0;
+
+/** Side spin at full curve input, and lift spin at full lift input. */
+export const MAX_SIDE_SPIN = 62.0;
+export const MAX_LIFT_SPIN = 45.0;
+
+/**
+ * How far past the frame a full-deflection aim points. Aiming has to be able
+ * to miss, or the corners carry no risk and there is no reason not to hit them
+ * every time.
+ */
+export const AIM_MARGIN = 1.18;
+
+/** Half-width and height of the aim rectangle on the goal plane. */
+export const AIM_HALF_WIDTH = (GOAL_WIDTH / 2) * AIM_MARGIN;
+export const AIM_HEIGHT = GOAL_HEIGHT * AIM_MARGIN;
+
+/** Ground bounce: energy kept vertically, and speed kept horizontally. */
+export const GROUND_RESTITUTION = 0.58;
+export const GROUND_FRICTION = 0.82;
+
+/** A shot is abandoned after this long, so nothing can hang the match. */
+export const FLIGHT_TIMEOUT = 4.0;

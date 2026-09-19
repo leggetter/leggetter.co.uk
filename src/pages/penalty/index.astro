@@ -13,7 +13,9 @@ import Fullscreen from '../../layouts/Fullscreen.astro';
   import { start } from '../../games/penalty/main';
 
   const canvas = document.getElementById('pitch');
-  if (canvas instanceof HTMLCanvasElement) start(canvas);
+  if (canvas instanceof HTMLCanvasElement) {
+    start(canvas).catch((error) => console.error('[penalty] failed to start', error));
+  }
 </script>
 
 <style>

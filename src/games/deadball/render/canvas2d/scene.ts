@@ -22,6 +22,8 @@ import {
   drawKeeper,
   drawNet,
   drawPitch,
+  drawHandover,
+  drawKeepersTurn,
   drawShotDial,
   drawSky,
   drawTaker,
@@ -69,6 +71,11 @@ export function drawScene(
     drawBall(ctx, proj, frame.ball.position);
   }
 
-  drawShotDial(ctx, proj, frame);
+  // A keeper choosing sees a reticle the taker never will; the handover then
+  // covers the lot before the device changes hands.
+  if (frame.phase === 'keeping') drawKeepersTurn(ctx, proj, frame, width);
+  else drawShotDial(ctx, proj, frame);
+
   drawHud(ctx, frame, width, height);
+  if (frame.phase === 'handover') drawHandover(ctx, frame, width, height);
 }

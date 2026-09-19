@@ -8,7 +8,7 @@
  * under core/, this boundary was drawn in the wrong place.
  */
 
-import type { FrameState, ShotInput } from '../core/types.ts';
+import type { Dive, FrameState, ShotInput } from '../core/types.ts';
 
 export interface DragPoint {
   x: number;
@@ -54,6 +54,15 @@ export interface View {
    * mapping anywhere else would force the input layer to know about cameras.
    */
   aimFromDrag(gesture: DragGesture): ShotInput;
+
+  /**
+   * Where on the goal a pointer is pointing, for a keeper choosing a dive.
+   *
+   * On the view for the same reason the drag mapping is: only the camera knows
+   * what a screen position means in the world. Null when the pointer is not
+   * looking at the goal plane at all.
+   */
+  diveFromPointer(point: DragPoint): Dive | null;
 
   destroy(): void;
 }

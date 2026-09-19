@@ -22,6 +22,10 @@ const views = listViews();
       and tap targets for nothing. The game only has to be told which one was
       pressed.
     */}
+    <nav id="modes" aria-label="Players">
+      <button type="button" data-mode="solo" aria-pressed="true">1 player</button>
+      <button type="button" data-mode="duel" aria-pressed="false">2 players</button>
+    </nav>
     <nav id="views" aria-label="Camera angle">
       <span id="views-label">Camera</span>
       {
@@ -66,6 +70,27 @@ const views = listViews();
         // The markup guesses the default; the game knows what actually loaded,
         // which may have come from ?view= or from what was stored last time.
         paint();
+
+        const modes = [...document.querySelectorAll<HTMLButtonElement>('#modes button')];
+        const paintModes = () => {
+          const current = game.currentMode();
+          for (const button of modes) {
+            button.setAttribute('aria-pressed', String(button.dataset.mode === current));
+          }
+        };
+
+        for (const button of modes) {
+          button.addEventListener('click', () => {
+            const mode = button.dataset.mode;
+            // Restarts the shootout, which is the honest thing to do: half a
+            // solo round cannot be continued as a duel.
+            if (mode === 'solo' || mode === 'duel') game.restart(mode);
+            paintModes();
+            button.blur();
+          });
+        }
+
+        paintModes();
       })
       .catch((error) => console.error('[deadball] failed to start', error));
   }
@@ -91,6 +116,16 @@ const views = listViews();
     -webkit-touch-callout: none;
   }
 
+  #modes {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
   #views {
     position: absolute;
     top: 12px;
@@ -109,6 +144,7 @@ const views = listViews();
     margin-right: 2px;
   }
 
+  #modes button,
   #views button {
     /* Big enough to hit with a thumb; the WCAG target minimum is 24px. */
     min-height: 32px;
@@ -122,6 +158,7 @@ const views = listViews();
     cursor: pointer;
   }
 
+  #modes button:hover,
   #views button:hover {
     background: rgba(8, 20, 30, 0.85);
     border-color: rgba(255, 255, 255, 0.45);
@@ -131,6 +168,7 @@ const views = listViews();
   /* Unmistakable rather than merely tinted: filled, darker text, heavier, and
      carrying a dot no unselected button has. Colour alone is not a signal
      everybody can read. */
+  #modes button[aria-pressed='true'],
   #views button[aria-pressed='true'] {
     background: #7dd3fc;
     border-color: #7dd3fc;
@@ -139,6 +177,7 @@ const views = listViews();
     box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.25);
   }
 
+  #modes button[aria-pressed='true']::before,
   #views button[aria-pressed='true']::before {
     content: '';
     display: inline-block;
@@ -150,11 +189,13 @@ const views = listViews();
     vertical-align: middle;
   }
 
+  #modes button[aria-pressed='true']:hover,
   #views button[aria-pressed='true']:hover {
     background: #a5e2fd;
     color: #05202e;
   }
 
+  #modes button:focus-visible,
   #views button:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 2px;
@@ -163,6 +204,11 @@ const views = listViews();
   /* On a phone the labels do not fit beside each other at the top of a shot
      that is already tight for room, so they wrap to a column instead. */
   @media (max-width: 559px) {
+    #modes {
+      top: 8px;
+      left: 8px;
+      transform: none;
+    }
     #views {
       top: 8px;
       right: 8px;

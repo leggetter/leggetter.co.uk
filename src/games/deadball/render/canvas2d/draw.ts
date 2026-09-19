@@ -896,18 +896,43 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
   const narrow = width < NARROW;
   let y = Math.max(46, height * 0.08);
 
-  ctx.font = `700 ${narrow ? 38 : 50}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
-  ctx.fillText(`${frame.score} of ${frame.shotsTotal}`, centre, y);
-  y += 60;
+  if (frame.mode === 'duel') {
+    const [a, b] = frame.scores;
+    ctx.font = `700 ${narrow ? 38 : 50}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+    ctx.fillText(`${a} \u2013 ${b}`, centre, y);
+    y += narrow ? 46 : 58;
+
+    ctx.font = `600 ${narrow ? 15 : 18}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    ctx.fillStyle = a === b ? 'rgba(255, 255, 255, 0.75)' : '#4ade80';
+    ctx.fillText(
+      a === b ? 'Level. Somebody take another.' : `Player ${a > b ? 1 : 2} wins`,
+      centre,
+      y
+    );
+    y += narrow ? 30 : 36;
+  } else {
+    ctx.font = `700 ${narrow ? 38 : 50}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+    ctx.fillText(`${frame.score} of ${frame.shotsTotal}`, centre, y);
+    y += 60;
+  }
 
   // This shootout, shot by shot.
-  const gap = 30;
+  const duel = frame.mode === 'duel';
+  const gap = duel && narrow ? 22 : 30;
   const left = centre - ((frame.outcomes.length - 1) * gap) / 2;
   frame.outcomes.forEach((outcome, i) => {
     ctx.beginPath();
-    ctx.arc(left + i * gap, y, 11, 0, Math.PI * 2);
-    ctx.fillStyle = outcome === 'goal' ? '#4ade80' : 'rgba(255, 255, 255, 0.22)';
+    ctx.arc(left + i * gap, y, duel && narrow ? 9 : 11, 0, Math.PI * 2);
+    // Alternating shots belong to alternating players, so the two sides get
+    // different greens rather than a row that reads as one person's round.
+    ctx.fillStyle =
+      outcome === 'goal'
+        ? duel && i % 2 === 1
+          ? '#7dd3fc'
+          : '#4ade80'
+        : 'rgba(255, 255, 255, 0.22)';
     ctx.fill();
     if (outcome !== 'goal') {
       ctx.font = '600 10px ui-sans-serif, system-ui, sans-serif';
@@ -1021,15 +1046,100 @@ const SHORT_OUTCOME: Record<Outcome, string> = {
   blocked: 'X',
 };
 
+/**
+ * The keeper's turn, and the screen that hides it again.
+ *
+ * Two people sharing a screen is the whole difficulty of the format, so these
+ * two are not decoration: the handover is the only thing standing between the
+ * keeper's pick and the person about to shoot at it.
+ */
+export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, width: number): void {
+  const spot = frame.choosing ?? frame.dive;
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  const narrow = width < NARROW;
+
+  if (spot) {
+    const at = proj.project(vec(spot.x, spot.y, 0));
+    if (at) {
+      const r = Math.max(16, 0.45 * at.scale);
+      ctx.strokeStyle = '#f87171';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(at.x, at.y, r, 0, Math.PI * 2);
+      ctx.moveTo(at.x - r * 1.6, at.y);
+      ctx.lineTo(at.x + r * 1.6, at.y);
+      ctx.moveTo(at.x, at.y - r * 1.6);
+      ctx.lineTo(at.x, at.y + r * 1.6);
+      ctx.stroke();
+    }
+  }
+
+  ctx.font = `700 ${narrow ? 20 : 26}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = '#f87171';
+  ctx.fillText(`PLAYER ${frame.keeperSide + 1} IN GOAL`, width / 2, narrow ? 116 : 128);
+
+  ctx.font = `500 ${narrow ? 13 : 15}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.fillText(
+    spot ? 'let go to commit' : 'pick your corner  ·  the taker cannot see this',
+    width / 2,
+    narrow ? 142 : 158
+  );
+  ctx.restore();
+}
+
+/**
+ * The screen that has to hide everything.
+ *
+ * Opaque on purpose. A translucent one would be prettier and would leak the
+ * reticle the keeper just placed, which is the only secret the format has.
+ */
+export function drawHandover(ctx: Ctx, frame: FrameState, width: number, height: number): void {
+  ctx.save();
+  ctx.fillStyle = '#06141d';
+  ctx.fillRect(0, 0, width, height);
+
+  const narrow = width < NARROW;
+  ctx.textAlign = 'center';
+
+  ctx.font = `700 ${narrow ? 26 : 34}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = '#7dd3fc';
+  ctx.fillText(`PASS TO PLAYER ${frame.taker + 1}`, width / 2, height * 0.42);
+
+  ctx.font = `500 ${narrow ? 14 : 16}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+  ctx.fillText('the keeper has chosen', width / 2, height * 0.42 + (narrow ? 34 : 42));
+
+  ctx.font = `500 ${narrow ? 13 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.fillText('tap when you have it', width / 2, height * 0.42 + (narrow ? 62 : 76));
+  ctx.restore();
+}
+
 export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: number): void {
   ctx.save();
   ctx.textBaseline = 'top';
-  ctx.font = '600 15px ui-sans-serif, system-ui, -apple-system, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-  ctx.fillText(`${frame.player.name}  ${frame.score}/${frame.shotsTotal}`, 18, 16);
+  if (frame.mode === 'duel') {
+    ctx.font = '600 15px ui-sans-serif, system-ui, -apple-system, sans-serif';
+    for (const side of [0, 1] as const) {
+      const taking = frame.taker === side;
+      ctx.fillStyle = taking ? '#7dd3fc' : 'rgba(255, 255, 255, 0.55)';
+      ctx.fillText(
+        `PLAYER ${side + 1}  ${frame.scores[side]}${taking ? '   \u2190 taking' : ''}`,
+        18,
+        16 + side * 20
+      );
+    }
+  } else {
+    ctx.font = '600 15px ui-sans-serif, system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+    ctx.fillText(`${frame.player.name}  ${frame.score}/${frame.shotsTotal}`, 18, 16);
+  }
 
   // One pip per penalty, filled as they are taken.
-  const pipY = 44;
+  const pipY = frame.mode === 'duel' ? 62 : 44;
   for (let i = 0; i < frame.shotsTotal; i++) {
     const outcome = frame.outcomes[i];
     ctx.beginPath();

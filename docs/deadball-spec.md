@@ -384,13 +384,106 @@ Keys namespaced `deadball:v1:*`. A `ps:schema` record holds the version, and `sc
 
 Stored: settings (view id, difficulty, sound), profile (display name), custom roster, stats (best scores, longest streak, per-keeper record), and a capped match history.
 
-## Two-player readiness
+## Two players
 
-Nothing in v1 is multiplayer. Three things make it possible later without a rewrite, and all three are cheap now:
+### One device: one shoots, one saves
 
-1. The match is a pure reducer over messages.
-2. `ShotInput` plus a seed fully determines a shot.
-3. A transport interface:
+Phase 3, and a different game from the one this document described for most of
+its life.
+
+The old plan was "take five each, alternating" against the computer keeper. The
+logs killed it: both testers converged on the same shot and nothing punishes it,
+so two people taking turns at a solved penalty is two people playing the same
+solved penalty. **One shoots and the other saves** is a contest, needs no AI
+keeper at all, and the view it wants is the one Phase 2 shipped.
+
+Rounds alternate as a real shootout does. A takes, B keeps. Then B takes, A
+keeps. Five each, ten shots.
+
+**The whole problem is that they share a screen.** Whoever goes second can see
+what the first one did, and a keeper who has watched the aim being set is not
+guessing. So the order is fixed and enforced by the reducer rather than by
+politeness:
+
+1. **The keeper commits first, and blind.** They pick a spot in the goal before
+   the taker has touched anything.
+2. **The device changes hands**, behind a screen showing neither choice.
+3. **The taker shoots**, with the keeper's pick invisible.
+
+The reducer refuses every message that would break that: the taker cannot act
+while the phase is `keeping`, and a second `SET_DIVE` after the handover is
+ignored so the keeper cannot revise once they have seen anything. Both have
+tests, because "we agreed not to peek" is not a rule, it is a hope.
+
+Committing before the ball is struck is not a handicap invented for the format.
+It is what the computer keeper already does on most shots, and what a real one
+does, because a penalty is airborne for less time than a dive takes.
+
+**A human keeper replaces the read, not the body.** `readAccuracy`, `guessBias`
+and `anticipation` all fall away - a person is exactly as good as their guess.
+What stays is the physics: dive speed, reach, the two save volumes, and the same
+clamp on where a keeper can get to. Picking the top corner and being right still
+does not save a shot struck hard and low into it, which is as it should be.
+
+### Two devices, later
+
+Wanted, and deliberately not first. The interesting question in Phase 3 is
+whether a human keeper is any fun, and that answer is identical on one device or
+two. Networking would delay finding out and change nothing about it.
+
+The one-device version is not thrown away when this arrives, either. Both are
+the same messages; the only difference is whether they cross a sofa or a wire.
+
+#### How the two devices would talk
+
+Recorded so the decision can be made later rather than made again.
+
+| Option | What it is | For | Against |
+| --- | --- | --- | --- |
+| **Durable Object, polled** | One object per game, holding the room. Clients ask for the state every second or so. | Strongly consistent, which is what a turn-based game needs. One object is exactly one game, so there is no room-routing logic. Barely more code than KV. | A migration in `wrangler.jsonc`, and a Cloudflare-specific primitive. |
+| Durable Object + WebSocket | The same object, pushed rather than polled. | No polling delay, and the natural fit if this ever wants spectators. | Connection lifecycle, reconnects, heartbeats - all unnecessary for a game where two things happen per shot. |
+| KV, polled | The game as a JSON blob. | The least infrastructure of anything that works. | **Eventually consistent.** A stale read of a few seconds reads to a player as "I picked my dive and it did not take". Wrong tool for this. |
+| D1, polled | The same, in SQL. | Consistent, queryable, and a leaderboard later comes nearly free. | More setup than the game needs, and a schema to maintain. |
+| A hosted realtime service | Somebody else's sockets. | No server code at all. | An account, a dependency and a bill, for a game two children play. |
+| WebRTC, peer to peer | The devices talk directly. | No game traffic through a server. | Still needs a signalling server, so it does not avoid the backend - it adds a second hard thing on top of it. |
+
+**Lean: Durable Object, polled.** Consistency is the requirement; polling is
+plenty, because the game is turn-based - a dive and a shot, twice a round.
+
+#### Where that code would live
+
+| Option | For | Against |
+| --- | --- | --- |
+| **A separate Worker on its own route** | The site stays static and untouched. A bug in the game cannot take the blog down. | A second thing to deploy, and a route to configure. |
+| `main` on the existing site Worker | One deployment, one config, falling through to the assets. | A script would then run on **every** request to leggetter.co.uk. Twenty-one years of writing would start depending on the game's multiplayer not throwing. |
+
+**Lean: separate.** The isolation is worth more than the convenience, and the
+site being a pile of static files is a feature rather than an accident.
+
+#### Rooms and identity
+
+- **The game id goes in the URL and there is no login.** One player opens
+  `/deadball/g/<id>`, sends the link, the other opens it. Nothing to sign up
+  for, nothing to remember.
+- **The id can be the match seed**, so the address names the game and the same
+  number already seeds every shot in it.
+- **Rooms need a TTL.** This would be the first thing on the site a stranger can
+  write to. An hour is generous for a shootout.
+- **And rate limiting on creation**, for the same reason.
+
+#### What actually crosses the wire
+
+Almost nothing, which is the point of the shape the game already has:
+
+- The keeper's `Dive` - two numbers.
+- The taker's `ShotInput` and its seed - six numbers.
+
+Nothing streams and no positions are ever sent. The other device runs the
+identical simulation from the identical numbers, which is exactly what the
+tuning fingerprint in `core/tuning.ts` exists to protect: replaying a shot under
+different physics is a different shot, and a plausible-looking one.
+
+### The seam it all goes through
 
 ```ts
 interface Transport {
@@ -399,9 +492,8 @@ interface Transport {
 }
 ```
 
-`LocalTransport` is an in-memory event emitter and is what hotseat uses. A remote implementation over WebSockets backed by a Cloudflare Durable Object is the natural fit on this stack, and is out of scope here.
-
-Hotseat two-player is therefore a small feature rather than a large one, which makes it a good candidate for handing over rather than building.
+One device needs no transport at all - the messages never leave the reducer.
+Two devices is an implementation of this and a room to point it at.
 
 ## Roster and attributes
 
@@ -454,13 +546,19 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **0** ✅ | Hidden page, layout change, sitemap filter, verify assertions, empty canvas, frame loop | Nothing, but the page is live on a preview URL and the plumbing is proven |
 | **1** ✅ | `core/` (units, vec3, rng, physics, predict, shot, keeper, flight, rules, match), `BehindTakerView`, drag input, one keeper, 5 penalties, in-memory storage, 27 tests | Single-player penalty shootout |
 | **1.5** ✅ | Full-time summary read off the shot log, a taker figure and a run-up, a keeper that shuffles, dives and lands, woodwork rebounds, netting, the save aftermath, release timing, the shot dial | The shootout ends with something, and a shot finishes rather than freezing |
-| **1.75** | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
+| **1.75** ✅ | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
-| **2.5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
-| **3** | Wall, variable position, free kick mode, lift input | Penalties and free kicks |
-| **4** | `roster.json`, attributes into `resolveShot`, `localStorage` implementation, schema versioning, custom player editor | Pick a player, stats persist |
-| **5** | `Transport`, hotseat two-player, alternating turns, sudden death | Two-player on one device |
-| **Later** | Pixel art view, side-on view, sound, remote transport and leaderboard, a keeper that reads your pattern | |
+| **3** | Two players on one device: one shoots, one saves. See [Two players](#two-players) | A contest rather than a practice |
+| **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
+| **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
+| **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
+| **Later** | A keeper that reads your pattern, free kicks and the wall, pixel art, side-on view, sound, a leaderboard | |
+
+**Free kicks moved to Later.** They were Phase 3 on the grounds that they
+complete the shot model, which is still true and is not the same as being the
+most valuable thing left. The name does not depend on them either: a penalty is
+a dead ball situation, so Dead Ball was already the right name before free kicks
+rather than only after.
 
 Phase 1.5 grew well past what it was speced as, and every addition came from
 playing rather than planning: the run-up, the keeper's shuffle, the woodwork,

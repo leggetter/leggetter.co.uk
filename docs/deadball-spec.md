@@ -116,23 +116,23 @@ src/games/deadball/
     events.ts                 # discrete things worth hearing (Phase 3.5)
     wall.ts                   # free kick wall (Later, not built)
   render/
-    View.ts                   # the interface. Also the seam a webgl/ would use
-    project.ts                # shared camera + projection
-    aim.ts                    # drag -> ShotInput, shared by every view
-    registry.ts               # id -> view factory
-    canvas2d/
+    Package.ts                # what a render package implements
+    cameras.ts                # where you may stand. Data, shared by all of them
+    registry.ts               # id -> package
+    sounds/                   # the default set. Any package may override it.
+      Sounds.ts               # an event in, a noise out
+      synth.ts                # the only file that knows AudioContext
+      silent.ts               # no-op, for tests and for the mute toggle
+    classic/                  # today's look. The only place a ctx exists.
       draw.ts                 # pitch, goal, net, figures, ball, HUD, full time
+      project.ts              # this package's camera maths
+      aim.ts                  # drag -> ShotInput, under this projection
       stand.ts                # terracing, hoardings, crowd (Phase 3.5)
-      BehindTakerView.ts
-      AngledBehindView.ts
-      KeeperCamView.ts
+      sounds.ts               # overrides, if any
+    pixel/                    # later
   input/
     drag.ts                   # Pointer Events -> DragGesture
     keyboard.ts               # accessible fallback aim mode (not built)
-  audio/                      # Phase 3.5, not built
-    Audio.ts                  # the interface: an event in, a noise out
-    webaudio.ts               # synthesis. The only file that knows AudioContext
-    silent.ts                 # no-op, for tests and for the mute toggle
   storage/
     Storage.ts                # the interface
     memory.ts                 # in-memory, used by tests
@@ -337,6 +337,11 @@ extracted first because they were sitting inside the reference view:
 - **`render/canvas2d/scene.ts`** - the pitch, drawn once. A view is now a
   camera, a mapping and a call to this.
 
+Both paths are as they were at the time. Phase 3.5 moves them into the `classic`
+package - see [Render packages](#render-packages) - where "shared by every view"
+becomes "shared by every camera this package draws", which is what it always
+meant.
+
 A camera changes exactly two things beyond its own position, and both are what
 the `View` interface exists for. Going round behind the goal **mirrors the
 drag**, because the taker's right is now on your left. And it **reverses the
@@ -355,74 +360,80 @@ goal. Pointed straight at the goal the composition is correct and the shot is
 not: the ball and the taker are far nearer the camera, so centring the goal
 pushes them off the bottom corner.
 
-### Swapping the renderer
+### Render packages
 
-WebGL later is a goal, and the question it raises is what has to be shared
-between two ways of drawing. The answer turns out to be: **less than it looks
-like, and the existing boundary already draws it.**
+The model holds game state and emits events. **Everything else is one render
+package's business** - how the pitch is drawn, how many people are in the stand,
+where they sit, when each one stands up, and what a post sounds like. None of
+that is game data, none of it can change an outcome, and all of it is a matter
+of taste that a different package is entitled to answer differently.
 
-**The model holds game state and emits events. Everything else is the view's
-business** - how many people are in the stand, where they sit, when each one
-stands up, what a post sounds like. None of that is game data. None of it can
-change an outcome. A renderer is free to do all of it however suits the way it
-draws.
+So a package is **a whole look, sound included**, not a drawing backend. It is
+named for what it is rather than for how it is implemented: `classic` for what
+exists today, `pixel` later, `broadcast` later still. WebGL is not a look, it is
+a technique, and a package that wants it uses it without that showing up in its
+name or its interface.
 
-#### The layer that should not exist
+```
+render/
+  Package.ts        # what a package implements
+  cameras.ts        # where you are allowed to stand. Data.
+  registry.ts       # id -> package
+  sounds/           # the default set. Any package may override any of it.
+  classic/          # today's look: canvas2d, drawn figures, synthesised sound
+  pixel/            # later
+```
 
-An earlier draft of this section proposed a third layer between the two: a
-`scene/` that owned the rake of the stand, the seat positions and each person's
-timing, so that a second backend would not have to write them again. It was
-wrong, and the argument against it is one this same section was already making
-about primitives.
+#### Cameras are data, so the axes do not multiply
 
-That layer's API is "person 412 is at this world position, raised by this much",
-called once per person per frame. That shape is exactly what a WebGL crowd
-exists to avoid: WebGL is not a faster way to make six hundred draw calls, it is
-a way to not make them, and a crowd there is instanced geometry with positions in
-a buffer rather than a JS call each. Canvas2d wants a few hundred people it can
-blit; WebGL wants twenty thousand it never touches individually. **Sharing the
-layout would mean sharing the one decision the two backends most need to make
-differently.**
+A camera is *where you stand*; a package is *how it looks*. Those are
+independent, and somebody is going to want pixel art from behind the goal.
 
-Which leaves duplication as the right answer for a stand: cheaper than the wrong
-abstraction, and the thing being duplicated is decoration with no correct value
-to disagree about. Two backends drawing crowds differently is two crowds. Two
-backends computing an outcome differently is a bug.
+So a camera stays a position, a target and a framing rule - shared data - and
+each package projects it however suits the way it draws. A matrix and a
+hand-rolled `project()` are both correct answers to the same camera.
 
-The same reasoning applies one level up and is why nothing is being reorganised
-now: `core/` already has no DOM and no canvas, and `View` is already the seam a
-`render/webgl/` would implement. The boundary has been in the right place since
-Phase 1; it had simply never been asked to prove it.
+This is the fix for a cost recorded in an earlier draft: `View` bundled where the
+camera sits with how the drawing happens, which made three cameras and two ways
+of drawing into six files. With cameras as data it is one implementation per
+package regardless of how many cameras exist, and adding a fourth camera costs
+every package nothing.
 
-#### The one thing that is not free
+#### A shared sound set, and the right to override it
 
-`View` bundles *where the camera is* with *how the drawing happens*, so three
-cameras and two backends is six files rather than five. Real, small, and a
-problem for whoever builds the second backend rather than for now - at which
-point the camera positions are a handful of vectors to lift out, and the
-projection is per-backend anyway because a matrix and a hand-rolled `project()`
-are not the same thing.
+There is a default set of sounds, and packages inherit it. A package may
+override any subset: `pixel` can replace the crowd with something chiptune and
+keep the woodwork.
 
-Recorded rather than fixed. Fixing it today would be refactoring shipped code
-against a backend that does not exist, using guesses about what it would want.
+This is what answers an objection an earlier draft raised against sound living
+inside a renderer - that swapping the look would silence the game, and each
+implementation would carry its own copy of what a post sounds like. The shared
+default set is the answer to that, rather than keeping audio out of the packages
+entirely. Inheritance gets the protection; ownership gets the freedom.
 
-#### Sound sits beside the renderer, not inside it
+It also settles a tension in [Synthesised, not sampled](#synthesised-not-sampled)
+rather than reopening it. The default set is synthesised, for the reasons given
+there. A package that wants to ship sample files is free to, and inherits the
+consequences along with the sounds: the weight lands in that package, and so
+does the licensing question. Neither is the default's problem any more.
 
-The distinction worth keeping. "The view decides" is right about *what a save
-sounds like*; it would be wrong if it meant the sound lived inside `canvas2d/`,
-because then swapping to `webgl/` would silence the game and every backend would
-carry its own copy of what a woodwork hit sounds like.
+#### Where the boundary actually is
 
-So `audio/` is a sibling of `render/`, not a child. `Game.ts` drains the event
-stream once and hands it to both. Neither knows the other exists, which is also
-what lets muting touch no rendering and a new renderer touch no audio.
+`core/` has no DOM, no canvas and no `AudioContext`, and emits an event stream
+that `Game.ts` hands to the active package. That has been the boundary since
+Phase 1; packages give it a name and a plural.
 
-#### What this buys, honestly
+The one thing worth stating because it is tempting to get wrong: **packages do
+not share presentation code with each other.** No common `crowd.ts` telling both
+of them where person 412 is and how high, because that call - once per person
+per frame - is exactly the shape a WebGL crowd exists to avoid, and it would
+force the two packages to agree about the one decision they most need to make
+differently. Canvas2d wants a few hundred people it can blit; WebGL wants twenty
+thousand it never touches individually.
 
-Nothing new. It is a statement that the existing split is load-bearing, plus a
-decision not to add a layer to defend against a cost that turned out to be
-imaginary. The boundary is still unproven - only a second backend proves it -
-and that is the same status the cross-client determinism bet has.
+Duplication is the right answer here and the asymmetry is the reason: two
+packages drawing crowds differently is two crowds, while two packages computing
+an outcome differently is a bug. Only one of those is worth an abstraction.
 
 ### Switching views
 
@@ -662,7 +673,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **1.75** ✅ | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
-| **3.5** | A crowd behind the goal, and sound. See [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
+| **3.5** | Make `render/canvas2d` the `classic` package and lift the camera positions out as data, then a crowd behind the goal, and sound. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
@@ -938,7 +949,8 @@ is not. Two techniques, both of which keep the individual animation:
 - **Pre-render the figures once, then blit.** A small atlas of a few poses across
   a few shirt colours, drawn to an offscreen canvas at mount and on resize. Each
   person is then one `drawImage` at their own position and offset, which is the
-  cheap call in canvas2d and the one that scales.
+  cheap call in canvas2d and the one that scales. All of this is the `classic`
+  package's business; a package that draws another way owes none of it.
 - **Failing that, batch by colour.** One `beginPath`, every person of that shirt
   colour added to it, one `fill`. Eight fills a frame rather than six hundred.
   Individual offsets survive, because the offset is in the path, not in the call.
@@ -998,14 +1010,14 @@ design already uses, one layer down: **`core/` names what happened, and never
 decides what it sounds like.** A `core/` that imports an `AudioContext` is the
 same mistake as a `core/` that imports a canvas.
 
-`Game.ts` drains it and hands it to the audio and to the scene separately, and
-not - tempting as it is - to the renderer, which would then own a copy of what a
-woodwork hit sounds like and would take the sound with it when it was swapped.
-See [Sound is not downstream of drawing](#sound-is-not-downstream-of-drawing).
+`Game.ts` drains it and hands it to the active
+[render package](#render-packages), which decides both what the crowd does about
+it and what it sounds like.
 
-The crowd reads the same stream, which is the other reason to build it this way:
-the rise on a goal and the cheer on a goal are one event with two subscribers,
-and they cannot drift out of step because there is nothing to keep in step.
+Those being one package's decision is the point: the rise on a goal and the cheer
+on a goal are one event with two responses, and they cannot drift out of step
+because nothing is keeping them in step. A package that wanted the crowd to react
+late, or not at all, would be free to, and would be wrong in only one place.
 
 It also pays for itself beyond this phase. Replay (Phase 5) wants exactly this
 list, and so does any commentary line more specific than the outcome.
@@ -1041,7 +1053,8 @@ might.** It is the same class of bet as the curve, which was physically correct
 and inaudible in the game until it was played. The mitigation is the same too -
 it gets judged by listening, not by reasoning - and the fallback is cheap,
 because the seam is an interface. Swapping synthesis for samples changes one file
-behind `audio/Audio.ts` and nothing that calls it.
+behind `render/sounds/Sounds.ts` and nothing that calls it - or, better, changes
+nothing at all and ships as a package that overrides the defaults.
 
 #### The things that are easy to get wrong
 

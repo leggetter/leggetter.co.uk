@@ -102,6 +102,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   /** Seconds since the game started. Drives idle animation, nothing else. */
   let clock = 0;
+  /** Clock reading at the moment of contact, or null before it. */
+  let struckAt: number | null = null;
 
   /** Recent ball positions for the trail, oldest first. */
   let trail: Vec3[] = [];
@@ -139,6 +141,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     trail,
     runUp: match.phase === 'ready' ? 0 : match.phase === 'runup' ? runUp / RUN_UP_SECONDS : 1,
     clock,
+    sinceStrike: struckAt === null ? 0 : clock - struckAt,
     shotIndex: match.shotIndex,
     shotsTotal: match.shotsTotal,
     score: match.score,
@@ -196,6 +199,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     flight = null;
     trail = [];
     pending = null;
+    struckAt = null;
     runUp = 0;
     settling = 0;
     ballPosition = spotBall(PENALTY_DISTANCE);
@@ -280,6 +284,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
         const rng = createRng(shotSeed(match.seed, match.shotIndex));
         flight = createFlight(pending.shot, keeper, rng, pending.keeperStartX);
         pending = null;
+        struckAt = clock;
         match = reduce(match, { type: 'STRIKE' });
       }
     }

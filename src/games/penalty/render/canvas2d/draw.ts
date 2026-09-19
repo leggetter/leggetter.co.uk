@@ -27,6 +27,9 @@ import type { Projector } from '../project.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;
 
+/** Roughly how far a full curl moves a penalty, in meters. See MAGNUS_FACTOR. */
+const PENALTY_FULL_CURL = 0.5;
+
 /** How far the net hangs behind the line. */
 const NET_DEPTH = 1.7;
 
@@ -283,8 +286,14 @@ const SWAY_PERIOD = 5.3;
 const wave = (clock: number, period: number, phase = 0): number =>
   Math.sin((clock / period + phase) * Math.PI * 2);
 
-/** Whether anybody is standing about rather than moving. */
-const isIdle = (phase: string): boolean => phase !== 'runup' && phase !== 'flight';
+/**
+ * Whether anybody is standing about rather than moving.
+ *
+ * Only before the kick. Carrying the breathing through the follow-through left
+ * the taker rising and falling while frozen in mid-air with one boot off the
+ * ground, which reads as a bug rather than as somebody alive.
+ */
+const isIdle = (phase: string): boolean => phase === 'ready';
 
 function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   const f = proj.project(figure.feet);
@@ -472,7 +481,10 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
 
   const lean = frame.phase === 'ready' ? (frame.aiming?.power ?? 0) * 0.25 : 0;
   const struck = frame.phase === 'flight' || frame.phase === 'resolved';
-  const crouch = lean * 0.2 + (struck ? 0.12 : 0);
+  // The follow-through settles rather than holding: boot comes back down, and
+  // the taker is stood watching by the time the ball reaches the goal.
+  const follow = struck ? clamp01(1 - frame.sinceStrike / 0.55) : 0;
+  const crouch = lean * 0.2 + follow * 0.12;
 
   // Breathing, and weight moving from foot to foot. Settles as the drag builds:
   // they steady themselves over the ball rather than breathing harder.
@@ -494,7 +506,6 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
   // Three strides in 0.42 s, which is about what a penalty run-up is. On
   // contact the kicking leg swings through; after it, they come back together.
   const swing = frame.phase === 'runup' ? Math.sin(run * Math.PI * 3) : 0;
-  const follow = struck ? 1 : 0;
 
   const toe = (leg: -1 | 1): Vec3 => {
     const reach = 0.3 * swing * leg + (leg === side ? 0 : follow * 0.55);
@@ -629,8 +640,11 @@ export function drawAim(ctx: Ctx, proj: Projector, frame: FrameState): void {
   const points: Vec3[] = [];
   for (let i = 0; i <= 16; i++) {
     const t = i / 16;
-    // Lateral bend peaks mid-flight, which is roughly what Magnus does.
-    const bend = input.curve * 0.9 * t * (1 - t) * 4;
+    // Lateral bend peaks mid-flight, which is roughly what Magnus does. Scaled
+    // to the deflection the ball will actually get, so the guide is a promise
+    // rather than decoration: a fixed bow drew the same arc whatever the
+    // physics were about to do.
+    const bend = input.curve * PENALTY_FULL_CURL * t * (1 - t) * 4;
     points.push(
       vec(
         from.x + (target.x - from.x) * t + bend,
@@ -698,8 +712,10 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
   ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
   ctx.fillText(`${Math.round(input.power * 100)}%`, at.x, at.y + radius + 20);
 
-  // Bend, as a needle sliding along a short track above the ring.
-  const trackY = at.y - radius - 18;
+  // Bend, as a needle sliding along a short track above the ring, labelled.
+  // Unlabelled it was a blue line that moved, with nothing to say what it was
+  // or what moved it.
+  const trackY = at.y - radius - 22;
   const trackHalf = radius * 0.85;
   ctx.beginPath();
   ctx.moveTo(at.x - trackHalf, trackY);
@@ -722,6 +738,14 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
   ctx.lineWidth = 2;
   ctx.stroke();
+
+  ctx.font = '600 10px ui-sans-serif, system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = Math.abs(input.curve) < 0.08 ? 'rgba(255,255,255,0.4)' : '#7dd3fc';
+  ctx.fillText(
+    Math.abs(input.curve) < 0.08 ? 'STRAIGHT' : `BEND ${input.curve < 0 ? '\u25c4' : '\u25ba'}`,
+    at.x,
+    trackY - 22
+  );
 
   drawSweep(ctx, at.x, at.y + radius + 40, trackHalf * 1.5, frame.timingMarker);
   ctx.restore();
@@ -958,7 +982,8 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
     ctx.font = '500 14px ui-sans-serif, system-ui, -apple-system, sans-serif';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.68)';
     ctx.fillText(
-      'drag to aim  ·  further is harder  ·  hook the drag to bend it  ·  release in the green',
+      'drag to aim  ·  further is harder  ·  release in the green' +
+        '  ·  curl the drag sideways on the way out to bend the shot',
       width / 2,
       height - 40
     );

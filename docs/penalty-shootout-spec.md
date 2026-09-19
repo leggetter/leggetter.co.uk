@@ -8,7 +8,7 @@ _Status: Phases 0 and 1 built and playable at `/penalty/`. Tuning now comes from
 | --- | --- |
 | **Decision** | Build a drag-to-shoot penalty and free kick game on a hidden page at `/penalty/`, as a vanilla TypeScript engine with swappable view renderers, sized so that a second and third contributor can add features without touching the physics. |
 | **Next steps** | - Phase 1.5: full-time summary, a taker figure, a better keeper<br>- Phase 2: second and third cameras plus the switcher<br>- Then a keeper that reads your pattern, because both testers found the one shot that always works |
-| **Risk** | The repo is public. See [What not to commit](#what-not-to-commit). |
+| **Risk** | The repo is public. See [What not to commit](#what-not-to-commit).<br>The repo's Creative Commons license is wrong for code. See [Licensing](#licensing). |
 
 ## Purpose
 
@@ -478,6 +478,49 @@ Not worth testing: rendering. Compare views by playing them.
    Lean: build it, but only after the summary, so nobody is punished by a
    pattern they were never shown.
 5. **What should the route actually be?** `/penalty/` is the working assumption. A less guessable slug buys very little given the page is `noindex` and linked from nowhere.
+
+## Licensing
+
+The repo declares `Creative Commons - Attribution 3.0` in `package.json`, which
+is right for the writing and wrong for the game.
+
+**Creative Commons recommend against using CC licenses for software**, and say
+so themselves. The reasons matter here rather than being pedantry:
+
+- CC licenses say nothing about **patents**. Every mainstream software license
+  either grants patent rights explicitly (Apache-2.0) or is understood by
+  convention to (MIT).
+- They say nothing about **source versus object code**, so what "attribution"
+  means for a bundled, minified build is undefined.
+- Their warranty disclaimers are written for creative works. Nobody forks a
+  photograph and ships it in production.
+
+This is not hypothetical for this project. The game is a few thousand lines of
+engine that somebody could reasonably lift - the physics and the spin-blind
+predictor are the useful parts - and it is the one thing in the repo with
+contributors other than Phil.
+
+**Lean: MIT, scoped to `src/games/penalty/`.** Permissive, four paragraphs
+long, and the one a fifteen-year-old can actually read. Apache-2.0 is the
+better license on the merits because of the explicit patent grant, but the
+patent risk on a penalty game is not real and the extra length is a cost paid
+by the people least likely to get through it.
+
+Not the whole repo. The posts stay CC-BY: that license is correct for them and
+changing it would relicense twenty-one years of writing to solve a problem in
+one directory.
+
+- [ ] `src/games/penalty/LICENSE` with the MIT text
+- [ ] A line in `AGENTS.md` under Layout saying the game is separately licensed
+- [ ] Decide whether `package.json` should carry an SPDX expression instead of
+      prose, since `Creative Commons - Attribution 3.0` is not a valid SPDX id
+      and tooling reads that field
+
+One thing to settle rather than let drift: **the kids' contributions.** In
+practice this is a family project and nobody is going to argue about it. But if
+the roster and keeper files are largely their work and the game is ever
+published anywhere, the honest thing is that they are authors, and the copyright
+line should say so rather than quietly assigning everything to one person.
 
 ## What not to commit
 

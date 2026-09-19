@@ -185,6 +185,12 @@ export interface FrameState {
    * 60 Hz laptop and a 120 Hz phone.
    */
   clock: number;
+  /**
+   * Seconds since the boot met the ball, or 0 before it has. Unlike `elapsed`
+   * this keeps running after the shot resolves, which is what a follow-through
+   * needs in order to settle instead of freezing where the ball left it.
+   */
+  sinceStrike: number;
   shotIndex: number;
   shotsTotal: number;
   score: number;

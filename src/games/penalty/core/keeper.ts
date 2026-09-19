@@ -54,14 +54,22 @@ const BODY_DIVE_DROP = 0.42;
  * arms had to extend the best part of two meters to meet the ball, which drew
  * as a keeper standing still and growing.
  */
-const BODY_FOLLOW = 0.5;
+const BODY_FOLLOW = 0.6;
 
-/** Furthest the hands travel sideways from standing. A dive has a limit. */
-const MAX_DIVE_X = 2.75;
+/**
+ * Furthest the hands travel sideways from where the keeper is standing.
+ *
+ * Past the post on purpose. There should be no part of the goal a keeper
+ * simply cannot get to: the corners are hard because they are rarely where the
+ * keeper went, not because the geometry forbids it. Keeping this inside the
+ * frame left a band at each post that was free by construction, and a shot
+ * placed there was never a contest.
+ */
+const MAX_DIVE_X = 3.95;
 
 /** Vertical span the hands can cover, from a low dive to a full stretch. */
 const MIN_HAND_Y = 0.18;
-const MAX_HAND_Y = 2.35;
+const MAX_HAND_Y = 2.52;
 
 /**
  * Standard deviation of a keeper's misread at readAccuracy 0, in meters.
@@ -72,7 +80,7 @@ const MAX_HAND_Y = 2.35;
  * keeper's read was therefore about a fifth as wide as intended, it reached
  * almost everything, and the release timing had nothing left to influence.
  */
-const MAX_READ_SIGMA = 1.4;
+const MAX_READ_SIGMA = 2.6;
 
 /** Standard deviation of Rng.nextBell, which is four uniforms recentered. */
 const BELL_SD = 0.2887;

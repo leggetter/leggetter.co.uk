@@ -484,10 +484,11 @@ describe('keeper', () => {
       anticipation: 0,
       readAccuracy: 1,
     };
-    // Bent away from the keeper, not back across them: curling it into the
-    // middle now runs into the body, which is exactly what the body is for.
-    const straight = take(aim(0.35, 0.4, { curve: 0 }), reader, 1, striker, 25);
-    const curled = take(aim(0.35, 0.4, { curve: 1 }), reader, 1, striker, 25);
+    // Struck down the middle, where the keeper is, and bent away from there.
+    // Aiming at the corner and curling further out just misses the goal, which
+    // is the whole trade: the curl has to start somewhere the keeper believes.
+    const straight = take(aim(0, 0.4, { curve: 0 }), reader, 1, striker, 25);
+    const curled = take(aim(0, 0.4, { curve: 1 }), reader, 1, striker, 25);
     assert.equal(straight.outcome, 'saved');
     assert.equal(curled.outcome, 'goal');
   });
@@ -496,10 +497,15 @@ describe('keeper', () => {
     // Locks MAGNUS_FACTOR. The target was a hard curl bending about 1.5 m over
     // a 25 m free kick; anything that moves these numbers is a tuning change
     // and should be a deliberate one.
-    assert.ok(Math.abs(bend(-1, PENALTY_DISTANCE)) > 0.15, 'penalty curl too weak');
-    assert.ok(Math.abs(bend(-1, PENALTY_DISTANCE)) < 0.4, 'penalty curl too strong');
-    assert.ok(Math.abs(bend(-1, 25)) > 0.9, 'free kick curl too weak');
-    assert.ok(Math.abs(bend(-1, 25)) < 1.8, 'free kick curl too strong');
+    // Half a meter over a penalty is the target: most of a keeper's reach, so
+    // a curl can beat one who committed, and enough to see. A life-size Magnus
+    // gives about 20 cm here, which is inside the gloves and invisible.
+    assert.ok(Math.abs(bend(-1, PENALTY_DISTANCE)) > 0.4, 'penalty curl too weak to matter');
+    assert.ok(Math.abs(bend(-1, PENALTY_DISTANCE)) < 0.8, 'penalty curl too strong');
+    // Deflection goes with the square of the flight, so a free kick bends a
+    // long way. Phase 3 will want its own look at this.
+    assert.ok(Math.abs(bend(-1, 25)) > 2.2, 'free kick curl too weak');
+    assert.ok(Math.abs(bend(-1, 25)) < 3.8, 'free kick curl too strong');
     assert.ok(bend(1, 25) > 0 && bend(-1, 25) < 0, 'curve must bend both ways');
   });
 });
@@ -624,8 +630,8 @@ describe('keeper commitment', () => {
 
   test('an anticipating keeper reads the boot, so curve still beats it', () => {
     const keeper = profile({ anticipation: 1, readAccuracy: 1, diveSpeed: 12 });
-    const straight = take(aim(0.35, 0.4, { curve: 0 }), keeper, 1, striker, 25);
-    const curled = take(aim(0.35, 0.4, { curve: 1 }), keeper, 1, striker, 25);
+    const straight = take(aim(0, 0.4, { curve: 0 }), keeper, 1, striker, 25);
+    const curled = take(aim(0, 0.4, { curve: 1 }), keeper, 1, striker, 25);
     assert.equal(straight.outcome, 'saved');
     assert.equal(curled.outcome, 'goal');
   });

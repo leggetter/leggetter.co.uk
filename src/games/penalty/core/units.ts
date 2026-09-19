@@ -52,11 +52,20 @@ export const DRAG_FACTOR = 0.5 * AIR_DENSITY * DRAG_COEFFICIENT * BALL_AREA;
 /**
  * Magnus factor: F_magnus = MAGNUS_FACTOR * (spin x velocity).
  *
- * Tuned rather than derived, to a target of a hard curl bending about 1.5 m
- * over a 25 m free kick. At spin 60 rad/s and 23 m/s that needs roughly
- * 2.5 m/s^2 of lateral acceleration, so about 1.07 N, so 1.07 / (60 * 23).
+ * Tuned rather than derived, and deliberately above life-size.
+ *
+ * Sideways deflection grows with the square of the flight time, so a value
+ * that gives a realistic 1.5 m over a 25 m free kick gives about 20 cm over an
+ * 11 m penalty. Twenty centimeters is less than the width of a keeper's
+ * gloves: physically defensible, and invisible. The curve mechanic was present
+ * in the code and absent from the game.
+ *
+ * Raised until a full curl moves a penalty about half a meter, which is most
+ * of a keeper's reach and enough to beat one who committed to the line the
+ * ball was struck on. The cost is that free kicks will bend a long way when
+ * they arrive in Phase 3, and will want their own look at this.
  */
-export const MAGNUS_FACTOR = 7.7e-4;
+export const MAGNUS_FACTOR = 1.85e-3;
 
 /** Spin bleeds off slowly through the flight. Fraction lost per second. */
 export const SPIN_DECAY = 0.12;

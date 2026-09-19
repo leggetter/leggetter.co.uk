@@ -382,11 +382,46 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | --- | --- | --- |
 | **0** ✅ | Hidden page, layout change, sitemap filter, verify assertions, empty canvas, frame loop | Nothing, but the page is live on a preview URL and the plumbing is proven |
 | **1** ✅ | `core/` (units, vec3, rng, physics, predict, shot, keeper, flight, rules, match), `BehindTakerView`, drag input, one keeper, 5 penalties, in-memory storage, 27 tests | Single-player penalty shootout |
-| **2** | `AngledBehindView`, view registry, `?view=` param, on-screen switcher | Same game, two cameras, compare and choose |
+| **1.5** | Full-time summary read off the shot log, a taker figure, a better keeper figure | The shootout ends with something, and there is somebody standing over the ball |
+| **2** | `AngledBehindView` **and `KeeperCamView`**, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **3** | Wall, variable position, free kick mode, lift input | Penalties and free kicks |
 | **4** | `roster.json`, attributes into `resolveShot`, `localStorage` implementation, schema versioning, custom player editor | Pick a player, stats persist |
 | **5** | `Transport`, hotseat two-player, alternating turns, sudden death | Two-player on one device |
-| **Later** | Pixel art view, keeper-cam and side-on views, sound, remote transport and leaderboard | |
+| **Later** | Pixel art view, side-on view, sound, remote transport and leaderboard | |
+
+Phase 1.5 is new, and all of it came out of playing rather than planning. The
+keeper-cam moved up from Later into Phase 2 for the same reason: it is the view
+that keeps getting asked for, and a view is cheap once the registry exists.
+
+### Full time: what the shot log knows
+
+The shootout currently ends on "3 of 5" and nothing else. The log already holds
+everything needed to do better, because it was built to answer exactly these
+questions offline:
+
+- **Where you went.** Two sessions in a row put more than 65% of shots to the
+  same side, and repeated the previous side about two thirds of the time. The
+  game should say so. That habit is what a pattern-reading keeper would punish,
+  and telling the player about it is the fair way to introduce one.
+- **How you struck it.** Clean strikes against scuffs, as a scoring rate. This
+  teaches the sweep without a tutorial.
+- **What beat you.** Saved, or the post, or nobody near it. In the second
+  session the keeper made 6 saves and the frame took 8, which is a different
+  game from the one the player thinks they are playing.
+- **Whether it was even saveable.** The reachability line is the sharpest thing
+  in the offline analysis and it is cheap: was the ball inside the envelope the
+  keeper could physically have got to?
+
+Same code both places. `telemetry/analyse.ts` takes records and returns a
+summary; the full-time screen renders it, and an offline script prints it. A
+second implementation would drift from the first within a week.
+
+### Somebody to take the penalty
+
+There is no taker in the game. The ball sits on the spot and nothing stands
+over it, which was not a deferral - it was never specced. A figure that runs up
+and strikes is also what would sell the keeper's anticipation, because right now
+there is nothing on screen for the keeper to be reading.
 
 Phases 0 to 3 are the solo build. Phases 4 and 5 are the ones worth handing over, because they are self-contained and visibly change the game.
 
@@ -429,9 +464,19 @@ Not worth testing: rendering. Compare views by playing them.
 ## Open questions
 
 1. **Does the drag gesture read as natural?** Still the riskiest thing here, and now it can be answered by playing it rather than by reasoning. Phase 1 shipped the coupled version: the drag vector sets direction *and* power together, so aiming at the top corner and hitting it softly is not a thing you can do. Lift is not wired to the gesture at all yet, and is pinned at 0.5. That is the axis to design once the rest feels right.
-2. **Which view wins?** That is what Phase 2 is for, and the answer decides whether `keeper-cam` is ever worth building.
+2. **Which view wins?** That is what Phase 2 is for. `keeper-cam` is now built alongside `angled-behind` rather than waiting on the answer, because it has been asked for repeatedly and it is the natural view for the keeper's turn in Phase 5.
 3. **Does cross-client determinism hold?** Untested until two browsers run the same seed. Mitigated by sending the outcome alongside the input, so a divergence degrades to a logged warning rather than a desync.
-4. **How hard should the keeper be by default?** Genuinely open, and it depends on the players. Lean: tune so a thoughtful player scores about 4 in 5, because a shootout you win every time stops being one.
+4. **How hard should the keeper be by default?** Measured rather than open now. Two logged sessions put it at 85% scored before the retune with zero saves, and 63% after with 15% saved and 18% off the post. That is about right, and the numbers came from the log rather than from anyone's opinion.
+
+5. **The game has one correct answer, and both testers found it.** Aim about
+   0.7 to one side, near full power, release in the green. Two independent
+   sessions converged on the same spot, and 65% of all shots crossed beyond the
+   keeper's physical reach. Nothing punishes repetition, so there is no decision
+   to make after the first shootout. A keeper that reads your pattern - go the
+   same way three times and it starts going with you - is the obvious answer,
+   and the full-time summary above is the fair way to warn the player it exists.
+   Lean: build it, but only after the summary, so nobody is punished by a
+   pattern they were never shown.
 5. **What should the route actually be?** `/penalty/` is the working assumption. A less guessable slug buys very little given the page is `noindex` and linked from nowhere.
 
 ## What not to commit

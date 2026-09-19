@@ -384,6 +384,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **1** ✅ | `core/` (units, vec3, rng, physics, predict, shot, keeper, flight, rules, match), `BehindTakerView`, drag input, one keeper, 5 penalties, in-memory storage, 27 tests | Single-player penalty shootout |
 | **1.5** | Full-time summary read off the shot log, a taker figure, a better keeper figure | The shootout ends with something, and there is somebody standing over the ball |
 | **2** | `AngledBehindView` **and `KeeperCamView`**, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
+| **2.5** | Replay any shot from the log, through any camera | Watch that again, from behind the goal |
 | **3** | Wall, variable position, free kick mode, lift input | Penalties and free kicks |
 | **4** | `roster.json`, attributes into `resolveShot`, `localStorage` implementation, schema versioning, custom player editor | Pick a player, stats persist |
 | **5** | `Transport`, hotseat two-player, alternating turns, sudden death | Two-player on one device |
@@ -415,6 +416,43 @@ questions offline:
 Same code both places. `telemetry/analyse.ts` takes records and returns a
 summary; the full-time screen renders it, and an offline script prints it. A
 second implementation would drift from the first within a week.
+
+### Watch that again
+
+Nearly free, because the determinism was built for it. A shot is fully
+described by `ShotInput`, a seed, and where the keeper was standing, and the
+log has been recording all three since the summary landed. Replay is not a
+recorded trajectory played back; it is the same `resolveShot` and the same
+`advance` loop run again with the same numbers, which is why it costs a few
+dozen bytes rather than a few hundred kilobytes.
+
+It is also the same mechanism two-player needs in Phase 5. A replay and a
+remote opponent are both "here is a shot somebody else took, run it": build
+one and the other is most of the way done.
+
+The obvious place for it is the full-time screen, on any shot in the row of
+five. It is also the honest use for the extra cameras: watch the save again
+from behind the goal, or watch the curl from side-on, which is the one angle
+that shows what the ball actually did.
+
+**The catch is fidelity, and it is not small.** A replay reproduces the shot
+under *today's* physics. The Magnus factor, the keeper read error, the dive
+speeds and the aim sigma have all moved several times over, some of them by
+a factor of two. A shot logged last week, replayed against this week's
+constants, is a different shot - and it will look wrong in exactly the way
+that is hardest to notice, because it will still look plausible.
+
+Two ways out, and they are not exclusive:
+
+- **Stamp each record** with the tuning it was taken under, and refuse to
+  replay across a mismatch rather than quietly lying. Cheap, and it has to
+  happen *before* the feature or every log recorded in the meantime is
+  unreplayable.
+- **Store the profiles used**, so an old record carries its own keeper and
+  player rather than looking them up in content files that get edited. Bigger
+  records, faithful forever.
+
+Lean: stamp now, decide about profiles when the feature is built.
 
 ### Somebody to take the penalty
 

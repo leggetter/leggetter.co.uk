@@ -116,6 +116,23 @@ const ANTICIPATION_PENALTY = 1.45;
 /** How long it takes to come down and finish flat. */
 const LANDING_SECONDS = 0.38;
 
+/** The keeper numbers, for the tuning fingerprint. See core/tuning.ts. */
+export const KEEPER_TUNING: readonly number[] = [
+  MAX_READ_SIGMA,
+  ANTICIPATION_PENALTY,
+  VERTICAL_READ_FACTOR,
+  MAX_DIVE_X,
+  BEYOND_FRAME,
+  MIN_HAND_Y,
+  MAX_HAND_Y,
+  ARM_SPAN,
+  MAX_BODY_TRAVEL,
+  BODY_STANDING_Y,
+  BODY_DIVE_DROP,
+  IDLE_RANGE,
+  IDLE_PERIOD,
+];
+
 /**
  * Everything random about this keeper on this shot, sampled once when the shot
  * starts. Deciding it all up front keeps the number of RNG draws independent of

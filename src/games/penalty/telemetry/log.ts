@@ -27,6 +27,15 @@ const MAX_RECORDS = 600;
 export interface ShotRecord {
   /** Wall clock, ISO. Only used for ordering and for spotting a long session. */
   at: string;
+  /**
+   * Which physics this shot was taken under. See core/tuning.ts.
+   *
+   * A shot is reproducible from its input and its seed, but only against the
+   * same constants, and those have moved by a factor of two more than once.
+   * Without this a replay would quietly show a different shot and look
+   * entirely plausible doing it.
+   */
+  tuning: string;
   /** Random per page load. Distinguishes sittings, identifies nobody. */
   session: string;
 

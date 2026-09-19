@@ -16,6 +16,7 @@ const shot = (over: {
   envelope?: number;
 } = {}): ShotRecord => ({
   at: new Date(Date.UTC(2026, 0, 1, 0, 0, sequence++)).toISOString(),
+  tuning: 'deadbeef',
   session: 's',
   playerId: 'p',
   keeperId: 'k',

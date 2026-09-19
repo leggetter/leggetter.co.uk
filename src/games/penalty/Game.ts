@@ -13,6 +13,7 @@
 import { BALL_RADIUS, PENALTY_DISTANCE } from './core/units.ts';
 import type { Vec3 } from './core/vec3.ts';
 import { createRng, shotSeed } from './core/rng.ts';
+import { tuningFingerprint } from './core/tuning.ts';
 import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts';
 import { advance, createFlight, type Flight } from './core/flight.ts';
 import { idleDrift, planKeeper } from './core/keeper.ts';
@@ -76,6 +77,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   const settings = (await storage.get<Settings>(KEYS.settings)) ?? {};
   const session = newSessionId();
+  // Constant for the life of the page; the physics cannot change under it.
+  const tuning = tuningFingerprint();
   const log = await createShotLog(storage, session);
   const search = options.search ?? window.location.search;
 
@@ -306,6 +309,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     if (!settled && flight.outcome) {
       log.record({
         at: new Date().toISOString(),
+        tuning,
         session,
         playerId: player.id,
         keeperId: keeper.id,

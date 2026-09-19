@@ -66,6 +66,16 @@ const TIMING_SIGMA = 0.7;
 /** Standard deviation of Rng.nextBell, which is four uniforms recentered. */
 const BELL_SD = 0.2887;
 
+/** The aim numbers, for the tuning fingerprint. See core/tuning.ts. */
+export const AIM_TUNING: readonly number[] = [
+  MAX_AIM_SIGMA,
+  VERTICAL_SCATTER,
+  POWER_SIGMA,
+  PRESSURE_SIGMA,
+  TIMING_SIGMA,
+  BELL_SD,
+];
+
 export interface ShotContext {
   /** Where the ball is being struck from. */
   origin: Vec3;

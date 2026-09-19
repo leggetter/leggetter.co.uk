@@ -24,7 +24,7 @@ import {
 import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
 import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
-import type { Projector } from '../project.ts';
+import type { Projector } from './project.ts';
 import { ARM_SPAN } from '../../core/keeper.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;

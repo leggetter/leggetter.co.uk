@@ -7,7 +7,7 @@
  * the view's job, because only the view knows what the camera is doing.
  */
 
-import type { DragGesture, DragPoint } from '../render/View.ts';
+import type { DragGesture, DragPoint } from '../presentation/Presentation.ts';
 
 /** Below this, a drag is a click. Stops a stray pixel becoming a limp penalty. */
 const MIN_DRAG_PX = 8;

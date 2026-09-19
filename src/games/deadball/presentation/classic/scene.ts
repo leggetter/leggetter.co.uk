@@ -12,7 +12,7 @@
  */
 
 import type { FrameState } from '../../core/types.ts';
-import type { Projector } from '../project.ts';
+import type { Projector } from './project.ts';
 import {
   drawAim,
   drawBall,

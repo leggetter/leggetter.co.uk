@@ -11,8 +11,8 @@
  * same everywhere.
  */
 
-import type { ShotInput } from '../core/types.ts';
-import type { DragGesture } from './View.ts';
+import type { ShotInput } from '../../core/types.ts';
+import type { DragGesture } from '../Presentation.ts';
 
 /**
  * Drag length that means a fully committed shot, as a fraction of the smaller

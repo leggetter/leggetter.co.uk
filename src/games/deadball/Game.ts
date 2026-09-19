@@ -1,5 +1,5 @@
 /**
- * Wiring: input to match to view.
+ * Wiring: input to match to presentation.
  *
  * This is the only file that knows about all four layers at once, and it is
  * deliberately the thinnest thing that can hold them together. It owns the
@@ -34,8 +34,15 @@ import type {
   ShotInput,
 } from './core/types.ts';
 import { attachDragInput, type DragInput } from './input/drag.ts';
-import { createView, resolveViewId } from './render/registry.ts';
-import type { DragGesture, DragPoint, View } from './render/View.ts';
+import { createEventLog } from './core/events.ts';
+import {
+  cameraFor,
+  createPackage,
+  resolveCameraId,
+  resolvePackageId,
+  type CameraSpec,
+} from './presentation/registry.ts';
+import type { DragGesture, DragPoint, Presentation } from './presentation/Presentation.ts';
 import { cleanNames, type DuelNames } from './core/names.ts';
 import { KEYS, type Settings, type Storage } from './storage/Storage.ts';
 import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
@@ -89,6 +96,8 @@ export interface Game {
   /** Swap the camera at runtime. Phase 2 hangs a control off this. */
   useView(id: string): void;
   currentViewId(): string;
+  setMuted(muted: boolean): void;
+  isMuted(): boolean;
 }
 
 export async function startGame(options: GameOptions): Promise<Game> {
@@ -116,8 +125,21 @@ export async function startGame(options: GameOptions): Promise<Game> {
   const log = await createShotLog(storage, session);
   const search = options.search ?? window.location.search;
 
-  let view: View = createView(resolveViewId(search, settings.viewId ?? null));
-  view.mount({ canvas, ctx });
+  // A camera is where you stand and a package is how it looks, so they are
+  // resolved separately and neither knows about the other.
+  let camera: CameraSpec = cameraFor(resolveCameraId(search, settings.viewId ?? null));
+  const presentation: Presentation = createPackage(
+    resolvePackageId(search, settings.packageId ?? null)
+  );
+  presentation.mount({ canvas, ctx });
+
+  let muted = settings.muted ?? false;
+  presentation.setMuted(muted);
+
+  // What the simulation said happened, drained once per rendered frame. The
+  // loop may step several times between frames, so collecting rather than
+  // polling is what makes one woodwork contact one event instead of four.
+  const events = createEventLog();
 
   // A time-derived seed is fine here: it is captured once and then never read
   // again, so the match stays reproducible from the number itself.
@@ -279,14 +301,14 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   /** The view maps the gesture; the game stamps it with the release timing. */
   const intent = (gesture: DragGesture): ShotInput => ({
-    ...view.aimFromDrag(gesture),
+    ...presentation.aimFromDrag(gesture),
     timing: timingFromSweep(sweepMarker),
   });
 
   const input: DragInput = attachDragInput(canvas, {
     onStart: (gesture: DragGesture) => {
       if (match.phase === 'keeping') {
-        choosing = view.diveFromPointer(gesture.current);
+        choosing = presentation.diveFromPointer(gesture.current);
         return;
       }
       if (match.phase !== 'ready') return;
@@ -297,7 +319,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     onMove: (gesture: DragGesture) => {
       if (match.phase === 'keeping') {
-        choosing = view.diveFromPointer(gesture.current);
+        choosing = presentation.diveFromPointer(gesture.current);
         return;
       }
       if (match.phase === 'ready') aiming = intent(gesture);
@@ -335,7 +357,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
    * the pitch and "I dive at the corner flag" is not a choice worth offering.
    */
   function commitDive(point: DragPoint): void {
-    const spot = view.diveFromPointer(point) ?? { x: 0, y: 1 };
+    const spot = presentation.diveFromPointer(point) ?? { x: 0, y: 1 };
     const dive = {
       x: clamp(spot.x, -GOAL_WIDTH / 2, GOAL_WIDTH / 2),
       y: clamp(spot.y, 0.1, GOAL_HEIGHT),
@@ -358,7 +380,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-    view.resize(width, height);
+    presentation.configure(camera, width, height);
   }
 
   const resizeObserver = new ResizeObserver(fit);
@@ -418,7 +440,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     // a save looks like a save rather than like a freeze frame.
     const settled = flight.outcome !== null;
 
-    flight = advance(flight, STEP);
+    flight = advance(flight, STEP, events);
     trail = [...trail.slice(-(TRAIL_LENGTH - 1)), flight.ball.position];
     if (!settled && flight.outcome) {
       log.record({
@@ -427,7 +449,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
         session,
         playerId: player.id,
         keeperId: keeper.id,
-        viewId: view.id,
+        viewId: camera.id,
         matchSeed: match.seed,
         shotIndex: match.shotIndex,
         input: lastInput ?? { aim: { x: 0, y: 0 }, power: 0, curve: 0, lift: 0.5, timing: 0 },
@@ -471,7 +493,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
     // rather than stay permanently behind.
     if (taken === MAX_STEPS_PER_FRAME) accumulator = 0;
 
-    view.render(frameState());
+    // Drained here and handed on, rather than fetched by whatever happens to
+    // be looking: one list, one owner, and nothing left in it between frames.
+    presentation.render(frameState(), events.drain());
     frameId = requestAnimationFrame(frame);
   }
 
@@ -507,17 +531,25 @@ export async function startGame(options: GameOptions): Promise<Game> {
       cancelAnimationFrame(frameId);
       resizeObserver.disconnect();
       input.destroy();
-      view.destroy();
+      presentation.destroy();
     },
 
     useView(id: string): void {
-      view.destroy();
-      view = createView(id);
-      view.mount({ canvas, ctx: ctx! });
-      fit();
-      remember({ viewId: id });
+      // A camera change is not a package change: the same look from a different
+      // place to stand, so nothing is torn down and rebuilt.
+      camera = cameraFor(id);
+      presentation.configure(camera, width, height);
+      remember({ viewId: camera.id });
     },
 
-    currentViewId: () => view.id,
+    currentViewId: () => camera.id,
+
+    setMuted(next: boolean): void {
+      muted = next;
+      presentation.setMuted(next);
+      remember({ muted: next });
+    },
+
+    isMuted: () => muted,
   };
 }

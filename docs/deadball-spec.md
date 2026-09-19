@@ -115,17 +115,20 @@ src/games/deadball/
     names.ts                  # what the two people in a duel are called
     events.ts                 # discrete things worth hearing (Phase 3.5)
     wall.ts                   # free kick wall (Later, not built)
+  scene/                      # world units. No canvas, no WebGL, no DOM.
+    camera.ts                 # was render/project.ts
+    aim.ts                    # was render/aim.ts. Camera maths, not drawing
+    cameras.ts                # the three positions. A view is one of these
+    stand.ts                  # rake, seat positions, hoardings (Phase 3.5)
+    crowd.ts                  # per-person constants, and offset at time t
+    boards.ts                 # async load, whatever the source (Phase 3.5)
   render/
-    View.ts                   # the interface
-    project.ts                # shared camera + projection
-    aim.ts                    # drag -> ShotInput, shared by every view
-    registry.ts               # id -> view factory
-    canvas2d/
+    Renderer.ts               # the interface a backend implements
+    registry.ts               # id -> camera + backend
+    canvas2d/                 # the only directory that knows what a ctx is
       draw.ts                 # pitch, goal, net, figures, ball, HUD, full time
-      stand.ts                # terracing, hoardings, crowd (Phase 3.5)
-      BehindTakerView.ts
-      AngledBehindView.ts
-      KeeperCamView.ts
+      stand.ts                # draws what scene/stand.ts and crowd.ts describe
+    webgl/                    # the reason for the split. Not built.
   input/
     drag.ts                   # Pointer Events -> DragGesture
     keyboard.ts               # accessible fallback aim mode (not built)
@@ -147,7 +150,7 @@ src/games/deadball/
     players.js
     keepers.js
     sounds.js                 # frequencies and decay times (Phase 3.5)
-    boards.js                 # what the hoardings say. Invented names only
+    boards.js                 # the default hoardings. One of three sources
   Game.ts                     # wiring: input -> match -> view, the frame loop
   main.ts                     # browser entry, imported by the Astro page
 ```
@@ -354,6 +357,92 @@ The angled camera also aims between the goal and the ball rather than at the
 goal. Pointed straight at the goal the composition is correct and the shot is
 not: the ball and the taker are far nearer the camera, so centring the goal
 pushes them off the bottom corner.
+
+### Swapping the renderer
+
+The design has always claimed the simulation and the display are separable. That
+claim has never been tested, because there has only ever been one way of
+drawing. WebGL later is the reason to test it, and Phase 3.5 is the reason to
+test it *now*: the crowd is the largest body of drawing code this project will
+have, and writing it in the wrong place and moving it afterwards is the expensive
+order to do things in.
+
+**Two layers are not enough, because half of `render/` is not drawing.**
+
+- `project.ts` is camera and projection arithmetic. No canvas.
+- `aim.ts` turns a drag into world intent. No canvas.
+- The rake of a stand, where each seat is, and what each person in it is doing
+  at time *t*. No canvas.
+
+Exactly one file touches a `CanvasRenderingContext2D`: `draw.ts`. Everything else
+under `render/` is a model of what exists and where, which a second backend would
+otherwise have to write again - and a second implementation of the seat layout is
+a second implementation that can disagree with the first.
+
+So three layers rather than two:
+
+| Layer | Knows about | Never knows about |
+| --- | --- | --- |
+| `core/` | The simulation | Anything visible or audible |
+| `scene/` | What exists, where, in world units | Canvas, WebGL, the DOM |
+| `render/<backend>/` | How to put that on a screen | The match, the reducer, storage |
+
+#### Share the model, not the drawing
+
+The trap here is a primitive list - a shared `drawCircle` / `drawRect` /
+`drawSprite` vocabulary that both backends consume. It looks like the portable
+answer and it is the opposite of one. It reimplements the canvas API, badly,
+and then throws away the only reason to want WebGL in the first place: WebGL is
+not a faster way to make six hundred draw calls, it is a way to not make them.
+An abstraction that both backends can express is an abstraction neither can be
+good at.
+
+So the line is drawn at **what and where, not how.** `scene/crowd.ts` answers
+"person 412 is at this world position, currently raised by this much". Canvas2d
+turns that into a `drawImage` from an atlas. WebGL turns it into one row of an
+instance buffer. Those two are not expressible in each other's terms and should
+not be made to be.
+
+The same line already exists one level up and is the reason this project works:
+`core/` says the ball crossed at (1.2, 0.4) and *never* says how wide to draw it.
+
+#### A view is a camera. A renderer is a backend.
+
+The `View` interface currently conflates the two. `BehindTakerView` owns both
+where the camera sits *and* the fact that the result is painted with canvas2d.
+Three cameras and two backends must not be six files.
+
+A camera becomes data plus projection maths in `scene/`. A `Renderer` takes a
+camera and a `FrameState` and draws. `aimFromDrag` moves with the **camera**, not
+the backend, which is worth stating because [the view interface](#the-view-interface)
+above already warns that this mapping is "the part most likely to get moved to
+the wrong place later". It was right, and the wrong place turns out not to be the
+input layer: it is the renderer.
+
+#### Sound is not downstream of drawing
+
+Audio hangs off the event stream, which comes from `core/` and lands on
+`FrameState`. `Game.ts` hands it to the audio and to the scene independently, and
+neither knows the other exists.
+
+The consequence is the one that matters: **changing the renderer touches no audio
+at all**, and muting touches no rendering. If the events were drained by the
+renderer - which is the obvious way to write it, and what an earlier draft of the
+crowd section said - then every backend would own a copy of "what does a
+woodwork hit sound like", and swapping backends would silence the game.
+
+#### What this does and does not buy
+
+It makes the **crowd** portable. It does not make the game portable, and it does
+not prove the boundary is in the right place - only a second backend can do
+that, and until one exists this is a considered guess with a good track record
+behind it rather than a demonstrated property. Written down that way on purpose,
+like the cross-client determinism bet.
+
+The refactor is of code that already ships and works, so it needs a definition of
+done that is not "it looks finished": **the game renders identically, and no test
+under `core/` changed.** The existing three cameras are the check - if a camera
+needed edits to survive the split, the split is in the wrong place.
 
 ### Switching views
 
@@ -593,7 +682,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **1.75** ✅ | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
-| **3.5** | A crowd behind the goal, and sound. See [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
+| **3.5** | Split `scene/` out of `render/`, then a crowd behind the goal, and sound. See [Swapping the renderer](#swapping-the-renderer) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
@@ -784,14 +873,40 @@ stand read as *behind* the goal rather than floating above it, they give the net
 something to be seen against, and they occlude the feet of the front row, which
 is what stops the bottom of the stand looking like it is standing on the pitch.
 
-What goes on them is not a detail to be decided later. **Invented names only, no
-real brands**, for the same reason the roster carries no real footballers: this
-is a public site and a trademark on a hoarding is somebody else's. That makes
-`content/boards.js` a Tier 1 contribution surface of exactly the right shape - a
-list of short strings, edit and refresh - and it also puts it squarely under
-[What not to commit](#what-not-to-commit). A board is precisely the sort of place
-an in-joke could put a real person's name on the public web without anyone
-deciding to.
+**The boards are data, they are meant to be changed, and they have three
+possible sources.** The thing worth designing is that nothing except the loader
+knows which one a board came from:
+
+1. **`content/boards.js`, committed.** The default set, and a Tier 1
+   contribution surface of exactly the right shape - a list of short strings,
+   edit and refresh.
+2. **A per-device override in storage**, the arrangement custom players already
+   have.
+3. **A remote source, later.** The same backend [Phase 6](#two-devices-later)
+   needs for two devices, serving boards as well as games.
+
+**Which is why the board loader is async from the first line it has.** This
+document already made `Storage` async before anything needed it to be, on the
+grounds that a shared store is over the network and a network store is async,
+and that the interface is the cheap half of that decision. Same argument, same
+decision, and it costs one `await` now against every call site later.
+
+Real brands are fine, and whether one goes in is the repo owner's call rather
+than the code's. One factual note, stated once: somebody else's mark is theirs to
+license, so committing one is a permission question, not a technical one. Nothing
+in the design depends on the answer - that is the point of the boards being data
+and of the loader not caring where they came from.
+
+What does not change: **no real people's names on a board.** That is the privacy
+rule this project has run on throughout, it has nothing to do with brands, and a
+board is the easiest place in the game to break it - a short string that renders
+straight onto the pitch. See [What not to commit](#what-not-to-commit).
+
+Logos rather than lettering is the obvious next request and changes none of this.
+A board that renders an image needs an asset, which is the one place this phase
+would acquire a binary the repo does not currently ship; a device-supplied or
+remotely-served one avoids that entirely, which is a point in favour of sources
+2 and 3 rather than an argument against source 1.
 
 **A stand, raked.** Not a flat bank of people: rows that rise and recede, each one
 higher and further back than the one in front. The existing projection needs no
@@ -858,8 +973,8 @@ the count is then a constant in `units.ts` like every other tuned number here.
 drives the shot. A crowd drawing from that stream would mean the same input gave
 a different flight depending on how many people were on screen, which is exactly
 the class of bug the [Determinism](#determinism) section exists to prevent. The
-crowd gets its own generator, and like everything else that decides how the game
-looks it lives entirely in `render/`, where `core/` never learns it exists.
+crowd gets its own generator, and lives in `scene/`, where `core/` never learns
+it exists and no backend owns it.
 
 `prefers-reduced-motion` gets a still crowd: no bob, no rise. The stand and the
 boards are unaffected, being furniture.
@@ -897,11 +1012,16 @@ frame. Anything watching for "is the ball touching the post" fires repeatedly on
 one contact, or misses it between frames.
 
 So the simulation grows a discrete event stream: each step may emit
-`{ kind: 'boot' | 'glove' | 'frame' | 'net', at }`, `FrameState` carries whatever
-was emitted since the last render, and the renderer drains it. This is the same
-seam the rest of the design already uses, one layer down: **`core/` names what
-happened, and never decides what it sounds like.** A `core/` that imports an
-`AudioContext` is the same mistake as a `core/` that imports a canvas.
+`{ kind: 'boot' | 'glove' | 'frame' | 'net', at }`, and `FrameState` carries
+whatever was emitted since the last render. This is the same seam the rest of the
+design already uses, one layer down: **`core/` names what happened, and never
+decides what it sounds like.** A `core/` that imports an `AudioContext` is the
+same mistake as a `core/` that imports a canvas.
+
+`Game.ts` drains it and hands it to the audio and to the scene separately, and
+not - tempting as it is - to the renderer, which would then own a copy of what a
+woodwork hit sounds like and would take the sound with it when it was swapped.
+See [Sound is not downstream of drawing](#sound-is-not-downstream-of-drawing).
 
 The crowd reads the same stream, which is the other reason to build it this way:
 the rise on a goal and the cheer on a goal are one event with two subscribers,
@@ -994,8 +1114,8 @@ is.
 - Write keeper personalities in `content/keepers.js` (names, reaction times, how much they guess).
 - Celebration and commentary lines in `content/celebrations.js`.
 - Kit and pitch color palettes in `content/palettes.js`.
-- What the advertising hoardings say, in `content/boards.js`. Invented names
-  only, per the roster rule and [What not to commit](#what-not-to-commit).
+- What the advertising hoardings say, in `content/boards.js`. No real people's
+  names, per [What not to commit](#what-not-to-commit).
 - Tune difficulty numbers and see the game get harder.
 
 **Tier 2 - feature work with a clear boundary:**
@@ -1104,9 +1224,10 @@ This repo is public, and this file lives in it.
 
 - No names or ages of the kids, here or in commit messages. The roster, the keeper names, and the celebration lines are all places where an in-joke could put a real name on the public web without anyone deciding to.
 - No real footballer names, photos, or club badges, per the roster decision above.
-- No real brands on the advertising hoardings, and no real people's names on them
-  either. A board is a short string in a content file that renders straight onto
-  the pitch, which makes it the easiest place in the project to put something on
+- No real people's names on the advertising hoardings. Brands are a separate
+  question and an allowed one - see [the boards](#what-is-behind-the-goal) - but
+  a board is a short string in a content file that renders straight onto the
+  pitch, which makes it the easiest place in the project to put a real name on
   the public web without meaning to.
 - Custom players live in `localStorage`, not in the repo.
 - No names in the shot log. It is the one file here that leaves the device, and

@@ -400,6 +400,32 @@ keeper at all, and the view it wants is the one Phase 2 shipped.
 Rounds alternate as a real shootout does. A takes, B keeps. Then B takes, A
 keeps. Five each, ten shots.
 
+**Both people are named before the first shot.** Starting a duel opens a form
+asking who is playing, and the two names then replace "Player 1" and "Player 2"
+on every screen: the score, the handover, the keeper's turn, the caption over a
+shot being lined up, and the winner at full time. Each side also owns a colour,
+green for whoever shoots first and blue for the other, used consistently enough
+that the full-time key can name them.
+
+Three things follow from names being typed rather than fixed:
+
+- **They are capped at twelve characters and cleaned.** Blank falls back to the
+  old label, and control characters and bidirectional overrides are stripped,
+  because a name is drawn onto a canvas with `fillText` and a stray
+  right-to-left override moves text that is not its own.
+- **Every line that holds one shrinks to fit.** Sizes that were fixed while the
+  labels were written by this codebase are now measured, because twelve
+  characters of anybody's name is wider than `PLAYER 2` and ran off the side of
+  a phone.
+- **No name goes in the shot log.** The log is exported by keypress and handed
+  to someone else to read, which makes it the one file in the game that leaves
+  the device a name was typed on. `takerSide` already records who did what, and
+  a side means nothing without the export in front of you. There is a test that
+  fails if a field carrying a name is ever added to `ShotRecord`. The form is
+  also marked `ph-no-capture`, because this site loads PostHog on every page and
+  the promise printed under the form should be kept by the page rather than by a
+  setting in a dashboard.
+
 **The whole problem is that they share a screen.** Whoever goes second can see
 what the first one did, and a keeper who has watched the aim being set is not
 guessing. So the order is fixed and enforced by the reducer rather than by

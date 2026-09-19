@@ -26,6 +26,39 @@ const views = listViews();
       <button type="button" data-mode="solo" aria-pressed="true">1 player</button>
       <button type="button" data-mode="duel" aria-pressed="false">2 players</button>
     </nav>
+    {/*
+      Real text inputs rather than something typed onto the canvas: a phone
+      keyboard, autocapitalisation, paste and a screen reader all come free,
+      and none of them would have without a form. Hidden until a duel starts.
+    */}
+    {/*
+      ph-no-capture: this site loads PostHog on every page, this one included.
+      Autocapture does not send input values and session replay masks them by
+      default, so names were almost certainly never leaving the device - but
+      "almost certainly, depending on a setting in a dashboard" is not what the
+      note at the bottom of this form promises. The class is PostHog's own
+      opt-out and it holds for both, so the promise is kept by the page rather
+      than by a remote config nobody here can see.
+    */}
+    <dialog id="names" class="ph-no-capture" aria-labelledby="names-heading">
+      <form id="names-form">
+        <h2 id="names-heading">Who is playing?</h2>
+        <p>Whoever goes first shoots first. You can change these any time by
+          pressing <b>2 players</b> again.</p>
+        <label for="name-0">Shoots first</label>
+        <input id="name-0" name="name0" type="text" maxlength="12" autocomplete="off"
+          spellcheck="false" placeholder="Player 1" />
+        <label for="name-1">Keeps first</label>
+        <input id="name-1" name="name1" type="text" maxlength="12" autocomplete="off"
+          spellcheck="false" placeholder="Player 2" />
+        <div id="names-actions">
+          <button type="submit">Start the shootout</button>
+          <button type="button" id="names-cancel">Cancel</button>
+        </div>
+        <p id="names-note">Names stay on this device. They are never sent
+          anywhere and never go into the shot log.</p>
+      </form>
+    </dialog>
     <nav id="views" aria-label="Camera angle">
       <span id="views-label">Camera</span>
       {
@@ -41,6 +74,7 @@ const views = listViews();
 
 <script>
   import { start } from '../../games/deadball/main';
+  import { DEFAULT_NAMES } from '../../games/deadball/core/names';
 
   const canvas = document.getElementById('pitch');
 
@@ -79,12 +113,69 @@ const views = listViews();
           }
         };
 
+        // A real <dialog>, opened with showModal: focus is trapped inside it,
+        // Escape closes it, and everything behind goes inert. A div with
+        // hidden looked identical and let Tab walk straight out to the camera
+        // buttons underneath.
+        const panel = document.getElementById('names') as HTMLDialogElement | null;
+        const form = document.getElementById('names-form');
+        const fields = [
+          document.getElementById('name-0'),
+          document.getElementById('name-1'),
+        ] as (HTMLInputElement | null)[];
+        const cancel = document.getElementById('names-cancel');
+
+        const closeNames = () => {
+          if (panel?.open) panel.close();
+        };
+
+        // Fires however it closed, Escape included, so the buttons repaint once
+        // and in one place.
+        panel?.addEventListener('close', paintModes);
+
+        const openNames = () => {
+          if (!panel || !fields[0] || !fields[1]) {
+            // No form in the page for some reason: start the duel anyway with
+            // whatever names are already stored, rather than stranding the
+            // button. A missing input should cost you the rename, not the game.
+            game.restart('duel');
+            paintModes();
+            return;
+          }
+          // Prefilled with the current names, unless they are the untouched
+          // defaults - "Player 1" is what the placeholder already says, and
+          // making it real text means it has to be cleared before typing.
+          const current = game.currentNames();
+          fields[0].value = current[0] === DEFAULT_NAMES[0] ? '' : current[0];
+          fields[1].value = current[1] === DEFAULT_NAMES[1] ? '' : current[1];
+          if (!panel.open) panel.showModal();
+          fields[0].focus();
+          fields[0].select();
+        };
+
+        form?.addEventListener('submit', (event) => {
+          event.preventDefault();
+          // Sent as typed. The game cleans and caps them, so the rules live in
+          // one place rather than half here and half there.
+          game.restart('duel', [fields[0]?.value ?? '', fields[1]?.value ?? '']);
+          closeNames();
+        });
+
+        cancel?.addEventListener('click', closeNames);
+
         for (const button of modes) {
           button.addEventListener('click', () => {
             const mode = button.dataset.mode;
             // Restarts the shootout, which is the honest thing to do: half a
             // solo round cannot be continued as a duel.
-            if (mode === 'solo' || mode === 'duel') game.restart(mode);
+            if (mode === 'solo') {
+              closeNames();
+              game.restart('solo');
+            } else if (mode === 'duel') {
+              // Ask before starting, and ask again if the button is pressed
+              // during a duel, which is how you correct a typo mid-shootout.
+              openNames();
+            }
             paintModes();
             button.blur();
           });
@@ -199,6 +290,124 @@ const views = listViews();
   #views button:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 2px;
+  }
+
+  /* Sits over the pitch rather than beside it, because the pitch is the whole
+     page and there is nowhere beside it to be. */
+  #names {
+    /* The dialog element brings its own box; everything visible is the form
+       inside it, so this is stripped back to nothing. */
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    max-width: none;
+    max-height: none;
+  }
+
+  #names::backdrop {
+    background: rgba(2, 8, 20, 0.88);
+  }
+
+  #names-form {
+    width: min(360px, calc(100% - 32px));
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(125, 211, 252, 0.28);
+    background: #0b1a2d;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+    color: #e6eef8;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  #names-form h2 {
+    margin: 0;
+    font-size: 19px;
+    letter-spacing: 0.01em;
+  }
+
+  #names-form p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(230, 238, 248, 0.68);
+  }
+
+  #names-form label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(230, 238, 248, 0.6);
+  }
+
+  #names-form label[for='name-0'] {
+    color: #4ade80;
+  }
+
+  #names-form label[for='name-1'] {
+    color: #7dd3fc;
+  }
+
+  #names-form input {
+    /* 16px or larger, or iOS zooms the whole page in on focus and the pitch
+       is left scrolled somewhere off screen when the keyboard closes. */
+    font: inherit;
+    font-size: 16px;
+    margin-bottom: 10px;
+    padding: 9px 11px;
+    border-radius: 9px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background: #061426;
+    color: inherit;
+  }
+
+  #names-form input:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 1px;
+  }
+
+  #names-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  #names-actions button {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    background: rgba(125, 211, 252, 0.16);
+    color: #e6eef8;
+    font: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  #names-actions button[type='submit'] {
+    background: #7dd3fc;
+    border-color: #7dd3fc;
+    color: #06263a;
+  }
+
+  #names-actions button:hover {
+    filter: brightness(1.08);
+  }
+
+  #names-actions button:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  #names-note {
+    margin: 12px 0 0;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: rgba(230, 238, 248, 0.45);
   }
 
   /* On a phone the labels do not fit beside each other at the top of a shot

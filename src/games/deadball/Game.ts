@@ -36,6 +36,7 @@ import type {
 import { attachDragInput, type DragInput } from './input/drag.ts';
 import { createView, resolveViewId } from './render/registry.ts';
 import type { DragGesture, DragPoint, View } from './render/View.ts';
+import { cleanNames, type DuelNames } from './core/names.ts';
 import { KEYS, type Settings, type Storage } from './storage/Storage.ts';
 import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
 import { forMatch, summarise, type FullTime } from './telemetry/analyse.ts';
@@ -79,8 +80,10 @@ export interface GameOptions {
 export interface Game {
   stop(): void;
   /** Start again in this mode. */
-  restart(mode: MatchMode): void;
+  restart(mode: MatchMode, names?: DuelNames): void;
   currentMode(): MatchMode;
+  /** What the two sides are called. Cleaned, so never empty. */
+  currentNames(): DuelNames;
   /** The shot log for this device. Nothing in it leaves the machine. */
   log: ShotLog;
   /** Swap the camera at runtime. Phase 2 hangs a control off this. */
@@ -94,7 +97,19 @@ export async function startGame(options: GameOptions): Promise<Game> {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('penalty: 2d canvas context unavailable');
 
-  const settings = (await storage.get<Settings>(KEYS.settings)) ?? {};
+  // Mutable, and every write goes through `remember`. It used to be a const
+  // snapshot spread into each write, which is correct only while there is one
+  // setting: adding a second means changing the camera and then the names
+  // would write the names on top of the stale camera and lose it.
+  let settings = (await storage.get<Settings>(KEYS.settings)) ?? {};
+  const remember = (patch: Partial<Settings>): void => {
+    settings = { ...settings, ...patch };
+    void storage.set<Settings>(KEYS.settings, settings);
+  };
+  // Whatever was typed last time, put back through the same cleaning as fresh
+  // input: a stored name is not more trustworthy than a typed one, it is just
+  // older, and this store is editable from a browser console.
+  let names: DuelNames = cleanNames(settings.duelNames);
   const session = newSessionId();
   // Constant for the life of the page; the physics cannot change under it.
   const tuning = tuningFingerprint();
@@ -188,6 +203,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     taker: match.taker,
     keeperSide: keeperSide(match),
     scores: match.scores,
+    names,
     // Hidden from the taker on purpose: the dive is only ever drawn while its
     // owner is choosing it, never once the device has changed hands.
     dive: match.phase === 'keeping' ? match.dive : null,
@@ -454,7 +470,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
   return {
     log,
 
-    restart(mode: MatchMode): void {
+    restart(mode: MatchMode, duelNames?: DuelNames): void {
+      if (duelNames) {
+        names = cleanNames(duelNames);
+        remember({ duelNames: names });
+      }
       match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND, mode);
       flight = null;
       trail = [];
@@ -470,6 +490,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     currentMode: () => match.mode,
 
+    currentNames: () => [names[0], names[1]],
+
     stop(): void {
       running = false;
       cancelAnimationFrame(frameId);
@@ -483,7 +505,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
       view = createView(id);
       view.mount({ canvas, ctx: ctx! });
       fit();
-      void storage.set<Settings>(KEYS.settings, { ...settings, viewId: id });
+      remember({ viewId: id });
     },
 
     currentViewId: () => view.id,

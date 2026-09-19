@@ -39,4 +39,13 @@ export const KEYS = {
 export interface Settings {
   /** Which camera the player last used. */
   viewId?: string;
+  /**
+   * What the two people in the last duel were called, so nobody retypes them
+   * every game.
+   *
+   * Local, like the rest of this store: it is read by the page it was typed on
+   * and by nothing else. Names are kept out of the shot log on purpose, which
+   * is the file that leaves the device - see core/names.ts.
+   */
+  duelNames?: [string, string];
 }

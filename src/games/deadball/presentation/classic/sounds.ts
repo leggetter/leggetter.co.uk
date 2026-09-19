@@ -74,7 +74,10 @@ const RISE = { gain: 0.5, cutoff: 7000, attack: 0.08, hold: 0.1, fall: 0.5 };
  * allowed to be the loudest thing that happens, and the netting is a detail
  * rather than an event.
  */
-const LEVEL = { goal: 0.75, save: 0.8, groan: 0.8, boot: 0.7, net: 0.5 };
+// The cheer carries a goal on its own, and the replacement file is about 3 dB
+// quieter than the one it succeeded, so it needs the headroom back here rather
+// than a louder encode. A goal should be the loudest thing in the game.
+const LEVEL = { goal: 1, save: 0.8, groan: 0.8, boot: 0.7, net: 0.5 };
 
 /** Long enough that the handover from the synthesised bed is not a cut. */
 const HANDOVER = 1.5;

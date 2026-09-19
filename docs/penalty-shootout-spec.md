@@ -1,13 +1,13 @@
 # Penalty Shootout - plan and spec
 
-_Status: Phases 0 and 1 built and playable at `/penalty/`. Tuning now comes from logged sessions rather than from opinion; see [Full time](#full-time-what-the-shot-log-knows)._
+_Status: Phases 0, 1 and 1.5 built and playable at `/penalty/`. Around 75 tests, a typecheck, and tuning measured rather than argued. The thing this project is for - other people contributing to it - has not started._
 
 ## Summary
 
 | | |
 | --- | --- |
 | **Decision** | Build a drag-to-shoot penalty and free kick game on a hidden page at `/penalty/`, as a vanilla TypeScript engine with swappable view renderers, sized so that a second and third contributor can add features without touching the physics. |
-| **Next steps** | - Phase 1.5: full-time summary, a taker figure, a better keeper<br>- Phase 2: second and third cameras plus the switcher<br>- Then a keeper that reads your pattern, because both testers found the one shot that always works |
+| **Next steps** | - Hand over: roster and keeper files for a first contribution, a feature for a second<br>- Phase 2: second and third cameras plus the switcher<br>- Then a keeper that reads your pattern, because both testers found the one shot that always works |
 | **Risk** | The repo is public. See [What not to commit](#what-not-to-commit).<br>The repo's Creative Commons license is wrong for code. See [Licensing](#licensing). |
 
 ## Purpose
@@ -32,10 +32,19 @@ A game to build with the kids. The first version gets built solo so there is som
 
 ## Measures of success
 
-- Phase 1 is playable by a person who was not told how it works.
-- Both views get played back to back and one of them wins on feel, not on argument.
-- The kids each land a merged change. That is the real measure, and it is the one that most likely fails, because it depends on the contribution surfaces actually being small enough.
-- A third renderer can be added later without editing anything under `core/`. Testable: if it needs a `core/` change, the boundary was wrong.
+- ~~Phase 1 is playable by a person who was not told how it works.~~ Done, and
+  two people have put 200 shots through it.
+- Both views get played back to back and one of them wins on feel, not on
+  argument. Still open: there is only one view.
+- **The kids each land a merged change.** Still the real measure, and still
+  unmet: every commit so far is one person and an assistant. The surfaces exist
+  and work, which was the hard part; nobody has been handed them, which is not.
+- A third renderer can be added later without editing anything under `core/`.
+  Testable: if it needs a `core/` change, the boundary was wrong. Untested until
+  Phase 2.
+- Tuning comes from measurement rather than opinion. Met: goal rates, timing
+  gradients and rebound frequencies are all measured over hundreds of simulated
+  shots, and two real sessions have been analysed against them.
 
 ## Decisions already made
 
@@ -86,44 +95,46 @@ Everything else falls out of that. A camera view is a projection function. `behi
 
 ```
 src/games/penalty/
+  LICENSE                     # MIT. The rest of the repo is CC-BY-3.0.
   core/                       # TypeScript. No DOM, no canvas, no browser APIs.
-    units.ts                  # pitch, goal, ball constants in meters and kg
+    units.ts                  # every tuned constant, in meters and kg
     vec3.ts                   # minimal vector math
     rng.ts                    # seeded PRNG (mulberry32), explicit state
     types.ts                  # ShotInput, Shot, FrameState, Outcome, ...
-    physics.ts                # integrate one step: gravity, drag, Magnus
+    physics.ts                # one step: gravity, drag, Magnus, ground
     predict.ts                # where a SPIN-FREE ball lands. See below.
-    shot.ts                   # ShotInput + Player + RNG -> Shot
-    keeper.ts                 # keeper decision model -> dive
-    flight.ts                 # one shot start to finish: ball + keeper + rules
-    wall.ts                   # free kick wall placement and collision (Phase 3)
-    rules.ts                  # outcome detection at the goal line
+    shot.ts                   # ShotInput + Player + RNG -> Shot, and the sweep
+    keeper.ts                 # commitment, dive, idle drift, body, landing
+    flight.ts                 # one shot start to finish, woodwork, net, parry
+    rules.ts                  # outcome at the line, and frame contact
     match.ts                  # pure reducer: (state, MatchMessage) -> state
+    tuning.ts                 # fingerprint of the constants, for replay
+    wall.ts                   # free kick wall (Phase 3, not built)
   render/
     View.ts                   # the interface
-    project.ts                # shared camera + projection helpers
+    project.ts                # shared camera + projection
     registry.ts               # id -> view factory
     canvas2d/
-      draw.ts                 # shared primitives: pitch, goal, net, ball, keeper
+      draw.ts                 # pitch, goal, net, figures, ball, HUD, full time
       BehindTakerView.ts
-      AngledBehindView.ts
+      AngledBehindView.ts     # Phase 2, not built
+      KeeperCamView.ts        # Phase 2, not built
   input/
     drag.ts                   # Pointer Events -> DragGesture
-    keyboard.ts               # accessible fallback aim mode
+    keyboard.ts               # accessible fallback aim mode (not built)
   storage/
     Storage.ts                # the interface
     memory.ts                 # in-memory, used by tests
     local.ts                  # localStorage
-    schema.ts                 # versioned shapes + migrations
+    schema.ts                 # versioned shapes + migrations (Phase 4)
+  telemetry/
+    log.ts                    # one record per shot, on this device only
+    analyse.ts                # what the log says, for full time and offline
   net/
-    Transport.ts              # the interface
-    local.ts                  # hotseat / same-tab
+    Transport.ts              # two-player (Phase 5, not built)
   content/                    # plain JS and JSON. The low-barrier zone.
-    roster.json
+    players.js
     keepers.js
-    celebrations.js
-    strings.js
-    palettes.js
   Game.ts                     # wiring: input -> match -> view, the frame loop
   main.ts                     # browser entry, imported by the Astro page
 ```
@@ -169,6 +180,26 @@ interface Shot {
 ```
 
 `resolveShot(input, player, rng)` is the only place error is introduced. It reads the player's `accuracy` and `composure`, samples the seeded RNG, and perturbs the aim. Same input, same player, same seed, same shot, every time.
+
+### The release sweep
+
+Not in the first draft of this document. It came from Max, and it is the second
+skill axis: the drag says what you intend, the release says whether you managed
+it.
+
+A marker runs corner to corner while the drag is held. Where it sits at the
+moment of release becomes `ShotInput.timing`, and the penalty is **signed**
+rather than a quality score: release early and the shot pulls left every time,
+late and it pushes right. That is the difference between a mistake a player can
+correct and a game that occasionally robs them.
+
+A bad contact also drags the ball back toward the middle of the goal and takes
+pace off it. That, rather than the scatter, is what actually punishes a scuff:
+it stops finding the corners, where the goals are.
+
+Timing ignores the footballer's attributes entirely. It is the person holding
+the mouse, not the player on the pitch, so an accuracy-100 striker still gets
+punished for shinning it, and there is a test saying so.
 
 ### The spin-free predictor
 
@@ -230,8 +261,13 @@ Difficulty is this struct, not a multiplier bolted on elsewhere. That makes keep
 ```ts
 type Outcome =
   | 'goal' | 'saved' | 'post' | 'bar'
-  | 'wide' | 'over' | 'blocked';   // blocked = free kick wall
+  | 'wide' | 'over'
+  | 'short'                        // never reached the line
+  | 'blocked';                     // free kick wall, Phase 3
 ```
+
+`post` and `bar` mean the frame kept it out. Since the woodwork rebounds, a
+shot can come off it and still go in, and that is a `goal`.
 
 Single player v1 has two modes:
 
@@ -382,17 +418,52 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | --- | --- | --- |
 | **0** ✅ | Hidden page, layout change, sitemap filter, verify assertions, empty canvas, frame loop | Nothing, but the page is live on a preview URL and the plumbing is proven |
 | **1** ✅ | `core/` (units, vec3, rng, physics, predict, shot, keeper, flight, rules, match), `BehindTakerView`, drag input, one keeper, 5 penalties, in-memory storage, 27 tests | Single-player penalty shootout |
-| **1.5** | Full-time summary read off the shot log, a taker figure, a better keeper figure | The shootout ends with something, and there is somebody standing over the ball |
+| **1.5** ✅ | Full-time summary read off the shot log, a taker figure and a run-up, a keeper that shuffles, dives and lands, woodwork rebounds, netting, the save aftermath, release timing, the shot dial | The shootout ends with something, and a shot finishes rather than freezing |
 | **2** | `AngledBehindView` **and `KeeperCamView`**, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
-| **2.5** | Replay any shot from the log, through any camera | Watch that again, from behind the goal |
+| **2.5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **3** | Wall, variable position, free kick mode, lift input | Penalties and free kicks |
 | **4** | `roster.json`, attributes into `resolveShot`, `localStorage` implementation, schema versioning, custom player editor | Pick a player, stats persist |
 | **5** | `Transport`, hotseat two-player, alternating turns, sudden death | Two-player on one device |
-| **Later** | Pixel art view, side-on view, sound, remote transport and leaderboard | |
+| **Later** | Pixel art view, side-on view, sound, remote transport and leaderboard, a keeper that reads your pattern | |
 
-Phase 1.5 is new, and all of it came out of playing rather than planning. The
-keeper-cam moved up from Later into Phase 2 for the same reason: it is the view
-that keeps getting asked for, and a view is cheap once the registry exists.
+Phase 1.5 grew well past what it was speced as, and every addition came from
+playing rather than planning: the run-up, the keeper's shuffle, the woodwork,
+the netting, the aftermath, and the release sweep. The keeper-cam moved up from
+Later into Phase 2 for the same reason it keeps getting asked for, and a view is
+cheap once the registry exists.
+
+### What playing it kept finding
+
+Four bugs of the same shape, which is worth writing down because a fifth is
+probably in here somewhere.
+
+**A number that is not the unit it looks like.** `Rng.nextBell` has a standard
+deviation of 0.29, not 1. Three separate constants were written as though
+multiplying by it gave you their own value, and all three came out roughly a
+fifth as wide as intended: the aim error, so an accuracy-88 striker landed
+within four centimeters every time; the keeper's read, so it reached everything;
+and the timing scatter, so a fully mistimed shot sprayed by twelve centimeters.
+Each one read as a tuning problem and was a units problem. Anything that is a
+sigma now says so and divides by `BELL_SD`.
+
+**Physics that is right and useless.** Sideways deflection grows with the square
+of the flight, so a realistic Magnus gives 20 cm over a penalty - less than the
+width of a keeper's gloves. The curve mechanic was in the code, tested, and
+absent from the game. Being defensible is not the same as being playable.
+
+**Drawing that disagrees with the rules.** The ball was inflated up to 1.9x to
+stay followable, which added ten centimeters to its apparent radius at the
+goal - most of the seventeen that decides a crossbar hit. Shots that cleared the
+bar were drawn overlapping it. Readability now comes from a trail and an
+outline, neither of which moves where the ball appears to be.
+
+**Geometry that quietly forbids something.** Setting the keeper's dive short of
+the post left a metre at each side that no keeper could ever reach, and two
+logged sessions put 65% of their shots through it without either player knowing
+why it worked.
+
+The common thread: all four were found by playing or by measuring, and none by
+reading the code. The shot log exists because of it.
 
 ### Full time: what the shot log knows
 
@@ -538,27 +609,37 @@ engine that somebody could reasonably lift - the physics and the spin-blind
 predictor are the useful parts - and it is the one thing in the repo with
 contributors other than Phil.
 
-**Lean: MIT, scoped to `src/games/penalty/`.** Permissive, four paragraphs
-long, and the one a fifteen-year-old can actually read. Apache-2.0 is the
-better license on the merits because of the explicit patent grant, but the
-patent risk on a penalty game is not real and the extra length is a cost paid
-by the people least likely to get through it.
+**Settled: BSD-3-Clause, scoped to `src/games/penalty/`.**
+
+Every permissive license requires attribution - MIT's single condition is that
+the copyright notice travels with any copy, and that is already what "credit me
+if you use it" means in practice. The third clause is what BSD adds over MIT
+and it is the one worth having here: nobody may use the copyright holder's or
+the contributors' names to promote a derived work without asking. MIT does not
+stop that, and a personal site is exactly the context where somebody else's
+project implying an endorsement would matter.
+
+Apache-2.0 would have been stronger again - a NOTICE file is a defined place
+for attribution to live, and there is an explicit patent grant - at roughly ten
+times the length. The patent risk on a penalty game is not real, and the length
+is a cost paid by the people least likely to read it.
 
 Not the whole repo. The posts stay CC-BY: that license is correct for them and
 changing it would relicense twenty-one years of writing to solve a problem in
-one directory.
+one directory. `package.json` now carries `CC-BY-3.0`, which is the same
+license it always declared, written as a valid SPDX identifier so that tooling
+reading that field gets an answer.
 
-- [ ] `src/games/penalty/LICENSE` with the MIT text
-- [ ] A line in `AGENTS.md` under Layout saying the game is separately licensed
-- [ ] Decide whether `package.json` should carry an SPDX expression instead of
-      prose, since `Creative Commons - Attribution 3.0` is not a valid SPDX id
-      and tooling reads that field
+- [x] `src/games/penalty/LICENSE`
+- [x] A line in `AGENTS.md` under Layout saying the game is separately licensed
+- [x] `package.json` normalised to a valid SPDX identifier
 
-One thing to settle rather than let drift: **the kids' contributions.** In
-practice this is a family project and nobody is going to argue about it. But if
-the roster and keeper files are largely their work and the game is ever
-published anywhere, the honest thing is that they are authors, and the copyright
-line should say so rather than quietly assigning everything to one person.
+**The copyright line reads "Phil Leggetter and contributors" deliberately.** If
+the roster and keeper files end up largely somebody else's work, they are
+authors, and the honest thing is to say so rather than quietly assigning
+everything to one person. "and contributors" credits them without publishing
+anybody's name in a public repo, which is the other constraint this project has
+been working under throughout.
 
 ## What not to commit
 

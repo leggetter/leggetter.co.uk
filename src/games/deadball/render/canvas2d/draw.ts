@@ -741,6 +741,19 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
   const radius = Math.max(38, BALL_RADIUS * at.scale * 2.6);
   const TAU = Math.PI * 2;
 
+  /**
+   * The sweep normally hangs below the ring. Where the ball sits low in frame -
+   * the angled camera, or any narrow screen - there is no room underneath, so
+   * it goes above instead and the bend track moves up out of its way.
+   *
+   * Anchored to the ball either way. Parking it at a fixed spot on the canvas
+   * would fix the clipping and undo the reason the dial is at the ball at all.
+   */
+  const SWEEP_GAP = 40;
+  const room = proj.height - (at.y + radius + SWEEP_GAP + 14);
+  const sweepBelow = room > 0;
+  const sweepY = sweepBelow ? at.y + radius + SWEEP_GAP : at.y - radius - SWEEP_GAP;
+
   ctx.save();
   ctx.lineCap = 'round';
 
@@ -760,12 +773,18 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
   ctx.font = '600 12px ui-monospace, SFMono-Regular, Menlo, monospace';
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillText(`${Math.round(input.power * 100)}%`, at.x, at.y + radius + 20);
+  // Clamped, because the ring is anchored to a ball that can sit very near the
+  // bottom of the frame and the number goes under it.
+  ctx.fillText(
+    `${Math.round(input.power * 100)}%`,
+    at.x,
+    Math.min(at.y + radius + (sweepBelow ? 20 : 8), proj.height - 12)
+  );
 
   // Bend, as a needle sliding along a short track above the ring, labelled.
   // Unlabelled it was a blue line that moved, with nothing to say what it was
   // or what moved it.
-  const trackY = at.y - radius - 22;
+  const trackY = at.y - radius - (sweepBelow ? 22 : 62);
   const trackHalf = radius * 0.85;
   ctx.beginPath();
   ctx.moveTo(at.x - trackHalf, trackY);
@@ -797,7 +816,7 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
     trackY - 22
   );
 
-  drawSweep(ctx, at.x, at.y + radius + 40, trackHalf * 1.5, frame.timingMarker);
+  drawSweep(ctx, at.x, sweepY, trackHalf * 1.5, frame.timingMarker);
   ctx.restore();
 }
 
@@ -1045,7 +1064,9 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
     drawFullTime(ctx, frame, width, height);
   }
 
-  if (frame.phase === 'ready') {
+  // Hidden once a drag is live: the dial is at the ball and says more, and in
+  // the angled view the two were drawn on top of each other.
+  if (frame.phase === 'ready' && !frame.aiming) {
     // Short form on a phone. The long one is four clauses and does not fit.
     const lines =
       width < NARROW

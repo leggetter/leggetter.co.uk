@@ -10,4 +10,4 @@
  * Imported by astro.config.mjs (to drop them from the sitemap) and by
  * scripts/verify-urls.mjs (to assert both halves actually hold).
  */
-export const HIDDEN_PATHS = ['/penalty/'];
+export const HIDDEN_PATHS = ['/deadball/'];

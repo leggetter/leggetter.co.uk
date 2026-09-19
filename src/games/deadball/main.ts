@@ -1,5 +1,5 @@
 /**
- * Browser entry point. Imported by src/pages/penalty/index.astro.
+ * Browser entry point. Imported by src/pages/deadball/index.astro.
  *
  * Picks the player and keeper out of the content files and hands them to the
  * game. Choosing either from the UI is Phase 4; until then this is where the

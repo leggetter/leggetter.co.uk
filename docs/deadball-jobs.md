@@ -1,4 +1,4 @@
-# Working on the penalty game
+# Working on the Dead Ball game
 
 This is for anyone picking the game up for the first time. It covers how to run
 it, how it is put together, and a list of jobs you can actually take.
@@ -17,7 +17,7 @@ npm run dev
 ```
 
 It prints an address, usually `http://localhost:4321`. The game is at
-**`/penalty/`** - so `http://localhost:4321/penalty/`.
+**`/deadball/`** - so `http://localhost:4321/deadball/`.
 
 Leave that running. When you save a file, the page reloads itself.
 
@@ -76,7 +76,7 @@ them.
 
 ### 1. Add a footballer
 
-**File:** `src/games/penalty/content/players.js`
+**File:** `src/games/deadball/content/players.js`
 
 Copy one of the blocks and change it. Every skill runs from 0 to 100:
 
@@ -100,7 +100,7 @@ take five penalties with each. The difference is bigger than it sounds.
 
 ### 2. Invent a keeper
 
-**File:** `src/games/penalty/content/keepers.js`
+**File:** `src/games/deadball/content/keepers.js`
 
 Same idea, and this is the fastest way to change how hard the game is.
 
@@ -125,7 +125,7 @@ keeper is built.
 
 ### 3. Break the physics, then put it back
 
-**File:** `src/games/penalty/core/units.ts`
+**File:** `src/games/deadball/core/units.ts`
 
 This one is for finding your way around. Everything the simulation is tuned to
 lives in that one file, in real units - metres, seconds, kilograms - with a
@@ -156,7 +156,7 @@ player as an argument. It needs somewhere to show them and something to
 remember the choice, and there is already a place for remembering things
 (`storage/`).
 
-**Start at:** `src/games/penalty/main.ts`, which is where the player is
+**Start at:** `src/games/deadball/main.ts`, which is where the player is
 currently picked.
 
 ### Celebrations
@@ -229,7 +229,7 @@ worth the argument, and invented ones are more fun anyway.
 
 ## Who owns this
 
-The game is licensed BSD-3-Clause - see `src/games/penalty/LICENSE`. In plain
+The game is licensed BSD-3-Clause - see `src/games/deadball/LICENSE`. In plain
 terms: anyone may use it or build on it, as long as they keep the copyright
 notice with it, and they may not use our names to promote whatever they make
 from it without asking.

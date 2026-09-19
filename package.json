@@ -10,7 +10,7 @@
     "predev": "node scripts/copy-guide-images.mjs",
     "preview": "astro preview",
     "verify": "node scripts/verify-urls.mjs",
-    "test:game": "node --test src/games/penalty/**/*.test.ts",
+    "test:game": "node --test src/games/deadball/**/*.test.ts",
     "typecheck": "tsc --noEmit",
     "generate-family-tree": "python3 leggetter-family-tree/tree-view-family-chart.py leggetter-family-tree/0001tree.gen --output-astro",
     "voice": "node scripts/check-voice.mjs",

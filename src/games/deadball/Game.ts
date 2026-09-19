@@ -7,7 +7,7 @@
  *
  * The frame loop runs a fixed 120 Hz simulation with an accumulator, decoupled
  * from however often the browser decides to paint. See Phase 0 in
- * docs/penalty-shootout-spec.md for why that is not negotiable.
+ * docs/deadball-spec.md for why that is not negotiable.
  */
 
 import { BALL_RADIUS, PENALTY_DISTANCE } from './core/units.ts';

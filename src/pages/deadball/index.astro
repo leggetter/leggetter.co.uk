@@ -5,16 +5,16 @@
 import Fullscreen from '../../layouts/Fullscreen.astro';
 ---
 
-<Fullscreen title="Penalty Shootout" backHref="/" backLabel="Home" noindex>
+<Fullscreen title="Dead Ball" backHref="/" backLabel="Home" noindex>
   <canvas id="pitch"></canvas>
 </Fullscreen>
 
 <script>
-  import { start } from '../../games/penalty/main';
+  import { start } from '../../games/deadball/main';
 
   const canvas = document.getElementById('pitch');
   if (canvas instanceof HTMLCanvasElement) {
-    start(canvas).catch((error) => console.error('[penalty] failed to start', error));
+    start(canvas).catch((error) => console.error('[deadball] failed to start', error));
   }
 </script>
 

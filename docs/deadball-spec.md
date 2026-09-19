@@ -1,12 +1,12 @@
-# Penalty Shootout - plan and spec
+# Dead Ball - plan and spec
 
-_Status: Phases 0, 1 and 1.5 built and playable at `/penalty/`. Around 75 tests, a typecheck, and tuning measured rather than argued. The thing this project is for - other people contributing to it - has not started._
+_Status: Phases 0, 1 and 1.5 built and playable at `/deadball/`. Around 75 tests, a typecheck, and tuning measured rather than argued. The thing this project is for - other people contributing to it - has not started._
 
 ## Summary
 
 | | |
 | --- | --- |
-| **Decision** | Build a drag-to-shoot penalty and free kick game on a hidden page at `/penalty/`, as a vanilla TypeScript engine with swappable view renderers, sized so that a second and third contributor can add features without touching the physics. |
+| **Decision** | Build a drag-to-shoot penalty and free kick game on a hidden page at `/deadball/`, as a vanilla TypeScript engine with swappable view renderers, sized so that a second and third contributor can add features without touching the physics. |
 | **Next steps** | - Hand over: roster and keeper files for a first contribution, a feature for a second<br>- Phase 2: second and third cameras plus the switcher<br>- Then a keeper that reads your pattern, because both testers found the one shot that always works |
 | **Risk** | The repo is public. See [What not to commit](#what-not-to-commit).<br>The repo's Creative Commons license is wrong for code. See [Licensing](#licensing). |
 
@@ -94,7 +94,7 @@ Everything else falls out of that. A camera view is a projection function. `behi
 ### Module layout
 
 ```
-src/games/penalty/
+src/games/deadball/
   LICENSE                     # MIT. The rest of the repo is CC-BY-3.0.
   core/                       # TypeScript. No DOM, no canvas, no browser APIs.
     units.ts                  # every tuned constant, in meters and kg
@@ -345,7 +345,7 @@ Async even though `localStorage` is synchronous. The trade-off: slightly more aw
 
 Three implementations, in order: `memory` (tests), `local` (`localStorage`), and later `remote` (a Cloudflare Worker route backed by KV or D1, which this site already deploys onto).
 
-Keys namespaced `ps:v1:*`. A `ps:schema` record holds the version, and `schema.ts` owns the migration functions. The migration path exists from the first release, because the first schema change happens the first time someone adds a field to a player.
+Keys namespaced `deadball:v1:*`. A `ps:schema` record holds the version, and `schema.ts` owns the migration functions. The migration path exists from the first release, because the first schema change happens the first time someone adds a field to a player.
 
 Stored: settings (view id, difficulty, sound), profile (display name), custom roster, stats (best scores, longest streak, per-keeper record), and a capped match history.
 
@@ -393,20 +393,20 @@ Hotseat two-player is therefore a small feature rather than a large one, which m
 
 Attributes are `0..100` because that is the convention anyone who has played a football game already knows, and it means a new player can be written without reading any code.
 
-The custom player editor is a form that writes to `ps:v1:roster:custom`. It ships in Phase 4 and is deliberately a separate, self-contained feature.
+The custom player editor is a form that writes to `deadball:v1:roster:custom`. It ships in Phase 4 and is deliberately a separate, self-contained feature.
 
 ## The hidden page
 
 Hidden here means the same thing `draft: true` already means in this repo: **built, reachable, and pointed at by nothing.** Obscurity is not access control, and the spec should not pretend otherwise. Anyone with the URL can play it, and that is fine.
 
-Route: `/penalty/`. Changes required:
+Route: `/deadball/`. Changes required:
 
-1. **`src/pages/penalty/index.astro`** - a page that imports `src/games/penalty/main.ts` from a `<script>` tag. Astro compiles and bundles TypeScript in component scripts with no extra configuration, so no build tooling is added. This would be the first bundled client-side TypeScript in the repo; everything existing is either static HTML or `is:inline`.
+1. **`src/pages/deadball/index.astro`** - a page that imports `src/games/deadball/main.ts` from a `<script>` tag. Astro compiles and bundles TypeScript in component scripts with no extra configuration, so no build tooling is added. This would be the first bundled client-side TypeScript in the repo; everything existing is either static HTML or `is:inline`.
 2. **`src/layouts/Fullscreen.astro`** - add a `noindex` prop, defaulting to `false`, rendering the same `<meta name="robots" content="noindex, nofollow" />` that `Base.astro` already has. The page passes `noindex`, plus explicit `backHref="/"` and `backLabel="Home"`, since the current defaults point at the family tree.
 3. **`astro.config.mjs`** - the sitemap `filter` currently excludes draft post paths. Add a `HIDDEN_PATHS` set alongside it and exclude both.
-4. **`scripts/verify-urls.mjs`** - add `/penalty/` to the expected routes, and add a hidden-page assertion block mirroring the existing draft one: the page was built, it carries its `noindex` meta, and its path appears in no sitemap and no rendered page. The repo's existing position is that a flag nobody enforces becomes decoration, and this follows it.
+4. **`scripts/verify-urls.mjs`** - add `/deadball/` to the expected routes, and add a hidden-page assertion block mirroring the existing draft one: the page was built, it carries its `noindex` meta, and its path appears in no sitemap and no rendered page. The repo's existing position is that a flag nobody enforces becomes decoration, and this follows it.
 5. **No nav entry** in `src/components/Header.astro`.
-6. **No `robots.txt`.** The site has none today. Adding one to disallow `/penalty/` would publish the path to anyone who reads it, which is the opposite of the intent. `noindex` on the page is the stronger and quieter signal.
+6. **No `robots.txt`.** The site has none today. Adding one to disallow `/deadball/` would publish the path to anyone who reads it, which is the opposite of the intent. `noindex` on the page is the stronger and quieter signal.
 
 One thing to decide rather than assume: `Fullscreen.astro` renders `Analytics.astro`, so the hidden page will send PostHog events like every other page. That may be wanted, for seeing whether anyone finds it. It may not be. Lean: keep it, because the data is interesting and the page is not sensitive. Flagging it because it is the kind of default that is easier to notice now than later.
 
@@ -539,7 +539,7 @@ Phases 0 to 3 are the solo build. Phases 4 and 5 are the ones worth handing over
 Deliberately two tiers, because the two contributors are at very different points.
 
 The jobs themselves are written up for the people doing them in
-[penalty-shootout-jobs.md](penalty-shootout-jobs.md), which is the document to
+[deadball-jobs.md](deadball-jobs.md), which is the document to
 hand somebody rather than this one. What follows is why it is split the way it
 is.
 
@@ -561,7 +561,7 @@ is.
 
 ## Testing
 
-`core/` is pure functions over plain data, so it is testable without a browser, a framework, or a dependency. Node 25 strips TypeScript types natively, so `node --test src/games/penalty/core/*.test.ts` runs `.ts` files directly with nothing added to `package.json`. Verified on Node v25.1.0 against a throwaway typed test file, which passed.
+`core/` is pure functions over plain data, so it is testable without a browser, a framework, or a dependency. Node 25 strips TypeScript types natively, so `node --test src/games/deadball/core/*.test.ts` runs `.ts` files directly with nothing added to `package.json`. Verified on Node v25.1.0 against a throwaway typed test file, which passed.
 
 The constraint that comes with type stripping: no TypeScript constructs that emit runtime code. No `enum`, no `namespace`, no constructor parameter properties. Interfaces, type aliases, generics, and `as` are all fine, and the code above uses nothing else. Union types instead of enums, which is the better habit anyway.
 
@@ -591,7 +591,7 @@ Not worth testing: rendering. Compare views by playing them.
    and the full-time summary above is the fair way to warn the player it exists.
    Lean: build it, but only after the summary, so nobody is punished by a
    pattern they were never shown.
-5. **What should the route actually be?** `/penalty/` is the working assumption. A less guessable slug buys very little given the page is `noindex` and linked from nowhere.
+5. **What should the route actually be?** `/deadball/` is the working assumption. A less guessable slug buys very little given the page is `noindex` and linked from nowhere.
 
 ## Licensing
 
@@ -614,7 +614,7 @@ engine that somebody could reasonably lift - the physics and the spin-blind
 predictor are the useful parts - and it is the one thing in the repo with
 contributors other than Phil.
 
-**Settled: BSD-3-Clause, scoped to `src/games/penalty/`.**
+**Settled: BSD-3-Clause, scoped to `src/games/deadball/`.**
 
 Every permissive license requires attribution - MIT's single condition is that
 the copyright notice travels with any copy, and that is already what "credit me
@@ -635,7 +635,7 @@ one directory. `package.json` now carries `CC-BY-3.0`, which is the same
 license it always declared, written as a valid SPDX identifier so that tooling
 reading that field gets an answer.
 
-- [x] `src/games/penalty/LICENSE`
+- [x] `src/games/deadball/LICENSE`
 - [x] A line in `AGENTS.md` under Layout saying the game is separately licensed
 - [x] `package.json` normalised to a valid SPDX identifier
 

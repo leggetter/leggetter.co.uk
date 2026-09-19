@@ -8,7 +8,7 @@
  * Deliberately uses only +, - and *, plus Math.sqrt in `length`. IEEE-754
  * guarantees those are correctly rounded, so two browsers agree exactly.
  * Math.sin, Math.cos and Math.exp carry no such guarantee, which is why nothing
- * in core/ uses them. See docs/penalty-shootout-spec.md on determinism.
+ * in core/ uses them. See docs/deadball-spec.md on determinism.
  */
 
 export interface Vec3 {

@@ -165,6 +165,15 @@ export interface FrameState {
   elapsed: number;
   /** Where this penalty is being taken from. Varies once free kicks land. */
   spot: Vec3;
+  /**
+   * Recent ball positions, oldest first. Drawn as a trail.
+   *
+   * This exists so the ball can be drawn at its true size. It used to be
+   * inflated with distance to stay followable, which made it overlap a
+   * crossbar it had cleared by seven centimeters and read as a frame hit that
+   * the rules, correctly, had not called.
+   */
+  trail: Vec3[];
   /** Run-up progress, 0 to 1. Sits at 1 after contact so the taker stays put. */
   runUp: number;
   shotIndex: number;

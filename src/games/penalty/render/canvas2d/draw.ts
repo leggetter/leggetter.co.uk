@@ -326,36 +326,60 @@ export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach
   const { hands, body, stance } = keeper;
 
   // Measured from where the feet are planted, not from the centre of the goal.
-  // Taken from the centre, a keeper who had shuffled two steps left was drawn
-  // permanently half-dived, swaying instead of standing.
   const extension = Math.min(1, Math.abs(hands.x - stance) / 2.75);
-  const lean = Math.sign(hands.x - stance) * extension;
+  const dir = Math.sign(hands.x - stance) || 1;
 
-  const shoulder = vec(body.x + lean * 0.14, 1.42 - 0.72 * extension, 0);
+  /**
+   * Standing and diving are two poses, blended by how far the dive has gone.
+   *
+   * Diving, the figure is laid out along the line of travel and off the
+   * ground, hip on the simulated body and feet trailing behind it. Building it
+   * from a planted stance instead gave a keeper who kept both feet on the turf
+   * and stretched its arms across the goal.
+   */
+  const stand = {
+    feet: vec(stance, 0.06, 0),
+    hip: vec(stance, 0.86, 0),
+    shoulder: vec(stance, 1.42, 0),
+    head: vec(stance, 1.68, 0),
+  };
+
+  const dive = {
+    feet: vec(body.x - dir * 0.78, Math.max(0.1, body.y - 0.3), 0),
+    hip: vec(body.x, body.y, 0),
+    shoulder: vec(body.x + (hands.x - body.x) * 0.55, body.y + (hands.y - body.y) * 0.62, 0),
+    head: vec(body.x + (hands.x - body.x) * 0.72, body.y + (hands.y - body.y) * 0.78 + 0.1, 0),
+  };
+
+  const blend = (a: Vec3, b: Vec3): Vec3 =>
+    vec(a.x + (b.x - a.x) * extension, a.y + (b.y - a.y) * extension, 0);
+
+  const feet = blend(stand.feet, dive.feet);
+  const shoulder = blend(stand.shoulder, dive.shoulder);
+  const head = blend(stand.head, dive.head);
 
   // Standing, the arms hang either side. Diving, both go with the ball, the
-  // leading one further than the trailing one. The pair straddles `hands`,
-  // which is the single point the save test uses, so what is drawn brackets
-  // what is simulated.
-  const spread = 0.26 - extension * 0.12;
+  // leading one further than the trailing one, straddling the point the save
+  // test actually uses.
+  const spread = 0.24 - extension * 0.1;
   const reaching: [Vec3, Vec3] = [
-    vec(hands.x + spread, hands.y + 0.06 - extension * 0.05, 0),
-    vec(hands.x - spread * (1 - extension * 0.5), hands.y - 0.1 - extension * 0.02, 0),
+    vec(hands.x + spread, hands.y + 0.05, 0),
+    vec(hands.x - spread * 0.7, hands.y - 0.09, 0),
   ];
-  const idle: [Vec3, Vec3] = [
-    vec(stance + 0.34, 0.92, 0),
-    vec(stance - 0.34, 0.92, 0),
+  const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, 0), vec(stance - 0.34, 0.92, 0)];
+
+  // Legs trail behind the feet and scissor open as the keeper stretches.
+  const toes: [Vec3, Vec3] = [
+    vec(feet.x - dir * extension * 0.34 + 0.16 * (1 - extension), Math.max(0.04, feet.y - 0.14), 0),
+    vec(feet.x - dir * extension * 0.55 - 0.16 * (1 - extension), Math.max(0.04, feet.y + 0.1 * extension), 0),
   ];
 
   drawFigure(ctx, proj, {
-    feet: vec(stance, 0.06, 0),
+    feet,
     shoulder,
-    head: vec(shoulder.x + lean * 0.16, shoulder.y + 0.24, 0),
+    head,
     hands: extension < 0.05 ? idle : reaching,
-    toes: [
-      vec(stance + 0.18 - lean * 0.22, 0.05, 0),
-      vec(stance - 0.18 - lean * 0.22, 0.05, 0),
-    ],
+    toes,
     kit: COLORS.keeperKit,
     trim: COLORS.keeperTrim,
     gloves: reach * 0.34,
@@ -363,33 +387,12 @@ export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach
 }
 
 /**
- * How much bigger than life to draw the ball, by distance.
+ * The taker, running up to the ball and stopping.
  *
- * At the goal line the ball is 17 m away and honestly about 7 px across, which
- * is accurate and impossible to follow: the shot reads as the ball vanishing
- * and a word appearing. Every sports game cheats this. Nothing before the
- * penalty spot is touched, so the ball at your feet stays the right size and
- * only the far half of the flight is flattered.
- */
-function ballBoost(depth: number): number {
-  return Math.min(2.2, 1 + Math.max(0, depth - 7) * 0.085);
-}
-
-/**
- * The taker, standing over the ball.
- *
- * There was nobody here at all, which mattered for more than looks: the keeper
- * anticipates by reading the taker's body shape, and there was no body on
- * screen for it to be reading. The figure leans as the drag is pulled, so the
- * thing the keeper is supposedly watching is at least visible.
- *
- * It does not telegraph the aim, and must not start to. The lean follows the
- * drag the player is already looking at; a run-up that pointed at the corner
- * would hand the shot away before it was taken.
+ * Anchored to the spot, never to the ball. Anchoring to the ball meant the
+ * taker set off down the pitch with it and arrived in the net.
  */
 export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
-  // Anchored to the spot, never to the ball. Anchoring to the ball meant the
-  // taker set off down the pitch with it and arrived in the net.
   const spot = frame.spot;
   /**
    * A left-footed taker starts to the right of the ball and comes across it.
@@ -454,6 +457,37 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
 
 const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
 
+/**
+ * How much bigger than life to draw the ball, by distance.
+ *
+ * Kept small on purpose. A 17 m ball is honestly about 7 px across and the
+ * first attempt fixed that by inflating it up to 1.9x, which made it overlap
+ * a crossbar it had cleared by seven centimeters. A drawing that disagrees
+ * with the rules by ten centimeters at exactly the moment the player is
+ * judging a near miss is worse than a small ball, so readability is bought
+ * with a trail and an outline instead.
+ */
+function ballBoost(depth: number): number {
+  return Math.min(1.3, 1 + Math.max(0, depth - 7) * 0.03);
+}
+
+/** Where the ball has just been, fading out. Cheap to read, honest about size. */
+export function drawBallTrail(ctx: Ctx, proj: Projector, trail: Vec3[]): void {
+  if (trail.length < 2) return;
+  ctx.save();
+  trail.forEach((point, i) => {
+    const p = proj.project(point);
+    if (!p) return;
+    const age = i / (trail.length - 1);
+    ctx.globalAlpha = age * age * 0.42;
+    ctx.fillStyle = COLORS.ball;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, Math.max(1, BALL_RADIUS * p.scale * ballBoost(p.depth) * (0.4 + age * 0.5)), 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.restore();
+}
+
 export function drawBall(ctx: Ctx, proj: Projector, position: Vec3): void {
   // Shadow first, on the ground directly beneath.
   const ground = proj.project(vec(position.x, 0.01, position.z));
@@ -494,6 +528,13 @@ export function drawBall(ctx: Ctx, proj: Projector, position: Vec3): void {
   ctx.beginPath();
   ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
   ctx.fill();
+
+  // Outline, so a small ball still reads against the net and the grass. This
+  // is the readability that used to come from drawing it too big, and unlike
+  // size it does not change where the ball appears to be.
+  ctx.strokeStyle = 'rgba(20, 30, 24, 0.55)';
+  ctx.lineWidth = Math.max(1, radius * 0.16);
+  ctx.stroke();
 }
 
 /**

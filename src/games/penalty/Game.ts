@@ -11,6 +11,7 @@
  */
 
 import { BALL_RADIUS, PENALTY_DISTANCE } from './core/units.ts';
+import type { Vec3 } from './core/vec3.ts';
 import { createRng, shotSeed } from './core/rng.ts';
 import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts';
 import { advance, createFlight, type Flight } from './core/flight.ts';
@@ -99,6 +100,10 @@ export async function startGame(options: GameOptions): Promise<Game> {
   /** Computed once at full time, not every frame. */
   let summary: FullTime | null = null;
 
+  /** Recent ball positions for the trail, oldest first. */
+  let trail: Vec3[] = [];
+  const TRAIL_LENGTH = 14;
+
   /** Seconds into the run-up, and the shot waiting at the end of it. */
   let runUp = 0;
   let pending: { shot: Shot; keeperStartX: number } | null = null;
@@ -128,6 +133,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     player,
     elapsed: flight?.elapsed ?? 0,
     spot: spotBall(PENALTY_DISTANCE),
+    trail,
     runUp: match.phase === 'ready' ? 0 : match.phase === 'runup' ? runUp / RUN_UP_SECONDS : 1,
     shotIndex: match.shotIndex,
     shotsTotal: match.shotsTotal,
@@ -184,6 +190,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
       return;
     }
     flight = null;
+    trail = [];
     pending = null;
     runUp = 0;
     settling = 0;
@@ -275,6 +282,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     if (!flight || flight.outcome) return;
 
     flight = advance(flight, STEP);
+    trail = [...trail.slice(-(TRAIL_LENGTH - 1)), flight.ball.position];
     if (flight.outcome) {
       log.record({
         at: new Date().toISOString(),

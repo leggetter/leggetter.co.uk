@@ -16,6 +16,7 @@ import type { DragGesture, View, ViewContext } from '../View.ts';
 import {
   drawAim,
   drawBall,
+  drawBallTrail,
   drawGoalFrame,
   drawHud,
   drawKeeper,
@@ -83,6 +84,7 @@ export class BehindTakerView implements View {
     drawAim(ctx, projector, frame);
     // Taker before the ball: he stands behind it from this camera.
     drawTaker(ctx, projector, frame);
+    drawBallTrail(ctx, projector, frame.trail);
     drawBall(ctx, projector, frame.ball.position);
     drawShotDial(ctx, projector, frame);
     drawHud(ctx, frame, this.width, this.height);

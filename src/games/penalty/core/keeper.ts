@@ -46,8 +46,15 @@ const IDLE_PERIOD = 2.6;
 const BODY_STANDING_Y = 0.9;
 const BODY_DIVE_DROP = 0.42;
 
-/** How far the body follows the hands. Legs trail; they do not keep up. */
-const BODY_FOLLOW = 0.34;
+/**
+ * How far the torso travels with the hands on a dive.
+ *
+ * A keeper jumps: the whole body leaves the ground and goes, and only the last
+ * stretch of the reach is arm. At 0.34 the hip barely left the stance and the
+ * arms had to extend the best part of two meters to meet the ball, which drew
+ * as a keeper standing still and growing.
+ */
+const BODY_FOLLOW = 0.5;
 
 /** Furthest the hands travel sideways from standing. A dive has a limit. */
 const MAX_DIVE_X = 2.75;

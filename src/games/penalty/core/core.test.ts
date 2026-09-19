@@ -555,6 +555,8 @@ describe('match', () => {
     for (let i = 0; i < 5; i++) {
       assert.equal(state.phase, 'ready');
       state = reduce(state, { type: 'TAKE_SHOT' });
+      assert.equal(state.phase, 'runup', 'the ball waits for the taker');
+      state = reduce(state, { type: 'STRIKE' });
       state = reduce(state, { type: 'RESOLVE', outcome: i < 3 ? 'goal' : 'saved' });
       state = reduce(state, { type: 'NEXT' });
     }
@@ -563,14 +565,22 @@ describe('match', () => {
     assert.equal(state.outcomes.length, 5);
   });
 
-  test('ignores a second strike on the same shot', () => {
+  test('ignores a second release during the run-up', () => {
     const ready = initialMatch(1);
-    const flight = reduce(ready, { type: 'TAKE_SHOT' });
-    assert.equal(reduce(flight, { type: 'TAKE_SHOT' }), flight);
+    const running = reduce(ready, { type: 'TAKE_SHOT' });
+    assert.equal(reduce(running, { type: 'TAKE_SHOT' }), running);
+  });
+
+  test('a shot cannot resolve before it is struck', () => {
+    // The ball is still on the spot through the run-up. Resolving there would
+    // score a penalty nobody has kicked yet.
+    const running = reduce(initialMatch(1), { type: 'TAKE_SHOT' });
+    assert.equal(reduce(running, { type: 'RESOLVE', outcome: 'goal' }), running);
   });
 
   test('only goals score', () => {
     let state = reduce(initialMatch(1), { type: 'TAKE_SHOT' });
+    state = reduce(state, { type: 'STRIKE' });
     state = reduce(state, { type: 'RESOLVE', outcome: 'post' });
     assert.equal(state.score, 0);
   });

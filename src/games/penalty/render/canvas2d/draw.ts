@@ -21,7 +21,7 @@ import {
   SWEEP_SWEET_ZONE,
 } from '../../core/units.ts';
 import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
-import type { Summary } from '../../telemetry/analyse.ts';
+import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
 import type { Projector } from '../project.ts';
 
@@ -323,45 +323,70 @@ function ballBoost(depth: number): number {
  * would hand the shot away before it was taken.
  */
 export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
-  const ball = frame.ball.position;
+  // Anchored to the spot, never to the ball. Anchoring to the ball meant the
+  // taker set off down the pitch with it and arrived in the net.
+  const spot = frame.spot;
   /**
-   * Well to the side, not behind the ball.
-   *
-   * The camera sits 6.5 m back, so a 1.8 m figure standing over the ball comes
-   * out around 320 px tall against a goal that is 160 px tall - correct, and
-   * completely in the way. Standing him off to one side keeps the goal, the
-   * keeper and the aim reticle clear, which is what the player is actually
-   * looking at.
-   *
-   * A left-footed taker stands to the right of the ball and comes across it.
+   * A left-footed taker starts to the right of the ball and comes across it.
+   * Well off to one side, because the camera sits 6.5 m back and a figure over
+   * the ball comes out about twice the apparent height of the goal.
    */
-  const stance = frame.player.foot === 'left' ? 1.45 : -1.45;
+  const side = frame.player.foot === 'left' ? 1 : -1;
 
-  // Leans into the shot as the drag builds, and is gone once it is struck.
-  const lean = frame.phase === 'ready' ? (frame.aiming?.power ?? 0) * 0.3 : 0;
-  const crouch = lean * 0.22;
+  const waiting = vec(spot.x + side * 1.75, 0.04, spot.z - 1.5);
+  const planted = vec(spot.x + side * 0.52, 0.04, spot.z - 0.05);
 
-  const feet = vec(ball.x + stance, 0.04, ball.z - 0.15 + lean * 0.25);
-  const shoulder = vec(feet.x + lean * 0.22, 1.3 - crouch, feet.z - 0.08);
-  const head = vec(shoulder.x + lean * 0.1, shoulder.y + 0.26, shoulder.z);
+  // 0 waiting, 1 planted next to the ball. Stays at 1 once struck, so the
+  // taker stands and watches rather than following the ball in.
+  const run = clamp01(frame.runUp);
+  // Ease out: quick off the mark, settling onto the plant foot.
+  const eased = 1 - (1 - run) * (1 - run);
+
+  const lean = frame.phase === 'ready' ? (frame.aiming?.power ?? 0) * 0.25 : 0;
+  const crouch = lean * 0.2 + (frame.phase === 'flight' || frame.phase === 'resolved' ? 0.12 : 0);
+
+  const feet = vec(
+    waiting.x + (planted.x - waiting.x) * eased,
+    0.04,
+    waiting.z + (planted.z - waiting.z) * eased
+  );
+  const shoulder = vec(feet.x - side * (0.12 + lean * 0.2), 1.3 - crouch, feet.z - 0.08);
+  const head = vec(shoulder.x - side * 0.08, shoulder.y + 0.26, shoulder.z);
 
   const f = proj.project(feet);
   const sh = proj.project(shoulder);
   const hd = proj.project(head);
   if (!f || !sh || !hd) return;
 
+  const hip = { x: sh.x, y: sh.y + (f.y - sh.y) * 0.45 };
+
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  // Legs.
+  // He matters while aiming and running in. Once the ball has gone he is a
+  // large figure standing between the camera and the only thing worth
+  // watching, so he drops back rather than staying at full strength.
+  ctx.globalAlpha = frame.phase === 'ready' || frame.phase === 'runup' ? 1 : 0.4;
+
+  /**
+   * Legs. Mid-run they scissor, on contact the kicking leg swings through, and
+   * once it is gone they come back together. Three strides in 0.42 s, which is
+   * about what a penalty run-up actually is.
+   */
+  const striding = frame.phase === 'runup';
+  const swing = striding ? Math.sin(run * Math.PI * 3) : 0;
+  const followThrough = frame.phase === 'flight' || frame.phase === 'resolved' ? 1 : 0;
+
   ctx.strokeStyle = frame.player.colors.trim;
   ctx.lineWidth = Math.max(3, 0.13 * sh.scale);
-  for (const spread of [-0.13, 0.13]) {
-    const toe = proj.project(vec(feet.x + spread, 0.03, feet.z + spread * 0.5));
+  for (const leg of [-1, 1]) {
+    const reach = 0.3 * swing * leg + (leg === side ? 0 : followThrough * 0.55);
+    const lift = leg === side ? 0 : followThrough * 0.3;
+    const toe = proj.project(vec(feet.x - side * reach, 0.03 + lift, feet.z + reach * 0.5));
     if (!toe) continue;
     ctx.beginPath();
-    ctx.moveTo(sh.x, sh.y + (f.y - sh.y) * 0.45);
+    ctx.moveTo(hip.x, hip.y);
     ctx.lineTo(toe.x, toe.y);
     ctx.stroke();
   }
@@ -370,15 +395,20 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
   ctx.strokeStyle = frame.player.colors.kit;
   ctx.lineWidth = Math.max(4, 0.24 * sh.scale);
   ctx.beginPath();
-  ctx.moveTo(sh.x, sh.y + (f.y - sh.y) * 0.45);
+  ctx.moveTo(hip.x, hip.y);
   ctx.lineTo(sh.x, sh.y);
   ctx.stroke();
 
-  // Arms, out for balance as the drag builds.
+  // Arms, counterweighting the stride and then the follow-through.
   ctx.lineWidth = Math.max(2, 0.11 * sh.scale);
-  for (const side of [-1, 1]) {
+  for (const arm of [-1, 1]) {
+    const out = 0.3 + lean * 0.2 + followThrough * 0.18 + Math.abs(swing) * 0.12;
     const hand = proj.project(
-      vec(shoulder.x + side * (0.3 + lean * 0.25), shoulder.y - 0.22 + lean * 0.18, shoulder.z)
+      vec(
+        shoulder.x + arm * out,
+        shoulder.y - 0.22 + lean * 0.15 - swing * arm * 0.12,
+        shoulder.z
+      )
     );
     if (!hand) continue;
     ctx.beginPath();
@@ -393,6 +423,8 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
   ctx.fill();
   ctx.restore();
 }
+
+const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
 
 export function drawBall(ctx: Ctx, proj: Projector, position: Vec3): void {
   // Shadow first, on the ground directly beneath.
@@ -611,20 +643,20 @@ const OUTCOME_TEXT: Record<Outcome, string> = {
  * watching is what makes that fair rather than a trick.
  */
 function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number): void {
-  const summary = frame.summary as Summary | null;
+  const full = frame.summary as FullTime | null;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(6, 16, 26, 0.82)';
+  ctx.fillStyle = 'rgba(6, 16, 26, 0.85)';
   ctx.fillRect(0, 0, width, height);
 
   ctx.textAlign = 'center';
   const centre = width / 2;
-  let y = Math.max(70, height * 0.13);
+  let y = Math.max(58, height * 0.1);
 
-  ctx.font = '700 52px ui-sans-serif, system-ui, -apple-system, sans-serif';
+  ctx.font = '700 50px ui-sans-serif, system-ui, -apple-system, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
   ctx.fillText(`${frame.score} of ${frame.shotsTotal}`, centre, y);
-  y += 64;
+  y += 60;
 
   // This shootout, shot by shot.
   const gap = 30;
@@ -640,38 +672,66 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
       ctx.fillText(SHORT_OUTCOME[outcome], left + i * gap, y + 3.5);
     }
   });
-  y += 52;
+  y += 48;
 
-  if (summary && summary.shots > 0) {
+  const heading = (text: string): void => {
+    ctx.font = '600 11px ui-sans-serif, system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(125, 211, 252, 0.85)';
+    ctx.fillText(text.toUpperCase(), centre, y);
+    y += 22;
+  };
+
+  const stats = (parts: (string | null)[]): void => {
     ctx.font = '500 13px ui-monospace, SFMono-Regular, Menlo, monospace';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-    const career = [
-      `${summary.shots} shots`,
-      summary.rate === null ? null : `${Math.round(summary.rate * 100)}% scored`,
-      `${summary.keeper.saves} saved`,
-      `${summary.timing.clean} clean strikes`,
-    ]
-      .filter(Boolean)
-      .join('   ·   ');
-    ctx.fillText(career, centre, y);
-    y += 36;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+    ctx.fillText(parts.filter(Boolean).join('   ·   '), centre, y);
+    y += 30;
+  };
+
+  if (full) {
+    const { match, lifetime } = full;
+
+    // These five. What the player actually remembers taking.
+    heading('this shootout');
+    stats([
+      `${match.timing.clean}/${match.shots} clean`,
+      `${match.keeper.saves} saved`,
+      `${offTarget(match)} off target`,
+      match.sides.left + match.sides.right > 0
+        ? `${match.sides.left}L ${match.sides.right}R`
+        : null,
+    ]);
+
+    // Everything ever played here. Five shots can never show a habit; this can.
+    heading('all time');
+    stats([
+      `${lifetime.shots} shots`,
+      lifetime.rate === null ? null : `${Math.round(lifetime.rate * 100)}% scored`,
+      `${lifetime.keeper.saves} saved`,
+      `${lifetime.timing.clean} clean`,
+    ]);
 
     ctx.font = '500 15px ui-sans-serif, system-ui, -apple-system, sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-    const maxWidth = Math.min(560, width - 64);
-    for (const note of summary.notes) {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    const maxWidth = Math.min(580, width - 64);
+    for (const note of lifetime.notes) {
       for (const line of wrap(ctx, note, maxWidth)) {
         ctx.fillText(line, centre, y);
         y += 23;
       }
-      y += 10;
+      y += 9;
     }
   }
 
   ctx.font = '500 14px ui-sans-serif, system-ui, -apple-system, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-  ctx.fillText('click to play again   ·   press L to save the shot log', centre, height - 46);
+  ctx.fillText('click to play again   ·   press L to save the shot log', centre, height - 42);
   ctx.restore();
+}
+
+/** Everything that beat you without the keeper touching it. */
+function offTarget(s: Summary): number {
+  return (s.outcomes.post ?? 0) + (s.outcomes.bar ?? 0) + (s.outcomes.wide ?? 0) + (s.outcomes.over ?? 0);
 }
 
 /** Greedy word wrap. Canvas has no text layout, so this is the whole of it. */

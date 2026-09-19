@@ -16,13 +16,13 @@ import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts'
 import { advance, createFlight, type Flight } from './core/flight.ts';
 import { idleDrift, planKeeper } from './core/keeper.ts';
 import { initialMatch, reduce, SHOTS_PER_ROUND, type MatchState } from './core/match.ts';
-import type { FrameState, KeeperProfile, Player, ShotInput } from './core/types.ts';
+import type { FrameState, KeeperProfile, Player, Shot, ShotInput } from './core/types.ts';
 import { attachDragInput, type DragInput } from './input/drag.ts';
 import { createView, resolveViewId } from './render/registry.ts';
 import type { DragGesture, View } from './render/View.ts';
 import { KEYS, type Settings, type Storage } from './storage/Storage.ts';
 import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
-import { summarise, type Summary } from './telemetry/analyse.ts';
+import { forMatch, summarise, type FullTime } from './telemetry/analyse.ts';
 
 /** Simulation step. Fixed so a shot is reproducible; see core/rng.ts. */
 export const STEP = 1 / 120;
@@ -32,6 +32,15 @@ const MAX_STEPS_PER_FRAME = 8;
 
 /** How long the outcome stays up before the next penalty can be taken. */
 const RESOLVE_HOLD_SECONDS = 0.4;
+
+/**
+ * How long the taker takes to run in after the drag is released.
+ *
+ * The shot is fully decided at release; this is the beat between deciding and
+ * finding out, and it is the only moment the keeper's shuffle can still be
+ * read. Long enough to see, short enough not to be in the way.
+ */
+const RUN_UP_SECONDS = 0.42;
 
 export interface GameOptions {
   canvas: HTMLCanvasElement;
@@ -88,7 +97,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
   let lastInput: ShotInput | null = null;
 
   /** Computed once at full time, not every frame. */
-  let summary: Summary | null = null;
+  let summary: FullTime | null = null;
+
+  /** Seconds into the run-up, and the shot waiting at the end of it. */
+  let runUp = 0;
+  let pending: { shot: Shot; keeperStartX: number } | null = null;
 
   /** Seconds the keeper has been waiting on the line for this penalty. */
   let settling = 0;
@@ -114,6 +127,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
     keeperProfile: keeper,
     player,
     elapsed: flight?.elapsed ?? 0,
+    spot: spotBall(PENALTY_DISTANCE),
+    runUp: match.phase === 'ready' ? 0 : match.phase === 'runup' ? runUp / RUN_UP_SECONDS : 1,
     shotIndex: match.shotIndex,
     shotsTotal: match.shotsTotal,
     score: match.score,
@@ -139,9 +154,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
       pressure,
     });
 
-    // Captured at contact: wherever the shuffle had reached is where the dive
-    // begins, and the flight has to record it or a replay would differ.
-    flight = createFlight(shot, keeper, rng, keeperSim.state.hands.x);
+    // The shot is decided here, but the ball does not move until the taker
+    // gets to it. Captured at release: wherever the shuffle had reached is
+    // where the dive begins, and the flight records it or a replay would
+    // differ from the shot it replays.
+    pending = { shot, keeperStartX: keeperSim.state.hands.x };
+    runUp = 0;
     match = reduce(match, { type: 'TAKE_SHOT' });
     aiming = null;
   }
@@ -155,11 +173,19 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // Read across everything ever played on this device, not just these five
       // shots. A habit needs more than five shots to be a habit, and the whole
       // point of keeping the log is that the evidence accumulates.
-      if (match.phase === 'complete') summary = summarise(log.all());
+      if (match.phase === 'complete') {
+        const all = log.all();
+        summary = {
+          match: summarise(forMatch(all, match.seed)),
+          lifetime: summarise(all),
+        };
+      }
     } else {
       return;
     }
     flight = null;
+    pending = null;
+    runUp = 0;
     settling = 0;
     ballPosition = spotBall(PENALTY_DISTANCE);
     keeperSim = idleKeeper();
@@ -228,10 +254,22 @@ export async function startGame(options: GameOptions): Promise<Game> {
       aiming = { ...aiming, timing: timingFromSweep(sweepMarker) };
     }
 
-    // Keep shuffling while the taker settles. Stops the moment it is struck.
+    // Keep shuffling while the taker settles. The keeper holds its ground once
+    // the run-up starts, which is what makes the lean worth reading.
     if (!flight && match.phase === 'ready') {
       settling += STEP;
       keeperSim = idleKeeper();
+    }
+
+    // Boot meets ball at the end of the run-up.
+    if (pending && match.phase === 'runup') {
+      runUp += STEP;
+      if (runUp >= RUN_UP_SECONDS) {
+        const rng = createRng(shotSeed(match.seed, match.shotIndex));
+        flight = createFlight(pending.shot, keeper, rng, pending.keeperStartX);
+        pending = null;
+        match = reduce(match, { type: 'STRIKE' });
+      }
     }
 
     if (!flight || flight.outcome) return;

@@ -153,6 +153,10 @@ export interface FrameState {
   player: Player;
   /** Seconds since the ball was struck, 0 while aiming. */
   elapsed: number;
+  /** Where this penalty is being taken from. Varies once free kicks land. */
+  spot: Vec3;
+  /** Run-up progress, 0 to 1. Sits at 1 after contact so the taker stays put. */
+  runUp: number;
   shotIndex: number;
   shotsTotal: number;
   score: number;
@@ -174,4 +178,10 @@ export interface FrameState {
   timingMarker: number | null;
 }
 
-export type MatchPhase = 'ready' | 'flight' | 'resolved' | 'complete';
+export type MatchPhase =
+  | 'ready'
+  /** Drag released, taker running in. The ball is still on the spot. */
+  | 'runup'
+  | 'flight'
+  | 'resolved'
+  | 'complete';

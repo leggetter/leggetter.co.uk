@@ -175,6 +175,18 @@ function observations(s: Summary, records: ShotRecord[]): string[] {
     .map((n) => n.text);
 }
 
+/**
+ * The two halves of the full-time screen.
+ *
+ * Kept separate because they answer different questions. The five shots just
+ * taken are what the player remembers; the lifetime numbers are where a habit
+ * is visible at all, and five shots can never show one.
+ */
+export interface FullTime {
+  match: Summary;
+  lifetime: Summary;
+}
+
 /** Just the shots from one shootout. */
 export const forMatch = (records: ShotRecord[], matchSeed: number): ShotRecord[] =>
   records.filter((r) => r.matchSeed === matchSeed);

@@ -25,7 +25,10 @@ export interface MatchState {
 
 export type MatchMessage =
   | { type: 'START'; seed: number; shots?: number }
+  /** Released the drag. The taker starts their run-up; the ball has not moved. */
   | { type: 'TAKE_SHOT' }
+  /** Boot meets ball. This is where the flight begins. */
+  | { type: 'STRIKE' }
   | { type: 'RESOLVE'; outcome: Outcome }
   | { type: 'NEXT' };
 
@@ -40,8 +43,11 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
 
     case 'TAKE_SHOT':
       // Ignored unless a shot is actually waiting to be taken, so a second
-      // pointer release mid-flight cannot fire the same penalty twice.
-      return state.phase === 'ready' ? { ...state, phase: 'flight' } : state;
+      // pointer release mid-run cannot fire the same penalty twice.
+      return state.phase === 'ready' ? { ...state, phase: 'runup' } : state;
+
+    case 'STRIKE':
+      return state.phase === 'runup' ? { ...state, phase: 'flight' } : state;
 
     case 'RESOLVE': {
       if (state.phase !== 'flight') return state;

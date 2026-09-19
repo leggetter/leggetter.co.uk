@@ -53,6 +53,16 @@ export interface Flight {
  */
 const AFTERMATH_SECONDS = 1.1;
 
+/**
+ * Below this the ball is done, in m/s.
+ *
+ * A shot is over when the ball can no longer reach the goal, not when a timer
+ * says so. Waiting for the timeout meant a rebound off the post sat there for
+ * the best part of four seconds, rolling away, before the game would admit it
+ * had finished and let the next penalty be taken.
+ */
+const SETTLED_SPEED = 1.6;
+
 /** Pace kept when a keeper gets a hand to it. Most of it goes. */
 const PARRY_RESTITUTION = 0.42;
 
@@ -162,7 +172,13 @@ export function advance(flight: Flight, dt: number): Flight {
     };
   }
 
-  if (elapsed >= FLIGHT_TIMEOUT) {
+  // Nothing more is going to happen. Either the ball is in front of the line
+  // and moving away from it, so it can never cross, or it has stopped. Both
+  // are far more common than the timeout after a rebound off the woodwork.
+  const receding = ball.position.z < 0 && ball.velocity.z <= 0;
+  const stopped = length(ball.velocity) < SETTLED_SPEED;
+
+  if (receding || stopped || elapsed >= FLIGHT_TIMEOUT) {
     // Came off the frame and stayed out. That is what beat the shot, and it is
     // a great deal more interesting to be told than "never got there".
     return { ...flight, ball, keeper, elapsed, outcome: flight.lastFrame ?? 'short' };
@@ -180,7 +196,12 @@ export function advance(flight: Flight, dt: number): Flight {
  */
 function aftermath(flight: Flight, dt: number): Flight {
   const sinceOutcome = flight.sinceOutcome + dt;
-  if (sinceOutcome > AFTERMATH_SECONDS) return flight;
+  const restingBall = length(flight.ball.velocity) < SETTLED_SPEED;
+  const restingKeeper = flight.keeper.state.landed >= 1;
+
+  // Stop as soon as there is nothing left to watch, rather than running the
+  // clock down while a settled ball sits still.
+  if (sinceOutcome > AFTERMATH_SECONDS || (restingBall && restingKeeper)) return flight;
 
   const elapsed = flight.elapsed + dt;
   const keeper = stepKeeper(flight.keeper, flight.profile, flight.ball, elapsed, dt, true);

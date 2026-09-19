@@ -62,7 +62,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       }
       #content-wrapper {
         padding-top: 50px;
+        /* vh counts the mobile address bar and then the browser takes it away,
+           so a full-height child ends up taller than the window. dvh is the
+           height actually available; vh stays as the fallback. */
         height: 100vh;
+        height: 100dvh;
         box-sizing: border-box;
       }
       #fullscreen-content {

@@ -269,6 +269,15 @@ interface Figure {
 const LIMB = { leg: 0.13, torso: 0.28, arm: 0.12, head: 0.115 };
 
 /**
+ * Below this width the HUD is on a phone and has to be told so.
+ *
+ * Everything in it was written in fixed pixels against a laptop, so the
+ * instruction line ran off both edges at 390 px and the full-time stats were a
+ * single row with nowhere to go.
+ */
+const NARROW = 560;
+
+/**
  * Standing still, breathing.
  *
  * Deliberately below the threshold of looking like an animation: a couple of
@@ -461,6 +470,22 @@ export function drawKeeper(
 }
 
 /**
+ * How far from the middle something at this depth can stand and stay on
+ * screen, in meters, leaving `margin` meters of air beyond it.
+ *
+ * Asked of the projector rather than worked out from the camera, so it stays
+ * right whatever a view does with its framing.
+ */
+function sidewaysRoom(proj: Projector, z: number, margin: number): number {
+  const centre = proj.project(vec(0, 1, z));
+  const metre = proj.project(vec(1, 1, z));
+  if (!centre || !metre) return 0;
+  const pixelsPerMetre = Math.abs(metre.x - centre.x);
+  if (pixelsPerMetre < 1e-6) return 0;
+  return Math.max(0, proj.width / 2 / pixelsPerMetre - margin);
+}
+
+/**
  * Settle a point down onto the turf as the keeper lands.
  *
  * Applied to the whole figure, not just the hands. Dropping the hands alone
@@ -488,8 +513,15 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
   // Behind the ball means TOWARD the camera, which means bigger. A longer
   // run-up therefore costs frame space rather than buying it, so this is kept
   // short and the distance is spent sideways instead.
-  const waiting = vec(spot.x + side * 1.55, 0.04, spot.z - 1.35);
-  const planted = vec(spot.x + side * 0.52, 0.04, spot.z - 0.05);
+  //
+  // How far sideways depends on how much room there is. The taker stands much
+  // nearer the camera than the goal does, so a metre costs him far more screen
+  // than it costs the goal: framing the goal to fit a phone still left him off
+  // the right-hand edge. So the offset is measured in pixels available rather
+  // than in meters, and he steps in on a narrow screen.
+  const standOff = Math.min(1.55, sidewaysRoom(proj, spot.z - 1.35, 0.75));
+  const waiting = vec(spot.x + side * standOff, 0.04, spot.z - 1.35);
+  const planted = vec(spot.x + side * Math.min(0.52, standOff), 0.04, spot.z - 0.05);
 
   // 0 waiting, 1 planted next to the ball. Stays at 1 once struck, so the
   // taker stands and watches rather than following the ball in.
@@ -831,9 +863,10 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
 
   ctx.textAlign = 'center';
   const centre = width / 2;
-  let y = Math.max(58, height * 0.1);
+  const narrow = width < NARROW;
+  let y = Math.max(46, height * 0.08);
 
-  ctx.font = '700 50px ui-sans-serif, system-ui, -apple-system, sans-serif';
+  ctx.font = `700 ${narrow ? 38 : 50}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
   ctx.fillText(`${frame.score} of ${frame.shotsTotal}`, centre, y);
   y += 60;
@@ -855,17 +888,28 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
   y += 48;
 
   const heading = (text: string): void => {
-    ctx.font = '600 11px ui-sans-serif, system-ui, -apple-system, sans-serif';
+    ctx.font = `600 ${narrow ? 10 : 11}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
     ctx.fillStyle = 'rgba(125, 211, 252, 0.85)';
     ctx.fillText(text.toUpperCase(), centre, y);
     y += 22;
   };
 
   const stats = (parts: (string | null)[]): void => {
-    ctx.font = '500 13px ui-monospace, SFMono-Regular, Menlo, monospace';
+    const present = parts.filter(Boolean) as string[];
+    ctx.font = `500 ${narrow ? 12 : 13}px ui-monospace, SFMono-Regular, Menlo, monospace`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-    ctx.fillText(parts.filter(Boolean).join('   ·   '), centre, y);
-    y += 30;
+    // Two per line on a phone, where one row of four runs off both edges.
+    const rows = narrow
+      ? present.reduce<string[][]>(
+          (acc, part, i) => (i % 2 ? acc[acc.length - 1]!.push(part) : acc.push([part]), acc),
+          []
+        )
+      : [present];
+    for (const row of rows) {
+      ctx.fillText(row.join('   ·   '), centre, y);
+      y += narrow ? 19 : 22;
+    }
+    y += 10;
   };
 
   if (full) {
@@ -891,21 +935,26 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
       `${lifetime.timing.clean} clean`,
     ]);
 
-    ctx.font = '500 15px ui-sans-serif, system-ui, -apple-system, sans-serif';
+    ctx.font = `500 ${narrow ? 13 : 15}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    const maxWidth = Math.min(580, width - 64);
+    const maxWidth = Math.min(580, width - (narrow ? 28 : 64));
     for (const note of lifetime.notes) {
       for (const line of wrap(ctx, note, maxWidth)) {
         ctx.fillText(line, centre, y);
-        y += 23;
+        y += narrow ? 19 : 23;
       }
-      y += 9;
+      y += narrow ? 7 : 9;
     }
   }
 
-  ctx.font = '500 14px ui-sans-serif, system-ui, -apple-system, sans-serif';
+  ctx.font = `500 ${narrow ? 12 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-  ctx.fillText('click to play again   ·   press L to save the shot log', centre, height - 42);
+  // No keyboard on a phone, so do not offer a keyboard shortcut there.
+  ctx.fillText(
+    narrow ? 'tap to play again' : 'click to play again   ·   press L to save the shot log',
+    centre,
+    height - 34
+  );
   ctx.restore();
 }
 
@@ -975,7 +1024,7 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
     ctx.shadowBlur = 12;
-    ctx.font = '700 44px ui-sans-serif, system-ui, -apple-system, sans-serif';
+    ctx.font = `700 ${width < NARROW ? 32 : 44}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
     ctx.fillStyle = color;
     ctx.fillText(headline, width / 2, bannerY);
     ctx.font = '500 15px ui-sans-serif, system-ui, -apple-system, sans-serif';
@@ -997,14 +1046,19 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   }
 
   if (frame.phase === 'ready') {
-    ctx.font = '500 14px ui-sans-serif, system-ui, -apple-system, sans-serif';
+    // Short form on a phone. The long one is four clauses and does not fit.
+    const lines =
+      width < NARROW
+        ? ['drag to aim, further is harder', 'release in the green  ·  curl the drag to bend it']
+        : [
+            'drag to aim  ·  further is harder  ·  release in the green' +
+              '  ·  curl the drag sideways on the way out to bend the shot',
+          ];
+    ctx.font = `500 ${width < NARROW ? 12 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.68)';
-    ctx.fillText(
-      'drag to aim  ·  further is harder  ·  release in the green' +
-        '  ·  curl the drag sideways on the way out to bend the shot',
-      width / 2,
-      height - 40
-    );
+    lines.forEach((line, i) => {
+      ctx.fillText(line, width / 2, height - 42 + i * 17);
+    });
   }
 
   ctx.restore();

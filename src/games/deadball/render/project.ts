@@ -19,8 +19,32 @@ export interface Camera {
   yaw: number;
   /** Radians. Positive tilts the camera down. */
   pitch: number;
-  /** Vertical field of view, radians. */
+  /**
+   * Vertical field of view, radians. A *limit* rather than a target: the view
+   * never zooms in past this, and will zoom out past it to keep `frame` on
+   * screen.
+   */
   fov: number;
+  /**
+   * Something that must stay visible, whatever shape the screen is.
+   *
+   * A camera holding a fixed vertical angle is fine on a laptop and wrong on a
+   * phone: the same angle on a tall narrow viewport leaves almost no
+   * horizontal field, and a 7.32 m goal seen from 17.7 m did not fit across a
+   * 390 px screen. Neither post was visible - you got netting and a keeper,
+   * and no goal.
+   *
+   * Given what has to fit and how far away it is, the focal length falls out of
+   * whichever axis binds.
+   */
+  frame: {
+    /** Half-width in meters that must be in shot. */
+    halfWidth: number;
+    /** Half-height in meters that must be in shot. */
+    halfHeight: number;
+    /** How far in front of the camera that rectangle sits. */
+    depth: number;
+  };
 }
 
 export interface Projected {
@@ -52,11 +76,19 @@ export function createProjector(camera: Camera, width: number, height: number): 
   const cosPitch = Math.cos(camera.pitch);
   const sinPitch = Math.sin(camera.pitch);
 
-  /** Focal length in pixels, from the vertical field of view. */
-  const focal = height / 2 / Math.tan(camera.fov / 2);
-
   const halfW = width / 2;
   const halfH = height / 2;
+
+  /**
+   * Focal length in pixels: the tightest of what the field of view allows and
+   * what keeps the framed rectangle on screen in each axis. Smallest wins,
+   * because a smaller focal length is a wider view.
+   */
+  const focal = Math.min(
+    halfH / Math.tan(camera.fov / 2),
+    (halfW * camera.frame.depth) / camera.frame.halfWidth,
+    (halfH * camera.frame.depth) / camera.frame.halfHeight
+  );
 
   /** World point into camera space: translate, then yaw, then pitch. */
   const toCamera = (point: Vec3) => {

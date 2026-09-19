@@ -8,7 +8,7 @@
  * between this file and draw.ts is in the wrong place.
  */
 
-import { PENALTY_DISTANCE } from '../../core/units.ts';
+import { GOAL_HEIGHT, GOAL_WIDTH, PENALTY_DISTANCE } from '../../core/units.ts';
 import type { FrameState, ShotInput } from '../../core/types.ts';
 import { vec } from '../../core/vec3.ts';
 import { createProjector, type Camera, type Projector } from '../project.ts';
@@ -40,6 +40,15 @@ const CAMERA: Camera = {
   yaw: 0,
   pitch: 0.16,
   fov: 0.62,
+  // The goal mouth with air either side, at the distance the goal sits from
+  // the camera. On a laptop the field of view binds and this changes nothing;
+  // on a phone held upright this binds and the view pulls back until the
+  // posts are on screen.
+  frame: {
+    halfWidth: GOAL_WIDTH / 2 + 1.25,
+    halfHeight: GOAL_HEIGHT / 2 + 0.6,
+    depth: PENALTY_DISTANCE + 6.5,
+  },
 };
 
 /**

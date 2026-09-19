@@ -1,13 +1,13 @@
 # Penalty Shootout - plan and spec
 
-_Status: draft for review. Nothing is built yet._
+_Status: Phases 0 and 1 built and playable at `/penalty/`. Tuning now comes from logged sessions rather than from opinion; see [Full time](#full-time-what-the-shot-log-knows)._
 
 ## Summary
 
 | | |
 | --- | --- |
 | **Decision** | Build a drag-to-shoot penalty and free kick game on a hidden page at `/penalty/`, as a vanilla TypeScript engine with swappable view renderers, sized so that a second and third contributor can add features without touching the physics. |
-| **Next steps** | - Confirm the route and the phase order below<br>- Build Phase 0 and Phase 1 (playable single-player penalties, one view)<br>- Add the second view, compare them, keep the better one as default |
+| **Next steps** | - Phase 1.5: full-time summary, a taker figure, a better keeper<br>- Phase 2: second and third cameras plus the switcher<br>- Then a keeper that reads your pattern, because both testers found the one shot that always works |
 | **Risk** | The repo is public. See [What not to commit](#what-not-to-commit). |
 
 ## Purpose

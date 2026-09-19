@@ -5,11 +5,15 @@
  * whether the projection boundary held, and it is why Phase 2 is a small phase.
  */
 
+import { AngledBehindView } from './canvas2d/AngledBehindView.ts';
 import { BehindTakerView } from './canvas2d/BehindTakerView.ts';
+import { KeeperCamView } from './canvas2d/KeeperCamView.ts';
 import type { View, ViewFactory } from './View.ts';
 
 export const VIEWS: Record<string, ViewFactory> = {
   'behind-taker': () => new BehindTakerView(),
+  'angled-behind': () => new AngledBehindView(),
+  'keeper-cam': () => new KeeperCamView(),
 };
 
 export const DEFAULT_VIEW = 'behind-taker';

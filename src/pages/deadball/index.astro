@@ -6,19 +6,70 @@ import Fullscreen from '../../layouts/Fullscreen.astro';
 ---
 
 <Fullscreen title="Dead Ball" backHref="/" backLabel="Home" noindex>
-  <canvas id="pitch"></canvas>
+  <div id="pitch-wrap">
+    <canvas id="pitch"></canvas>
+    {/*
+      Real buttons rather than something hit-tested on the canvas: they are
+      reachable by keyboard, readable by a screen reader, and get focus rings
+      and tap targets for nothing. The game only has to be told which one was
+      pressed.
+    */}
+    <nav id="views" aria-label="Camera angle" hidden>
+      <span id="views-label">Camera</span>
+    </nav>
+  </div>
 </Fullscreen>
 
 <script>
   import { start } from '../../games/deadball/main';
+  import { listViews } from '../../games/deadball/render/registry';
 
   const canvas = document.getElementById('pitch');
+  const nav = document.getElementById('views');
+
   if (canvas instanceof HTMLCanvasElement) {
-    start(canvas).catch((error) => console.error('[deadball] failed to start', error));
+    start(canvas)
+      .then((game) => {
+        if (!(nav instanceof HTMLElement)) return;
+
+        const buttons = listViews().map(({ id, label }) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = label;
+          button.dataset.view = id;
+          button.addEventListener('click', () => {
+            game.useView(id);
+            paint();
+            // Put focus back on the pitch, or the next space bar press
+            // re-triggers the button instead of doing nothing.
+            canvas.focus();
+          });
+          nav.append(button);
+          return button;
+        });
+
+        const paint = () => {
+          const current = game.currentViewId();
+          for (const button of buttons) {
+            const active = button.dataset.view === current;
+            button.setAttribute('aria-pressed', String(active));
+          }
+        };
+
+        paint();
+        nav.hidden = false;
+      })
+      .catch((error) => console.error('[deadball] failed to start', error));
   }
 </script>
 
 <style>
+  #pitch-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
   canvas {
     display: block;
     width: 100%;
@@ -30,5 +81,67 @@ import Fullscreen from '../../layouts/Fullscreen.astro';
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
+  }
+
+  #views {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  #views-label {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    margin-right: 2px;
+  }
+
+  #views button {
+    /* Big enough to hit with a thumb; the WCAG target minimum is 24px. */
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    background: rgba(8, 20, 30, 0.55);
+    color: rgba(255, 255, 255, 0.8);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  #views button:hover {
+    background: rgba(8, 20, 30, 0.8);
+    color: #fff;
+  }
+
+  #views button[aria-pressed='true'] {
+    background: rgba(125, 211, 252, 0.9);
+    border-color: rgba(125, 211, 252, 0.9);
+    color: #06202e;
+  }
+
+  #views button:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  /* On a phone the labels do not fit beside each other at the top of a shot
+     that is already tight for room, so they wrap to a column instead. */
+  @media (max-width: 559px) {
+    #views {
+      top: 8px;
+      right: 8px;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    #views-label {
+      display: none;
+    }
   }
 </style>

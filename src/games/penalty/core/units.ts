@@ -133,6 +133,29 @@ export const TIMING_CENTRE_PULL = 0.55;
 /** Pace lost to a badly struck ball, as a fraction, at the worst timing. */
 export const TIMING_PACE_LOSS = 0.18;
 
+/**
+ * How far the net hangs behind the goal line.
+ *
+ * Physics, not decoration, which is why it lives here rather than in the
+ * renderer: a ball that has gone in has to stop in the net rather than carry
+ * on through it and out of the stadium.
+ */
+export const NET_DEPTH = 1.7;
+
+/**
+ * A net absorbs. It gives almost nothing back and drags what it does not stop,
+ * which is why a ball hits it and drops rather than rebounding off it.
+ *
+ * The cap matters as much as the fraction. A proportional bounce is fine on a
+ * ball that has already lost its pace and wrong on one that has not: at 25 m/s
+ * even a tenth sends it back out of the goal at walking pace and it finishes
+ * the second in front of the line, having apparently declined to go in.
+ * Netting has a limit to how much it can give back, and this is it.
+ */
+export const NET_RESTITUTION = 0.08;
+export const NET_MAX_REBOUND = 1.1;
+export const NET_DRAG = 0.3;
+
 /** Ground bounce: energy kept vertically, and speed kept horizontally. */
 export const GROUND_RESTITUTION = 0.58;
 export const GROUND_FRICTION = 0.82;

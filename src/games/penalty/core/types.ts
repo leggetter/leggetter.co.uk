@@ -139,6 +139,14 @@ export interface KeeperState {
   target: Vec3 | null;
   /** True once a dive has been committed to, guessed or read. */
   committed: boolean;
+  /**
+   * How far through landing, 0 still in the air and 1 flat on the turf.
+   *
+   * Only moves once the shot is settled. Bringing the hands down on their own
+   * left the keeper with its gloves on the grass and its body still up in the
+   * air, which is not a landing, it is a hover.
+   */
+  landed: number;
 }
 
 /** Why a shot stopped. Rules turns this into an Outcome. */

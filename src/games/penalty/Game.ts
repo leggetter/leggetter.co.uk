@@ -31,8 +31,13 @@ export const STEP = 1 / 120;
 /** Cap on catch-up steps, so a backgrounded tab does not spiral on return. */
 const MAX_STEPS_PER_FRAME = 8;
 
-/** How long the outcome stays up before the next penalty can be taken. */
-const RESOLVE_HOLD_SECONDS = 0.4;
+/**
+ * How long the outcome stays up before the next penalty can be taken.
+ *
+ * Long enough for the aftermath to play: the keeper finishing its dive and
+ * coming down, and the ball going wherever it went off the gloves.
+ */
+const RESOLVE_HOLD_SECONDS = 1.0;
 
 /**
  * How long the taker takes to run in after the drag is released.
@@ -289,11 +294,16 @@ export async function startGame(options: GameOptions): Promise<Game> {
       }
     }
 
-    if (!flight || flight.outcome) return;
+    if (!flight) return;
+
+    // Keep advancing after the outcome is settled. The result was decided at
+    // the line and `advance` will not revisit it; this is the second in which
+    // a save looks like a save rather than like a freeze frame.
+    const settled = flight.outcome !== null;
 
     flight = advance(flight, STEP);
     trail = [...trail.slice(-(TRAIL_LENGTH - 1)), flight.ball.position];
-    if (flight.outcome) {
+    if (!settled && flight.outcome) {
       log.record({
         at: new Date().toISOString(),
         session,

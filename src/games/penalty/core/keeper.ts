@@ -19,6 +19,7 @@
  * special-cases curve to make it happen.
  */
 
+import { GOAL_HEIGHT, GOAL_WIDTH } from './units.ts';
 import { flyToLine } from './predict.ts';
 import type { BallState, KeeperProfile, KeeperState, KeeperStyle } from './types.ts';
 import { vec, type Vec3 } from './vec3.ts';
@@ -47,25 +48,42 @@ const BODY_STANDING_Y = 0.9;
 const BODY_DIVE_DROP = 0.42;
 
 /**
- * How far the torso travels with the hands on a dive.
+ * Shoulder to fingertips, in meters.
  *
- * A keeper jumps: the whole body leaves the ground and goes, and only the last
- * stretch of the reach is arm. At 0.34 the hip barely left the stance and the
- * arms had to extend the best part of two meters to meet the ball, which drew
- * as a keeper standing still and growing.
+ * A constant, which is the thing it was not. The torso used to travel a
+ * FRACTION of the way to the hands, so the further the keeper reached the
+ * longer its arm had to be - and once the dive was allowed to cover the whole
+ * goal, a save in the top corner grew an arm over a meter and a half long.
+ *
+ * An arm is an arm. The body covers whatever the arm does not.
  */
-const BODY_FOLLOW = 0.6;
+export const ARM_SPAN = 0.72;
+
+/** Body travel at which the keeper is flat out, for the extra torso drop. */
+const MAX_BODY_TRAVEL = 2.6;
 
 /**
  * Furthest the hands travel sideways from where the keeper is standing.
  *
- * Past the post on purpose. There should be no part of the goal a keeper
- * simply cannot get to: the corners are hard because they are rarely where the
- * keeper went, not because the geometry forbids it. Keeping this inside the
- * frame left a band at each post that was free by construction, and a shot
- * placed there was never a contest.
+ * Generous on purpose. There should be no part of the goal a keeper simply
+ * cannot get to: the corners are hard because they are rarely where the keeper
+ * went, not because the geometry forbids it. Keeping this short left a band at
+ * each post that was free by construction, and a shot placed there was never a
+ * contest.
  */
 const MAX_DIVE_X = 3.95;
+
+/**
+ * How far past the frame the hands may finish.
+ *
+ * Some overshoot is right: a keeper diving for the top corner ends up with an
+ * arm outside the post, and stopping them dead on the line looks like they hit
+ * a wall. Far past it is not a save, it is a keeper leaving the pitch, which is
+ * what an unbounded dive produced.
+ */
+const BEYOND_FRAME = 0.35;
+const KEEPER_LIMIT_X = GOAL_WIDTH / 2 + BEYOND_FRAME;
+const KEEPER_LIMIT_Y = GOAL_HEIGHT + BEYOND_FRAME * 0.5;
 
 /** Vertical span the hands can cover, from a low dive to a full stretch. */
 const MIN_HAND_Y = 0.18;
@@ -94,6 +112,9 @@ const VERTICAL_READ_FACTOR = 0.6;
  * compensation is getting to start moving a fifth of a second earlier.
  */
 const ANTICIPATION_PENALTY = 1.45;
+
+/** How long it takes to come down and finish flat. */
+const LANDING_SECONDS = 0.38;
 
 /**
  * Everything random about this keeper on this shot, sampled once when the shot
@@ -159,11 +180,18 @@ export function planKeeper(
     // The dive starts from wherever the shuffle had got to, not from centre.
     state: (() => {
       const hands = vec(startX, STANDING.y, 0);
-      return { stance: startX, hands, body: bodyFor(hands, startX), target: null, committed: false };
+      return {
+        stance: startX,
+        hands,
+        body: bodyFor(hands, startX),
+        target: null,
+        committed: false,
+        landed: 0,
+      };
     })(),
     plan: {
       style,
-      guessX: side * MAX_DIVE_X * (0.55 + rng.next() * 0.45),
+      guessX: side * Math.min(MAX_DIVE_X, KEEPER_LIMIT_X) * (0.55 + rng.next() * 0.45),
       guessY: MIN_HAND_Y + rng.next() * (MAX_HAND_Y - MIN_HAND_Y) * 0.7,
       readErrorX: rng.nextBell(),
       readErrorY: rng.nextBell(),
@@ -184,9 +212,18 @@ export function stepKeeper(
   profile: KeeperProfile,
   ball: BallState,
   elapsed: number,
-  dt: number
+  dt: number,
+  /** Shot is over: finish the dive and come down, rather than hanging there. */
+  landing = false
 ): KeeperSim {
   let { target, committed } = sim.state;
+
+  if (landing && target) {
+    target = vec(target.x, MIN_HAND_Y, 0);
+  }
+  const landed = landing
+    ? Math.min(1, sim.state.landed + dt / LANDING_SECONDS)
+    : sim.state.landed;
 
   if (!committed) {
     if (sim.plan.style === 'guess') {
@@ -204,14 +241,14 @@ export function stepKeeper(
     }
   }
 
-  if (!target) return sim;
+  if (!target) return { plan: sim.plan, state: { ...sim.state, landed } };
 
   // The feet stay where they were planted; only the hands travel.
   const { stance } = sim.state;
   const hands = moveToward(sim.state.hands, target, profile.diveSpeed * dt);
   return {
     plan: sim.plan,
-    state: { stance, hands, body: bodyFor(hands, stance), target, committed },
+    state: { stance, hands, body: bodyFor(hands, stance), target, committed, landed },
   };
 }
 
@@ -231,10 +268,10 @@ function readShot(plan: KeeperPlan, profile: KeeperProfile, ball: BallState): Ve
 
   const sigma = readSigma(profile, 1);
 
-  return vec(
-    clamp(arrival.x + plan.readErrorX * sigma, plan.startX - MAX_DIVE_X, plan.startX + MAX_DIVE_X),
-    clamp(arrival.y + plan.readErrorY * sigma * VERTICAL_READ_FACTOR, MIN_HAND_Y, MAX_HAND_Y),
-    0
+  return reachable(
+    arrival.x + plan.readErrorX * sigma,
+    arrival.y + plan.readErrorY * sigma * VERTICAL_READ_FACTOR,
+    plan.startX
   );
 }
 
@@ -248,9 +285,22 @@ function readShot(plan: KeeperPlan, profile: KeeperProfile, ball: BallState): Ve
  */
 function readAim(plan: KeeperPlan, profile: KeeperProfile): Vec3 {
   const sigma = readSigma(profile, ANTICIPATION_PENALTY);
+  return reachable(
+    plan.aimPoint.x + plan.readErrorX * sigma,
+    plan.aimPoint.y + plan.readErrorY * sigma * VERTICAL_READ_FACTOR,
+    plan.startX
+  );
+}
+
+/** Somewhere the keeper can actually get to, and is allowed to be. */
+function reachable(x: number, y: number, stance: number): Vec3 {
   return vec(
-    clamp(plan.aimPoint.x + plan.readErrorX * sigma, plan.startX - MAX_DIVE_X, plan.startX + MAX_DIVE_X),
-    clamp(plan.aimPoint.y + plan.readErrorY * sigma * VERTICAL_READ_FACTOR, MIN_HAND_Y, MAX_HAND_Y),
+    clamp(
+      clamp(x, stance - MAX_DIVE_X, stance + MAX_DIVE_X),
+      -KEEPER_LIMIT_X,
+      KEEPER_LIMIT_X
+    ),
+    clamp(clamp(y, MIN_HAND_Y, MAX_HAND_Y), MIN_HAND_Y, KEEPER_LIMIT_Y),
     0
   );
 }
@@ -271,10 +321,21 @@ function readSigma(profile: KeeperProfile, penalty: number): number {
  * the middle of the goal is never simply vacated.
  */
 export function bodyFor(hands: Vec3, stance: number): Vec3 {
-  const extension = diveExtension(hands.x, stance);
+  const dx = hands.x - stance;
+  const dy = hands.y - STANDING.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  if (distance < 1e-4) return vec(stance, BODY_STANDING_Y, 0);
+
+  // Everything past one arm's length has to be covered by the body going
+  // there, so the torso ends up an arm short of the hands however far the
+  // keeper threw itself.
+  const travel = Math.max(0, distance - ARM_SPAN);
+  const t = travel / distance;
+  const flatness = Math.min(1, travel / MAX_BODY_TRAVEL);
+
   return vec(
-    stance + (hands.x - stance) * BODY_FOLLOW,
-    BODY_STANDING_Y - BODY_DIVE_DROP * extension,
+    stance + dx * t,
+    Math.max(0.2, BODY_STANDING_Y + dy * t - BODY_DIVE_DROP * flatness),
     0
   );
 }

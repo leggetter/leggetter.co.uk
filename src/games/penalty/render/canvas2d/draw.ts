@@ -17,6 +17,7 @@ import {
   FRAME_RADIUS,
   GOAL_HEIGHT,
   GOAL_WIDTH,
+  NET_DEPTH,
   PENALTY_DISTANCE,
   SWEEP_SWEET_ZONE,
 } from '../../core/units.ts';
@@ -24,14 +25,12 @@ import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
 import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
 import type { Projector } from '../project.ts';
+import { ARM_SPAN } from '../../core/keeper.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;
 
 /** Roughly how far a full curl moves a penalty, in meters. See MAGNUS_FACTOR. */
 const PENALTY_FULL_CURL = 0.5;
-
-/** How far the net hangs behind the line. */
-const NET_DEPTH = 1.7;
 
 /** Half-width of the visible pitch. Beyond this is out of frame anyway. */
 const PITCH_HALF = 34;
@@ -410,18 +409,23 @@ export function drawKeeper(
   // decides a save, so what is drawn is roughly where the saving happens.
   // Everything else is laid out along the dive from there: feet trailing
   // behind and off the ground, shoulders forward, arms short.
+  // Shoulder sits exactly one arm behind the hands, so the arm is always an
+  // arm. Everything else hangs off the body, which is where the simulation
+  // says it is and is one of the two volumes that decides a save.
+  const shoulderX = hands.x - along.x * ARM_SPAN;
+  const shoulderY = hands.y - along.y * ARM_SPAN;
   const dive = {
-    feet: vec(body.x - along.x * 0.75, Math.max(0.08, body.y - along.y * 0.75), 0),
-    shoulder: vec(body.x + along.x * 0.55, body.y + along.y * 0.55, 0),
-    head: vec(body.x + along.x * 0.74, body.y + along.y * 0.74 + 0.12, 0),
+    feet: vec(body.x - along.x * 0.95, Math.max(0.08, body.y - along.y * 0.95), 0),
+    shoulder: vec(shoulderX, shoulderY, 0),
+    head: vec(shoulderX + along.x * 0.2, shoulderY + along.y * 0.2 + 0.1, 0),
   };
 
   const blend = (a: Vec3, b: Vec3): Vec3 =>
     vec(a.x + (b.x - a.x) * extension, a.y + (b.y - a.y) * extension, 0);
 
-  const feet = blend(stand.feet, dive.feet);
-  const shoulder = blend(stand.shoulder, dive.shoulder);
-  const head = blend(stand.head, dive.head);
+  const feet = grounded(blend(stand.feet, dive.feet), 0.1, keeper.landed);
+  const shoulder = grounded(blend(stand.shoulder, dive.shoulder), 0.32, keeper.landed);
+  const head = grounded(blend(stand.head, dive.head), 0.46, keeper.landed);
 
   // Standing, the arms hang either side. Diving, both go with the ball,
   // straddling the point the save test actually uses.
@@ -431,6 +435,10 @@ export function drawKeeper(
     vec(hands.x - spread * 0.7, hands.y - 0.09, 0),
   ];
   const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, 0), vec(stance - 0.34, 0.92, 0)];
+  const held: [Vec3, Vec3] = [
+    grounded(reaching[0], 0.18, keeper.landed),
+    grounded(reaching[1], 0.14, keeper.landed),
+  ];
 
   // Legs trail back down the dive line and scissor open as the keeper extends.
   const trail = (k: number, spreadX: number): Vec3 =>
@@ -444,12 +452,22 @@ export function drawKeeper(
     feet,
     shoulder,
     head,
-    hands: extension < 0.04 ? idle : reaching,
+    hands: extension < 0.04 ? idle : held,
     toes: [trail(0.14, 0.16), trail(0.3, -0.16)],
     kit: COLORS.keeperKit,
     trim: COLORS.keeperTrim,
     gloves: reach * 0.34,
   });
+}
+
+/**
+ * Settle a point down onto the turf as the keeper lands.
+ *
+ * Applied to the whole figure, not just the hands. Dropping the hands alone
+ * left the gloves on the grass with the body still in the air above them.
+ */
+function grounded(point: Vec3, restingY: number, landed: number): Vec3 {
+  return landed <= 0 ? point : vec(point.x, point.y + (restingY - point.y) * landed, point.z);
 }
 
 /**
@@ -992,4 +1010,4 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   ctx.restore();
 }
 
-export { COLORS, NET_DEPTH };
+export { COLORS };

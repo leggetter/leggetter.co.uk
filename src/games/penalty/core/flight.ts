@@ -7,12 +7,21 @@
  * test result is evidence about the game and not about a second code path.
  */
 
-import { FLIGHT_TIMEOUT } from './units.ts';
+import {
+  BALL_RADIUS,
+  FLIGHT_TIMEOUT,
+  GOAL_HEIGHT,
+  GOAL_WIDTH,
+  NET_DEPTH,
+  NET_DRAG,
+  NET_MAX_REBOUND,
+  NET_RESTITUTION,
+} from './units.ts';
 import { step } from './physics.ts';
 import { planKeeper, stepKeeper, type KeeperRng, type KeeperSim } from './keeper.ts';
 import { classifyCrossing, frameHit, type FrameHit } from './rules.ts';
 import type { BallState, KeeperProfile, Outcome, Shot } from './types.ts';
-import { addScaled, dot, lerp, scale, vec } from './vec3.ts';
+import { addScaled, dot, length, lerp, scale, vec, type Vec3 } from './vec3.ts';
 
 export interface Flight {
   ball: BallState;
@@ -25,7 +34,33 @@ export interface Flight {
   lastFrame: 'post' | 'bar' | null;
   /** Set once the shot is over. Null while it is still live. */
   outcome: Outcome | null;
+  /**
+   * The keeper held on to it. Rare: a penalty arrives too fast to catch, and
+   * most saves are a hand on it and the ball going somewhere else.
+   */
+  caught: boolean;
+  /** Seconds of aftermath run so far, once the outcome is settled. */
+  sinceOutcome: number;
 }
+
+/**
+ * How long the ball and the keeper keep moving after the outcome is settled.
+ *
+ * Purely for show, and it does not change anything: the outcome is decided at
+ * the line and never revisited. Stopping dead at that instant froze the ball
+ * a hand's width from the gloves, which is the one frame in the whole flight
+ * that looks least like a save.
+ */
+const AFTERMATH_SECONDS = 1.1;
+
+/** Pace kept when a keeper gets a hand to it. Most of it goes. */
+const PARRY_RESTITUTION = 0.42;
+
+/** Fastest a shot can be and still be caught cleanly, m/s. */
+const CATCHABLE_SPEED = 17;
+
+/** And even then, usually not. */
+const CATCH_CHANCE = 0.18;
 
 /**
  * How many times a shot may come off the woodwork before the referee, so to
@@ -61,6 +96,8 @@ export function createFlight(
     rebounds: 0,
     lastFrame: null,
     outcome: null,
+    caught: false,
+    sinceOutcome: 0,
   };
 }
 
@@ -71,7 +108,7 @@ export function createFlight(
  * calling this without having to check first.
  */
 export function advance(flight: Flight, dt: number): Flight {
-  if (flight.outcome) return flight;
+  if (flight.outcome) return aftermath(flight, dt);
 
   const before = flight.ball;
   const ball = step(before, dt);
@@ -107,12 +144,21 @@ export function advance(flight: Flight, dt: number): Flight {
       hands: lerp(flight.keeper.state.hands, keeper.state.hands, t),
       body: lerp(flight.keeper.state.body, keeper.state.body, t),
     };
+    const outcome = classifyCrossing(at, atCrossing, flight.profile.reach);
+    const stopped: BallState = { ...ball, position: at };
+
+    // A save is a hand on it, not a full stop. Send the ball back off the
+    // gloves so the next second shows what happened rather than a freeze.
+    const handled =
+      outcome === 'saved' ? parry(stopped, atCrossing.hands, flight.keeper.plan) : null;
+
     return {
       ...flight,
-      ball: { ...ball, position: at },
+      ball: handled?.ball ?? stopped,
+      caught: handled?.caught ?? false,
       keeper,
       elapsed,
-      outcome: classifyCrossing(at, atCrossing, flight.profile.reach),
+      outcome,
     };
   }
 
@@ -123,6 +169,118 @@ export function advance(flight: Flight, dt: number): Flight {
   }
 
   return { ...flight, ball, keeper, elapsed, outcome: null };
+}
+
+/**
+ * Keep everything moving once the outcome is settled.
+ *
+ * The ball carries on under the same physics, the keeper finishes its dive and
+ * comes down, and nothing here can change the result. A caught ball stays in
+ * the gloves and travels with them.
+ */
+function aftermath(flight: Flight, dt: number): Flight {
+  const sinceOutcome = flight.sinceOutcome + dt;
+  if (sinceOutcome > AFTERMATH_SECONDS) return flight;
+
+  const elapsed = flight.elapsed + dt;
+  const keeper = stepKeeper(flight.keeper, flight.profile, flight.ball, elapsed, dt, true);
+
+  // A held ball travels with the gloves; everything else carries on falling,
+  // and stops when it meets the net.
+  const ball = flight.caught
+    ? { ...flight.ball, position: keeper.state.hands, velocity: vec(0, 0, 0) }
+    : intoTheNet(step(flight.ball, dt));
+
+  return { ...flight, ball, keeper, elapsed, sinceOutcome };
+}
+
+/**
+ * Stop the ball in the net.
+ *
+ * A goal is not the ball leaving the stadium: it hits the back of the net and
+ * drops into it. The three panels are the same ones the renderer draws, from
+ * the same NET_DEPTH, so what stops the ball is what you can see.
+ *
+ * A net gives almost nothing back and drags hard at whatever it does not stop,
+ * which is why the ball falls out of it rather than rebounding off it.
+ */
+function intoTheNet(ball: BallState): BallState {
+  // Only inside the goal. In front of the line there is nothing to hit.
+  if (ball.position.z <= 0) return ball;
+
+  let { position, velocity } = ball;
+  const soften = (v: number): number =>
+    -Math.sign(v) * Math.min(Math.abs(v) * NET_RESTITUTION, NET_MAX_REBOUND);
+
+  // Back panel.
+  if (position.z > NET_DEPTH - BALL_RADIUS && velocity.z > 0) {
+    position = vec(position.x, position.y, NET_DEPTH - BALL_RADIUS);
+    velocity = vec(velocity.x * NET_DRAG, velocity.y * NET_DRAG, soften(velocity.z));
+  }
+
+  // Side panels.
+  for (const side of [-1, 1]) {
+    const edge = side * (GOAL_WIDTH / 2 - BALL_RADIUS);
+    if (side * position.x > side * edge && side * velocity.x > 0) {
+      position = vec(edge, position.y, position.z);
+      velocity = vec(soften(velocity.x), velocity.y * NET_DRAG, velocity.z * NET_DRAG);
+    }
+  }
+
+  // Roof.
+  if (position.y > GOAL_HEIGHT - BALL_RADIUS && velocity.y > 0) {
+    position = vec(position.x, GOAL_HEIGHT - BALL_RADIUS, position.z);
+    velocity = vec(velocity.x * NET_DRAG, soften(velocity.y), velocity.z * NET_DRAG);
+  }
+
+  return { position, velocity, spin: scale(ball.spin, 0.5) };
+}
+
+/**
+ * The ball off the keeper's gloves.
+ *
+ * Not a reflection off a computed surface. The first version mirrored the
+ * velocity in a normal built from where on the gloves it struck, and that
+ * normal was dominated by the lateral offset, so the reflection flipped the
+ * ball sideways and left it still travelling into the goal.
+ *
+ * A parry is simpler than that and only has to be true to one thing: the ball
+ * goes back out, most of its pace gone, deflected toward whichever side of the
+ * gloves it hit and usually upward. Catching one is possible and rare: a
+ * penalty arrives too fast, and a keeper at full stretch is in no position to
+ * hold anything.
+ */
+function parry(
+  ball: BallState,
+  hands: Vec3,
+  plan: { readErrorX: number }
+): { ball: BallState; caught: boolean } {
+  const speed = length(ball.velocity);
+
+  // The read error stands in for a coin toss: it is drawn from the seeded
+  // stream and already spent, so a replay stays identical.
+  const caught = speed < CATCHABLE_SPEED && Math.abs(plan.readErrorX) < CATCH_CHANCE;
+  if (caught) return { ball: { ...ball, velocity: vec(0, 0, 0) }, caught: true };
+
+  const dx = ball.position.x - hands.x;
+  const dy = ball.position.y - hands.y;
+  const off = Math.sqrt(dx * dx + dy * dy);
+
+  return {
+    ball: {
+      position: ball.position,
+      velocity: vec(
+        // Away from the gloves, plus a little of whatever it already had.
+        ball.velocity.x * 0.25 + (off < 1e-4 ? 0 : dx / off) * speed * 0.3,
+        // Parries go up more often than down; a keeper gets under it.
+        Math.abs(ball.velocity.y) * 0.25 + speed * 0.12,
+        // And always back out of the goal.
+        -Math.abs(ball.velocity.z) * PARRY_RESTITUTION
+      ),
+      spin: scale(ball.spin, 0.4),
+    },
+    caught: false,
+  };
 }
 
 /**

@@ -15,13 +15,14 @@ import { advance, createFlight, simulate } from './flight.ts';
 import { classifyCrossing } from './rules.ts';
 import { initialMatch, reduce } from './match.ts';
 import { acceleration } from './physics.ts';
-import { bodyFor, diveExtension, idleDrift, planKeeper } from './keeper.ts';
+import { ARM_SPAN, bodyFor, diveExtension, idleDrift, planKeeper } from './keeper.ts';
 import { cross, vec } from './vec3.ts';
 import {
   BALL_RADIUS,
   GOAL_HEIGHT,
   GOAL_WIDTH,
   GRAVITY,
+  NET_DEPTH,
   PENALTY_DISTANCE,
   SWEEP_PERIOD,
   SWEEP_SWEET_ZONE,
@@ -333,6 +334,7 @@ describe('outcomes', () => {
     body: vec(99, 99, 0),
     target: null,
     committed: true,
+    landed: 0,
   };
   /** Keeper diving to (x, y) from a stance at the centre of the goal. */
   const at = (x: number, y: number) => ({
@@ -341,6 +343,7 @@ describe('outcomes', () => {
     body: bodyFor(vec(x, y, 0), 0),
     target: null,
     committed: true,
+    landed: 0,
   });
 
   test('classifies the goal mouth', () => {
@@ -592,8 +595,34 @@ describe('keeper commitment', () => {
 
   test('diving, the body trails the hands', () => {
     const body = bodyFor(vec(2.2, 1.6, 0), 0);
-    assert.ok(body.x > 0 && body.x < 2.2, 'body should sit between feet and hands');
-    assert.ok(body.y < 0.9, 'and drop as the keeper stretches');
+    assert.ok(body.x > 0 && body.x < 2.2, 'body should sit between the stance and the hands');
+  });
+
+  test('the arm is always an arm', () => {
+    // The invariant the whole pose rests on. The body used to travel a
+    // fraction of the way to the hands, so the further the keeper reached the
+    // longer its arm grew: a save in the top corner drew one over a meter and
+    // a half long. Anything past one arm has to be covered by going there.
+    for (const hands of [
+      vec(0.4, 1.2, 0),
+      vec(1.8, 0.5, 0),
+      vec(2.6, 1.9, 0),
+      vec(3.9, 2.4, 0),
+      vec(-3.5, 0.3, 0),
+    ]) {
+      const body = bodyFor(hands, 0);
+      const reach = Math.hypot(hands.x - body.x, hands.y - body.y);
+      assert.ok(
+        reach <= ARM_SPAN + 0.35,
+        `reaching (${hands.x}, ${hands.y}) needed ${reach.toFixed(2)} m of arm`
+      );
+    }
+  });
+
+  test('the torso rises for a high ball and drops for a low one', () => {
+    const high = bodyFor(vec(2.4, 2.2, 0), 0);
+    const low = bodyFor(vec(2.4, 0.3, 0), 0);
+    assert.ok(high.y > low.y + 0.5, 'a save up top is not the same shape as one at the boot');
   });
 
   test('the idle shuffle stays near the middle and never reaches a post', () => {
@@ -634,6 +663,108 @@ describe('keeper commitment', () => {
     const curled = take(aim(0, 0.4, { curve: 1 }), keeper, 1, striker, 25);
     assert.equal(straight.outcome, 'saved');
     assert.equal(curled.outcome, 'goal');
+  });
+});
+
+describe('after the whistle', () => {
+  const wall: KeeperProfile = {
+    id: 'wall',
+    name: 'Wall',
+    reactionMs: 0,
+    diveSpeed: 12,
+    reach: 1.4,
+    guessBias: 0,
+    anticipation: 1,
+    readAccuracy: 1,
+    };
+
+  /** Advance past the outcome, the way the live game does. */
+  const playOn = (flight: ReturnType<typeof simulate>, seconds: number) => {
+    let f = flight;
+    for (let t = 0; t < seconds; t += STEP) f = advance(f, STEP);
+    return f;
+  };
+
+  test('a saved ball comes back off the gloves', () => {
+    const saved = take(aim(0.3, 0.4), wall);
+    assert.equal(saved.outcome, 'saved');
+    assert.ok(!saved.caught, 'a penalty at this pace should not be held');
+    // Sent back out of the goal, not stopped dead on the line.
+    assert.ok(saved.ball.velocity.z < 0, 'parried ball should be heading back out');
+  });
+
+  test('the ball keeps moving after the outcome is settled', () => {
+    const saved = take(aim(0.3, 0.4), wall);
+    const after = playOn(saved, 0.4);
+    assert.ok(
+      Math.abs(after.ball.position.z - saved.ball.position.z) > 0.5,
+      'the ball should have gone somewhere in the half second after a save'
+    );
+  });
+
+  test('the outcome is never revisited once settled', () => {
+    const saved = take(aim(0.3, 0.4), wall);
+    const after = playOn(saved, 1.5);
+    assert.equal(after.outcome, 'saved', 'playing on must not change the result');
+  });
+
+  test('the keeper comes down rather than hanging in the air', () => {
+    const saved = take(aim(0.55, 0.75), wall);
+    const after = playOn(saved, 1.0);
+    assert.ok(
+      after.keeper.state.hands.y < saved.keeper.state.hands.y,
+      'hands should be lower after landing'
+    );
+    assert.equal(after.keeper.state.landed, 1, 'and the keeper should be flat on the turf');
+  });
+
+  test('the aftermath stops, rather than running forever', () => {
+    const saved = take(aim(0.3, 0.4), wall);
+    const a = playOn(saved, 3);
+    const b = playOn(a, 3);
+    assert.deepEqual(a.ball.position, b.ball.position, 'should have come to rest');
+  });
+
+  test('a goal ends up in the net, not through it', () => {
+    const scored = take(aim(0.3, 0.4), statue);
+    assert.equal(scored.outcome, 'goal');
+    const after = playOn(scored, 1.1);
+    assert.ok(
+      after.ball.position.z <= NET_DEPTH,
+      `ball finished ${after.ball.position.z.toFixed(2)} m past the line, beyond the net at ${NET_DEPTH}`
+    );
+    assert.ok(after.ball.position.z > 0, 'and it should still be in the goal');
+  });
+
+  test('the net drops the ball rather than firing it back out', () => {
+    const scored = take(aim(0.2, 0.7), statue);
+    const after = playOn(scored, 1.1);
+    assert.ok(after.ball.velocity.z > -6, 'a net is not a trampoline');
+    assert.ok(after.ball.position.y < 1.2, 'the ball should have dropped');
+  });
+
+  test('a goal stays inside the frame it went into', () => {
+    for (const x of [0.2, 0.5, 0.8]) {
+      const after = playOn(take(aim(x, 0.5), statue), 1.1);
+      if (after.outcome !== 'goal') continue;
+      assert.ok(
+        Math.abs(after.ball.position.x) <= GOAL_WIDTH / 2,
+        `ball ended up ${after.ball.position.x.toFixed(2)} m across, outside the posts`
+      );
+    }
+  });
+
+  test('catching a penalty is rare', () => {
+    let caught = 0;
+    let saves = 0;
+    for (let seed = 1; seed <= 120; seed++) {
+      const f = take(aim(0.25, 0.4), wall, seed);
+      if (f.outcome !== 'saved') continue;
+      saves += 1;
+      if (f.caught) caught += 1;
+    }
+    assert.ok(saves > 20, `not enough saves to judge (${saves})`);
+    assert.ok(caught / saves < 0.25, `caught ${caught} of ${saves}, which is not rare`);
   });
 });
 

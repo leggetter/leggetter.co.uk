@@ -10,21 +10,36 @@
  * docs/deadball-spec.md for why that is not negotiable.
  */
 
-import { BALL_RADIUS, PENALTY_DISTANCE } from './core/units.ts';
+import { BALL_RADIUS, GOAL_HEIGHT, GOAL_WIDTH, PENALTY_DISTANCE } from './core/units.ts';
 import type { Vec3 } from './core/vec3.ts';
 import { createRng, shotSeed } from './core/rng.ts';
 import { tuningFingerprint } from './core/tuning.ts';
 import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts';
 import { advance, createFlight, type Flight } from './core/flight.ts';
 import { idleDrift, planKeeper } from './core/keeper.ts';
-import { initialMatch, reduce, SHOTS_PER_ROUND, type MatchState } from './core/match.ts';
-import type { FrameState, KeeperProfile, Player, Shot, ShotInput } from './core/types.ts';
+import {
+  initialMatch,
+  keeperSide,
+  reduce,
+  SHOTS_PER_ROUND,
+  type MatchMode,
+  type MatchState,
+} from './core/match.ts';
+import type {
+  Dive,
+  FrameState,
+  KeeperProfile,
+  Player,
+  Shot,
+  ShotInput,
+} from './core/types.ts';
 import { attachDragInput, type DragInput } from './input/drag.ts';
 import { createView, resolveViewId } from './render/registry.ts';
-import type { DragGesture, View } from './render/View.ts';
+import type { DragGesture, DragPoint, View } from './render/View.ts';
+import { cleanNames, type DuelNames } from './core/names.ts';
 import { KEYS, type Settings, type Storage } from './storage/Storage.ts';
 import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
-import { forMatch, summarise, type FullTime } from './telemetry/analyse.ts';
+import { forMatch, summarise, summariseDuel, type FullTime } from './telemetry/analyse.ts';
 
 /** Simulation step. Fixed so a shot is reproducible; see core/rng.ts. */
 export const STEP = 1 / 120;
@@ -51,6 +66,8 @@ const RUN_UP_SECONDS = 0.42;
 
 export interface GameOptions {
   canvas: HTMLCanvasElement;
+  /** 'duel' puts two people on one device: one shoots, the other saves. */
+  mode?: MatchMode;
   player: Player;
   keeper: KeeperProfile;
   storage: Storage;
@@ -62,6 +79,11 @@ export interface GameOptions {
 
 export interface Game {
   stop(): void;
+  /** Start again in this mode. */
+  restart(mode: MatchMode, names?: DuelNames): void;
+  currentMode(): MatchMode;
+  /** What the two sides are called. Cleaned, so never empty. */
+  currentNames(): DuelNames;
   /** The shot log for this device. Nothing in it leaves the machine. */
   log: ShotLog;
   /** Swap the camera at runtime. Phase 2 hangs a control off this. */
@@ -75,7 +97,19 @@ export async function startGame(options: GameOptions): Promise<Game> {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('penalty: 2d canvas context unavailable');
 
-  const settings = (await storage.get<Settings>(KEYS.settings)) ?? {};
+  // Mutable, and every write goes through `remember`. It used to be a const
+  // snapshot spread into each write, which is correct only while there is one
+  // setting: adding a second means changing the camera and then the names
+  // would write the names on top of the stale camera and lose it.
+  let settings = (await storage.get<Settings>(KEYS.settings)) ?? {};
+  const remember = (patch: Partial<Settings>): void => {
+    settings = { ...settings, ...patch };
+    void storage.set<Settings>(KEYS.settings, settings);
+  };
+  // Whatever was typed last time, put back through the same cleaning as fresh
+  // input: a stored name is not more trustworthy than a typed one, it is just
+  // older, and this store is editable from a browser console.
+  let names: DuelNames = cleanNames(settings.duelNames);
   const session = newSessionId();
   // Constant for the life of the page; the physics cannot change under it.
   const tuning = tuningFingerprint();
@@ -87,7 +121,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   // A time-derived seed is fine here: it is captured once and then never read
   // again, so the match stays reproducible from the number itself.
-  let match: MatchState = initialMatch(options.seed ?? (Date.now() & 0x7fffffff));
+  let match: MatchState = initialMatch(
+    options.seed ?? (Date.now() & 0x7fffffff),
+    SHOTS_PER_ROUND,
+    options.mode ?? 'solo'
+  );
 
   let flight: Flight | null = null;
   let aiming: ShotInput | null = null;
@@ -105,6 +143,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
   /** What was struck, kept until the shot resolves so it can be logged. */
   let lastInput: ShotInput | null = null;
 
+  /** Where the keeper is pointing while choosing. Not their commitment. */
+  let choosing: Dive | null = null;
+
   /** Computed once at full time, not every frame. */
   let summary: FullTime | null = null;
 
@@ -119,7 +160,10 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   /** Seconds into the run-up, and the shot waiting at the end of it. */
   let runUp = 0;
-  let pending: { shot: Shot; keeperStartX: number } | null = null;
+  let pending: { shot: Shot; keeperStartX: number; dive: Dive | null } | null = null;
+  // Kept past the strike, because `pending` is cleared there and the shot is
+  // not logged until the ball has finished.
+  let struckDive: Dive | null = null;
 
   /** Seconds the keeper has been waiting on the line for this penalty. */
   let settling = 0;
@@ -155,6 +199,15 @@ export async function startGame(options: GameOptions): Promise<Game> {
     score: match.score,
     outcomes: match.outcomes,
     lastOutcome: match.outcomes[match.outcomes.length - 1] ?? null,
+    mode: match.mode,
+    taker: match.taker,
+    keeperSide: keeperSide(match),
+    scores: match.scores,
+    names,
+    // Hidden from the taker on purpose: the dive is only ever drawn while its
+    // owner is choosing it, never once the device has changed hands.
+    dive: match.phase === 'keeping' ? match.dive : null,
+    choosing: match.phase === 'keeping' ? choosing : null,
     aiming,
     summary,
     timingMarker: aiming ? sweepMarker : null,
@@ -179,7 +232,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     // gets to it. Captured at release: wherever the shuffle had reached is
     // where the dive begins, and the flight records it or a replay would
     // differ from the shot it replays.
-    pending = { shot, keeperStartX: keeperSim.state.hands.x };
+    pending = { shot, keeperStartX: keeperSim.state.hands.x, dive: match.dive };
     runUp = 0;
     match = reduce(match, { type: 'TAKE_SHOT' });
     aiming = null;
@@ -187,8 +240,13 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   function advanceToNext(): void {
     if (match.phase === 'complete') {
-      match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND);
+      // Through the reducer, which carries the mode across. Calling
+      // initialMatch directly meant relying on remembering to pass it, and the
+      // argument was missing: playing again after a duel dropped you into a
+      // solo game while the 2 players button still read as selected.
+      match = reduce(match, { type: 'START', seed: Date.now() & 0x7fffffff, shots: SHOTS_PER_ROUND });
       summary = null;
+      choosing = null;
     } else if (match.phase === 'resolved' && holdRemaining <= 0) {
       match = reduce(match, { type: 'NEXT' });
       // Read across everything ever played on this device, not just these five
@@ -196,9 +254,14 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // point of keeping the log is that the evidence accumulates.
       if (match.phase === 'complete') {
         const all = log.all();
+        const thisMatch = forMatch(all, match.seed);
         summary = {
-          match: summarise(forMatch(all, match.seed)),
+          match: summarise(thisMatch),
           lifetime: summarise(all),
+          // This shootout only. All-time would mix in solo shots and, worse,
+          // every previous duel played by different people on the same device -
+          // sides carry across a log, the people holding them do not.
+          duel: match.mode === 'duel' ? summariseDuel(thisMatch) : null,
         };
       }
     } else {
@@ -222,23 +285,66 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   const input: DragInput = attachDragInput(canvas, {
     onStart: (gesture: DragGesture) => {
+      if (match.phase === 'keeping') {
+        choosing = view.diveFromPointer(gesture.current);
+        return;
+      }
       if (match.phase !== 'ready') return;
       held = 0;
       sweepMarker = sweepAt(0);
       aiming = intent(gesture);
     },
+
     onMove: (gesture: DragGesture) => {
+      if (match.phase === 'keeping') {
+        choosing = view.diveFromPointer(gesture.current);
+        return;
+      }
       if (match.phase === 'ready') aiming = intent(gesture);
     },
+
     onRelease: (gesture: DragGesture) => {
+      if (match.phase === 'keeping') {
+        commitDive(gesture.current);
+        return;
+      }
       if (match.phase === 'ready') take(intent(gesture));
       else aiming = null;
     },
-    onClick: () => {
+
+    onClick: (point) => {
+      // A tap is enough to pick a dive, and is the only thing that moves the
+      // handover on. Everywhere else it is "next".
+      if (match.phase === 'keeping') {
+        commitDive(point);
+        return;
+      }
+      if (match.phase === 'handover') {
+        match = reduce(match, { type: 'HANDED_OVER' });
+        return;
+      }
       aiming = null;
       advanceToNext();
     },
   });
+
+  /**
+   * Lock the keeper's pick in.
+   *
+   * Clamped to somewhere inside the goal, because a pointer can be anywhere on
+   * the pitch and "I dive at the corner flag" is not a choice worth offering.
+   */
+  function commitDive(point: DragPoint): void {
+    const spot = view.diveFromPointer(point) ?? { x: 0, y: 1 };
+    const dive = {
+      x: clamp(spot.x, -GOAL_WIDTH / 2, GOAL_WIDTH / 2),
+      y: clamp(spot.y, 0.1, GOAL_HEIGHT),
+    };
+    choosing = null;
+    match = reduce(match, { type: 'SET_DIVE', dive });
+  }
+
+  const clamp = (v: number, lo: number, hi: number): number => (v < lo ? lo : v > hi ? hi : v);
 
   // --- canvas sizing -------------------------------------------------------
 
@@ -290,7 +396,15 @@ export async function startGame(options: GameOptions): Promise<Game> {
       runUp += STEP;
       if (runUp >= RUN_UP_SECONDS) {
         const rng = createRng(shotSeed(match.seed, match.shotIndex));
-        flight = createFlight(pending.shot, keeper, rng, pending.keeperStartX);
+            // A human keeper's pick overrides the computer's read entirely.
+        flight = createFlight(
+          pending.shot,
+          keeper,
+          rng,
+          pending.keeperStartX,
+          pending.dive
+        );
+        struckDive = pending.dive;
         pending = null;
         struckAt = clock;
         match = reduce(match, { type: 'STRIKE' });
@@ -324,6 +438,13 @@ export async function startGame(options: GameOptions): Promise<Game> {
         keeperHands: { x: flight.keeper.state.hands.x, y: flight.keeper.state.hands.y },
         keeperEnvelope: keeper.diveSpeed * flight.elapsed + keeper.reach + BALL_RADIUS,
         keeperStartX: flight.keeper.plan.startX,
+        // The tap as it was made, not plan.chosen — that is already clamped to
+        // what the keeper could reach, so logging it would say the same thing
+        // as keeperHands and lose the only question worth asking: was the
+        // corner they went for one they could actually get to?
+        keeperDive: struckDive ? { x: struckDive.x, y: struckDive.y } : null,
+        mode: match.mode,
+        takerSide: match.taker,
         viewport: { width, height },
       });
       match = reduce(match, { type: 'RESOLVE', outcome: flight.outcome });
@@ -359,6 +480,28 @@ export async function startGame(options: GameOptions): Promise<Game> {
   return {
     log,
 
+    restart(mode: MatchMode, duelNames?: DuelNames): void {
+      if (duelNames) {
+        names = cleanNames(duelNames);
+        remember({ duelNames: names });
+      }
+      match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND, mode);
+      flight = null;
+      trail = [];
+      pending = null;
+      struckAt = null;
+      choosing = null;
+      summary = null;
+      runUp = 0;
+      settling = 0;
+      keeperSim = idleKeeper();
+      ballPosition = spotBall(PENALTY_DISTANCE);
+    },
+
+    currentMode: () => match.mode,
+
+    currentNames: () => [names[0], names[1]],
+
     stop(): void {
       running = false;
       cancelAnimationFrame(frameId);
@@ -372,7 +515,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
       view = createView(id);
       view.mount({ canvas, ctx: ctx! });
       fit();
-      void storage.set<Settings>(KEYS.settings, { ...settings, viewId: id });
+      remember({ viewId: id });
     },
 
     currentViewId: () => view.id,

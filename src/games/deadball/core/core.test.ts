@@ -567,7 +567,7 @@ describe('keeper commitment', () => {
 
   test('the three styles are shared out by their weights', () => {
     const styles = (keeper: KeeperProfile) => {
-      const counts = { guess: 0, anticipate: 0, react: 0 };
+      const counts: Record<string, number> = { guess: 0, anticipate: 0, react: 0, human: 0 };
       for (let seed = 1; seed <= 400; seed++) {
         counts[planKeeper(keeper, createRng(seed)).plan.style] += 1;
       }

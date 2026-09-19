@@ -96,11 +96,13 @@ export function createFlight(
    * input, not presentation: it decides how far they have to travel. Recorded
    * in the shot log, and part of the two-player message when that arrives.
    */
-  keeperStartX = 0
+  keeperStartX = 0,
+  /** Where a person chose to dive, if a person is keeping. */
+  chosenDive: { x: number; y: number } | null = null
 ): Flight {
   return {
     ball: { position: shot.origin, velocity: shot.velocity, spin: shot.spin },
-    keeper: planKeeper(profile, rng, shot.aimPoint, keeperStartX),
+    keeper: planKeeper(profile, rng, shot.aimPoint, keeperStartX, chosenDive),
     profile,
     elapsed: 0,
     rebounds: 0,

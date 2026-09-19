@@ -16,11 +16,11 @@
  */
 
 import { GOAL_HEIGHT, GOAL_WIDTH, PENALTY_DISTANCE } from '../../core/units.ts';
-import type { FrameState, ShotInput } from '../../core/types.ts';
+import type { Dive, FrameState, ShotInput } from '../../core/types.ts';
 import { vec } from '../../core/vec3.ts';
 import { dragToShot } from '../aim.ts';
 import { createProjector, type Camera, type Projector } from '../project.ts';
-import type { DragGesture, View, ViewContext } from '../View.ts';
+import type { DragGesture, DragPoint, View, ViewContext } from '../View.ts';
 import { drawScene } from './scene.ts';
 
 /** Out to the taker's right, above head height, aimed down the pitch. */
@@ -95,6 +95,11 @@ export class AngledBehindView implements View {
 
   aimFromDrag(gesture: DragGesture): ShotInput {
     return dragToShot(gesture, this.width, this.height);
+  }
+
+  /** The goal sits on the plane z = 0, which is all the unprojection needs. */
+  diveFromPointer(point: DragPoint): Dive | null {
+    return this.projector?.toPlane(point.x, point.y, 0) ?? null;
   }
 
   destroy(): void {}

@@ -67,6 +67,19 @@ export interface ShotRecord {
   keeperEnvelope: number;
   /** Where along the line the keeper was standing at contact. */
   keeperStartX: number;
+  /**
+   * The corner a human keeper tapped, unclamped, or null when the computer was
+   * in goal.
+   *
+   * Deliberately the raw tap. `keeperHands` is where the dive finished, which
+   * is the tap already clamped to what a keeper can reach, so on its own it
+   * cannot distinguish a keeper who read the shot wrong from one who read it
+   * right and went for a corner nobody could get to.
+   */
+  keeperDive: { x: number; y: number } | null;
+  /** 'solo', or which side took it in a duel. */
+  mode: string;
+  takerSide: 0 | 1;
 
   viewport: { width: number; height: number };
 }

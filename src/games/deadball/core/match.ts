@@ -3,28 +3,55 @@
  *
  * A pure reducer over messages, deliberately. It is what makes a human
  * opponent, an AI opponent and a replay the same code: the only difference
- * between them is where TAKE_SHOT comes from. Nothing here knows about
+ * between them is where the messages come from. Nothing here knows about
  * physics, canvases or the clock.
  */
 
-import type { MatchPhase, Outcome } from './types.ts';
+import type { Dive, MatchPhase, Outcome } from './types.ts';
 import { isGoal } from './rules.ts';
 
 /** Penalties per side in a shootout, before sudden death. */
 export const SHOTS_PER_ROUND = 5;
 
+export type MatchMode =
+  /** One player, taking penalties against the computer keeper. */
+  | 'solo'
+  /** Two players on one device: one shoots, the other saves. */
+  | 'duel';
+
+export type Side = 0 | 1;
+
 export interface MatchState {
+  mode: MatchMode;
   phase: MatchPhase;
   seed: number;
-  /** Index of the shot being taken, 0-based. */
+  /** Index of the shot being taken, 0-based, counting both sides in a duel. */
   shotIndex: number;
   shotsTotal: number;
   outcomes: Outcome[];
+  /** Solo score. In a duel, read `scores` instead. */
   score: number;
+
+  /** Who is taking this one. Always 0 in a solo game. */
+  taker: Side;
+  /** Goals scored by each side. */
+  scores: [number, number];
+  /**
+   * Where the keeper has committed to dive, or null if they have not yet.
+   *
+   * Set before the taker has touched anything, and cleared at the end of every
+   * shot. A keeper who could change their mind after seeing the aim would not
+   * be guessing, which is the whole game.
+   */
+  dive: Dive | null;
 }
 
 export type MatchMessage =
-  | { type: 'START'; seed: number; shots?: number }
+  | { type: 'START'; seed: number; mode?: MatchMode; shots?: number }
+  /** The keeper has picked a corner. Duel only, and before anything else. */
+  | { type: 'SET_DIVE'; dive: Dive }
+  /** The device has changed hands and the keeper's pick is off the screen. */
+  | { type: 'HANDED_OVER' }
   /** Released the drag. The taker starts their run-up; the ball has not moved. */
   | { type: 'TAKE_SHOT' }
   /** Boot meets ball. This is where the flight begins. */
@@ -32,14 +59,41 @@ export type MatchMessage =
   | { type: 'RESOLVE'; outcome: Outcome }
   | { type: 'NEXT' };
 
-export function initialMatch(seed: number, shots: number = SHOTS_PER_ROUND): MatchState {
-  return { phase: 'ready', seed, shotIndex: 0, shotsTotal: shots, outcomes: [], score: 0 };
+export function initialMatch(
+  seed: number,
+  shots: number = SHOTS_PER_ROUND,
+  mode: MatchMode = 'solo'
+): MatchState {
+  return {
+    mode,
+    // A duel starts with the keeper, because they have to commit blind.
+    phase: mode === 'duel' ? 'keeping' : 'ready',
+    seed,
+    shotIndex: 0,
+    // Five each in a duel, so ten shots and the sides alternate.
+    shotsTotal: mode === 'duel' ? shots * 2 : shots,
+    outcomes: [],
+    score: 0,
+    taker: 0,
+    scores: [0, 0],
+    dive: null,
+  };
 }
 
 export function reduce(state: MatchState, message: MatchMessage): MatchState {
   switch (message.type) {
     case 'START':
-      return initialMatch(message.seed, message.shots ?? SHOTS_PER_ROUND);
+      return initialMatch(message.seed, message.shots ?? SHOTS_PER_ROUND, message.mode ?? state.mode);
+
+    case 'SET_DIVE':
+      // Only while the keeper is on the clock. A dive chosen at any other point
+      // is a dive chosen with something visible that should not have been.
+      return state.phase === 'keeping'
+        ? { ...state, phase: 'handover', dive: message.dive }
+        : state;
+
+    case 'HANDED_OVER':
+      return state.phase === 'handover' ? { ...state, phase: 'ready' } : state;
 
     case 'TAKE_SHOT':
       // Ignored unless a shot is actually waiting to be taken, so a second
@@ -51,21 +105,33 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
 
     case 'RESOLVE': {
       if (state.phase !== 'flight') return state;
-      const outcomes = [...state.outcomes, message.outcome];
+      const scored = isGoal(message.outcome) ? 1 : 0;
+      const scores: [number, number] = [...state.scores];
+      scores[state.taker] += scored;
       return {
         ...state,
         phase: 'resolved',
-        outcomes,
-        score: state.score + (isGoal(message.outcome) ? 1 : 0),
+        outcomes: [...state.outcomes, message.outcome],
+        score: state.score + scored,
+        scores,
       };
     }
 
     case 'NEXT': {
       if (state.phase !== 'resolved') return state;
       const shotIndex = state.shotIndex + 1;
-      return shotIndex >= state.shotsTotal
-        ? { ...state, phase: 'complete' }
-        : { ...state, phase: 'ready', shotIndex };
+      if (shotIndex >= state.shotsTotal) return { ...state, phase: 'complete' };
+
+      // Sides swap every shot, so each takes one then keeps one, the way a
+      // real shootout alternates rather than giving somebody all five in a row.
+      const taker: Side = state.mode === 'duel' ? (state.taker === 0 ? 1 : 0) : 0;
+      return {
+        ...state,
+        phase: state.mode === 'duel' ? 'keeping' : 'ready',
+        shotIndex,
+        taker,
+        dive: null,
+      };
     }
   }
 }
@@ -73,3 +139,16 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
 /** Shots left to take, including the one in progress. */
 export const shotsRemaining = (state: MatchState): number =>
   Math.max(0, state.shotsTotal - state.outcomes.length);
+
+/** Whoever is not taking this one is in goal. */
+export const keeperSide = (state: MatchState): Side => (state.taker === 0 ? 1 : 0);
+
+/** How many each side has taken so far, for a duel scoreboard. */
+export function shotsTaken(state: MatchState): [number, number] {
+  const taken: [number, number] = [0, 0];
+  for (let i = 0; i < state.outcomes.length; i++) {
+    // Shot 0 is side 0, shot 1 is side 1, and so on.
+    taken[(i % 2) as Side] += 1;
+  }
+  return taken;
+}

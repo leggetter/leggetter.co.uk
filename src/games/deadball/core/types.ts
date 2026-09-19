@@ -89,6 +89,8 @@ export interface Player {
  * the keeper looked like it was always waiting.
  */
 export type KeeperStyle =
+  /** A person picked the corner. No read, no guess: exactly as good as they are. */
+  | 'human'
   /** Picks a side before the ball is struck and goes, seeing nothing. */
   | 'guess'
   /** Commits at contact, reading the taker's body shape. */
@@ -203,6 +205,20 @@ export interface FrameState {
   shotsTotal: number;
   score: number;
   outcomes: Outcome[];
+  /** 'solo' or 'duel'. A duel is two people on one device. */
+  mode: string;
+  /** Duel: which side is taking this one. */
+  taker: 0 | 1;
+  /** Duel: whoever is not taking it. */
+  keeperSide: 0 | 1;
+  /** Duel: goals each. */
+  scores: [number, number];
+  /** Duel: what to call each side. Never reaches the simulation or the log. */
+  names: [string, string];
+  /** Duel: where the keeper has committed, once they have. */
+  dive: Dive | null;
+  /** Duel: where the keeper is pointing while they choose. */
+  choosing: Dive | null;
   lastOutcome: Outcome | null;
   /** Live aim while a drag is in progress, for the preview. */
   aiming: ShotInput | null;
@@ -220,7 +236,19 @@ export interface FrameState {
   timingMarker: number | null;
 }
 
+/** Where a human keeper has chosen to dive, on the plane of the goal. */
+export interface Dive {
+  /** Meters either side of the middle. */
+  x: number;
+  /** Meters above the ground. */
+  y: number;
+}
+
 export type MatchPhase =
+  /** Duel only: the keeper is picking a corner, before the taker sees anything. */
+  | 'keeping'
+  /** Duel only: the pick is hidden and the device is changing hands. */
+  | 'handover'
   | 'ready'
   /** Drag released, taker running in. The ball is still on the spot. */
   | 'runup'

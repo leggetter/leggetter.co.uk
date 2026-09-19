@@ -1,7 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { summarise } from './analyse.ts';
+import { summarise, summariseDuel } from './analyse.ts';
 import type { ShotRecord } from './log.ts';
 import type { Outcome } from '../core/types.ts';
 
@@ -14,6 +14,9 @@ const shot = (over: {
   power?: number;
   crossX?: number;
   envelope?: number;
+  mode?: string;
+  takerSide?: 0 | 1;
+  dive?: { x: number; y: number } | null;
 } = {}): ShotRecord => ({
   at: new Date(Date.UTC(2026, 0, 1, 0, 0, sequence++)).toISOString(),
   tuning: 'deadbeef',
@@ -37,6 +40,9 @@ const shot = (over: {
   keeperHands: { x: 1, y: 1 },
   keeperEnvelope: over.envelope ?? 2.94,
   keeperStartX: 0,
+  keeperDive: over.dive === undefined ? null : over.dive,
+  mode: over.mode ?? 'solo',
+  takerSide: over.takerSide ?? 0,
   viewport: { width: 1280, height: 750 },
 });
 
@@ -133,5 +139,93 @@ describe('summarise', () => {
     // The side habit outranks everything else, because it is the one a keeper
     // will eventually punish.
     assert.match(s.notes[0]!, /went right/);
+  });
+});
+
+describe('a duel, read as a contest', () => {
+  const duelShot = (
+    takerSide: 0 | 1,
+    outcome: Outcome,
+    over: { timing?: number; crossX?: number; dive?: { x: number; y: number } } = {}
+  ) => shot({ mode: 'duel', takerSide, outcome, ...over });
+
+  test('each side is credited with its own shots, not the average of both', () => {
+    // The whole reason this exists: `summarise` would report 5/10 scored, a
+    // figure describing neither player.
+    const { sides } = summariseDuel([
+      duelShot(0, 'goal'),
+      duelShot(1, 'saved'),
+      duelShot(0, 'goal'),
+      duelShot(1, 'saved'),
+      duelShot(0, 'goal'),
+      duelShot(1, 'goal'),
+    ]);
+
+    assert.deepEqual(
+      [sides[0].taking.shots, sides[0].taking.goals, sides[0].taking.rate],
+      [3, 3, 1]
+    );
+    assert.deepEqual(
+      [sides[1].taking.shots, sides[1].taking.goals, sides[1].taking.rate],
+      [3, 1, 1 / 3]
+    );
+  });
+
+  test('a keeper is credited with the shots the other one took', () => {
+    const { sides } = summariseDuel([
+      duelShot(0, 'goal'),
+      duelShot(0, 'saved'),
+      duelShot(1, 'goal'),
+    ]);
+
+    // Side 1 was in goal for both of side 0's, and saved one of them.
+    assert.equal(sides[1].keeping.faced, 2);
+    assert.equal(sides[1].keeping.saves, 1);
+    assert.equal(sides[1].keeping.rate, 0.5);
+
+    assert.equal(sides[0].keeping.faced, 1);
+    assert.equal(sides[0].keeping.saves, 0);
+  });
+
+  test('a shot that never reached the line is not held against the keeper', () => {
+    // Otherwise putting it over the bar flatters whoever is in goal, and the
+    // save rate measures the other player's aim rather than their keeping.
+    const { sides } = summariseDuel([
+      duelShot(0, 'over'),
+      duelShot(0, 'wide'),
+      duelShot(0, 'post'),
+      duelShot(0, 'goal'),
+    ]);
+
+    assert.equal(sides[1].keeping.faced, 1);
+    assert.equal(sides[1].keeping.rate, 0);
+  });
+
+  test('the pick is measured against where the ball actually went', () => {
+    const { sides } = summariseDuel([
+      // 3 m out along the line from a ball that crossed at 0, and 4 m out.
+      duelShot(0, 'goal', { crossX: 0, dive: { x: 3, y: 1.4 } }),
+      duelShot(0, 'saved', { crossX: 0, dive: { x: 4, y: 1.4 } }),
+    ]);
+
+    assert.equal(sides[1].keeping.meanPick, 3.5);
+  });
+
+  test('no pick recorded means no figure, rather than a zero', () => {
+    // A zero would read as a perfect pick, which is the opposite of unknown.
+    const { sides } = summariseDuel([duelShot(0, 'goal')]);
+    assert.equal(sides[1].keeping.meanPick, null);
+  });
+
+  test('solo shots in the same log are ignored', () => {
+    const { sides } = summariseDuel([shot({ outcome: 'goal' }), duelShot(0, 'goal')]);
+    assert.equal(sides[0].taking.shots, 1);
+  });
+
+  test('an empty log gives nulls, not divisions by zero', () => {
+    const { sides } = summariseDuel([]);
+    assert.equal(sides[0].taking.rate, null);
+    assert.equal(sides[0].keeping.rate, null);
+    assert.equal(sides[0].keeping.meanPick, null);
   });
 });

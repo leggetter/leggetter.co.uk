@@ -185,6 +185,91 @@ function observations(s: Summary, records: ShotRecord[]): string[] {
 export interface FullTime {
   match: Summary;
   lifetime: Summary;
+  /** Present only for a duel. Null for solo, where there are no two sides. */
+  duel: DuelSummary | null;
+}
+
+/**
+ * A duel, read as the contest it is.
+ *
+ * `Summary` answers "how do you play", which is the right question for one
+ * person and the wrong one for two: every rate in it averages two different
+ * people into a player who does not exist, and the notes address that player
+ * as "you". Ten shots split five and five is also too few for any of the habit
+ * findings to mean anything.
+ *
+ * So this asks the only questions a duel raises. Who scored more of theirs,
+ * and who kept better - the second being the half the scoreline never shows,
+ * because a keeper's work is only visible as shots the other person failed to
+ * score.
+ */
+export interface DuelSummary {
+  /** In side order: index 0 took the first shot. */
+  sides: [SideSummary, SideSummary];
+}
+
+export interface SideSummary {
+  taking: {
+    shots: number;
+    goals: number;
+    rate: number | null;
+    clean: number;
+  };
+  keeping: {
+    /** Shots faced that reached the line: a save is only possible on those. */
+    faced: number;
+    saves: number;
+    rate: number | null;
+    /**
+     * Mean distance from the corner they picked to where the ball actually
+     * crossed, in meters, over the shots that got there.
+     *
+     * Measured rather than bucketed into right-way and wrong-way. A keeper who
+     * picks the correct side and misses the height by a meter has not read it,
+     * and a side-based count would score that identically to a save.
+     */
+    meanPick: number | null;
+  };
+}
+
+const mean = (xs: number[]): number | null =>
+  xs.length > 0 ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+
+export function summariseDuel(records: ShotRecord[]): DuelSummary {
+  const duel = records.filter((r) => r.mode === 'duel');
+
+  const side = (who: 0 | 1): SideSummary => {
+    const took = duel.filter((r) => r.takerSide === who);
+    const goals = took.filter((r) => r.outcome === 'goal').length;
+
+    // Everything the other one took is a shot this side was in goal for. Only
+    // the ones that reached the line could have been saved, so a keeper is not
+    // credited for the other player putting it over the bar.
+    const kept = duel.filter((r) => r.takerSide !== who);
+    const onTarget = kept.filter((r) => r.outcome === 'goal' || r.outcome === 'saved');
+    const saves = onTarget.filter((r) => r.outcome === 'saved').length;
+
+    return {
+      taking: {
+        shots: took.length,
+        goals,
+        rate: rate(goals, took.length),
+        clean: took.filter((r) => r.input.timing === 0).length,
+      },
+      keeping: {
+        faced: onTarget.length,
+        saves,
+        rate: rate(saves, onTarget.length),
+        meanPick: mean(
+          onTarget
+            .filter((r) => r.keeperDive !== null)
+            .map((r) => Math.hypot(r.crossing.x - r.keeperDive!.x, r.crossing.y - r.keeperDive!.y))
+        ),
+      },
+    };
+  };
+
+  return { sides: [side(0), side(1)] };
 }
 
 /** Just the shots from one shootout. */

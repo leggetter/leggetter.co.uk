@@ -277,6 +277,35 @@ const LIMB = { leg: 0.13, torso: 0.28, arm: 0.12, head: 0.115 };
  */
 const NARROW = 560;
 
+const FACE = 'ui-sans-serif, system-ui, -apple-system, sans-serif';
+
+/**
+ * Set the font at the largest size that fits, down to a floor.
+ *
+ * Every banner used to hold a label this file wrote itself, so a size that fit
+ * once fit forever. Names are typed by whoever is playing, and twelve
+ * characters of "MNOPQRSTUVWX IN GOAL" ran off the side of a phone and under
+ * the camera buttons. Shrinking is better than truncating: the name is the
+ * point of the line, and a shootout is two people, so a small line is still
+ * read by someone sitting right in front of it.
+ */
+function fitFont(
+  ctx: Ctx,
+  text: string,
+  weight: number,
+  size: number,
+  maxWidth: number,
+  floor = 11
+): void {
+  let px = size;
+  ctx.font = `${weight} ${px}px ${FACE}`;
+  while (px > floor && ctx.measureText(text).width > maxWidth) {
+    px -= 1;
+    ctx.font = `${weight} ${px}px ${FACE}`;
+  }
+}
+
+
 /**
  * Standing still, breathing.
  *
@@ -896,26 +925,101 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
   const narrow = width < NARROW;
   let y = Math.max(46, height * 0.08);
 
-  ctx.font = `700 ${narrow ? 38 : 50}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
-  ctx.fillText(`${frame.score} of ${frame.shotsTotal}`, centre, y);
-  y += 60;
+  if (frame.mode === 'duel') {
+    const [a, b] = frame.scores;
+    ctx.font = `700 ${narrow ? 38 : 50}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+    ctx.fillText(`${a} \u2013 ${b}`, centre, y);
+    y += narrow ? 46 : 58;
+
+    const result = a === b ? 'Level. Somebody take another.' : `${frame.names[a > b ? 0 : 1]} wins`;
+    fitFont(ctx, result, 600, narrow ? 15 : 18, width - 32);
+    ctx.fillStyle = a === b ? 'rgba(255, 255, 255, 0.75)' : SIDE_COLOURS[a > b ? 0 : 1];
+    ctx.fillText(result, centre, y);
+    y += narrow ? 30 : 36;
+  } else {
+    ctx.font = `700 ${narrow ? 38 : 50}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+    ctx.fillText(`${frame.score} of ${frame.shotsTotal}`, centre, y);
+    y += 60;
+  }
 
   // This shootout, shot by shot.
-  const gap = 30;
+  const duel = frame.mode === 'duel';
+  const gap = duel && narrow ? 22 : 30;
   const left = centre - ((frame.outcomes.length - 1) * gap) / 2;
+  const radius = duel && narrow ? 9 : 11;
+
+  /**
+   * Whose shot it was, always, and whether it went in, separately.
+   *
+   * Colouring only the goals meant a miss said nothing about who took it, so
+   * three pips in a row of ten carried no owner and the only way to check a
+   * scoreline was to count positions. The ring is the player; the fill is the
+   * result.
+   */
   frame.outcomes.forEach((outcome, i) => {
+    const side = duel ? i % 2 : 0;
+    const colour = SIDE_COLOURS[duel ? side : 0];
+    const scored = outcome === 'goal';
+
     ctx.beginPath();
-    ctx.arc(left + i * gap, y, 11, 0, Math.PI * 2);
-    ctx.fillStyle = outcome === 'goal' ? '#4ade80' : 'rgba(255, 255, 255, 0.22)';
+    ctx.arc(left + i * gap, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = scored ? colour : 'rgba(255, 255, 255, 0.1)';
     ctx.fill();
-    if (outcome !== 'goal') {
-      ctx.font = '600 10px ui-sans-serif, system-ui, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+
+    if (duel) {
+      // The owner's colour is on every pip, filled or not.
+      ctx.strokeStyle = colour;
+      ctx.lineWidth = 2.5;
+      ctx.globalAlpha = scored ? 1 : 0.65;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    if (!scored) {
+      ctx.font = `600 ${duel && narrow ? 9 : 10}px ui-sans-serif, system-ui, sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.fillText(SHORT_OUTCOME[outcome], left + i * gap, y + 3.5);
     }
   });
+
   y += 48;
+
+  // Where the two columns of duel figures sit, and where each name is written
+  // over its own column. Measured rather than a constant: the gap used to be
+  // tuned for "PLAYER 1" and "PLAYER 2", which are the same width as each other
+  // and never change, and two typed names are neither.
+  const labels = [frame.names[0].toUpperCase(), frame.names[1].toUpperCase()];
+  let labelSize = narrow ? 10 : 11;
+  let colGap = narrow ? 92 : 124;
+  if (duel) {
+    for (;;) {
+      ctx.font = `600 ${labelSize}px ${FACE}`;
+      const widest = Math.max(...labels.map((l) => ctx.measureText(l).width));
+      colGap = Math.max(narrow ? 92 : 124, widest + (narrow ? 22 : 30));
+      // The row labels sit to the left of the first column and need their own
+      // room, so the pair has to fit in rather less than the full width.
+      if (colGap + widest <= width - (narrow ? 130 : 200) || labelSize <= 8) break;
+      labelSize -= 1;
+    }
+  }
+  const cols = [centre - colGap / 2, centre + colGap / 2];
+
+  if (duel) {
+    ctx.font = `600 ${labelSize}px ${FACE}`;
+    ctx.textAlign = 'center';
+    labels.forEach((label, i) => {
+      const half = ctx.measureText(label).width / 2;
+      ctx.fillStyle = SIDE_COLOURS[i];
+      ctx.beginPath();
+      ctx.arc(cols[i] - half - 10, y - 4, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+      ctx.fillText(label, cols[i], y - 9);
+    });
+    y += narrow ? 26 : 30;
+  }
 
   const heading = (text: string): void => {
     ctx.font = `600 ${narrow ? 10 : 11}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
@@ -942,7 +1046,52 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
     y += 10;
   };
 
-  if (full) {
+  if (full?.duel && duel) {
+    // Two columns of figures under each name, because the only questions a
+    // duel raises are comparative. Averaging the pair into one set of rates, as
+    // the solo panel does, describes a player who was not there.
+    const [p0, p1] = full.duel.sides;
+
+    const row = (label: string, values: [string, string]): void => {
+      ctx.textAlign = 'right';
+      ctx.font = `500 ${narrow ? 11 : 12}px ${FACE}`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillText(label, cols[0] - colGap / 2 - (narrow ? 8 : 12), y);
+
+      ctx.textAlign = 'center';
+      ctx.font = `600 ${narrow ? 12 : 13}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+      values.forEach((value, i) => {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
+        ctx.fillText(value, cols[i], y);
+      });
+      y += narrow ? 19 : 22;
+    };
+
+    heading('shooting');
+    row('scored', [
+      `${p0.taking.goals}/${p0.taking.shots}`,
+      `${p1.taking.goals}/${p1.taking.shots}`,
+    ]);
+    row('struck clean', [
+      `${p0.taking.clean}/${p0.taking.shots}`,
+      `${p1.taking.clean}/${p1.taking.shots}`,
+    ]);
+    y += 12;
+
+    heading('in goal');
+    row('saved', [
+      `${p0.keeping.saves}/${p0.keeping.faced}`,
+      `${p1.keeping.saves}/${p1.keeping.faced}`,
+    ]);
+    // How close the corner they picked was to where it actually went. The half
+    // of a duel the scoreline never shows: keeping well looks like the other
+    // person shooting badly.
+    row('pick, off by', [
+      p0.keeping.meanPick === null ? '-' : `${p0.keeping.meanPick.toFixed(1)} m`,
+      p1.keeping.meanPick === null ? '-' : `${p1.keeping.meanPick.toFixed(1)} m`,
+    ]);
+    y += 12;
+  } else if (full) {
     const { match, lifetime } = full;
 
     // These five. What the player actually remembers taking.
@@ -1021,15 +1170,139 @@ const SHORT_OUTCOME: Record<Outcome, string> = {
   blocked: 'X',
 };
 
+/**
+ * The keeper's turn, and the screen that hides it again.
+ *
+ * Two people sharing a screen is the whole difficulty of the format, so these
+ * two are not decoration: the handover is the only thing standing between the
+ * keeper's pick and the person about to shoot at it.
+ */
+export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, width: number): void {
+  const spot = frame.choosing ?? frame.dive;
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  const narrow = width < NARROW;
+
+  if (spot) {
+    const at = proj.project(vec(spot.x, spot.y, 0));
+    if (at) {
+      const r = Math.max(16, 0.45 * at.scale);
+      ctx.strokeStyle = '#f87171';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(at.x, at.y, r, 0, Math.PI * 2);
+      ctx.moveTo(at.x - r * 1.6, at.y);
+      ctx.lineTo(at.x + r * 1.6, at.y);
+      ctx.moveTo(at.x, at.y - r * 1.6);
+      ctx.lineTo(at.x, at.y + r * 1.6);
+      ctx.stroke();
+    }
+  }
+
+  const round = Math.floor(frame.shotIndex / 2) + 1;
+
+  // Below the camera switcher, which stacks into a tall column on a phone and
+  // is HTML sitting over this canvas, so it cannot be drawn around - only
+  // avoided. Same reason the score line has its own clearance above.
+  const headY = narrow ? 126 : 124;
+
+  const inGoal = `${frame.names[frame.keeperSide].toUpperCase()} IN GOAL`;
+  fitFont(ctx, inGoal, 700, narrow ? 20 : 26, width - (narrow ? 48 : 32));
+  ctx.fillStyle = '#f87171';
+  ctx.fillText(inGoal, width / 2, headY);
+
+  // Both roles, every time. Naming only the keeper let "Player 2 in goal" read
+  // as who Player 2 *is* rather than as what they are doing this turn, so the
+  // swap went unnoticed and the winner made no sense.
+  const turn = `round ${round} of 5  ·  ${frame.names[frame.taker]} is taking this one`;
+  fitFont(ctx, turn, 600, narrow ? 13 : 15, width - 24, 10);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.fillText(turn, width / 2, headY + (narrow ? 22 : 24));
+
+  ctx.font = `500 ${narrow ? 12 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.fillText(
+    spot ? 'let go to commit' : 'pick your corner  ·  the taker cannot see this',
+    width / 2,
+    headY + (narrow ? 42 : 46)
+  );
+  ctx.restore();
+}
+
+/**
+ * The screen that has to hide everything.
+ *
+ * Opaque on purpose. A translucent one would be prettier and would leak the
+ * reticle the keeper just placed, which is the only secret the format has.
+ */
+export function drawHandover(ctx: Ctx, frame: FrameState, width: number, height: number): void {
+  ctx.save();
+  ctx.fillStyle = '#06141d';
+  ctx.fillRect(0, 0, width, height);
+
+  const narrow = width < NARROW;
+  ctx.textAlign = 'center';
+
+  const pass = `PASS TO ${frame.names[frame.taker].toUpperCase()}`;
+  fitFont(ctx, pass, 700, narrow ? 26 : 34, width - 32);
+  ctx.fillStyle = SIDE_COLOURS[frame.taker];
+  ctx.fillText(pass, width / 2, height * 0.42);
+
+  const against = `your turn to shoot  ·  ${frame.names[frame.keeperSide]} is in goal`;
+  fitFont(ctx, against, 500, narrow ? 14 : 16, width - 24, 10);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+  ctx.fillText(
+    against,
+    width / 2,
+    height * 0.42 + (narrow ? 34 : 42)
+  );
+
+  ctx.font = `500 ${narrow ? 13 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.fillText('tap when you have it', width / 2, height * 0.42 + (narrow ? 62 : 76));
+  ctx.restore();
+}
+
+/**
+ * A colour each, in side order.
+ *
+ * These were five separate literals until the players had names. That was
+ * survivable while a colour was decoration: nobody reads "blue" as an identity
+ * when the label says PLAYER 2 anyway. A full-time key naming the sides makes
+ * blue mean something, and then a blue "PASS TO AMA" while Ama's key dot is
+ * green is simply wrong.
+ */
+export const SIDE_COLOURS: readonly [string, string] = ['#4ade80', '#7dd3fc'];
+
 export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: number): void {
   ctx.save();
   ctx.textBaseline = 'top';
-  ctx.font = '600 15px ui-sans-serif, system-ui, -apple-system, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-  ctx.fillText(`${frame.player.name}  ${frame.score}/${frame.shotsTotal}`, 18, 16);
+
+  // On a phone the mode buttons move to the top-left corner, which is where
+  // this was drawn: the score sat underneath them and was unreadable. The
+  // buttons are HTML and the score is canvas, so neither can push the other
+  // out of the way and the clearance is a number that has to agree with the
+  // page's own breakpoint. See the max-width: 559px block in index.astro.
+  const top = width < NARROW ? 48 : 16;
+
+  if (frame.mode === 'duel') {
+    for (const side of [0, 1] as const) {
+      const taking = frame.taker === side;
+      const line = `${frame.names[side].toUpperCase()}  ${frame.scores[side]}${taking ? '   \u2190 taking' : ''}`;
+      // Half the width: the camera switcher owns the other half.
+      fitFont(ctx, line, 600, 15, width * 0.5 - 24, 10);
+      ctx.fillStyle = taking ? SIDE_COLOURS[side] : 'rgba(255, 255, 255, 0.55)';
+      ctx.fillText(line, 18, top + side * 20);
+    }
+  } else {
+    ctx.font = `600 15px ${FACE}`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+    ctx.fillText(`${frame.player.name}  ${frame.score}/${frame.shotsTotal}`, 18, top);
+  }
 
   // One pip per penalty, filled as they are taken.
-  const pipY = 44;
+  const pipY = top + (frame.mode === 'duel' ? 46 : 28);
   for (let i = 0; i < frame.shotsTotal; i++) {
     const outcome = frame.outcomes[i];
     ctx.beginPath();
@@ -1073,6 +1346,19 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
 
   if (frame.phase === 'complete') {
     drawFullTime(ctx, frame, width, height);
+  }
+
+  // Who is taking this one, held on screen for the whole shot. The arrow in
+  // the score is easy to miss, and missing it is what makes the winner of a
+  // duel look wrong: "they were the keeper, how did they win?"
+  if (frame.mode === 'duel' && (frame.phase === 'ready' || frame.phase === 'runup')) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    const shooting = `${frame.names[frame.taker].toUpperCase()} SHOOTING`;
+    fitFont(ctx, shooting, 700, width < NARROW ? 15 : 18, width - 32);
+    ctx.fillStyle = SIDE_COLOURS[frame.taker];
+    ctx.fillText(shooting, width / 2, width < NARROW ? 108 : 120);
+    ctx.restore();
   }
 
   // Hidden once a drag is live: the dial is at the ball and says more, and in

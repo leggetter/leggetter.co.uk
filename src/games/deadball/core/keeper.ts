@@ -148,6 +148,8 @@ export interface KeeperPlan {
   aimPoint: { x: number; y: number };
   /** Where along the line the keeper was standing when the ball was struck. */
   startX: number;
+  /** Where a person chose to dive, already clamped to somewhere reachable. */
+  chosen: Vec3 | null;
 }
 
 export interface KeeperSim {
@@ -179,14 +181,25 @@ export function planKeeper(
   profile: KeeperProfile,
   rng: KeeperRng,
   aimPoint: { x: number; y: number } = { x: 0, y: 1 },
-  startX = 0
+  startX = 0,
+  /**
+   * Where a person decided to dive, if one is keeping.
+   *
+   * Replaces the read, not the body. readAccuracy, guessBias and anticipation
+   * all fall away - a human keeper is exactly as good as their guess - while
+   * the dive speed, the reach and where a keeper can physically get to are
+   * unchanged. Picking the top corner and being right still does not save a
+   * shot struck hard and low into it.
+   */
+  chosen: { x: number; y: number } | null = null
 ): KeeperSim {
   // Guess, anticipate, or react, in that order of the roll. Whatever is not
   // claimed by the first two is a reaction, so a profile that sets neither
   // gets the old always-waiting keeper and that is a visible choice.
   const roll = rng.next();
-  const style: KeeperStyle =
-    roll < profile.guessBias
+  const style: KeeperStyle = chosen
+    ? 'human'
+    : roll < profile.guessBias
       ? 'guess'
       : roll < profile.guessBias + profile.anticipation
         ? 'anticipate'
@@ -214,6 +227,7 @@ export function planKeeper(
       readErrorY: rng.nextBell(),
       aimPoint,
       startX,
+      chosen: chosen ? reachable(chosen.x, chosen.y, startX) : null,
     },
   };
 }
@@ -243,7 +257,12 @@ export function stepKeeper(
     : sim.state.landed;
 
   if (!committed) {
-    if (sim.plan.style === 'guess') {
+    if (sim.plan.style === 'human' && sim.plan.chosen) {
+      // Committed before the ball was struck, by somebody who could not see
+      // where it was going. Exactly where they said, no read error.
+      target = sim.plan.chosen;
+      committed = true;
+    } else if (sim.plan.style === 'guess') {
       // Already going before the ball was struck. Beatable down the middle.
       target = vec(sim.plan.guessX, sim.plan.guessY, 0);
       committed = true;

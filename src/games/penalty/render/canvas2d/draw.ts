@@ -272,7 +272,19 @@ function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   const hd = proj.project(figure.head);
   if (!f || !s || !hd) return;
 
-  const hip = { x: s.x, y: s.y + (f.y - s.y) * 0.48 };
+  /**
+   * Hip, part way down the body from the shoulders to the feet.
+   *
+   * Interpolated in BOTH axes. Taking x from the shoulders and only y from the
+   * feet is invisible on an upright figure, where the two share an x, and
+   * wrong on a diving one: it put the hip up at the shoulders, so each leg had
+   * to span the whole body and the keeper looked planted and stretched no
+   * matter how well the torso was posed.
+   */
+  const hip = {
+    x: s.x + (f.x - s.x) * 0.48,
+    y: s.y + (f.y - s.y) * 0.48,
+  };
 
   ctx.save();
   ctx.lineCap = 'round';
@@ -392,7 +404,7 @@ export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach
     shoulder,
     head,
     hands: extension < 0.04 ? idle : reaching,
-    toes: [trail(0.34, 0.16), trail(0.6, -0.16)],
+    toes: [trail(0.14, 0.16), trail(0.3, -0.16)],
     kit: COLORS.keeperKit,
     trim: COLORS.keeperTrim,
     gloves: reach * 0.34,

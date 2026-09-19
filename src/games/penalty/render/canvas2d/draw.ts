@@ -325,30 +325,42 @@ function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
 export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach: number): void {
   const { hands, body, stance } = keeper;
 
-  // Measured from where the feet are planted, not from the centre of the goal.
-  const extension = Math.min(1, Math.abs(hands.x - stance) / 2.75);
-  const dir = Math.sign(hands.x - stance) || 1;
-
   /**
-   * Standing and diving are two poses, blended by how far the dive has gone.
+   * How far the keeper has thrown itself, measured from where its hands rest
+   * when standing - and in both axes.
    *
-   * Diving, the figure is laid out along the line of travel and off the
-   * ground, hip on the simulated body and feet trailing behind it. Building it
-   * from a planted stance instead gave a keeper who kept both feet on the turf
-   * and stretched its arms across the goal.
+   * Measuring only the lateral part called a save up and across "barely
+   * moving", so the torso stayed vertical and the keeper reached up with a
+   * long arm instead of diving. A save is a save whichever direction it is in.
+   *
+   * Zero while idling, because the hands travel with the stance, so shuffling
+   * along the line never reads as a dive.
    */
+  const dx = hands.x - stance;
+  const dy = hands.y - 0.95;
+  const thrown = Math.sqrt(dx * dx + dy * dy);
+  // Committed by about 1.9 m of reach; a full stretch is further than that but
+  // the body is already flat out well before it.
+  const extension = clamp01(thrown / 1.9);
+
+  // Unit vector along the dive, from the standing hands toward where they are
+  // now. The whole body lies along this at full stretch.
+  const along = thrown > 1e-4 ? { x: dx / thrown, y: dy / thrown } : { x: 0, y: 1 };
+
   const stand = {
     feet: vec(stance, 0.06, 0),
-    hip: vec(stance, 0.86, 0),
     shoulder: vec(stance, 1.42, 0),
     head: vec(stance, 1.68, 0),
   };
 
+  // Hip sits on the simulated body, which is one of the two volumes that
+  // decides a save, so what is drawn is roughly where the saving happens.
+  // Everything else is laid out along the dive from there: feet trailing
+  // behind and off the ground, shoulders forward, arms short.
   const dive = {
-    feet: vec(body.x - dir * 0.78, Math.max(0.1, body.y - 0.3), 0),
-    hip: vec(body.x, body.y, 0),
-    shoulder: vec(body.x + (hands.x - body.x) * 0.55, body.y + (hands.y - body.y) * 0.62, 0),
-    head: vec(body.x + (hands.x - body.x) * 0.72, body.y + (hands.y - body.y) * 0.78 + 0.1, 0),
+    feet: vec(body.x - along.x * 0.75, Math.max(0.08, body.y - along.y * 0.75), 0),
+    shoulder: vec(body.x + along.x * 0.55, body.y + along.y * 0.55, 0),
+    head: vec(body.x + along.x * 0.74, body.y + along.y * 0.74 + 0.12, 0),
   };
 
   const blend = (a: Vec3, b: Vec3): Vec3 =>
@@ -358,9 +370,8 @@ export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach
   const shoulder = blend(stand.shoulder, dive.shoulder);
   const head = blend(stand.head, dive.head);
 
-  // Standing, the arms hang either side. Diving, both go with the ball, the
-  // leading one further than the trailing one, straddling the point the save
-  // test actually uses.
+  // Standing, the arms hang either side. Diving, both go with the ball,
+  // straddling the point the save test actually uses.
   const spread = 0.24 - extension * 0.1;
   const reaching: [Vec3, Vec3] = [
     vec(hands.x + spread, hands.y + 0.05, 0),
@@ -368,18 +379,20 @@ export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach
   ];
   const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, 0), vec(stance - 0.34, 0.92, 0)];
 
-  // Legs trail behind the feet and scissor open as the keeper stretches.
-  const toes: [Vec3, Vec3] = [
-    vec(feet.x - dir * extension * 0.34 + 0.16 * (1 - extension), Math.max(0.04, feet.y - 0.14), 0),
-    vec(feet.x - dir * extension * 0.55 - 0.16 * (1 - extension), Math.max(0.04, feet.y + 0.1 * extension), 0),
-  ];
+  // Legs trail back down the dive line and scissor open as the keeper extends.
+  const trail = (k: number, spreadX: number): Vec3 =>
+    vec(
+      feet.x - along.x * extension * k + spreadX * (1 - extension),
+      Math.max(0.04, feet.y - along.y * extension * k),
+      0
+    );
 
   drawFigure(ctx, proj, {
     feet,
     shoulder,
     head,
-    hands: extension < 0.05 ? idle : reaching,
-    toes,
+    hands: extension < 0.04 ? idle : reaching,
+    toes: [trail(0.34, 0.16), trail(0.6, -0.16)],
     kit: COLORS.keeperKit,
     trim: COLORS.keeperTrim,
     gloves: reach * 0.34,

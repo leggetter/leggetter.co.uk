@@ -380,6 +380,69 @@ describe('outcomes', () => {
   });
 });
 
+describe('the woodwork', () => {
+  /** Straight at the frame, with the keeper out of the picture. */
+  const atFrame = (targetX: number, targetY: number, speed = 26) => {
+    const origin = spotBall(PENALTY_DISTANCE);
+    const t = -origin.z / speed;
+    const shot = {
+      origin,
+      velocity: vec((targetX - origin.x) / t, (targetY - origin.y) / t + 0.5 * GRAVITY * t, speed),
+      spin: vec(0, 0, 0),
+      aimPoint: { x: targetX, y: targetY },
+    };
+    return simulate(shot, statue, createRng(1), STEP);
+  };
+
+  test('a shot into the post comes back off it', () => {
+    const flight = atFrame(GOAL_WIDTH / 2, 1.1);
+    assert.equal(flight.rebounds, 1, 'should have struck the woodwork once');
+    assert.equal(flight.lastFrame, 'post');
+  });
+
+  test('a shot into the bar comes back off it', () => {
+    const flight = atFrame(0, GOAL_HEIGHT);
+    assert.equal(flight.lastFrame, 'bar');
+  });
+
+  test('coming off the frame and staying out is reported as the frame', () => {
+    const flight = atFrame(GOAL_WIDTH / 2, 1.1);
+    assert.ok(
+      flight.outcome === 'post' || flight.outcome === 'goal',
+      `expected post or goal, got ${flight.outcome}`
+    );
+  });
+
+  test('a shot can go in off the woodwork', () => {
+    // Somewhere across the inside faces there is a contact that deflects in.
+    // Which one does not matter; that none of them can would mean the rebound
+    // only ever takes the ball away from goal, which is not what a post does.
+    let wentIn = 0;
+    for (let i = 0; i <= 40; i++) {
+      const x = GOAL_WIDTH / 2 - 0.02 - (i / 40) * 0.16;
+      for (const y of [0.5, 1.1, 1.8]) {
+        const flight = atFrame(x, y);
+        if (flight.rebounds > 0 && flight.outcome === 'goal') wentIn += 1;
+      }
+    }
+    assert.ok(wentIn > 0, 'no rebound off the post ever went in');
+  });
+
+  test('a shot cannot rattle around the frame forever', () => {
+    for (const y of [0.4, 1.0, 1.6, 2.2]) {
+      const flight = atFrame(GOAL_WIDTH / 2, y);
+      assert.ok(flight.rebounds <= 2, `rebounded ${flight.rebounds} times`);
+      assert.ok(flight.outcome !== null, 'must still reach an outcome');
+    }
+  });
+
+  test('a clean shot never touches the frame', () => {
+    const flight = atFrame(1.2, 1.2);
+    assert.equal(flight.rebounds, 0);
+    assert.equal(flight.lastFrame, null);
+  });
+});
+
 describe('keeper', () => {
   test('one who reacts too late never saves', () => {
     for (let seed = 1; seed <= 25; seed++) {

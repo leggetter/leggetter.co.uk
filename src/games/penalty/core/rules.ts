@@ -7,7 +7,7 @@
 
 import { BALL_RADIUS, FRAME_RADIUS, GOAL_HEIGHT, GOAL_WIDTH } from './units.ts';
 import type { KeeperState, Outcome } from './types.ts';
-import type { Vec3 } from './vec3.ts';
+import { lerp, vec, type Vec3 } from './vec3.ts';
 
 /** Half the goal mouth, measured to the inside face of the posts. */
 const HALF_WIDTH = GOAL_WIDTH / 2;
@@ -61,6 +61,65 @@ function within(at: Vec3, part: Vec3, radius: number): boolean {
   const dx = at.x - part.x;
   const dy = at.y - part.y;
   return Math.sqrt(dx * dx + dy * dy) < radius + BALL_RADIUS;
+}
+
+export interface FrameHit {
+  part: 'post' | 'bar';
+  /** Ball centre at the moment of contact. */
+  at: Vec3;
+  /** Unit surface normal, pointing away from the frame. */
+  normal: Vec3;
+}
+
+/**
+ * Samples along the step, because a ball at 25 m/s travels 21 cm in a
+ * 120 Hz step and the frame is only 17 cm thick to a ball. Testing the end
+ * points alone lets a shot pass clean through a post.
+ */
+const SWEEP_SAMPLES = 6;
+
+/**
+ * First contact with the woodwork along this step, or null.
+ *
+ * Posts are vertical cylinders at x = +/- HALF_WIDTH, the bar is a horizontal
+ * one at y = GOAL_HEIGHT, and all three sit on the plane z = 0. Contact is
+ * where the ball's centre comes within a ball-plus-post radius of the axis.
+ *
+ * Only reports contact in FRONT of the line. Behind it the ball is already in,
+ * and the crossing test has had its say.
+ */
+export function frameHit(from: Vec3, to: Vec3): FrameHit | null {
+  for (let i = 1; i <= SWEEP_SAMPLES; i++) {
+    const t = i / SWEEP_SAMPLES;
+    const at = lerp(from, to, t);
+    if (at.z > 0) break;
+
+    // Posts.
+    for (const side of [-HALF_WIDTH, HALF_WIDTH]) {
+      if (at.y < -BALL_RADIUS || at.y > GOAL_HEIGHT) continue;
+      const dx = at.x - side;
+      const distance = Math.sqrt(dx * dx + at.z * at.z);
+      if (distance < FRAME_CONTACT) {
+        return { part: 'post', at, normal: away(dx, 0, at.z, distance) };
+      }
+    }
+
+    // Crossbar.
+    if (Math.abs(at.x) <= HALF_WIDTH + FRAME_CONTACT) {
+      const dy = at.y - GOAL_HEIGHT;
+      const distance = Math.sqrt(dy * dy + at.z * at.z);
+      if (distance < FRAME_CONTACT) {
+        return { part: 'bar', at, normal: away(0, dy, at.z, distance) };
+      }
+    }
+  }
+  return null;
+}
+
+/** Normal pointing out of the frame, defaulting to straight back at dead centre. */
+function away(x: number, y: number, z: number, length: number): Vec3 {
+  if (length < 1e-6) return vec(0, 0, -1);
+  return vec(x / length, y / length, z / length);
 }
 
 /** Whether an outcome puts the ball in the net. The only thing scoring asks. */

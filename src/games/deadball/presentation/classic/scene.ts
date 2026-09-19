@@ -12,7 +12,7 @@
  */
 
 import type { FrameState } from '../../core/types.ts';
-import type { Projector } from '../project.ts';
+import type { Projector } from './project.ts';
 import {
   drawAim,
   drawBall,
@@ -35,6 +35,13 @@ export interface SceneOptions {
    * are in front of everything rather than behind it.
    */
   fromBehindTheGoal?: boolean;
+  /**
+   * The stand and hoardings, already drawn. Null when there is nothing to draw
+   * them on yet, or when the camera is looking away from them.
+   */
+  backdrop?: HTMLCanvasElement | null;
+  /** Drawn over the backdrop, every frame, because only the people move. */
+  crowd?: (() => void) | null;
 }
 
 export function drawScene(
@@ -47,6 +54,13 @@ export function drawScene(
 ): void {
   drawSky(ctx, proj);
   drawPitch(ctx, proj);
+
+  // After the grass and before everything else. The pitch stripes run well
+  // past the stand, so drawing this first would bury it under distant grass;
+  // drawing it here means it occludes the grass behind it, which is what
+  // something standing on the ground does.
+  if (options.backdrop) ctx.drawImage(options.backdrop, 0, 0);
+  options.crowd?.();
 
   if (options.fromBehindTheGoal) {
     // Furthest first: the taker is away down the pitch, the ball is coming

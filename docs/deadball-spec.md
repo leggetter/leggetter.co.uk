@@ -112,16 +112,24 @@ src/games/deadball/
     rules.ts                  # outcome at the line, and frame contact
     match.ts                  # pure reducer: (state, MatchMessage) -> state
     tuning.ts                 # fingerprint of the constants, for replay
-    wall.ts                   # free kick wall (Phase 3, not built)
+    names.ts                  # what the two people in a duel are called
+    events.ts                 # discrete things worth hearing (Phase 3.5)
+    wall.ts                   # free kick wall (Later, not built)
   render/
-    View.ts                   # the interface
-    project.ts                # shared camera + projection
-    registry.ts               # id -> view factory
-    canvas2d/
+    Package.ts                # what a render package implements
+    cameras.ts                # where you may stand. Data, shared by all of them
+    registry.ts               # id -> package
+    sounds/                   # the default set. Any package may override it.
+      Sounds.ts               # an event in, a noise out
+      synth.ts                # the only file that knows AudioContext
+      silent.ts               # no-op, for tests and for the mute toggle
+    classic/                  # today's look. The only place a ctx exists.
       draw.ts                 # pitch, goal, net, figures, ball, HUD, full time
-      BehindTakerView.ts
-      AngledBehindView.ts     # Phase 2, not built
-      KeeperCamView.ts        # Phase 2, not built
+      project.ts              # this package's camera maths
+      aim.ts                  # drag -> ShotInput, under this projection
+      stand.ts                # terracing, hoardings, crowd (Phase 3.5)
+      sounds.ts               # overrides, if any
+    pixel/                    # later
   input/
     drag.ts                   # Pointer Events -> DragGesture
     keyboard.ts               # accessible fallback aim mode (not built)
@@ -134,10 +142,12 @@ src/games/deadball/
     log.ts                    # one record per shot, on this device only
     analyse.ts                # what the log says, for full time and offline
   net/
-    Transport.ts              # two-player (Phase 5, not built)
+    Transport.ts              # two devices (Phase 6, not built)
   content/                    # plain JS and JSON. The low-barrier zone.
     players.js
     keepers.js
+    sounds.js                 # frequencies and decay times (Phase 3.5)
+    boards.js                 # what the hoardings say. No real people's names
   Game.ts                     # wiring: input -> match -> view, the frame loop
   main.ts                     # browser entry, imported by the Astro page
 ```
@@ -327,6 +337,11 @@ extracted first because they were sitting inside the reference view:
 - **`render/canvas2d/scene.ts`** - the pitch, drawn once. A view is now a
   camera, a mapping and a call to this.
 
+Both paths are as they were at the time. Phase 3.5 moves them into the `classic`
+package - see [Render packages](#render-packages) - where "shared by every view"
+becomes "shared by every camera this package draws", which is what it always
+meant.
+
 A camera changes exactly two things beyond its own position, and both are what
 the `View` interface exists for. Going round behind the goal **mirrors the
 drag**, because the taker's right is now on your left. And it **reverses the
@@ -344,6 +359,84 @@ The angled camera also aims between the goal and the ball rather than at the
 goal. Pointed straight at the goal the composition is correct and the shot is
 not: the ball and the taker are far nearer the camera, so centring the goal
 pushes them off the bottom corner.
+
+### Render packages
+
+The model holds game state and emits events. **Everything else is one render
+package's business** - how the pitch is drawn, how many people are in the stand,
+where they sit, when each one stands up, and what a post sounds like. None of
+that is game data, none of it can change an outcome, and all of it is a matter
+of taste that a different package is entitled to answer differently.
+
+So a package is **a whole look, sound included**, not a drawing backend. It is
+named for what it is rather than for how it is implemented: `classic` for what
+exists today, `pixel` later, `broadcast` later still. WebGL is not a look, it is
+a technique, and a package that wants it uses it without that showing up in its
+name or its interface.
+
+```
+render/
+  Package.ts        # what a package implements
+  cameras.ts        # where you are allowed to stand. Data.
+  registry.ts       # id -> package
+  sounds/           # the default set. Any package may override any of it.
+  classic/          # today's look: canvas2d, drawn figures, sampled crowd
+  pixel/            # later
+```
+
+#### Cameras are data, so the axes do not multiply
+
+A camera is *where you stand*; a package is *how it looks*. Those are
+independent, and somebody is going to want pixel art from behind the goal.
+
+So a camera stays a position, a target and a framing rule - shared data - and
+each package projects it however suits the way it draws. A matrix and a
+hand-rolled `project()` are both correct answers to the same camera.
+
+This is the fix for a cost recorded in an earlier draft: `View` bundled where the
+camera sits with how the drawing happens, which made three cameras and two ways
+of drawing into six files. With cameras as data it is one implementation per
+package regardless of how many cameras exist, and adding a fourth camera costs
+every package nothing.
+
+#### A shared sound set, and the right to override it
+
+There is a default set of sounds, and packages inherit it. A package may
+override any subset: `pixel` can replace the crowd with something chiptune and
+keep the woodwork.
+
+This is what answers an objection an earlier draft raised against sound living
+inside a renderer - that swapping the look would silence the game, and each
+implementation would carry its own copy of what a post sounds like. The shared
+default set is the answer to that, rather than keeping audio out of the packages
+entirely. Inheritance gets the protection; ownership gets the freedom.
+
+It also settles a tension in [Synthesised, not sampled](#synthesised-not-sampled)
+rather than reopening it. The default set is synthesised, for the reasons given
+there. A package that wants to ship sample files is free to, and inherits the
+consequences along with the sounds: the weight lands in that package, and so
+does the licensing question. Neither is the default's problem any more. That is
+no longer hypothetical - `classic` took the offer, and the seam held: the
+default set did not change shape to accommodate it, and a package that says
+nothing about sound still gets the synthesised one for free.
+
+#### Where the boundary actually is
+
+`core/` has no DOM, no canvas and no `AudioContext`, and emits an event stream
+that `Game.ts` hands to the active package. That has been the boundary since
+Phase 1; packages give it a name and a plural.
+
+The one thing worth stating because it is tempting to get wrong: **packages do
+not share presentation code with each other.** No common `crowd.ts` telling both
+of them where person 412 is and how high, because that call - once per person
+per frame - is exactly the shape a WebGL crowd exists to avoid, and it would
+force the two packages to agree about the one decision they most need to make
+differently. Canvas2d wants a few hundred people it can blit; WebGL wants twenty
+thousand it never touches individually.
+
+Duplication is the right answer here and the asymmetry is the reason: two
+packages drawing crowds differently is two crowds, while two packages computing
+an outcome differently is a bug. Only one of those is worth an abstraction.
 
 ### Switching views
 
@@ -398,7 +491,27 @@ solved penalty. **One shoots and the other saves** is a contest, needs no AI
 keeper at all, and the view it wants is the one Phase 2 shipped.
 
 Rounds alternate as a real shootout does. A takes, B keeps. Then B takes, A
-keeps. Five each, ten shots.
+keeps. Five each, ten shots - **and then sudden death if nobody has won**,
+which is how a shootout actually ends and is what stops the format producing
+the one result nobody wants.
+
+The rule is one line and the pair is the unit, not the shot: it is over when
+both have had the same number of attempts *and* one of them is ahead. Ending
+the moment somebody goes in front would end it while the other player still had
+theirs to take, which is not a shootout, it is a race. Nothing caps how long it
+runs, and nothing should.
+
+Nothing in the rules branches on being in sudden death - it is the same
+shootout continuing, which is exactly what sudden death *is* - so the flag the
+screens read is derived from the score rather than stored, and cannot fall out
+of step with it.
+
+**A row of footballs each.** A duel alternates, so a single row of markers
+interleaves the two players and reading your own record off it means counting
+every other position. Two rows, one per player, each football saying scored,
+missed or not yet taken by its fill. They grow a round at a time in sudden
+death, and a round in progress shows the answer still to come - which is the
+state the whole format turns on.
 
 **Both people are named before the first shot.** Starting a duel opens a form
 asking who is playing, and the two names then replace "Player 1" and "Player 2"
@@ -582,11 +695,12 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **1.5** ✅ | Full-time summary read off the shot log, a taker figure and a run-up, a keeper that shuffles, dives and lands, woodwork rebounds, netting, the save aftermath, release timing, the shot dial | The shootout ends with something, and a shot finishes rather than freezing |
 | **1.75** ✅ | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
-| **3** | Two players on one device: one shoots, one saves. See [Two players](#two-players) | A contest rather than a practice |
+| **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
+| **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and synthesised sound. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
-| **Later** | A keeper that reads your pattern, free kicks and the wall, pixel art, side-on view, sound, a leaderboard | |
+| **Later** | A keeper that reads your pattern, free kicks and the wall, pixel art, side-on view, a leaderboard | |
 
 **Free kicks moved to Later.** They were Phase 3 on the grounds that they
 complete the shot model, which is still true and is not the same as being the
@@ -599,6 +713,13 @@ playing rather than planning: the run-up, the keeper's shuffle, the woodwork,
 the netting, the aftermath, and the release sweep. The keeper-cam moved up from
 Later into Phase 2 for the same reason it keeps getting asked for, and a view is
 cheap once the registry exists.
+
+**Sound moved out of Later and into 3.5, along with the crowd, for the same
+reason.** It was listed as a someday item next to pixel art. It was then asked
+for directly, with a list of eight specific sounds attached, which is a good deal
+more thought than "sound" had been given here. A half-phase rather than Phase 4
+because it changes how the existing game feels rather than adding anything to
+play, which is what 1.5 and 1.75 were both for.
 
 ### What playing it kept finding
 
@@ -737,12 +858,324 @@ Three smaller things come with it:
 
 ### Somebody to take the penalty
 
-There is no taker in the game. The ball sits on the spot and nothing stands
-over it, which was not a deferral - it was never specced. A figure that runs up
-and strikes is also what would sell the keeper's anticipation, because right now
-there is nothing on screen for the keeper to be reading.
+Built in Phase 1.5, and kept here because of what it changed. There was no taker
+at all: the ball sat on the spot and nothing stood over it, which was not a
+deferral, it was never specced. Adding a figure that runs up and strikes is also
+what made the keeper's anticipation legible, because until then there was nothing
+on screen for a keeper to be reading.
 
-Phases 0 to 3 are the solo build. Phases 4 and 5 are the ones worth handing over, because they are self-contained and visibly change the game.
+### A crowd, and something to hear
+
+Phase 3.5, and asked for by one of the people this is being built with rather
+than derived from anything in this document. A penalty in an empty stadium is a
+physics demo. The thing that makes one matter is several thousand people
+reacting to it, and none of that is in the game.
+
+Two features that arrive together because each is half of the same effect: a
+crowd you cannot hear is scenery, and a crowd you cannot see is a sound effect.
+
+#### What is behind the goal
+
+Three things, nearest to furthest, all of them world geometry at a `z` beyond the
+goal line so that every view projects them the way it projects everything else.
+No view needs new code to have any of this.
+
+**Advertising boards, at grass level.** A run of horizontal rectangular
+hoardings across the back of the goal, between the goal line and the stand.
+They do more work than their size suggests: they are the depth cue that makes the
+stand read as *behind* the goal rather than floating above it, they give the net
+something to be seen against, and they occlude the feet of the front row, which
+is what stops the bottom of the stand looking like it is standing on the pitch.
+
+**The boards are data, and they are meant to be changed.** They come from
+`content/boards.js`, committed - a Tier 1 contribution surface of exactly the
+right shape, a list of short strings, edit and refresh.
+
+**Not customisable per device.** Custom players earn their storage override
+because a player is yours; a hoarding is set dressing, and nobody is going to
+sit down and write their own before a shootout. If that turns out to be wrong it
+is a small feature to add later, and adding it now would be building a settings
+screen nobody asked for.
+
+The one concession to a future source: **the loader is async.** Serving boards
+from the same backend [Phase 6](#two-devices-later) needs is plausible enough to
+be worth one `await` in a startup path that is already async. This document made
+`Storage` async before anything needed it, on the grounds that the interface is
+the cheap half of that decision, and the same argument applies for a great deal
+less code.
+
+Real brands are fine, and whether one goes in is the repo owner's call rather
+than the code's. One factual note, stated once: somebody else's mark is theirs to
+license, so committing one is a permission question, not a technical one. Nothing
+in the design depends on the answer - that is the point of the boards being data
+and of the loader not caring where they came from.
+
+What does not change: **no real people's names on a board.** That is the privacy
+rule this project has run on throughout, it has nothing to do with brands, and a
+board is the easiest place in the game to break it - a short string that renders
+straight onto the pitch. See [What not to commit](#what-not-to-commit).
+
+Logos rather than lettering is the obvious next request and changes none of this.
+A board that renders an image needs an asset, which is the one place this phase
+would acquire a binary the repo does not currently ship; a device-supplied or
+remotely-served one avoids that entirely, which is a point in favour of sources
+2 and 3 rather than an argument against source 1.
+
+**A stand, raked.** Not a flat bank of people: rows that rise and recede, each one
+higher and further back than the one in front. The existing projection needs no
+help with this. A row further back is genuinely higher and genuinely further away
+in world space, so it lands higher and smaller on screen because of the
+arithmetic that already draws everything else, rather than because of a 2D trick
+that would then have to be redone for the angled camera. Structure first -
+terracing, the vertical faces between rows, the gangways - and a roof only if the
+stand looks unfinished without one.
+
+**The crowd, in the stand.** Individual figures, individually animated. Not a
+texture, and not a static block with a shimmer over it. Each person idles on
+their own - a small bob, their own phase - and on a goal or a save **they rise,
+but not in unison**: the reaction spreads across the stand instead of the whole
+crowd moving as one object. A crowd that jumps in lockstep reads as a single
+cut-out being translated upward, which is worse than not animating it at all.
+
+So each person needs their own timing, and the honest way to say that is that
+they need their own numbers:
+
+- A **phase** for the idle bob.
+- A **delay** before they react, which is what makes the rise ragged.
+- An **amplitude** and a **duration**, so some people leap and some barely get
+  out of their seat.
+
+All four come from a cheap hash of the person's index, not from stored state.
+Same index, same person, every frame, with nothing to allocate, nothing to keep
+in step and nothing to reset between shots. Optionally the delay also takes a
+term from how far that person sits from where the ball crossed, which makes the
+reaction start near the ball and spread outward, and costs one subtraction.
+
+#### What the crowd costs, and how it is paid
+
+This is the most expensive thing the renderer will have ever done, by an order of
+magnitude. The scene currently draws a goal, a net, two figures and a ball.
+Several hundred people, each at their own offset, every frame, on a phone, is a
+different proposition - and "each at their own offset" rules out the cheapest
+answer of all, which would be to render the whole thing once and never touch it
+again.
+
+The split that makes it affordable: **the stand and the boards do not move, and
+the people do.** Terracing, hoardings and their lettering render once to an
+offscreen canvas and are blitted, redrawn only on a resize or a camera change,
+which is when they can afford to be. Everything per-frame is people.
+
+The remaining cost is in the draw calls, not the arithmetic. Four numbers per
+person from a hash is nothing; six hundred `beginPath` / `arc` / `fill` triples
+is not. Two techniques, both of which keep the individual animation:
+
+- **Pre-render the figures once, then blit.** A small atlas of a few poses across
+  a few shirt colours, drawn to an offscreen canvas at mount and on resize. Each
+  person is then one `drawImage` at their own position and offset, which is the
+  cheap call in canvas2d and the one that scales. All of this is the `classic`
+  package's business; a package that draws another way owes none of it.
+- **Failing that, batch by colour.** One `beginPath`, every person of that shirt
+  colour added to it, one `fill`. Eight fills a frame rather than six hundred.
+  Individual offsets survive, because the offset is in the path, not in the call.
+
+**Measured, once built.** The atlas won and the count turned out not to be the
+binding constraint at all. 3,576 people hold 60 fps at 1280 px and at 390 px
+with the CPU throttled six times over. 2,451 of them survive culling and become
+one `drawImage` each; the other 31% are rejected on a comparison, before the
+second projection is even computed.
+
+Worth recording that the first attempt was nowhere near this. It put the front
+row five meters behind the net, which made every person eighty pixels tall -
+the camera is necessarily telephoto, because it has to frame a 7.32 m goal from
+17.5 m, so anything near the goal line comes out enormous. The stand went back
+to a realistic distance and the numbers stopped being a problem.
+
+**The crowd cannot touch the match RNG, and that is structural rather than a
+rule to remember.** `createRng(shotSeed(seed, index))` lives in `core/` and the
+crowd lives in the view, which has no reference to it. Worth saying only because
+the failure it prevents is a nasty one: a crowd drawing from that stream would
+make the same input produce a different flight depending on how many people were
+on screen. The crowd randomises from its own generator, seeded however it likes,
+because nothing downstream of it can be wrong.
+
+`prefers-reduced-motion` gets a still crowd: no bob, no rise. The stand and the
+boards are unaffected, being furniture.
+
+**It is a per-camera feature, not a scene feature, and that is worth knowing
+before it is built.** `behind-taker` looks straight at it and gets the most.
+`angled-behind` sees it obliquely, and is the view a raked stand will flatter
+most. `keeper-cam` looks out from the goal, so all three of these are behind the
+camera and that view gets none of them.
+
+Modelling a second stand behind the taker is the same code and would fix it, but
+it is not what was asked for, so: one stand now, the keeper-cam consequence
+recorded here rather than discovered later, and a second stand if that view
+starts to look empty next to the other two.
+
+#### The sounds, and where they come from
+
+Eight, which is the list as asked for:
+
+| Sound | When |
+| --- | --- |
+| **Crowd bed** | Always, under everything, building while the taker sets up |
+| **The rise** | At the strike, the intake of breath a struck ball gets |
+| **Goal** | The cheer |
+| **Save** | Not the cheer. A different reaction, and the one that sells a keeper |
+| **Boot** | Contact |
+| **Glove** | The keeper getting a hand to it |
+| **Frame** | Post or bar. The same aluminium either way, so one sound |
+| **Net** | The ball arriving in it |
+
+**The events already happen; they are not yet events.** `flight.ts` knows about
+woodwork contact, parries and the ball entering the net, but it knows them as
+*state*, and the loop steps the simulation up to several times per rendered
+frame. Anything watching for "is the ball touching the post" fires repeatedly on
+one contact, or misses it between frames.
+
+So the simulation grows a discrete event stream: each step may emit
+`{ kind: 'boot' | 'glove' | 'frame' | 'net', at }`, and `FrameState` carries
+whatever was emitted since the last render. This is the same seam the rest of the
+design already uses, one layer down: **`core/` names what happened, and never
+decides what it sounds like.** A `core/` that imports an `AudioContext` is the
+same mistake as a `core/` that imports a canvas.
+
+`Game.ts` drains it and hands it to the active
+[render package](#render-packages), which decides both what the crowd does about
+it and what it sounds like.
+
+Those being one package's decision is the point: the rise on a goal and the cheer
+on a goal are one event with two responses, and they cannot drift out of step
+because nothing is keeping them in step. A package that wanted the crowd to react
+late, or not at all, would be free to, and would be wrong in only one place.
+
+It also pays for itself beyond this phase. Replay (Phase 5) wants exactly this
+list, and so does any commentary line more specific than the outcome.
+
+#### Synthesised by default, sampled where it showed
+
+**Reversed in part, after listening.** The argument below still holds for the
+default set every package inherits, which is still synthesised and still
+weighs nothing. But a crowd is thousands of throats that filtered noise never
+quite lies about convincingly, and once the first three samples went in the
+same reasoning took the rest of the crowd with them. The `classic` package now
+ships six CC0 files, which is exactly the escape hatch the package model was
+built with: a package that wants samples ships them and inherits the weight and
+the licence question along with them.
+
+The set, and why it is shaped this way: the crowd bed, the cheer, the "oooh" of
+a save and the groan of a miss all come off **one afternoon at one ground,
+recorded by one person through one microphone**. That is the thing worth more
+than any individual sample being better. A cheer borrowed from a different
+crowd in a different building always sounds borrowed, however good it is alone
+- the reverb tail disagrees with the bed underneath it and the ear hears the
+edit. The boot and the netting are close-mic'd one-shots where none of that
+applies, so they come from wherever they were best.
+
+What stayed synthesised: the glove, the woodwork, and the referee's whistle.
+Short, physical, and in the frame's case better made than found, because a made
+post can ring at whatever pitch suits.
+
+What the reversal cost, recorded so the trade is visible: 248 KB, and a
+`CREDITS.md` naming a source, an author, a licence and a retrieval date for
+each file. Every one is CC0, checked by reading the licence on each sound's own
+page rather than trusting a search filter, because a public repo redistributes
+what it commits. Nothing blocks on them, nothing throws if they are missing,
+and every branch that cannot play a sample calls straight through to the
+synthesised sound that was always there - verified by deleting the directory
+and playing a shootout.
+
+One thing the samples found rather than caused: the boot had never been
+audible. `createFlight` emits it as the flight is built, and `Game.ts` was
+calling that without an event sink, so the one event that starts every shot was
+going to `NO_EVENTS` and being dropped. A passing test covered the emit, which
+is why it survived - the test called `createFlight` with a sink, and the game
+did not. Nobody noticed while the boot was a noise burst among other noise
+bursts; putting a real contact sound on it made its absence obvious in a
+minute.
+
+#### The synthesis that remains
+
+The decision this section originally made, which still governs everything not
+listed above. Sound is generated at runtime with Web Audio.
+
+A crowd bed is filtered noise with slow modulation on gain and cutoff. A cheer is
+the same source with the envelope opened and the filter swept up. A boot is a
+short noise burst through a bandpass with a fast decay; a glove is a duller,
+shorter one; a post is a damped sine in the 400-900 Hz region with a long tail,
+because aluminium rings; a net is a brief high-passed burst.
+
+Why, in order of how much each actually matters here:
+
+- **The licensing question disappears rather than having to be got right.** This
+  repo is public, so committing a sound file redistributes it, and every sample
+  would need a licence that permits that plus a source anyone can check. Nothing
+  to get wrong beats a rule to follow. See [Licensing](#licensing).
+- **Weight.** The whole site is text. A usable crowd loop is several hundred
+  kilobytes and would be, comfortably, the largest thing in it.
+- **It is consistent with everything else here.** The pitch, the goal, the net,
+  the keeper and the taker are all drawn rather than imported. Sound being the
+  one thing fetched from elsewhere would be the odd decision, not this one.
+- **It is a good contribution surface.** `content/sounds.js` full of frequencies
+  and decay times is the same kind of file as `keepers.js`: edit a number,
+  refresh, hear the difference.
+
+**The risk, stated plainly: synthesised crowds can sound cheap, and this one
+might.** It is the same class of bet as the curve, which was physically correct
+and inaudible in the game until it was played. The mitigation is the same too -
+it gets judged by listening, not by reasoning - and the fallback is cheap,
+because the seam is an interface. Swapping synthesis for samples changes one file
+behind `render/sounds/Sounds.ts` and nothing that calls it - or, better, changes
+nothing at all and ships as a package that overrides the defaults.
+
+#### The things that are easy to get wrong
+
+**Nothing plays before a gesture.** Browsers will not start audio until the user
+has interacted, and fighting that is pointless. The first pointer down on the
+pitch unlocks the context and starts the bed. Before that there is nothing to
+hear about anyway.
+
+**No sound may differ by where the keeper picked.** The handover screen is opaque
+on purpose, and that was checked by counting red pixels on the canvas. An audio
+cue that varied with the pick would leak the only secret the format has, through
+a channel nobody thought to check. The keeper choosing a corner is silent, and
+the bed does not change. The crowd is under the same rule: nobody in the stand
+leans the way the keeper is about to go.
+
+**Muting is a real setting.** A visible toggle, stored in `Settings` alongside
+`viewId` and `duelNames`. Default on: the gesture gate means sound can never
+arrive before you have touched the page, and a football game that is silent until
+you find a switch is not the thing that was asked for.
+
+**Audio is not unit-testable and the event stream is.** That split is the whole
+value of doing it this way, and the tests are the ones that would have caught
+bugs this project has already had:
+
+- Exactly one `frame` event per woodwork contact, not one per simulation step.
+- No `net` event on a shot that missed. The netting caught wide shots once
+  already, and it took playing it to notice.
+- No event emitted twice when the accumulator runs several steps in one frame.
+- Events in time order, and drained exactly once.
+
+**And one thing this list cannot cover, learned the hard way.** Every test above
+passes a sink, which proves the simulation emits. None of them can prove the
+*caller* is listening - and it was not. `Game.ts` built each flight without
+passing the sink, took the `NO_EVENTS` default, and silently dropped the boot on
+every shot ever taken. Nobody noticed while the boot was one synthesised burst
+among others; a real kick sample made the silence obvious in seconds.
+
+The fix is not another test, because no test at this level can see that wiring.
+The sink is now a required argument, so forgetting it is a type error rather
+than a quiet nothing, and a caller that genuinely wants silence says `NO_EVENTS`
+and means it. Same principle the licensing decision used: nothing to get wrong
+beats a rule to follow.
+
+Whether it sounds good, and whether the crowd reads as a crowd, are both decided
+by playing it. Which is the same answer this document gives about views.
+
+Phases 0 to 3 were the solo build, and all of them have shipped. Phases 4 and 5
+are the ones worth handing over, because they are self-contained and visibly
+change the game.
 
 ## Contribution surfaces
 
@@ -759,11 +1192,14 @@ is.
 - Write keeper personalities in `content/keepers.js` (names, reaction times, how much they guess).
 - Celebration and commentary lines in `content/celebrations.js`.
 - Kit and pitch color palettes in `content/palettes.js`.
+- What the advertising hoardings say, in `content/boards.js`. No real people's
+  names, per [What not to commit](#what-not-to-commit).
 - Tune difficulty numbers and see the game get harder.
 
 **Tier 2 - feature work with a clear boundary:**
 
-- Hotseat two-player (Phase 5). The reducer and transport already exist; this is turn order and UI.
+- Sound (Phase 3.5). Every sound is a handful of numbers in `content/sounds.js`,
+  and judging whether one is right needs ears rather than a build step.
 - A new view. One file plus one registry line, with two existing implementations to read first.
 - The custom player editor (Phase 4). A self-contained form plus storage calls.
 - Keeper AI improvements: the profile struct is the whole surface area.
@@ -788,7 +1224,7 @@ Not worth testing: rendering. Compare views by playing them.
 ## Open questions
 
 1. **Does the drag gesture read as natural?** Still the riskiest thing here, and now it can be answered by playing it rather than by reasoning. Phase 1 shipped the coupled version: the drag vector sets direction *and* power together, so aiming at the top corner and hitting it softly is not a thing you can do. Lift is not wired to the gesture at all yet, and is pinned at 0.5. That is the axis to design once the rest feels right.
-2. **Which view wins?** That is what Phase 2 is for. `keeper-cam` is now built alongside `angled-behind` rather than waiting on the answer, because it has been asked for repeatedly and it is the natural view for the keeper's turn in Phase 5.
+2. **Which view wins?** Still open, and now open with evidence rather than without it. All three shipped in Phase 2 and `behind-taker` has stayed the default through every session since, which is weak evidence at best: it is also the one the game opens on. Phase 3.5 puts a thumb on the scale, because a raked stand behind the goal is worth most to the two views that can see it, and nothing at all to `keeper-cam`.
 3. **Does cross-client determinism hold?** Untested until two browsers run the same seed. Mitigated by sending the outcome alongside the input, so a divergence degrades to a logged warning rather than a desync.
 4. **How hard should the keeper be by default?** Measured rather than open now. Two logged sessions put it at 85% scored before the retune with zero saves, and 63% after with 15% saved and 18% off the post. That is about right, and the numbers came from the log rather than from anyone's opinion.
 
@@ -800,8 +1236,12 @@ Not worth testing: rendering. Compare views by playing them.
    same way three times and it starts going with you - is the obvious answer,
    and the full-time summary above is the fair way to warn the player it exists.
    Lean: build it, but only after the summary, so nobody is punished by a
-   pattern they were never shown.
-5. **What should the route actually be?** `/deadball/` is the working assumption. A less guessable slug buys very little given the page is `noindex` and linked from nowhere.
+   pattern they were never shown. **Partly answered by accident.** A human keeper
+   in Phase 3 reads patterns without any code, and the first logged duel split 23
+   left to 20 right against 66/90 in the solo sessions. That is one session and
+   not a finding, but it points at the cheaper fix: the dominant strategy may be
+   a symptom of playing alone rather than of the keeper.
+6. **What should the route actually be?** `/deadball/` is the working assumption. A less guessable slug buys very little given the page is `noindex` and linked from nowhere.
 
 ## Licensing
 
@@ -862,7 +1302,15 @@ This repo is public, and this file lives in it.
 
 - No names or ages of the kids, here or in commit messages. The roster, the keeper names, and the celebration lines are all places where an in-joke could put a real name on the public web without anyone deciding to.
 - No real footballer names, photos, or club badges, per the roster decision above.
+- No real people's names on the advertising hoardings. Brands are a separate
+  question and an allowed one - see [the boards](#what-is-behind-the-goal) - but
+  a board is a short string in a content file that renders straight onto the
+  pitch, which makes it the easiest place in the project to put a real name on
+  the public web without meaning to.
 - Custom players live in `localStorage`, not in the repo.
+- No names in the shot log. It is the one file here that leaves the device, and
+  `takerSide` already says who did what. There is a test that fails if a field
+  carrying a name is added to `ShotRecord`.
 
 ## Suggested actions
 

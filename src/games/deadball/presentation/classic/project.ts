@@ -2,50 +2,28 @@
  * Perspective projection: world meters to screen pixels.
  *
  * This is the piece that makes a camera angle a setting rather than a rewrite.
- * Every view shares this projector and differs only in where the camera sits
+ * Every camera goes through this projector and differs only in where it sits
  * and which way it points, so `behind-taker` and `angled-behind` are the same
  * few numbers apart.
+ *
+ * Package-local, because projection is a package's own business: a matrix and
+ * this are both correct answers to the same `CameraSpec`.
  *
  * Math.sin and Math.cos appear here and nowhere in core/. Rendering has no
  * determinism requirement: two machines may draw the same shot a pixel apart
  * and it changes nothing about the result.
  */
 
-import type { Vec3 } from '../core/vec3.ts';
+import type { Vec3 } from '../../core/vec3.ts';
+import type { CameraSpec } from '../cameras.ts';
 
-export interface Camera {
-  position: Vec3;
-  /** Radians. 0 looks along +z, toward the goal. */
-  yaw: number;
-  /** Radians. Positive tilts the camera down. */
-  pitch: number;
-  /**
-   * Vertical field of view, radians. A *limit* rather than a target: the view
-   * never zooms in past this, and will zoom out past it to keep `frame` on
-   * screen.
-   */
-  fov: number;
-  /**
-   * Something that must stay visible, whatever shape the screen is.
-   *
-   * A camera holding a fixed vertical angle is fine on a laptop and wrong on a
-   * phone: the same angle on a tall narrow viewport leaves almost no
-   * horizontal field, and a 7.32 m goal seen from 17.7 m did not fit across a
-   * 390 px screen. Neither post was visible - you got netting and a keeper,
-   * and no goal.
-   *
-   * Given what has to fit and how far away it is, the focal length falls out of
-   * whichever axis binds.
-   */
-  frame: {
-    /** Half-width in meters that must be in shot. */
-    halfWidth: number;
-    /** Half-height in meters that must be in shot. */
-    halfHeight: number;
-    /** How far in front of the camera that rectangle sits. */
-    depth: number;
-  };
-}
+/**
+ * Kept as a structural alias rather than deleted: everything below needs is a
+ * position, an orientation and a frame, and taking the whole `CameraSpec`
+ * would mean a projector that knows about mirroring and draw order, which are
+ * not its business.
+ */
+export type Camera = Pick<CameraSpec, 'position' | 'yaw' | 'pitch' | 'fov' | 'frame'>;
 
 export interface Projected {
   x: number;

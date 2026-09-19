@@ -120,7 +120,7 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
     case 'NEXT': {
       if (state.phase !== 'resolved') return state;
       const shotIndex = state.shotIndex + 1;
-      if (shotIndex >= state.shotsTotal) return { ...state, phase: 'complete' };
+      if (isOver(state, shotIndex)) return { ...state, phase: 'complete' };
 
       // Sides swap every shot, so each takes one then keeps one, the way a
       // real shootout alternates rather than giving somebody all five in a row.
@@ -135,6 +135,36 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
     }
   }
 }
+
+/**
+ * Is that it?
+ *
+ * A solo round is over when the five are gone. A duel is over when both have
+ * had the same number *and* one is ahead - which for the regulation five is the
+ * same thing most of the time, and is sudden death the rest of the time.
+ *
+ * The pair is the unit, not the shot. Ending the moment somebody goes ahead
+ * mid-round would end it while the other player still had theirs to take,
+ * which is not a shootout, it is a race.
+ */
+function isOver(state: MatchState, shotIndex: number): boolean {
+  if (state.mode !== 'duel') return shotIndex >= state.shotsTotal;
+  if (shotIndex < state.shotsTotal) return false;
+  // Mid-round: the other one still has to answer, however far behind they are.
+  if (shotIndex % 2 !== 0) return false;
+  return state.scores[0] !== state.scores[1];
+}
+
+/**
+ * True once the regulation five each are gone and nobody has won.
+ *
+ * Presentation reads this to say so. Nothing in the rules branches on it - the
+ * rules are the same shootout continuing, which is exactly what sudden death
+ * is - so it is derived rather than stored, and cannot fall out of step with
+ * the score it is derived from.
+ */
+export const inSuddenDeath = (state: MatchState): boolean =>
+  state.mode === 'duel' && state.shotIndex >= state.shotsTotal;
 
 /** Shots left to take, including the one in progress. */
 export const shotsRemaining = (state: MatchState): number =>

@@ -215,6 +215,8 @@ export interface FrameState {
   scores: [number, number];
   /** Duel: what to call each side. Never reaches the simulation or the log. */
   names: [string, string];
+  /** Duel: the regulation five each are gone and nobody has won yet. */
+  suddenDeath: boolean;
   /** Duel: where the keeper has committed, once they have. */
   dive: Dive | null;
   /** Duel: where the keeper is pointing while they choose. */

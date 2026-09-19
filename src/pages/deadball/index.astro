@@ -3,14 +3,14 @@
 // sitemap, and linked from nowhere. See src/lib/hidden.mjs, which is what
 // astro.config.mjs and scripts/verify-urls.mjs both read.
 import Fullscreen from '../../layouts/Fullscreen.astro';
-import { DEFAULT_VIEW, listViews } from '../../games/deadball/render/registry.ts';
+import { DEFAULT_CAMERA, listCameras } from '../../games/deadball/presentation/registry.ts';
 
 // Rendered here rather than built in the browser. Astro scopes component CSS
 // by stamping an attribute on the elements in the template, so buttons created
 // with document.createElement never matched any of it and came out as bare
 // browser defaults - which is why the selected one looked like the others.
 // Rendering them also means the switcher is there before the game starts.
-const views = listViews();
+const views = listCameras();
 ---
 
 <Fullscreen title="Dead Ball" backHref="/" backLabel="Home" noindex>
@@ -25,6 +25,10 @@ const views = listViews();
     <nav id="modes" aria-label="Players">
       <button type="button" data-mode="solo" aria-pressed="true">1 player</button>
       <button type="button" data-mode="duel" aria-pressed="false">2 players</button>
+      <button type="button" id="mute" aria-pressed="false" title="Sound">
+        <span id="mute-icon" aria-hidden="true">&#9834;</span>
+        <span class="visually-hidden">Sound</span>
+      </button>
     </nav>
     {/*
       Real text inputs rather than something typed onto the canvas: a phone
@@ -63,7 +67,7 @@ const views = listViews();
       <span id="views-label">Camera</span>
       {
         views.map(({ id, label }) => (
-          <button type="button" data-view={id} aria-pressed={String(id === DEFAULT_VIEW)}>
+          <button type="button" data-view={id} aria-pressed={String(id === DEFAULT_CAMERA)}>
             {label}
           </button>
         ))
@@ -182,6 +186,21 @@ const views = listViews();
         }
 
         paintModes();
+
+        const mute = document.getElementById('mute');
+        const muteIcon = document.getElementById('mute-icon');
+        const paintMute = () => {
+          const muted = game.isMuted();
+          mute?.setAttribute('aria-pressed', String(muted));
+          if (muteIcon) muteIcon.textContent = muted ? '\u2715' : '\u266A';
+          mute?.setAttribute('title', muted ? 'Sound off' : 'Sound on');
+        };
+        mute?.addEventListener('click', () => {
+          game.setMuted(!game.isMuted());
+          paintMute();
+          mute.blur();
+        });
+        paintMute();
       })
       .catch((error) => console.error('[deadball] failed to start', error));
   }
@@ -290,6 +309,23 @@ const views = listViews();
   #views button:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 2px;
+  }
+
+  #mute {
+    min-width: 34px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* Sits over the pitch rather than beside it, because the pitch is the whole

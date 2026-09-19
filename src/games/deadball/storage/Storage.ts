@@ -48,4 +48,9 @@ export interface Settings {
    * is the file that leaves the device - see core/names.ts.
    */
   duelNames?: [string, string];
+  /** Which presentation package was last used. */
+  packageId?: string;
+  /** Sound off. Stored, because having to mute it every visit is worse than
+   *  having to unmute it once. */
+  muted?: boolean;
 }

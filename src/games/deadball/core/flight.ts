@@ -7,6 +7,7 @@
  * test result is evidence about the game and not about a second code path.
  */
 
+import { NO_EVENTS, type EventSink } from './events.ts';
 import {
   BALL_RADIUS,
   FLIGHT_TIMEOUT,
@@ -87,6 +88,11 @@ const MAX_REBOUNDS = 2;
  */
 const FRAME_RESTITUTION = 0.62;
 
+/** Speed above which a contact counts as flush rather than a clip. */
+const FULL_FORCE = 26;
+
+const forceOf = (speed: number): number => Math.min(1, speed / FULL_FORCE);
+
 export function createFlight(
   shot: Shot,
   profile: KeeperProfile,
@@ -98,8 +104,25 @@ export function createFlight(
    */
   keeperStartX = 0,
   /** Where a person chose to dive, if a person is keeping. */
-  chosenDive: { x: number; y: number } | null = null
+  chosenDive: { x: number; y: number } | null = null,
+  /**
+   * Where to put the discrete things that happen.
+   *
+   * Deliberately required. It used to default to `NO_EVENTS` so that tests and
+   * the tuning scripts could ignore it - and then the game forgot to pass it,
+   * took the default, and dropped the boot on every shot ever taken. Nobody
+   * noticed while the boot was one synthesised burst among others; a real kick
+   * sample made the silence obvious in seconds.
+   *
+   * `events.test.ts` passed a sink and so proved the emit worked. It could not
+   * prove the caller was listening, and no test at this level can. Making the
+   * argument explicit is what closes that, because forgetting it is now a type
+   * error rather than a quiet nothing. Callers that genuinely want silence say
+   * `NO_EVENTS` and mean it.
+   */
+  events: EventSink
 ): Flight {
+  events.emit({ kind: 'boot', at: 0, force: forceOf(length(shot.velocity)) });
   return {
     ball: { position: shot.origin, velocity: shot.velocity, spin: shot.spin },
     keeper: planKeeper(profile, rng, shot.aimPoint, keeperStartX, chosenDive),
@@ -119,7 +142,7 @@ export function createFlight(
  * Returns the flight unchanged once an outcome exists, so a caller can keep
  * calling this without having to check first.
  */
-export function advance(flight: Flight, dt: number): Flight {
+export function advance(flight: Flight, dt: number, events: EventSink): Flight {
   if (flight.outcome) return aftermath(flight, dt);
 
   const before = flight.ball;
@@ -131,6 +154,7 @@ export function advance(flight: Flight, dt: number): Flight {
   // post can put it in as easily as it can keep it out.
   const hit = frameHit(before.position, ball.position);
   if (hit && flight.rebounds < MAX_REBOUNDS) {
+    events.emit({ kind: 'frame', at: elapsed, force: forceOf(length(before.velocity)) });
     return {
       ...flight,
       ball: rebound(ball, hit),
@@ -164,6 +188,17 @@ export function advance(flight: Flight, dt: number): Flight {
     const handled =
       outcome === 'saved' ? parry(stopped, atCrossing.hands, flight.keeper.plan) : null;
 
+    if (handled) {
+      events.emit({ kind: 'glove', at: elapsed, force: forceOf(length(before.velocity)) });
+    }
+    // Only on a goal. The netting used to catch anything past the line, which
+    // put wide shots in the back of the net, and a sound would have announced
+    // it every time.
+    if (outcome === 'goal') {
+      events.emit({ kind: 'net', at: elapsed, force: forceOf(length(before.velocity)) });
+    }
+    events.emit({ kind: 'resolved', at: elapsed, outcome });
+
     return {
       ...flight,
       ball: handled?.ball ?? stopped,
@@ -183,7 +218,9 @@ export function advance(flight: Flight, dt: number): Flight {
   if (receding || stopped || elapsed >= FLIGHT_TIMEOUT) {
     // Came off the frame and stayed out. That is what beat the shot, and it is
     // a great deal more interesting to be told than "never got there".
-    return { ...flight, ball, keeper, elapsed, outcome: flight.lastFrame ?? 'short' };
+    const outcome = flight.lastFrame ?? 'short';
+    events.emit({ kind: 'resolved', at: elapsed, outcome });
+    return { ...flight, ball, keeper, elapsed, outcome };
   }
 
   return { ...flight, ball, keeper, elapsed, outcome: null };
@@ -342,8 +379,8 @@ export function simulate(
   rng: KeeperRng,
   dt: number
 ): Flight {
-  let flight = createFlight(shot, profile, rng);
+  let flight = createFlight(shot, profile, rng, 0, null, NO_EVENTS);
   // The timeout bounds this, so the loop cannot run away.
-  while (!flight.outcome) flight = advance(flight, dt);
+  while (!flight.outcome) flight = advance(flight, dt, NO_EVENTS);
   return flight;
 }

@@ -24,7 +24,7 @@ import {
 import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
 import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
-import type { Projector } from '../project.ts';
+import type { Projector } from './project.ts';
 import { ARM_SPAN } from '../../core/keeper.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;
@@ -276,6 +276,16 @@ const LIMB = { leg: 0.13, torso: 0.28, arm: 0.12, head: 0.115 };
  * single row with nowhere to go.
  */
 const NARROW = 560;
+
+/**
+ * How far down the scrim behind the top bar reaches.
+ *
+ * Has to clear the lowest thing in the bar, which is the second row of
+ * footballs. On a phone the mode buttons sit in that same corner and push
+ * everything down, so it needs to reach further there, not less far. A row of
+ * small outlined circles over a crowd is invisible without it.
+ */
+const scrimHeight = (width: number): number => (width < NARROW ? 176 : 130);
 
 const FACE = 'ui-sans-serif, system-ui, -apple-system, sans-serif';
 
@@ -946,45 +956,53 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
 
   // This shootout, shot by shot.
   const duel = frame.mode === 'duel';
-  const gap = duel && narrow ? 22 : 30;
-  const left = centre - ((frame.outcomes.length - 1) * gap) / 2;
-  const radius = duel && narrow ? 9 : 11;
+  if (duel) {
+    /**
+     * A row each, one football per shot.
+     *
+     * This was one interleaved line with the owner on the rim. That was an
+     * improvement on colouring only the goals - a miss used to say nothing
+     * about who took it - but it still meant reading your own five off every
+     * other position. Two rows is the thing that was actually wanted.
+     */
+    const rows = shotsBySide(frame.outcomes, frame.shotsTotal, frame.suddenDeath);
+    const count = rows[0].length;
+    const gap = Math.min(narrow ? 26 : 34, (width - (narrow ? 90 : 150)) / Math.max(1, count));
+    const radius = Math.max(5, Math.min(narrow ? 9 : 11, gap * 0.38));
+    const left = centre - ((count - 1) * gap) / 2;
 
-  /**
-   * Whose shot it was, always, and whether it went in, separately.
-   *
-   * Colouring only the goals meant a miss said nothing about who took it, so
-   * three pips in a row of ten carried no owner and the only way to check a
-   * scoreline was to count positions. The ring is the player; the fill is the
-   * result.
-   */
-  frame.outcomes.forEach((outcome, i) => {
-    const side = duel ? i % 2 : 0;
-    const colour = SIDE_COLOURS[duel ? side : 0];
-    const scored = outcome === 'goal';
+    rows.forEach((row, side) => {
+      const rowY = y + side * (radius * 2 + (narrow ? 9 : 11));
+      drawBallRow(ctx, row, left, rowY, radius, gap, SIDE_COLOURS[side]);
 
-    ctx.beginPath();
-    ctx.arc(left + i * gap, y, radius, 0, Math.PI * 2);
-    ctx.fillStyle = scored ? colour : 'rgba(255, 255, 255, 0.1)';
-    ctx.fill();
+      // The name at the end of its own row, so neither needs a separate key.
+      ctx.textAlign = 'left';
+      fitFont(ctx, frame.names[side].toUpperCase(), 600, narrow ? 10 : 11, narrow ? 70 : 120, 8);
+      ctx.fillStyle = SIDE_COLOURS[side];
+      ctx.fillText(
+        frame.names[side].toUpperCase(),
+        left + (count - 1) * gap + radius + (narrow ? 8 : 12),
+        rowY + (narrow ? 3 : 4)
+      );
+      ctx.textAlign = 'center';
+    });
 
-    if (duel) {
-      // The owner's colour is on every pip, filled or not.
-      ctx.strokeStyle = colour;
-      ctx.lineWidth = 2.5;
-      ctx.globalAlpha = scored ? 1 : 0.65;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-    }
+    y += radius * 2 + (narrow ? 9 : 11) + (narrow ? 34 : 42);
+  } else {
+    const gap = 30;
+    const left = centre - ((frame.outcomes.length - 1) * gap) / 2;
+    frame.outcomes.forEach((outcome, i) => {
+      const state = outcome === 'goal' ? 'scored' : 'missed';
+      drawScoreBall(ctx, left + i * gap, y, 11, state, SIDE_COLOURS[0]);
+      if (outcome !== 'goal') {
+        ctx.font = `600 10px ui-sans-serif, system-ui, sans-serif`;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.fillText(SHORT_OUTCOME[outcome], left + i * gap, y + 3.5);
+      }
+    });
+    y += 48;
+  }
 
-    if (!scored) {
-      ctx.font = `600 ${duel && narrow ? 9 : 10}px ui-sans-serif, system-ui, sans-serif`;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.fillText(SHORT_OUTCOME[outcome], left + i * gap, y + 3.5);
-    }
-  });
-
-  y += 48;
 
   // Where the two columns of duel figures sit, and where each name is written
   // over its own column. Measured rather than a constant: the gap used to be
@@ -1209,13 +1227,30 @@ export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, wi
 
   const inGoal = `${frame.names[frame.keeperSide].toUpperCase()} IN GOAL`;
   fitFont(ctx, inGoal, 700, narrow ? 20 : 26, width - (narrow ? 48 : 32));
+
+  // Its own scrim. The bar at the top has one; this block sits below it, on the
+  // crowd, and three lines of text over several hundred moving figures is
+  // unreadable however it is coloured. Fades out at both ends so it reads as
+  // shade rather than as a panel somebody forgot to style.
+  const blockTop = headY - (narrow ? 24 : 30);
+  const blockHeight = narrow ? 76 : 88;
+  const shade = ctx.createLinearGradient(0, blockTop, 0, blockTop + blockHeight);
+  shade.addColorStop(0, 'rgba(2, 8, 20, 0)');
+  shade.addColorStop(0.25, 'rgba(2, 8, 20, 0.66)');
+  shade.addColorStop(0.75, 'rgba(2, 8, 20, 0.66)');
+  shade.addColorStop(1, 'rgba(2, 8, 20, 0)');
+  ctx.fillStyle = shade;
+  ctx.fillRect(0, blockTop, width, blockHeight);
+
   ctx.fillStyle = '#f87171';
   ctx.fillText(inGoal, width / 2, headY);
 
   // Both roles, every time. Naming only the keeper let "Player 2 in goal" read
   // as who Player 2 *is* rather than as what they are doing this turn, so the
   // swap went unnoticed and the winner made no sense.
-  const turn = `round ${round} of 5  ·  ${frame.names[frame.taker]} is taking this one`;
+  const turn = frame.suddenDeath
+    ? `sudden death  ·  ${frame.names[frame.taker]} is taking this one`
+    : `round ${round} of 5  ·  ${frame.names[frame.taker]} is taking this one`;
   fitFont(ctx, turn, 600, narrow ? 13 : 15, width - 24, 10);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
   ctx.fillText(turn, width / 2, headY + (narrow ? 22 : 24));
@@ -1275,8 +1310,129 @@ export function drawHandover(ctx: Ctx, frame: FrameState, width: number, height:
  */
 export const SIDE_COLOURS: readonly [string, string] = ['#4ade80', '#7dd3fc'];
 
+/**
+ * One shot, drawn as a football.
+ *
+ * Three states, told apart by fill rather than by colour alone: scored is a
+ * white ball with its panels on, missed is a dark ball, and not yet taken is
+ * an empty outline. A plain disc could only say scored or not, which is what
+ * the row of pips this replaces was doing.
+ */
+function drawScoreBall(
+  ctx: Ctx,
+  x: number,
+  y: number,
+  r: number,
+  state: 'scored' | 'missed' | 'pending',
+  tint: string
+): void {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+
+  if (state === 'pending') {
+    // Filled as well as outlined. An outline alone vanished against the stand.
+    ctx.fillStyle = 'rgba(2, 8, 20, 0.45)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.lineWidth = Math.max(1.2, r * 0.26);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  const scored = state === 'scored';
+  ctx.fillStyle = scored ? '#f8fafc' : 'rgba(255, 255, 255, 0.13)';
+  ctx.fill();
+
+  // The owner's colour is on the rim rather than the ball, so the ball is free
+  // to say what happened to it.
+  ctx.strokeStyle = tint;
+  ctx.globalAlpha = scored ? 1 : 0.55;
+  ctx.lineWidth = Math.max(1.2, r * 0.26);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // Panels, so it reads as a football rather than a bubble. Only worth drawing
+  // once there is room for them.
+  if (r >= 4.5) {
+    ctx.fillStyle = scored ? 'rgba(15, 23, 42, 0.82)' : 'rgba(255, 255, 255, 0.22)';
+    ctx.beginPath();
+    ctx.arc(x, y, r * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    for (let i = 0; i < 5; i++) {
+      const a = -Math.PI / 2 + (i * Math.PI * 2) / 5;
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(a) * r * 0.66, y + Math.sin(a) * r * 0.66, r * 0.17, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+/**
+ * A player's shots, left to right.
+ *
+ * Returns where the row ended, so a caller can put something after it.
+ */
+function drawBallRow(
+  ctx: Ctx,
+  outcomes: (Outcome | undefined)[],
+  x: number,
+  y: number,
+  r: number,
+  gap: number,
+  tint: string
+): number {
+  outcomes.forEach((outcome, i) => {
+    const state = !outcome ? 'pending' : outcome === 'goal' ? 'scored' : 'missed';
+    drawScoreBall(ctx, x + i * gap, y, r, state, tint);
+  });
+  return x + Math.max(0, outcomes.length - 1) * gap + r;
+}
+
+/**
+ * Each side's shots, in taker order.
+ *
+ * A duel alternates, so the flat list interleaves the two players and reading
+ * it means counting positions. Splitting it is what lets each row belong to
+ * one person.
+ */
+export function shotsBySide(
+  outcomes: Outcome[],
+  shotsTotal: number,
+  suddenDeath: boolean
+): [(Outcome | undefined)[], (Outcome | undefined)[]] {
+  // Enough slots for the regulation five each, plus however many rounds of
+  // sudden death have started. A round in progress shows the taken shot and an
+  // empty slot for the answer, which is the state the whole format turns on.
+  const rounds = Math.max(shotsTotal / 2, suddenDeath ? Math.ceil(outcomes.length / 2) : 0);
+  const rows: [(Outcome | undefined)[], (Outcome | undefined)[]] = [[], []];
+  for (let round = 0; round < rounds; round++) {
+    rows[0].push(outcomes[round * 2]);
+    rows[1].push(outcomes[round * 2 + 1]);
+  }
+  return rows;
+}
+
 export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: number): void {
   ctx.save();
+
+  // A scrim across the top, under everything in the bar.
+  //
+  // Before the crowd, the HUD sat on sky and needed nothing. A stand behind
+  // the goal fills the upper third with high-contrast speckle, and white text
+  // on it is unreadable - as are the mode and camera buttons, which are HTML
+  // sitting over this canvas and cannot draw their own backdrop over it. A
+  // gradient rather than a band, so it has no edge to notice.
+  const scrimTo = scrimHeight(width);
+  const scrim = ctx.createLinearGradient(0, 0, 0, scrimTo);
+  scrim.addColorStop(0, 'rgba(2, 8, 20, 0.84)');
+  scrim.addColorStop(0.62, 'rgba(2, 8, 20, 0.62)');
+  scrim.addColorStop(1, 'rgba(2, 8, 20, 0)');
+  ctx.fillStyle = scrim;
+  ctx.fillRect(0, 0, width, scrimTo);
+
   ctx.textBaseline = 'top';
 
   // On a phone the mode buttons move to the top-left corner, which is where
@@ -1301,20 +1457,26 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
     ctx.fillText(`${frame.player.name}  ${frame.score}/${frame.shotsTotal}`, 18, top);
   }
 
-  // One pip per penalty, filled as they are taken.
-  const pipY = top + (frame.mode === 'duel' ? 46 : 28);
-  for (let i = 0; i < frame.shotsTotal; i++) {
-    const outcome = frame.outcomes[i];
-    ctx.beginPath();
-    ctx.arc(26 + i * 22, pipY, 7, 0, Math.PI * 2);
-    if (!outcome) {
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    } else {
-      ctx.fillStyle = outcome === 'goal' ? '#4ade80' : 'rgba(255, 255, 255, 0.35)';
-      ctx.fill();
-    }
+  // One football per penalty. In a duel, a row each rather than one
+  // interleaved line: a flat row alternates between the two players, so
+  // reading your own record off it means counting every other position.
+  const tight = width < NARROW;
+  if (frame.mode === 'duel') {
+    const rows = shotsBySide(frame.outcomes, frame.shotsTotal, frame.suddenDeath);
+    // Two rows and two score lines have to fit above the keeper's banner, and
+    // on a phone the mode buttons have already pushed everything down. At the
+    // desktop size these overlapped "X IN GOAL" by about fifteen pixels.
+    const r = tight ? 5 : 7;
+    // Tighter again once sudden death has run long enough to need the room.
+    const long = rows[0].length > 7;
+    const gap = (tight ? 14 : 21) - (long ? 4 : 0);
+    const step = tight ? 14 : 21;
+    rows.forEach((row, side) => {
+      drawBallRow(ctx, row, 22, top + (tight ? 38 : 44) + side * step, r, gap, SIDE_COLOURS[side]);
+    });
+  } else {
+    const row = Array.from({ length: frame.shotsTotal }, (_, i) => frame.outcomes[i]);
+    drawBallRow(ctx, row, 22, top + 28, tight ? 6 : 7, tight ? 17 : 21, SIDE_COLOURS[0]);
   }
 
   ctx.textAlign = 'center';
@@ -1354,7 +1516,9 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   if (frame.mode === 'duel' && (frame.phase === 'ready' || frame.phase === 'runup')) {
     ctx.save();
     ctx.textAlign = 'center';
-    const shooting = `${frame.names[frame.taker].toUpperCase()} SHOOTING`;
+    const shooting = frame.suddenDeath
+      ? `SUDDEN DEATH  ·  ${frame.names[frame.taker].toUpperCase()}`
+      : `${frame.names[frame.taker].toUpperCase()} SHOOTING`;
     fitFont(ctx, shooting, 700, width < NARROW ? 15 : 18, width - 32);
     ctx.fillStyle = SIDE_COLOURS[frame.taker];
     ctx.fillText(shooting, width / 2, width < NARROW ? 108 : 120);

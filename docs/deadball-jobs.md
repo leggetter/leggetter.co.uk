@@ -182,14 +182,20 @@ side-on so you can see the ball bend.
 without editing anything in `core/`, the split was drawn in the right place. If
 you cannot, that is worth saying out loud, because it means we got it wrong.
 
-### Two players
+### Two players on two devices
 
-Take five each, alternating. Hardest of these and the one most likely to be fun.
+Two people on one device is built - one shoots, the other saves, and you both
+put your names in at the start. Press **2 players** at the top of the pitch.
 
-The groundwork is done: the match is already written as a list of things that
-happen rather than as a running program, which means it does not care whether
-the next shot comes from a person sitting next to you, a computer, or eventually
-somebody on another machine. Look at `core/match.ts` first.
+What is left is doing that when you are not in the same room: one person opens a
+link, sends it to the other, and they take turns. Hardest of these by a distance,
+because it is the first thing in this game that needs a server.
+
+The groundwork is done. The match is written as a list of things that happen
+rather than as a running program, so it does not care whether the next message
+came from the person next to you or from a machine somewhere else. Read
+`core/match.ts` first, then the "Two devices, later" section of the spec, which
+already lists the options and which one it leans towards.
 
 ### A keeper that spots what you keep doing
 

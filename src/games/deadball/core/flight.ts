@@ -106,10 +106,21 @@ export function createFlight(
   /** Where a person chose to dive, if a person is keeping. */
   chosenDive: { x: number; y: number } | null = null,
   /**
-   * Where to put the discrete things that happen. Defaults to nowhere, because
-   * tests and the offline tuning scripts run this too and want no list.
+   * Where to put the discrete things that happen.
+   *
+   * Deliberately required. It used to default to `NO_EVENTS` so that tests and
+   * the tuning scripts could ignore it - and then the game forgot to pass it,
+   * took the default, and dropped the boot on every shot ever taken. Nobody
+   * noticed while the boot was one synthesised burst among others; a real kick
+   * sample made the silence obvious in seconds.
+   *
+   * `events.test.ts` passed a sink and so proved the emit worked. It could not
+   * prove the caller was listening, and no test at this level can. Making the
+   * argument explicit is what closes that, because forgetting it is now a type
+   * error rather than a quiet nothing. Callers that genuinely want silence say
+   * `NO_EVENTS` and mean it.
    */
-  events: EventSink = NO_EVENTS
+  events: EventSink
 ): Flight {
   events.emit({ kind: 'boot', at: 0, force: forceOf(length(shot.velocity)) });
   return {
@@ -131,7 +142,7 @@ export function createFlight(
  * Returns the flight unchanged once an outcome exists, so a caller can keep
  * calling this without having to check first.
  */
-export function advance(flight: Flight, dt: number, events: EventSink = NO_EVENTS): Flight {
+export function advance(flight: Flight, dt: number, events: EventSink): Flight {
   if (flight.outcome) return aftermath(flight, dt);
 
   const before = flight.ball;
@@ -368,8 +379,8 @@ export function simulate(
   rng: KeeperRng,
   dt: number
 ): Flight {
-  let flight = createFlight(shot, profile, rng);
+  let flight = createFlight(shot, profile, rng, 0, null, NO_EVENTS);
   // The timeout bounds this, so the loop cannot run away.
-  while (!flight.outcome) flight = advance(flight, dt);
+  while (!flight.outcome) flight = advance(flight, dt, NO_EVENTS);
   return flight;
 }

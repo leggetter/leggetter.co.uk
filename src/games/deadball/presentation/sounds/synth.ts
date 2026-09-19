@@ -71,6 +71,16 @@ export interface Synth extends SoundSet {
    */
   fadeBed(scale: number, seconds: number): void;
 
+  /**
+   * The referee's whistle, on its own.
+   *
+   * A miss is one event and two reactions - the crowd groans and the official
+   * blows up - and a package is entitled to replace the first without
+   * replacing the second. Without this the only way to keep the whistle is to
+   * keep the groan that comes bundled with it.
+   */
+  whistle(): void;
+
   destroy(): void;
 }
 
@@ -277,6 +287,11 @@ export function createSynth(): Synth {
     setMuted(next: boolean): void {
       muted = next;
       if (master) ramp(master.gain, muted ? 0 : 1, 0.08);
+    },
+
+    whistle(): void {
+      if (!ensure()) return;
+      burst(WHISTLE, 0.5);
     },
 
     graph(): AudioGraph | null {

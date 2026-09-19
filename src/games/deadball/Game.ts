@@ -424,12 +424,16 @@ export async function startGame(options: GameOptions): Promise<Game> {
       if (runUp >= RUN_UP_SECONDS) {
         const rng = createRng(shotSeed(match.seed, match.shotIndex));
             // A human keeper's pick overrides the computer's read entirely.
+        // The sink matters here and not only in `advance`: the boot is emitted
+        // as the flight is built, so leaving it off defaulted it to NO_EVENTS
+        // and silently dropped the one event that starts every shot.
         flight = createFlight(
           pending.shot,
           keeper,
           rng,
           pending.keeperStartX,
-          pending.dive
+          pending.dive,
+          events
         );
         struckDive = pending.dive;
         pending = null;

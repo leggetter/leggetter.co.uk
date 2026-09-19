@@ -6,6 +6,7 @@
  * can be asserted rather than eyeballed.
  */
 
+import { NO_EVENTS } from './events.ts';
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -35,8 +36,8 @@ const STEP = 1 / 120;
 
 /** simulate(), but with the keeper starting somewhere other than centre. */
 const fromLine = (shot: Shot, keeper: KeeperProfile, rng: Rng, startX: number) => {
-  let flight = createFlight(shot, keeper, rng, startX);
-  while (!flight.outcome) flight = advance(flight, STEP);
+  let flight = createFlight(shot, keeper, rng, startX, null, NO_EVENTS);
+  while (!flight.outcome) flight = advance(flight, STEP, NO_EVENTS);
   return flight;
 };
 
@@ -547,10 +548,10 @@ describe('keeper commitment', () => {
     const shot = resolveShot(aim(0.55, 0.4), striker, rng, {
       origin: spotBall(PENALTY_DISTANCE),
     });
-    let flight = createFlight(shot, keeper, rng);
+    let flight = createFlight(shot, keeper, rng, 0, null, NO_EVENTS);
     const start = flight.keeper.state.hands.x;
     while (!flight.outcome) {
-      flight = advance(flight, STEP);
+      flight = advance(flight, STEP, NO_EVENTS);
       if (Math.abs(flight.keeper.state.hands.x - start) > 0.01) return flight.elapsed;
     }
     return Infinity;
@@ -696,7 +697,7 @@ describe('after the whistle', () => {
   /** Advance past the outcome, the way the live game does. */
   const playOn = (flight: ReturnType<typeof simulate>, seconds: number) => {
     let f = flight;
-    for (let t = 0; t < seconds; t += STEP) f = advance(f, STEP);
+    for (let t = 0; t < seconds; t += STEP) f = advance(f, STEP, NO_EVENTS);
     return f;
   };
 

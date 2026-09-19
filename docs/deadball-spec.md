@@ -380,7 +380,7 @@ render/
   cameras.ts        # where you are allowed to stand. Data.
   registry.ts       # id -> package
   sounds/           # the default set. Any package may override any of it.
-  classic/          # today's look: canvas2d, drawn figures, synthesised sound
+  classic/          # today's look: canvas2d, drawn figures, sampled crowd
   pixel/            # later
 ```
 
@@ -415,7 +415,10 @@ It also settles a tension in [Synthesised, not sampled](#synthesised-not-sampled
 rather than reopening it. The default set is synthesised, for the reasons given
 there. A package that wants to ship sample files is free to, and inherits the
 consequences along with the sounds: the weight lands in that package, and so
-does the licensing question. Neither is the default's problem any more.
+does the licensing question. Neither is the default's problem any more. That is
+no longer hypothetical - `classic` took the offer, and the seam held: the
+default set did not change shape to accommodate it, and a package that says
+nothing about sound still gets the synthesised one for free.
 
 #### Where the boundary actually is
 
@@ -1051,20 +1054,29 @@ list, and so does any commentary line more specific than the outcome.
 
 #### Synthesised by default, sampled where it showed
 
-**Reversed in part, after listening.** The argument below still holds for most
-of the game and the synthesised set is still the default every package
-inherits. But three of them were obviously a synthesiser - the cheer, the crowd
-bed and the netting - and a crowd is thousands of throats that filtered noise
-never quite lies about convincingly. Those three are now CC0 samples shipped by
-the `classic` package, which is exactly the escape hatch the package model was
+**Reversed in part, after listening.** The argument below still holds for the
+default set every package inherits, which is still synthesised and still
+weighs nothing. But a crowd is thousands of throats that filtered noise never
+quite lies about convincingly, and once the first three samples went in the
+same reasoning took the rest of the crowd with them. The `classic` package now
+ships six CC0 files, which is exactly the escape hatch the package model was
 built with: a package that wants samples ships them and inherits the weight and
 the licence question along with them.
 
-The impacts stayed synthesised. A boot, a glove and a ringing post are short
-and physical, which synthesis does honestly, and the frame in particular is
-better made than found because it can ring at whatever pitch suits.
+The set, and why it is shaped this way: the crowd bed, the cheer, the "oooh" of
+a save and the groan of a miss all come off **one afternoon at one ground,
+recorded by one person through one microphone**. That is the thing worth more
+than any individual sample being better. A cheer borrowed from a different
+crowd in a different building always sounds borrowed, however good it is alone
+- the reverb tail disagrees with the bed underneath it and the ear hears the
+edit. The boot and the netting are close-mic'd one-shots where none of that
+applies, so they come from wherever they were best.
 
-What the reversal cost, recorded so the trade is visible: 147 KB, and a
+What stayed synthesised: the glove, the woodwork, and the referee's whistle.
+Short, physical, and in the frame's case better made than found, because a made
+post can ring at whatever pitch suits.
+
+What the reversal cost, recorded so the trade is visible: 248 KB, and a
 `CREDITS.md` naming a source, an author, a licence and a retrieval date for
 each file. Every one is CC0, checked by reading the licence on each sound's own
 page rather than trusting a search filter, because a public repo redistributes
@@ -1072,6 +1084,15 @@ what it commits. Nothing blocks on them, nothing throws if they are missing,
 and every branch that cannot play a sample calls straight through to the
 synthesised sound that was always there - verified by deleting the directory
 and playing a shootout.
+
+One thing the samples found rather than caused: the boot had never been
+audible. `createFlight` emits it as the flight is built, and `Game.ts` was
+calling that without an event sink, so the one event that starts every shot was
+going to `NO_EVENTS` and being dropped. A passing test covered the emit, which
+is why it survived - the test called `createFlight` with a sink, and the game
+did not. Nobody noticed while the boot was a noise burst among other noise
+bursts; putting a real contact sound on it made its absence obvious in a
+minute.
 
 #### The synthesis that remains
 
@@ -1135,6 +1156,19 @@ bugs this project has already had:
   already, and it took playing it to notice.
 - No event emitted twice when the accumulator runs several steps in one frame.
 - Events in time order, and drained exactly once.
+
+**And one thing this list cannot cover, learned the hard way.** Every test above
+passes a sink, which proves the simulation emits. None of them can prove the
+*caller* is listening - and it was not. `Game.ts` built each flight without
+passing the sink, took the `NO_EVENTS` default, and silently dropped the boot on
+every shot ever taken. Nobody noticed while the boot was one synthesised burst
+among others; a real kick sample made the silence obvious in seconds.
+
+The fix is not another test, because no test at this level can see that wiring.
+The sink is now a required argument, so forgetting it is a type error rather
+than a quiet nothing, and a caller that genuinely wants silence says `NO_EVENTS`
+and means it. Same principle the licensing decision used: nothing to get wrong
+beats a rule to follow.
 
 Whether it sounds good, and whether the crowd reads as a crowd, are both decided
 by playing it. Which is the same answer this document gives about views.

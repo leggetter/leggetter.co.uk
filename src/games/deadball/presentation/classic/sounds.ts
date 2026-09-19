@@ -1,13 +1,18 @@
 /**
  * What `classic` wants instead of the default sounds.
  *
- * Three of them, and only three: the cheer when it goes in, the crowd bed
- * underneath everything, and the ball arriving in the netting. Those are the
- * places the synthesised set was most obviously a synthesiser - a crowd is
- * thousands of throats and filtered noise never quite lies about it. The boot,
- * the glove, the woodwork, the save, the groan and the whistle are impacts and
- * short vowels, which synthesis does honestly, so they stay made rather than
- * fetched.
+ * Six samples, and the shape of the list is the point: the crowd bed, the
+ * cheer, the "oooh" of a save and the groan of a miss all come off one
+ * afternoon's recording at one ground, by one person, through one microphone.
+ * That is why they sit together. A cheer borrowed from a different crowd in a
+ * different building always sounds borrowed, however good it is on its own -
+ * the reverb tail disagrees with the bed underneath it and the ear hears the
+ * edit. The boot and the netting are close-mic'd one-shots where none of that
+ * applies, so they come from wherever they were best.
+ *
+ * What is left synthesised: the glove, the woodwork, and the referee's
+ * whistle. Those are impacts and a pitch, which synthesis does honestly and
+ * which nothing is gained by fetching.
  *
  * Every sample is CC0. The repo is public, so committing one redistributes it;
  * `public/deadball/sounds/CREDITS.md` records where each came from and under
@@ -35,9 +40,12 @@ import type { AudioGraph, Synth } from '../sounds/synth.ts';
 const DIRECTORY = '/deadball/sounds/';
 
 const FILES = {
-  goal: 'goal.mp3',
-  net: 'net.mp3',
   crowd: 'crowd.mp3',
+  goal: 'goal.mp3',
+  save: 'save.mp3',
+  groan: 'groan.mp3',
+  boot: 'boot.mp3',
+  net: 'net.mp3',
 } as const;
 
 type SampleName = keyof typeof FILES;
@@ -58,8 +66,15 @@ const BED: Record<Mood, { gain: number; cutoff: number; seconds: number }> = {
 /** The intake at the strike: a sharp breath on the bed, not a new sound. */
 const RISE = { gain: 0.5, cutoff: 7000, attack: 0.08, hold: 0.1, fall: 0.5 };
 
-/** How loud each one-shot sits against the synthesised impacts around it. */
-const LEVEL = { goal: 0.6, net: 0.5 };
+/**
+ * How loud each one-shot sits against the others.
+ *
+ * The files are already loudness-matched to each other, so these are relative
+ * judgements about the game and not corrections to the recordings: the goal is
+ * allowed to be the loudest thing that happens, and the netting is a detail
+ * rather than an event.
+ */
+const LEVEL = { goal: 0.75, save: 0.8, groan: 0.8, boot: 0.7, net: 0.5 };
 
 /** Long enough that the handover from the synthesised bed is not a cut. */
 const HANDOVER = 1.5;
@@ -70,6 +85,10 @@ const HANDOVER = 1.5;
  * what keeps a decoder's padding from putting a click in it.
  */
 const PADDING = 0.04;
+
+/** Force scales an impact, 0..1, the way the synthesised bursts always did. */
+const byForce = (level: number, force: number | undefined): number =>
+  level * (0.35 + (force ?? 0.6) * 0.65);
 
 interface Bed {
   filter: BiquadFilterNode;
@@ -192,6 +211,22 @@ export function createOverrides(synth: Synth): Partial<SoundSet> {
     }
   }
 
+  /** What a finished shot sounds like, given how it finished. */
+  function resolved(event: GameEvent): void {
+    if (event.outcome === 'goal') {
+      if (!shot('goal', LEVEL.goal)) synth.play(event);
+      return;
+    }
+    if (event.outcome === 'saved') {
+      if (!shot('save', LEVEL.save)) synth.play(event);
+      return;
+    }
+    // A miss is the crowd *and* the official. Taking over the groan is not a
+    // reason to swallow the whistle that came bundled with it.
+    if (shot('groan', LEVEL.groan)) synth.whistle();
+    else synth.play(event);
+  }
+
   return {
     bed(next: Mood): void {
       mood = next;
@@ -208,7 +243,7 @@ export function createOverrides(synth: Synth): Partial<SoundSet> {
     },
 
     /**
-     * One method for every kind of event, so replacing two of them means
+     * One method for every kind of event, so replacing some of them means
      * naming the rest and handing them back. Not a chore worth removing: the
      * delegation is what the fallback is made of, and it reads as a list of
      * what this package did and did not decide to own.
@@ -216,19 +251,21 @@ export function createOverrides(synth: Synth): Partial<SoundSet> {
     play(event: GameEvent): void {
       request();
       switch (event.kind) {
+        case 'boot':
+          // The swell is on this bed now, so it happens either way - but the
+          // synthesised boot brings its own, which is why it is an else.
+          if (shot('boot', byForce(LEVEL.boot, event.force))) rise();
+          else synth.play(event);
+          break;
         case 'net':
           // Force scales it because a ball rolled in and one smashed in are
           // the same event, as the synthesised burst it replaces always knew.
-          if (!shot('net', LEVEL.net * (0.35 + (event.force ?? 0.6) * 0.65))) synth.play(event);
+          if (!shot('net', byForce(LEVEL.net, event.force))) synth.play(event);
           break;
         case 'resolved':
-          if (event.outcome !== 'goal' || !shot('goal', LEVEL.goal)) synth.play(event);
+          resolved(event);
           break;
-        case 'boot':
-          // Still the synthesised boot, but the breath in is on this bed now.
-          synth.play(event);
-          rise();
-          break;
+        // The glove and the woodwork, still made rather than fetched.
         default:
           synth.play(event);
       }

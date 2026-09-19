@@ -144,7 +144,7 @@ export function planKeeper(
     // The dive starts from wherever the shuffle had got to, not from centre.
     state: (() => {
       const hands = vec(startX, STANDING.y, 0);
-      return { hands, body: bodyFor(hands), target: null, committed: false };
+      return { stance: startX, hands, body: bodyFor(hands, startX), target: null, committed: false };
     })(),
     plan: {
       style,
@@ -191,10 +191,12 @@ export function stepKeeper(
 
   if (!target) return sim;
 
+  // The feet stay where they were planted; only the hands travel.
+  const { stance } = sim.state;
   const hands = moveToward(sim.state.hands, target, profile.diveSpeed * dt);
   return {
     plan: sim.plan,
-    state: { hands, body: bodyFor(hands), target, committed },
+    state: { stance, hands, body: bodyFor(hands, stance), target, committed },
   };
 }
 
@@ -215,7 +217,7 @@ function readShot(plan: KeeperPlan, profile: KeeperProfile, ball: BallState): Ve
   const sigma = readSigma(profile, 1);
 
   return vec(
-    clamp(arrival.x + plan.readErrorX * sigma, -MAX_DIVE_X, MAX_DIVE_X),
+    clamp(arrival.x + plan.readErrorX * sigma, plan.startX - MAX_DIVE_X, plan.startX + MAX_DIVE_X),
     clamp(arrival.y + plan.readErrorY * sigma * VERTICAL_READ_FACTOR, MIN_HAND_Y, MAX_HAND_Y),
     0
   );
@@ -232,7 +234,7 @@ function readShot(plan: KeeperPlan, profile: KeeperProfile, ball: BallState): Ve
 function readAim(plan: KeeperPlan, profile: KeeperProfile): Vec3 {
   const sigma = readSigma(profile, ANTICIPATION_PENALTY);
   return vec(
-    clamp(plan.aimPoint.x + plan.readErrorX * sigma, -MAX_DIVE_X, MAX_DIVE_X),
+    clamp(plan.aimPoint.x + plan.readErrorX * sigma, plan.startX - MAX_DIVE_X, plan.startX + MAX_DIVE_X),
     clamp(plan.aimPoint.y + plan.readErrorY * sigma * VERTICAL_READ_FACTOR, MIN_HAND_Y, MAX_HAND_Y),
     0
   );
@@ -253,10 +255,18 @@ function readSigma(profile: KeeperProfile, penalty: number): number {
  * toward the dive, and drops as the keeper extends. Crude, and enough to mean
  * the middle of the goal is never simply vacated.
  */
-export function bodyFor(hands: Vec3): Vec3 {
-  const extension = Math.min(1, Math.abs(hands.x) / MAX_DIVE_X);
-  return vec(hands.x * BODY_FOLLOW, BODY_STANDING_Y - BODY_DIVE_DROP * extension, 0);
+export function bodyFor(hands: Vec3, stance: number): Vec3 {
+  const extension = diveExtension(hands.x, stance);
+  return vec(
+    stance + (hands.x - stance) * BODY_FOLLOW,
+    BODY_STANDING_Y - BODY_DIVE_DROP * extension,
+    0
+  );
 }
+
+/** How far into a dive the keeper is, 0 upright and 1 at full stretch. */
+export const diveExtension = (handsX: number, stance: number): number =>
+  Math.min(1, Math.abs(handsX - stance) / MAX_DIVE_X);
 
 function moveToward(from: Vec3, to: Vec3, maxStep: number): Vec3 {
   const dx = to.x - from.x;

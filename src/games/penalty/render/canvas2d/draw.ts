@@ -44,6 +44,7 @@ const COLORS = {
   net: 'rgba(255, 255, 255, 0.22)',
   keeperKit: '#ffd23f',
   keeperTrim: '#1d1d1d',
+  keeperGlove: '#f4f6f8',
   ball: '#fbfbfb',
   ballShade: '#c8ccd0',
   shadow: 'rgba(0, 0, 0, 0.3)',
@@ -235,66 +236,130 @@ export function drawGoalFrame(ctx: Ctx, proj: Projector): void {
  * as a dive rather than as a standing figure with a long arm. Crude, and meant
  * to be: this is the part a pixel art renderer replaces wholesale.
  */
-export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach: number): void {
-  const { hands, body } = keeper;
-  /** 0 standing, 1 at full stretch. */
-  const extension = Math.min(1, Math.abs(hands.x) / 2.75);
-  const lean = Math.sign(hands.x) * extension;
+/**
+ * One figure, drawn one way.
+ *
+ * The taker and the keeper are the same construction with different poses and
+ * different kit: two legs from the hip, a torso, two arms, a head. They were
+ * written separately at first and immediately drifted - different line weights,
+ * different head sizes, one of them with a single arm - so they share this.
+ *
+ * It is also the seam the pixel art renderer replaces: swap this one function
+ * and everybody on the pitch changes together.
+ */
+interface Figure {
+  /** Where the feet are planted on the ground. */
+  feet: Vec3;
+  /** Top of the torso. */
+  shoulder: Vec3;
+  head: Vec3;
+  /** Both hands. Everyone has two. */
+  hands: [Vec3, Vec3];
+  /** Both toes. */
+  toes: [Vec3, Vec3];
+  kit: string;
+  trim: string;
+  /** Glove radius in meters. Zero for bare hands. */
+  gloves?: number;
+  alpha?: number;
+}
 
-  // Feet sit under the simulated body, so what is drawn is what saves.
-  const feet = vec(body.x, 0.06, 0);
-  const shoulderY = 1.42 - 0.72 * extension;
-  const shoulder = vec(feet.x + lean * 0.38, shoulderY, 0);
-  const head = vec(shoulder.x + lean * 0.16, shoulderY + 0.24, 0);
+const LIMB = { leg: 0.13, torso: 0.28, arm: 0.12, head: 0.115 };
 
-  const f = proj.project(feet);
-  const s = proj.project(shoulder);
-  const hd = proj.project(head);
-  const g = proj.project(hands);
-  if (!f || !s || !hd || !g) return;
+function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
+  const f = proj.project(figure.feet);
+  const s = proj.project(figure.shoulder);
+  const hd = proj.project(figure.head);
+  if (!f || !s || !hd) return;
+
+  const hip = { x: s.x, y: s.y + (f.y - s.y) * 0.48 };
 
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
+  ctx.globalAlpha = figure.alpha ?? 1;
 
-  // Torso.
-  ctx.strokeStyle = COLORS.keeperKit;
-  ctx.lineWidth = Math.max(4, 0.32 * s.scale);
-  ctx.beginPath();
-  ctx.moveTo(f.x, f.y);
-  ctx.lineTo(s.x, s.y);
-  ctx.stroke();
-
-  // Arm out to the gloves.
-  ctx.lineWidth = Math.max(3, 0.14 * s.scale);
-  ctx.beginPath();
-  ctx.moveTo(s.x, s.y);
-  ctx.lineTo(g.x, g.y);
-  ctx.stroke();
-
-  // Legs, trailing the dive.
-  ctx.strokeStyle = COLORS.keeperTrim;
-  ctx.lineWidth = Math.max(2, 0.11 * s.scale);
-  for (const spread of [-0.16, 0.16]) {
-    const toe = proj.project(vec(feet.x - lean * 0.3 + spread, 0.05, 0));
-    if (!toe) continue;
+  ctx.strokeStyle = figure.trim;
+  ctx.lineWidth = Math.max(2, LIMB.leg * s.scale);
+  for (const toe of figure.toes) {
+    const t = proj.project(toe);
+    if (!t) continue;
     ctx.beginPath();
-    ctx.moveTo(f.x, f.y);
-    ctx.lineTo(toe.x, toe.y);
+    ctx.moveTo(hip.x, hip.y);
+    ctx.lineTo(t.x, t.y);
     ctx.stroke();
   }
 
-  ctx.fillStyle = COLORS.keeperTrim;
+  ctx.strokeStyle = figure.kit;
+  ctx.lineWidth = Math.max(4, LIMB.torso * s.scale);
   ctx.beginPath();
-  ctx.arc(hd.x, hd.y, Math.max(3, 0.13 * s.scale), 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(hip.x, hip.y);
+  ctx.lineTo(s.x, s.y);
+  ctx.stroke();
 
-  // Gloves, drawn at the size of the reach that decides a save.
-  ctx.fillStyle = COLORS.keeperKit;
+  ctx.lineWidth = Math.max(2, LIMB.arm * s.scale);
+  for (const hand of figure.hands) {
+    const h = proj.project(hand);
+    if (!h) continue;
+    ctx.strokeStyle = figure.kit;
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y);
+    ctx.lineTo(h.x, h.y);
+    ctx.stroke();
+
+    if (figure.gloves) {
+      ctx.fillStyle = COLORS.keeperGlove;
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, Math.max(3, figure.gloves * h.scale), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.fillStyle = COLORS.skin;
   ctx.beginPath();
-  ctx.arc(g.x, g.y, Math.max(3, reach * 0.5 * g.scale), 0, Math.PI * 2);
+  ctx.arc(hd.x, hd.y, Math.max(3, LIMB.head * s.scale), 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
+}
+
+export function drawKeeper(ctx: Ctx, proj: Projector, keeper: KeeperState, reach: number): void {
+  const { hands, body, stance } = keeper;
+
+  // Measured from where the feet are planted, not from the centre of the goal.
+  // Taken from the centre, a keeper who had shuffled two steps left was drawn
+  // permanently half-dived, swaying instead of standing.
+  const extension = Math.min(1, Math.abs(hands.x - stance) / 2.75);
+  const lean = Math.sign(hands.x - stance) * extension;
+
+  const shoulder = vec(body.x + lean * 0.14, 1.42 - 0.72 * extension, 0);
+
+  // Standing, the arms hang either side. Diving, both go with the ball, the
+  // leading one further than the trailing one. The pair straddles `hands`,
+  // which is the single point the save test uses, so what is drawn brackets
+  // what is simulated.
+  const spread = 0.26 - extension * 0.12;
+  const reaching: [Vec3, Vec3] = [
+    vec(hands.x + spread, hands.y + 0.06 - extension * 0.05, 0),
+    vec(hands.x - spread * (1 - extension * 0.5), hands.y - 0.1 - extension * 0.02, 0),
+  ];
+  const idle: [Vec3, Vec3] = [
+    vec(stance + 0.34, 0.92, 0),
+    vec(stance - 0.34, 0.92, 0),
+  ];
+
+  drawFigure(ctx, proj, {
+    feet: vec(stance, 0.06, 0),
+    shoulder,
+    head: vec(shoulder.x + lean * 0.16, shoulder.y + 0.24, 0),
+    hands: extension < 0.05 ? idle : reaching,
+    toes: [
+      vec(stance + 0.18 - lean * 0.22, 0.05, 0),
+      vec(stance - 0.18 - lean * 0.22, 0.05, 0),
+    ],
+    kit: COLORS.keeperKit,
+    trim: COLORS.keeperTrim,
+    gloves: reach * 0.34,
+  });
 }
 
 /**
@@ -333,7 +398,10 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
    */
   const side = frame.player.foot === 'left' ? 1 : -1;
 
-  const waiting = vec(spot.x + side * 1.75, 0.04, spot.z - 1.5);
+  // Behind the ball means TOWARD the camera, which means bigger. A longer
+  // run-up therefore costs frame space rather than buying it, so this is kept
+  // short and the distance is spent sideways instead.
+  const waiting = vec(spot.x + side * 1.55, 0.04, spot.z - 1.35);
   const planted = vec(spot.x + side * 0.52, 0.04, spot.z - 0.05);
 
   // 0 waiting, 1 planted next to the ball. Stays at 1 once struck, so the
@@ -343,7 +411,8 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
   const eased = 1 - (1 - run) * (1 - run);
 
   const lean = frame.phase === 'ready' ? (frame.aiming?.power ?? 0) * 0.25 : 0;
-  const crouch = lean * 0.2 + (frame.phase === 'flight' || frame.phase === 'resolved' ? 0.12 : 0);
+  const struck = frame.phase === 'flight' || frame.phase === 'resolved';
+  const crouch = lean * 0.2 + (struck ? 0.12 : 0);
 
   const feet = vec(
     waiting.x + (planted.x - waiting.x) * eased,
@@ -351,77 +420,36 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
     waiting.z + (planted.z - waiting.z) * eased
   );
   const shoulder = vec(feet.x - side * (0.12 + lean * 0.2), 1.3 - crouch, feet.z - 0.08);
-  const head = vec(shoulder.x - side * 0.08, shoulder.y + 0.26, shoulder.z);
 
-  const f = proj.project(feet);
-  const sh = proj.project(shoulder);
-  const hd = proj.project(head);
-  if (!f || !sh || !hd) return;
+  // Three strides in 0.42 s, which is about what a penalty run-up is. On
+  // contact the kicking leg swings through; after it, they come back together.
+  const swing = frame.phase === 'runup' ? Math.sin(run * Math.PI * 3) : 0;
+  const follow = struck ? 1 : 0;
 
-  const hip = { x: sh.x, y: sh.y + (f.y - sh.y) * 0.45 };
+  const toe = (leg: -1 | 1): Vec3 => {
+    const reach = 0.3 * swing * leg + (leg === side ? 0 : follow * 0.55);
+    const lift = leg === side ? 0 : follow * 0.3;
+    // Stance width, or both legs land on the same spot and read as one.
+    return vec(feet.x + leg * 0.15 - side * reach, 0.03 + lift, feet.z + reach * 0.5);
+  };
 
-  ctx.save();
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+  const out = 0.3 + lean * 0.2 + follow * 0.18 + Math.abs(swing) * 0.12;
+  const hand = (arm: -1 | 1): Vec3 =>
+    vec(shoulder.x + arm * out, shoulder.y - 0.22 + lean * 0.15 - swing * arm * 0.12, shoulder.z);
 
-  // He matters while aiming and running in. Once the ball has gone he is a
-  // large figure standing between the camera and the only thing worth
-  // watching, so he drops back rather than staying at full strength.
-  ctx.globalAlpha = frame.phase === 'ready' || frame.phase === 'runup' ? 1 : 0.4;
-
-  /**
-   * Legs. Mid-run they scissor, on contact the kicking leg swings through, and
-   * once it is gone they come back together. Three strides in 0.42 s, which is
-   * about what a penalty run-up actually is.
-   */
-  const striding = frame.phase === 'runup';
-  const swing = striding ? Math.sin(run * Math.PI * 3) : 0;
-  const followThrough = frame.phase === 'flight' || frame.phase === 'resolved' ? 1 : 0;
-
-  ctx.strokeStyle = frame.player.colors.trim;
-  ctx.lineWidth = Math.max(3, 0.13 * sh.scale);
-  for (const leg of [-1, 1]) {
-    const reach = 0.3 * swing * leg + (leg === side ? 0 : followThrough * 0.55);
-    const lift = leg === side ? 0 : followThrough * 0.3;
-    const toe = proj.project(vec(feet.x - side * reach, 0.03 + lift, feet.z + reach * 0.5));
-    if (!toe) continue;
-    ctx.beginPath();
-    ctx.moveTo(hip.x, hip.y);
-    ctx.lineTo(toe.x, toe.y);
-    ctx.stroke();
-  }
-
-  // Torso.
-  ctx.strokeStyle = frame.player.colors.kit;
-  ctx.lineWidth = Math.max(4, 0.24 * sh.scale);
-  ctx.beginPath();
-  ctx.moveTo(hip.x, hip.y);
-  ctx.lineTo(sh.x, sh.y);
-  ctx.stroke();
-
-  // Arms, counterweighting the stride and then the follow-through.
-  ctx.lineWidth = Math.max(2, 0.11 * sh.scale);
-  for (const arm of [-1, 1]) {
-    const out = 0.3 + lean * 0.2 + followThrough * 0.18 + Math.abs(swing) * 0.12;
-    const hand = proj.project(
-      vec(
-        shoulder.x + arm * out,
-        shoulder.y - 0.22 + lean * 0.15 - swing * arm * 0.12,
-        shoulder.z
-      )
-    );
-    if (!hand) continue;
-    ctx.beginPath();
-    ctx.moveTo(sh.x, sh.y);
-    ctx.lineTo(hand.x, hand.y);
-    ctx.stroke();
-  }
-
-  ctx.fillStyle = COLORS.skin;
-  ctx.beginPath();
-  ctx.arc(hd.x, hd.y, Math.max(3, 0.1 * sh.scale), 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+  drawFigure(ctx, proj, {
+    feet,
+    shoulder,
+    head: vec(shoulder.x - side * 0.08, shoulder.y + 0.26, shoulder.z),
+    hands: [hand(-1), hand(1)],
+    toes: [toe(-1), toe(1)],
+    kit: frame.player.colors.kit,
+    trim: frame.player.colors.trim,
+    // He matters while aiming and running in. Once the ball has gone he is a
+    // large figure standing between the camera and the only thing worth
+    // watching, so he drops back rather than staying at full strength.
+    alpha: frame.phase === 'ready' || frame.phase === 'runup' ? 1 : 0.4,
+  });
 }
 
 const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);

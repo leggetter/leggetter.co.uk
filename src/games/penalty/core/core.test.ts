@@ -15,7 +15,7 @@ import { advance, createFlight, simulate } from './flight.ts';
 import { classifyCrossing } from './rules.ts';
 import { initialMatch, reduce } from './match.ts';
 import { acceleration } from './physics.ts';
-import { bodyFor, idleDrift, planKeeper } from './keeper.ts';
+import { bodyFor, diveExtension, idleDrift, planKeeper } from './keeper.ts';
 import { cross, vec } from './vec3.ts';
 import {
   BALL_RADIUS,
@@ -327,10 +327,18 @@ describe('release timing', () => {
 
 describe('outcomes', () => {
   /** A keeper who is nowhere near it, hands and body alike. */
-  const away = { hands: vec(99, 99, 0), body: vec(99, 99, 0), target: null, committed: true };
+  const away = {
+    stance: 99,
+    hands: vec(99, 99, 0),
+    body: vec(99, 99, 0),
+    target: null,
+    committed: true,
+  };
+  /** Keeper diving to (x, y) from a stance at the centre of the goal. */
   const at = (x: number, y: number) => ({
+    stance: 0,
     hands: vec(x, y, 0),
-    body: bodyFor(vec(x, y, 0)),
+    body: bodyFor(vec(x, y, 0), 0),
     target: null,
     committed: true,
   });
@@ -363,7 +371,7 @@ describe('outcomes', () => {
     // long-range free kick with nothing on it cannot stall the match.
     const rng = createRng(1);
     const dribble = simulate(
-      { origin: spotBall(30), velocity: vec(0, 0, 3), spin: vec(0, 0, 0) },
+      { origin: spotBall(30), velocity: vec(0, 0, 3), spin: vec(0, 0, 0), aimPoint: { x: 0, y: 1 } },
       statue,
       rng,
       STEP
@@ -488,6 +496,35 @@ describe('keeper commitment', () => {
     // which is a legitimate choice and should stay available.
     const patient = styles(profile({ guessBias: 0, anticipation: 0 }));
     assert.equal(patient.react, 400);
+  });
+
+  test('an idling keeper stands up straight wherever it is on the line', () => {
+    // The bug this pins: the body was derived from the hands alone, as a
+    // fraction of their offset from the CENTRE of the goal. A keeper who had
+    // shuffled two steps left therefore had its feet drawn a third of the way
+    // back toward the middle, so it leaned from side to side like a pendulum
+    // instead of walking along its line.
+    for (const stance of [-0.42, -0.1, 0, 0.25, 0.42]) {
+      const hands = vec(stance, 0.95, 0);
+      const body = bodyFor(hands, stance);
+      assert.ok(
+        Math.abs(body.x - stance) < 1e-9,
+        `standing at ${stance} the body should be at ${stance}, got ${body.x}`
+      );
+      assert.equal(diveExtension(hands.x, stance), 0, 'standing is not diving');
+    }
+  });
+
+  test('a dive is measured from the feet, not from the centre of the goal', () => {
+    // Same reach in both cases, so the same extension, wherever they started.
+    assert.equal(diveExtension(2.0, 0), diveExtension(2.4, 0.4));
+    assert.ok(diveExtension(2.0, 0) > 0.5);
+  });
+
+  test('diving, the body trails the hands', () => {
+    const body = bodyFor(vec(2.2, 1.6, 0), 0);
+    assert.ok(body.x > 0 && body.x < 2.2, 'body should sit between feet and hands');
+    assert.ok(body.y < 0.9, 'and drop as the keeper stretches');
   });
 
   test('the idle shuffle stays near the middle and never reaches a post', () => {

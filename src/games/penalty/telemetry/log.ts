@@ -82,6 +82,9 @@ export async function createShotLog(storage: Storage, session: string): Promise<
     void storage.set(LOG_KEY, records);
   };
 
+  const toJSON = (): string =>
+    JSON.stringify({ session, exportedAt: new Date().toISOString(), records }, null, 2);
+
   return {
     record(entry) {
       records.push(entry);
@@ -96,10 +99,10 @@ export async function createShotLog(storage: Storage, session: string): Promise<
       persist();
     },
 
-    toJSON: () => JSON.stringify({ session, exportedAt: new Date().toISOString(), records }, null, 2),
+    toJSON,
 
     download() {
-      const blob = new Blob([this.toJSON()], { type: 'application/json' });
+      const blob = new Blob([toJSON()], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;

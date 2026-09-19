@@ -114,6 +114,16 @@ export interface KeeperProfile {
 }
 
 export interface KeeperState {
+  /**
+   * Where along the line the feet are planted.
+   *
+   * Separate from the hands because the two move for different reasons. Idling,
+   * the whole keeper steps sideways and stance, body and hands travel together.
+   * Diving, the feet stay put and the hands go; the body trails between them.
+   * Deriving the body from the hands alone made an idling keeper lean from side
+   * to side like a pendulum instead of moving along the line.
+   */
+  stance: number;
   /** Where the hands are now. */
   hands: Vec3;
   /**

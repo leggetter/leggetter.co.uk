@@ -568,8 +568,9 @@ cheap once the registry exists.
 
 ### What playing it kept finding
 
-Four bugs of the same shape, which is worth writing down because a fifth is
-probably in here somewhere.
+Bugs of the same shape, which is worth writing down because a fifth is
+probably in here somewhere. Make that five, and the fifth is not a bug in the
+simulation at all.
 
 **A number that is not the unit it looks like.** `Rng.nextBell` has a standard
 deviation of 0.29, not 1. Three separate constants were written as though
@@ -596,8 +597,18 @@ the post left a metre at each side that no keeper could ever reach, and two
 logged sessions put 65% of their shots through it without either player knowing
 why it worked.
 
-The common thread: all four were found by playing or by measuring, and none by
-reading the code. The shot log exists because of it.
+**A label that reads as an identity.** A duel names the keeper - "Player 2 in
+goal" - and names nobody else. Read once, it says who Player 2 *is*, so the
+roles swapping every shot goes unnoticed and the final score looks broken:
+Player 2 was the keeper, how did Player 2 win? Nothing was wrong underneath.
+Every screen now names both roles, the taker is captioned for the whole shot,
+and the full-time pips ring in the owner's colour whatever the outcome, so a
+scoreline can be checked without counting positions.
+
+The common thread: all five were found by playing or by measuring, and none by
+reading the code. The shot log exists because of it. The fifth is the one that
+argues hardest for the log - it was a question about a screenshot, and the log
+could not answer it, because it recorded no side. It does now.
 
 ### Full time: what the shot log knows
 

@@ -922,25 +922,62 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
   const duel = frame.mode === 'duel';
   const gap = duel && narrow ? 22 : 30;
   const left = centre - ((frame.outcomes.length - 1) * gap) / 2;
+  const radius = duel && narrow ? 9 : 11;
+
+  /**
+   * Whose shot it was, always, and whether it went in, separately.
+   *
+   * Colouring only the goals meant a miss said nothing about who took it, so
+   * three pips in a row of ten carried no owner and the only way to check a
+   * scoreline was to count positions. The ring is the player; the fill is the
+   * result.
+   */
   frame.outcomes.forEach((outcome, i) => {
+    const side = duel ? i % 2 : 0;
+    const colour = duel && side === 1 ? '#7dd3fc' : '#4ade80';
+    const scored = outcome === 'goal';
+
     ctx.beginPath();
-    ctx.arc(left + i * gap, y, duel && narrow ? 9 : 11, 0, Math.PI * 2);
-    // Alternating shots belong to alternating players, so the two sides get
-    // different greens rather than a row that reads as one person's round.
-    ctx.fillStyle =
-      outcome === 'goal'
-        ? duel && i % 2 === 1
-          ? '#7dd3fc'
-          : '#4ade80'
-        : 'rgba(255, 255, 255, 0.22)';
+    ctx.arc(left + i * gap, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = scored ? colour : 'rgba(255, 255, 255, 0.1)';
     ctx.fill();
-    if (outcome !== 'goal') {
-      ctx.font = '600 10px ui-sans-serif, system-ui, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+
+    if (duel) {
+      // The owner's colour is on every pip, filled or not.
+      ctx.strokeStyle = colour;
+      ctx.lineWidth = 2.5;
+      ctx.globalAlpha = scored ? 1 : 0.65;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    if (!scored) {
+      ctx.font = `600 ${duel && narrow ? 9 : 10}px ui-sans-serif, system-ui, sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.fillText(SHORT_OUTCOME[outcome], left + i * gap, y + 3.5);
     }
   });
+
   y += 48;
+
+  if (duel) {
+    ctx.font = `600 ${narrow ? 10 : 11}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    const key = [
+      { label: 'PLAYER 1', colour: '#4ade80' },
+      { label: 'PLAYER 2', colour: '#7dd3fc' },
+    ];
+    const keyGap = narrow ? 96 : 118;
+    key.forEach(({ label, colour }, i) => {
+      const x = centre + (i - 0.5) * keyGap;
+      ctx.fillStyle = colour;
+      ctx.beginPath();
+      ctx.arc(x - (narrow ? 34 : 42), y - 4, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.fillText(label, x + 6, y - 9);
+    });
+    y += narrow ? 26 : 30;
+  }
 
   const heading = (text: string): void => {
     ctx.font = `600 ${narrow ? 10 : 11}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
@@ -1076,16 +1113,29 @@ export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, wi
     }
   }
 
+  const round = Math.floor(frame.shotIndex / 2) + 1;
+
   ctx.font = `700 ${narrow ? 20 : 26}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
   ctx.fillStyle = '#f87171';
-  ctx.fillText(`PLAYER ${frame.keeperSide + 1} IN GOAL`, width / 2, narrow ? 116 : 128);
+  ctx.fillText(`PLAYER ${frame.keeperSide + 1} IN GOAL`, width / 2, narrow ? 112 : 124);
 
-  ctx.font = `500 ${narrow ? 13 : 15}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  // Both roles, every time. Naming only the keeper let "Player 2 in goal" read
+  // as who Player 2 *is* rather than as what they are doing this turn, so the
+  // swap went unnoticed and the winner made no sense.
+  ctx.font = `600 ${narrow ? 13 : 15}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.fillText(
+    `round ${round} of 5  ·  Player ${frame.taker + 1} is taking this one`,
+    width / 2,
+    narrow ? 134 : 148
+  );
+
+  ctx.font = `500 ${narrow ? 12 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
   ctx.fillText(
     spot ? 'let go to commit' : 'pick your corner  ·  the taker cannot see this',
     width / 2,
-    narrow ? 142 : 158
+    narrow ? 154 : 170
   );
   ctx.restore();
 }
@@ -1110,7 +1160,11 @@ export function drawHandover(ctx: Ctx, frame: FrameState, width: number, height:
 
   ctx.font = `500 ${narrow ? 14 : 16}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
-  ctx.fillText('the keeper has chosen', width / 2, height * 0.42 + (narrow ? 34 : 42));
+  ctx.fillText(
+    `your turn to shoot  ·  Player ${frame.keeperSide + 1} is in goal`,
+    width / 2,
+    height * 0.42 + (narrow ? 34 : 42)
+  );
 
   ctx.font = `500 ${narrow ? 13 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
@@ -1183,6 +1237,18 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
 
   if (frame.phase === 'complete') {
     drawFullTime(ctx, frame, width, height);
+  }
+
+  // Who is taking this one, held on screen for the whole shot. The arrow in
+  // the score is easy to miss, and missing it is what makes the winner of a
+  // duel look wrong: "Player 2 was the keeper, how did Player 2 win?"
+  if (frame.mode === 'duel' && (frame.phase === 'ready' || frame.phase === 'runup')) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.font = `700 ${width < NARROW ? 15 : 18}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    ctx.fillStyle = frame.taker === 1 ? '#7dd3fc' : '#4ade80';
+    ctx.fillText(`PLAYER ${frame.taker + 1} SHOOTING`, width / 2, width < NARROW ? 108 : 120);
+    ctx.restore();
   }
 
   // Hidden once a drag is live: the dial is at the ball and says more, and in

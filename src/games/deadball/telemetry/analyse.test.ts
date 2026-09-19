@@ -37,6 +37,9 @@ const shot = (over: {
   keeperHands: { x: 1, y: 1 },
   keeperEnvelope: over.envelope ?? 2.94,
   keeperStartX: 0,
+  keeperDive: null,
+  mode: 'solo',
+  takerSide: 0,
   viewport: { width: 1280, height: 750 },
 });
 

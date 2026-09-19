@@ -146,6 +146,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
   /** Seconds into the run-up, and the shot waiting at the end of it. */
   let runUp = 0;
   let pending: { shot: Shot; keeperStartX: number; dive: Dive | null } | null = null;
+  // Kept past the strike, because `pending` is cleared there and the shot is
+  // not logged until the ball has finished.
+  let struckDive: Dive | null = null;
 
   /** Seconds the keeper has been waiting on the line for this penalty. */
   let settling = 0;
@@ -375,6 +378,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
           pending.keeperStartX,
           pending.dive
         );
+        struckDive = pending.dive;
         pending = null;
         struckAt = clock;
         match = reduce(match, { type: 'STRIKE' });
@@ -408,6 +412,13 @@ export async function startGame(options: GameOptions): Promise<Game> {
         keeperHands: { x: flight.keeper.state.hands.x, y: flight.keeper.state.hands.y },
         keeperEnvelope: keeper.diveSpeed * flight.elapsed + keeper.reach + BALL_RADIUS,
         keeperStartX: flight.keeper.plan.startX,
+        // The tap as it was made, not plan.chosen — that is already clamped to
+        // what the keeper could reach, so logging it would say the same thing
+        // as keeperHands and lose the only question worth asking: was the
+        // corner they went for one they could actually get to?
+        keeperDive: struckDive ? { x: struckDive.x, y: struckDive.y } : null,
+        mode: match.mode,
+        takerSide: match.taker,
         viewport: { width, height },
       });
       match = reduce(match, { type: 'RESOLVE', outcome: flight.outcome });

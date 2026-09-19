@@ -23,6 +23,7 @@ import {
   drawPitch,
   drawShotDial,
   drawSky,
+  drawTaker,
 } from './draw.ts';
 
 /**
@@ -80,6 +81,8 @@ export class BehindTakerView implements View {
     drawKeeper(ctx, projector, frame.keeper, frame.keeperProfile.reach);
     drawGoalFrame(ctx, projector);
     drawAim(ctx, projector, frame);
+    // Taker before the ball: he stands behind it from this camera.
+    drawTaker(ctx, projector, frame);
     drawBall(ctx, projector, frame.ball.position);
     drawShotDial(ctx, projector, frame);
     drawHud(ctx, frame, this.width, this.height);

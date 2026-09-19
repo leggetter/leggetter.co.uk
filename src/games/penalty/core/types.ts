@@ -161,6 +161,12 @@ export interface FrameState {
   /** Live aim while a drag is in progress, for the preview. */
   aiming: ShotInput | null;
   /**
+   * What the shot log knows, computed once when the shootout ends rather than
+   * every frame. Typed loosely here because core/ must not import telemetry:
+   * the simulation has no business knowing that a log exists.
+   */
+  summary: unknown | null;
+  /**
    * Where the timing marker is right now, -1 to 1, or null when not aiming.
    * Raw sweep position rather than the derived penalty, because this is what
    * gets drawn and the player needs to see the thing they are reacting to.

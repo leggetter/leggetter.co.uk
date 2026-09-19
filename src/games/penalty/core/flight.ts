@@ -23,10 +23,20 @@ export interface Flight {
   outcome: Outcome | null;
 }
 
-export function createFlight(shot: Shot, profile: KeeperProfile, rng: KeeperRng): Flight {
+export function createFlight(
+  shot: Shot,
+  profile: KeeperProfile,
+  rng: KeeperRng,
+  /**
+   * Where the keeper had shuffled to at the moment of contact. Simulation
+   * input, not presentation: it decides how far they have to travel. Recorded
+   * in the shot log, and part of the two-player message when that arrives.
+   */
+  keeperStartX = 0
+): Flight {
   return {
     ball: { position: shot.origin, velocity: shot.velocity, spin: shot.spin },
-    keeper: planKeeper(profile, rng, shot.aimPoint),
+    keeper: planKeeper(profile, rng, shot.aimPoint, keeperStartX),
     profile,
     elapsed: 0,
     outcome: null,

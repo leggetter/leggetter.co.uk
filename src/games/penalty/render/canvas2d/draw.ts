@@ -21,6 +21,7 @@ import {
   SWEEP_SWEET_ZONE,
 } from '../../core/units.ts';
 import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
+import type { Summary } from '../../telemetry/analyse.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
 import type { Projector } from '../project.ts';
 
@@ -47,6 +48,7 @@ const COLORS = {
   ballShade: '#c8ccd0',
   shadow: 'rgba(0, 0, 0, 0.3)',
   aim: 'rgba(255, 220, 90, 0.95)',
+  skin: '#d9a07a',
 };
 
 type Ctx = CanvasRenderingContext2D;
@@ -308,6 +310,90 @@ function ballBoost(depth: number): number {
   return Math.min(2.2, 1 + Math.max(0, depth - 7) * 0.085);
 }
 
+/**
+ * The taker, standing over the ball.
+ *
+ * There was nobody here at all, which mattered for more than looks: the keeper
+ * anticipates by reading the taker's body shape, and there was no body on
+ * screen for it to be reading. The figure leans as the drag is pulled, so the
+ * thing the keeper is supposedly watching is at least visible.
+ *
+ * It does not telegraph the aim, and must not start to. The lean follows the
+ * drag the player is already looking at; a run-up that pointed at the corner
+ * would hand the shot away before it was taken.
+ */
+export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
+  const ball = frame.ball.position;
+  /**
+   * Well to the side, not behind the ball.
+   *
+   * The camera sits 6.5 m back, so a 1.8 m figure standing over the ball comes
+   * out around 320 px tall against a goal that is 160 px tall - correct, and
+   * completely in the way. Standing him off to one side keeps the goal, the
+   * keeper and the aim reticle clear, which is what the player is actually
+   * looking at.
+   *
+   * A left-footed taker stands to the right of the ball and comes across it.
+   */
+  const stance = frame.player.foot === 'left' ? 1.45 : -1.45;
+
+  // Leans into the shot as the drag builds, and is gone once it is struck.
+  const lean = frame.phase === 'ready' ? (frame.aiming?.power ?? 0) * 0.3 : 0;
+  const crouch = lean * 0.22;
+
+  const feet = vec(ball.x + stance, 0.04, ball.z - 0.15 + lean * 0.25);
+  const shoulder = vec(feet.x + lean * 0.22, 1.3 - crouch, feet.z - 0.08);
+  const head = vec(shoulder.x + lean * 0.1, shoulder.y + 0.26, shoulder.z);
+
+  const f = proj.project(feet);
+  const sh = proj.project(shoulder);
+  const hd = proj.project(head);
+  if (!f || !sh || !hd) return;
+
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Legs.
+  ctx.strokeStyle = frame.player.colors.trim;
+  ctx.lineWidth = Math.max(3, 0.13 * sh.scale);
+  for (const spread of [-0.13, 0.13]) {
+    const toe = proj.project(vec(feet.x + spread, 0.03, feet.z + spread * 0.5));
+    if (!toe) continue;
+    ctx.beginPath();
+    ctx.moveTo(sh.x, sh.y + (f.y - sh.y) * 0.45);
+    ctx.lineTo(toe.x, toe.y);
+    ctx.stroke();
+  }
+
+  // Torso.
+  ctx.strokeStyle = frame.player.colors.kit;
+  ctx.lineWidth = Math.max(4, 0.24 * sh.scale);
+  ctx.beginPath();
+  ctx.moveTo(sh.x, sh.y + (f.y - sh.y) * 0.45);
+  ctx.lineTo(sh.x, sh.y);
+  ctx.stroke();
+
+  // Arms, out for balance as the drag builds.
+  ctx.lineWidth = Math.max(2, 0.11 * sh.scale);
+  for (const side of [-1, 1]) {
+    const hand = proj.project(
+      vec(shoulder.x + side * (0.3 + lean * 0.25), shoulder.y - 0.22 + lean * 0.18, shoulder.z)
+    );
+    if (!hand) continue;
+    ctx.beginPath();
+    ctx.moveTo(sh.x, sh.y);
+    ctx.lineTo(hand.x, hand.y);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = COLORS.skin;
+  ctx.beginPath();
+  ctx.arc(hd.x, hd.y, Math.max(3, 0.1 * sh.scale), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 export function drawBall(ctx: Ctx, proj: Projector, position: Vec3): void {
   // Shadow first, on the ground directly beneath.
   const ground = proj.project(vec(position.x, 0.01, position.z));
@@ -512,6 +598,110 @@ const OUTCOME_TEXT: Record<Outcome, string> = {
   blocked: 'BLOCKED',
 };
 
+/**
+ * Full time.
+ *
+ * The shootout used to end on a score and nothing else. Everything here comes
+ * out of the shot log, which was built to answer these questions offline and
+ * turns out to answer them better in the game, where the person who just
+ * played them is sitting.
+ *
+ * The notes are deliberately blunt about where somebody keeps shooting. A
+ * keeper that reads your pattern is coming, and being told the game is
+ * watching is what makes that fair rather than a trick.
+ */
+function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number): void {
+  const summary = frame.summary as Summary | null;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(6, 16, 26, 0.82)';
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.textAlign = 'center';
+  const centre = width / 2;
+  let y = Math.max(70, height * 0.13);
+
+  ctx.font = '700 52px ui-sans-serif, system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+  ctx.fillText(`${frame.score} of ${frame.shotsTotal}`, centre, y);
+  y += 64;
+
+  // This shootout, shot by shot.
+  const gap = 30;
+  const left = centre - ((frame.outcomes.length - 1) * gap) / 2;
+  frame.outcomes.forEach((outcome, i) => {
+    ctx.beginPath();
+    ctx.arc(left + i * gap, y, 11, 0, Math.PI * 2);
+    ctx.fillStyle = outcome === 'goal' ? '#4ade80' : 'rgba(255, 255, 255, 0.22)';
+    ctx.fill();
+    if (outcome !== 'goal') {
+      ctx.font = '600 10px ui-sans-serif, system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      ctx.fillText(SHORT_OUTCOME[outcome], left + i * gap, y + 3.5);
+    }
+  });
+  y += 52;
+
+  if (summary && summary.shots > 0) {
+    ctx.font = '500 13px ui-monospace, SFMono-Regular, Menlo, monospace';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+    const career = [
+      `${summary.shots} shots`,
+      summary.rate === null ? null : `${Math.round(summary.rate * 100)}% scored`,
+      `${summary.keeper.saves} saved`,
+      `${summary.timing.clean} clean strikes`,
+    ]
+      .filter(Boolean)
+      .join('   ·   ');
+    ctx.fillText(career, centre, y);
+    y += 36;
+
+    ctx.font = '500 15px ui-sans-serif, system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+    const maxWidth = Math.min(560, width - 64);
+    for (const note of summary.notes) {
+      for (const line of wrap(ctx, note, maxWidth)) {
+        ctx.fillText(line, centre, y);
+        y += 23;
+      }
+      y += 10;
+    }
+  }
+
+  ctx.font = '500 14px ui-sans-serif, system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.fillText('click to play again   ·   press L to save the shot log', centre, height - 46);
+  ctx.restore();
+}
+
+/** Greedy word wrap. Canvas has no text layout, so this is the whole of it. */
+function wrap(ctx: Ctx, text: string, maxWidth: number): string[] {
+  const lines: string[] = [];
+  let line = '';
+  for (const word of text.split(' ')) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (line && ctx.measureText(candidate).width > maxWidth) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+const SHORT_OUTCOME: Record<Outcome, string> = {
+  goal: '',
+  saved: 'S',
+  post: 'P',
+  bar: 'B',
+  wide: 'W',
+  over: 'O',
+  short: '-',
+  blocked: 'X',
+};
+
 export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: number): void {
   ctx.save();
   ctx.textBaseline = 'top';
@@ -563,11 +753,7 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   }
 
   if (frame.phase === 'complete') {
-    banner(
-      `${frame.score} of ${frame.shotsTotal}`,
-      'click to play again',
-      'rgba(255, 255, 255, 0.95)'
-    );
+    drawFullTime(ctx, frame, width, height);
   }
 
   if (frame.phase === 'ready') {

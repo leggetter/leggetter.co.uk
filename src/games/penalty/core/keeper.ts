@@ -26,6 +26,22 @@ import { vec, type Vec3 } from './vec3.ts';
 /** Hands at rest: on the line, centered, about waist height. */
 const STANDING: Vec3 = vec(0, 0.95, 0);
 
+/**
+ * The shuffle along the line while the taker is settling.
+ *
+ * Small on purpose: a keeper shifts their weight and edges a step either way,
+ * they do not wander to a post. And it is driven by nothing except time and the
+ * shot seed - never by where the shot is aimed, because the keeper cannot see
+ * that and a keeper that drifted toward your corner would be cheating.
+ *
+ * It is not decoration. Wherever they have drifted to is where the dive starts
+ * from, so a keeper caught leaning left has further to travel going right. That
+ * gives the player something to watch and react to before releasing, which is
+ * the decision the game otherwise does not have.
+ */
+const IDLE_RANGE = 0.42;
+const IDLE_PERIOD = 2.6;
+
 /** Torso height when upright, and how far it drops at full stretch. */
 const BODY_STANDING_Y = 0.9;
 const BODY_DIVE_DROP = 0.42;
@@ -77,6 +93,8 @@ export interface KeeperPlan {
   readErrorY: number;
   /** Where the boot sent it, for an anticipating keeper to read. */
   aimPoint: { x: number; y: number };
+  /** Where along the line the keeper was standing when the ball was struck. */
+  startX: number;
 }
 
 export interface KeeperSim {
@@ -89,10 +107,26 @@ export interface KeeperRng {
   nextBell(): number;
 }
 
+/**
+ * Where the keeper has shuffled to after `seconds` of the taker settling.
+ *
+ * Two offset sine waves rather than one, so the drift does not read as a
+ * metronome the player can simply count. Sine is fine here: this is the idle,
+ * and `startX` is captured into the flight at the moment of contact, so a
+ * replay reads the recorded number and never runs this.
+ */
+export function idleDrift(seconds: number, seed: number): number {
+  const phase = (seed % 1000) / 1000;
+  const a = Math.sin((seconds / IDLE_PERIOD + phase) * Math.PI * 2);
+  const b = Math.sin((seconds / (IDLE_PERIOD * 0.41) + phase * 2) * Math.PI * 2);
+  return (a * 0.7 + b * 0.3) * IDLE_RANGE;
+}
+
 export function planKeeper(
   profile: KeeperProfile,
   rng: KeeperRng,
-  aimPoint: { x: number; y: number } = { x: 0, y: 1 }
+  aimPoint: { x: number; y: number } = { x: 0, y: 1 },
+  startX = 0
 ): KeeperSim {
   // Guess, anticipate, or react, in that order of the roll. Whatever is not
   // claimed by the first two is a reaction, so a profile that sets neither
@@ -107,7 +141,11 @@ export function planKeeper(
 
   const side = rng.next() < 0.5 ? -1 : 1;
   return {
-    state: { hands: STANDING, body: bodyFor(STANDING), target: null, committed: false },
+    // The dive starts from wherever the shuffle had got to, not from centre.
+    state: (() => {
+      const hands = vec(startX, STANDING.y, 0);
+      return { hands, body: bodyFor(hands), target: null, committed: false };
+    })(),
     plan: {
       style,
       guessX: side * MAX_DIVE_X * (0.55 + rng.next() * 0.45),
@@ -115,6 +153,7 @@ export function planKeeper(
       readErrorX: rng.nextBell(),
       readErrorY: rng.nextBell(),
       aimPoint,
+      startX,
     },
   };
 }

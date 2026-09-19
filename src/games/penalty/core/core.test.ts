@@ -15,7 +15,7 @@ import { advance, createFlight, simulate } from './flight.ts';
 import { classifyCrossing } from './rules.ts';
 import { initialMatch, reduce } from './match.ts';
 import { acceleration } from './physics.ts';
-import { bodyFor, planKeeper } from './keeper.ts';
+import { bodyFor, idleDrift, planKeeper } from './keeper.ts';
 import { cross, vec } from './vec3.ts';
 import {
   BALL_RADIUS,
@@ -26,9 +26,17 @@ import {
   SWEEP_PERIOD,
   SWEEP_SWEET_ZONE,
 } from './units.ts';
-import type { KeeperProfile, Player, ShotInput } from './types.ts';
+import type { KeeperProfile, Player, Shot, ShotInput } from './types.ts';
+import type { Rng } from './rng.ts';
 
 const STEP = 1 / 120;
+
+/** simulate(), but with the keeper starting somewhere other than centre. */
+const fromLine = (shot: Shot, keeper: KeeperProfile, rng: Rng, startX: number) => {
+  let flight = createFlight(shot, keeper, rng, startX);
+  while (!flight.outcome) flight = advance(flight, STEP);
+  return flight;
+};
 
 const striker: Player = {
   id: 'test',
@@ -480,6 +488,38 @@ describe('keeper commitment', () => {
     // which is a legitimate choice and should stay available.
     const patient = styles(profile({ guessBias: 0, anticipation: 0 }));
     assert.equal(patient.react, 400);
+  });
+
+  test('the idle shuffle stays near the middle and never reaches a post', () => {
+    // A keeper shifts their weight; they do not wander to a post. If this ever
+    // grows past about half a meter the shuffle stops being a tell to read and
+    // starts being the whole shot.
+    let peak = 0;
+    for (let t = 0; t < 30; t += 0.01) peak = Math.max(peak, Math.abs(idleDrift(t, 12345)));
+    assert.ok(peak > 0.15, `should actually move, peaked at ${peak.toFixed(2)}`);
+    assert.ok(peak < 0.5, `drifted too far: ${peak.toFixed(2)}`);
+  });
+
+  test('the shuffle is blind to where the shot is going', () => {
+    // It takes time and a seed and nothing else. A keeper that drifted toward
+    // the corner you picked would be reading a mind, not a run-up.
+    assert.equal(idleDrift(1.4, 7), idleDrift(1.4, 7));
+    assert.notEqual(idleDrift(1.4, 7), idleDrift(1.4, 9));
+  });
+
+  test('a keeper caught leaning has further to go the other way', () => {
+    const keeper = profile({ anticipation: 1, readAccuracy: 1, diveSpeed: 5.3 });
+    const rng = () => createRng(11);
+    const shot = resolveShot(aim(0.72, 0.4), striker, createRng(11), {
+      origin: spotBall(PENALTY_DISTANCE),
+    });
+    // Same shot, same seed; only where the keeper was standing differs.
+    const leaningAway = fromLine(shot, keeper, rng(), -0.42);
+    const leaningInto = fromLine(shot, keeper, rng(), 0.42);
+    assert.ok(
+      Math.abs(leaningInto.keeper.state.hands.x) > Math.abs(leaningAway.keeper.state.hands.x),
+      'starting nearer the shot must end up nearer the shot'
+    );
   });
 
   test('an anticipating keeper reads the boot, so curve still beats it', () => {

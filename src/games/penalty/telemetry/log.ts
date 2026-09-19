@@ -49,6 +49,15 @@ export interface ShotRecord {
   /** How the keeper went, and where it ended up. */
   keeperStyle: KeeperStyle;
   keeperHands: { x: number; y: number };
+  /**
+   * How far from centre the keeper could have reached on this shot, in meters:
+   * dive speed times the flight, plus reach. Stored rather than recomputed,
+   * because working it out later needs the keeper's profile, and profiles get
+   * edited. A record should still mean what it meant when it was written.
+   */
+  keeperEnvelope: number;
+  /** Where along the line the keeper was standing at contact. */
+  keeperStartX: number;
 
   viewport: { width: number; height: number };
 }

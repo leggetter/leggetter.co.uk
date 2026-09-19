@@ -10,11 +10,11 @@
  * docs/penalty-shootout-spec.md for why that is not negotiable.
  */
 
-import { PENALTY_DISTANCE } from './core/units.ts';
+import { BALL_RADIUS, PENALTY_DISTANCE } from './core/units.ts';
 import { createRng, shotSeed } from './core/rng.ts';
 import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts';
 import { advance, createFlight, type Flight } from './core/flight.ts';
-import { planKeeper } from './core/keeper.ts';
+import { idleDrift, planKeeper } from './core/keeper.ts';
 import { initialMatch, reduce, SHOTS_PER_ROUND, type MatchState } from './core/match.ts';
 import type { FrameState, KeeperProfile, Player, ShotInput } from './core/types.ts';
 import { attachDragInput, type DragInput } from './input/drag.ts';
@@ -22,6 +22,7 @@ import { createView, resolveViewId } from './render/registry.ts';
 import type { DragGesture, View } from './render/View.ts';
 import { KEYS, type Settings, type Storage } from './storage/Storage.ts';
 import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
+import { summarise, type Summary } from './telemetry/analyse.ts';
 
 /** Simulation step. Fixed so a shot is reproducible; see core/rng.ts. */
 export const STEP = 1 / 120;
@@ -86,8 +87,20 @@ export async function startGame(options: GameOptions): Promise<Game> {
   /** What was struck, kept until the shot resolves so it can be logged. */
   let lastInput: ShotInput | null = null;
 
-  /** Keeper standing on the line, before a shot is struck. */
-  const idleKeeper = () => planKeeper(keeper, createRng(shotSeed(match.seed, match.shotIndex)));
+  /** Computed once at full time, not every frame. */
+  let summary: Summary | null = null;
+
+  /** Seconds the keeper has been waiting on the line for this penalty. */
+  let settling = 0;
+
+  /** Keeper on the line, shuffling, before a shot is struck. */
+  const idleKeeper = () =>
+    planKeeper(
+      keeper,
+      createRng(shotSeed(match.seed, match.shotIndex)),
+      { x: 0, y: 1 },
+      idleDrift(settling, match.seed + match.shotIndex)
+    );
   let keeperSim = idleKeeper();
 
   let ballPosition = spotBall(PENALTY_DISTANCE);
@@ -107,6 +120,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     outcomes: match.outcomes,
     lastOutcome: match.outcomes[match.outcomes.length - 1] ?? null,
     aiming,
+    summary,
     timingMarker: aiming ? sweepMarker : null,
   });
 
@@ -125,7 +139,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
       pressure,
     });
 
-    flight = createFlight(shot, keeper, rng);
+    // Captured at contact: wherever the shuffle had reached is where the dive
+    // begins, and the flight has to record it or a replay would differ.
+    flight = createFlight(shot, keeper, rng, keeperSim.state.hands.x);
     match = reduce(match, { type: 'TAKE_SHOT' });
     aiming = null;
   }
@@ -133,12 +149,18 @@ export async function startGame(options: GameOptions): Promise<Game> {
   function advanceToNext(): void {
     if (match.phase === 'complete') {
       match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND);
+      summary = null;
     } else if (match.phase === 'resolved' && holdRemaining <= 0) {
       match = reduce(match, { type: 'NEXT' });
+      // Read across everything ever played on this device, not just these five
+      // shots. A habit needs more than five shots to be a habit, and the whole
+      // point of keeping the log is that the evidence accumulates.
+      if (match.phase === 'complete') summary = summarise(log.all());
     } else {
       return;
     }
     flight = null;
+    settling = 0;
     ballPosition = spotBall(PENALTY_DISTANCE);
     keeperSim = idleKeeper();
   }
@@ -206,6 +228,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
       aiming = { ...aiming, timing: timingFromSweep(sweepMarker) };
     }
 
+    // Keep shuffling while the taker settles. Stops the moment it is struck.
+    if (!flight && match.phase === 'ready') {
+      settling += STEP;
+      keeperSim = idleKeeper();
+    }
+
     if (!flight || flight.outcome) return;
 
     flight = advance(flight, STEP);
@@ -224,6 +252,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
         crossing: { x: flight.ball.position.x, y: flight.ball.position.y },
         keeperStyle: flight.keeper.plan.style,
         keeperHands: { x: flight.keeper.state.hands.x, y: flight.keeper.state.hands.y },
+        keeperEnvelope: keeper.diveSpeed * flight.elapsed + keeper.reach + BALL_RADIUS,
+        keeperStartX: flight.keeper.plan.startX,
         viewport: { width, height },
       });
       match = reduce(match, { type: 'RESOLVE', outcome: flight.outcome });

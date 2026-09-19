@@ -28,7 +28,9 @@ A game to build with the kids. The first version gets built solo so there is som
 - Real footballer names, photos, or club badges.
 - A global leaderboard or any server-side state.
 - Sound, beyond a hook where it will eventually go.
-- Mobile-first polish. It should work on a phone, but it is being designed against a laptop.
+- Mobile-*first* polish. It is designed against a laptop. It does have to work on
+  a phone, which as of Phase 1.5 it does not - see [Any shape of
+  screen](#any-shape-of-screen).
 
 ## Measures of success
 
@@ -419,6 +421,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **0** ✅ | Hidden page, layout change, sitemap filter, verify assertions, empty canvas, frame loop | Nothing, but the page is live on a preview URL and the plumbing is proven |
 | **1** ✅ | `core/` (units, vec3, rng, physics, predict, shot, keeper, flight, rules, match), `BehindTakerView`, drag input, one keeper, 5 penalties, in-memory storage, 27 tests | Single-player penalty shootout |
 | **1.5** ✅ | Full-time summary read off the shot log, a taker figure and a run-up, a keeper that shuffles, dives and lands, woodwork rebounds, netting, the save aftermath, release timing, the shot dial | The shootout ends with something, and a shot finishes rather than freezing |
+| **1.75** | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
 | **2** | `AngledBehindView` **and `KeeperCamView`**, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **2.5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **3** | Wall, variable position, free kick mode, lift input | Penalties and free kicks |
@@ -524,6 +527,37 @@ Two ways out, and they are not exclusive:
   records, faithful forever.
 
 Lean: stamp now, decide about profiles when the feature is built.
+
+### Any shape of screen
+
+The input was built for this and the layout was not. Pointer Events meant touch
+worked on the first try; the page has no overflow at any size; and then the
+camera put the goal off the side of the screen.
+
+`project.ts` derives the focal length from a fixed **vertical** field of view.
+That is fine on a laptop and wrong on a phone: hold the same angle on a tall
+narrow viewport and the horizontal field collapses, so a 7.32 m goal seen from
+17.7 m does not fit across a 390 px screen. On an iPhone in portrait neither
+post is visible. You can see netting and a keeper, and no goal.
+
+**A camera should frame its subject, not hold an angle.** The fix is to give it
+something that must be visible - the goal mouth plus air either side - and let
+it work out the focal length from whichever axis binds. The vertical angle
+stays as a *limit* rather than a target, so the desktop view is unchanged and a
+narrow screen zooms out until the goal fits.
+
+That is one change in one file and every view gets it, which is the projection
+boundary doing the job it was drawn for.
+
+Three smaller things come with it:
+
+- **The HUD is written in fixed pixels.** The instruction line runs off both
+  edges at 390 px, and the full-time stats are a single row joined with
+  separators that has nowhere to go.
+- **`100vh` is a lie on mobile browsers**, where the address bar is counted and
+  then removed. `100dvh` with a `vh` fallback.
+- **The dial sits where the drag starts**, so on a small screen it is under the
+  thumb. Worth looking at once it can be played.
 
 ### Somebody to take the penalty
 

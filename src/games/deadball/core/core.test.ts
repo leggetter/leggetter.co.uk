@@ -20,6 +20,7 @@ import { cross, vec } from './vec3.ts';
 import {
   BALL_RADIUS,
   GOAL_HEIGHT,
+  FLIGHT_TIMEOUT,
   GOAL_WIDTH,
   GRAVITY,
   NET_DEPTH,
@@ -429,6 +430,20 @@ describe('the woodwork', () => {
       }
     }
     assert.ok(wentIn > 0, 'no rebound off the post ever went in');
+  });
+
+  test('a rebound off the post settles quickly, not on the timeout', () => {
+    // The shot is over when the ball can no longer reach the goal. Waiting for
+    // FLIGHT_TIMEOUT meant a ball coming back off the post rolled around for
+    // the best part of four seconds before the next penalty could be taken.
+    for (const y of [0.5, 1.1, 1.8]) {
+      const flight = atFrame(GOAL_WIDTH / 2, y);
+      if (flight.rebounds === 0) continue;
+      assert.ok(
+        flight.elapsed < 1.5,
+        `took ${flight.elapsed.toFixed(2)} s to settle, out of a ${FLIGHT_TIMEOUT} s timeout`
+      );
+    }
   });
 
   test('a shot cannot rattle around the frame forever', () => {

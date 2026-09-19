@@ -25,5 +25,10 @@ import Fullscreen from '../../layouts/Fullscreen.astro';
     height: 100%;
     /* Aiming is a drag gesture, and without this it scrolls the page instead. */
     touch-action: none;
+    /* A drag across the pitch is not a text selection, and a long press is not
+       a context menu. Both fire on a phone and both interrupt a shot. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
 </style>

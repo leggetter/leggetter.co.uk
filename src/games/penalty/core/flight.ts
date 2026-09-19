@@ -185,11 +185,14 @@ function aftermath(flight: Flight, dt: number): Flight {
   const elapsed = flight.elapsed + dt;
   const keeper = stepKeeper(flight.keeper, flight.profile, flight.ball, elapsed, dt, true);
 
-  // A held ball travels with the gloves; everything else carries on falling,
-  // and stops when it meets the net.
+  // A held ball travels with the gloves. Everything else carries on falling,
+  // and only a ball that actually went in meets the net.
+  const flying = step(flight.ball, dt);
   const ball = flight.caught
     ? { ...flight.ball, position: keeper.state.hands, velocity: vec(0, 0, 0) }
-    : intoTheNet(step(flight.ball, dt));
+    : flight.outcome === 'goal'
+      ? intoTheNet(flying)
+      : flying;
 
   return { ...flight, ball, keeper, elapsed, sinceOutcome };
 }
@@ -203,9 +206,15 @@ function aftermath(flight: Flight, dt: number): Flight {
  *
  * A net gives almost nothing back and drags hard at whatever it does not stop,
  * which is why the ball falls out of it rather than rebounding off it.
+ *
+ * Only ever called on a shot that went in, and that is load-bearing. Applied to
+ * everything past the line it caught shots that had gone over the bar or wide
+ * of the post - they met a net that is not there, dropped, and came to rest
+ * apparently inside a goal they had missed. A ball that misses passes the
+ * netting, not through it.
  */
 function intoTheNet(ball: BallState): BallState {
-  // Only inside the goal. In front of the line there is nothing to hit.
+  // In front of the line there is nothing to hit.
   if (ball.position.z <= 0) return ball;
 
   let { position, velocity } = ball;

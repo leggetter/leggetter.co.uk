@@ -754,6 +754,35 @@ describe('after the whistle', () => {
     }
   });
 
+  test('a miss does not end up in the goal it missed', () => {
+    // The net used to catch anything past the line, so a shot over the bar or
+    // wide of the post met netting that is not there, dropped, and came to
+    // rest inside a goal it had missed. Both turned up in play.
+    const over = playOn(take(aim(0.2, 1), statue), 1.1);
+    assert.equal(over.outcome, 'over');
+    assert.ok(
+      over.ball.position.y > GOAL_HEIGHT || over.ball.position.z > NET_DEPTH,
+      `a shot over the bar finished at y=${over.ball.position.y.toFixed(2)}, ` +
+        `z=${over.ball.position.z.toFixed(2)}, which is inside the goal`
+    );
+
+    const wide = playOn(take(aim(1, 0.4), statue), 1.1);
+    assert.equal(wide.outcome, 'wide');
+    assert.ok(
+      Math.abs(wide.ball.position.x) > GOAL_WIDTH / 2,
+      `a wide shot finished ${wide.ball.position.x.toFixed(2)} m across, inside the posts`
+    );
+  });
+
+  test('a miss keeps travelling instead of being stopped by nothing', () => {
+    const wide = take(aim(1, 0.4), statue);
+    const after = playOn(wide, 0.5);
+    assert.ok(
+      after.ball.position.z > wide.ball.position.z + 3,
+      'a ball that missed should carry on past the goal'
+    );
+  });
+
   test('catching a penalty is rare', () => {
     let caught = 0;
     let saves = 0;

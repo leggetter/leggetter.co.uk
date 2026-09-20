@@ -977,7 +977,11 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
      * about who took it - but it still meant reading your own five off every
      * other position. Two rows is the thing that was actually wanted.
      */
-    const rows = shotsBySide(frame.outcomes, frame.shotsTotal, frame.suddenDeath);
+    const rows = shotsBySide(
+      frame.outcomes,
+      frame.shotsTotal,
+      frame.suddenDeath && frame.phase !== 'complete'
+    );
     const count = rows[0].length;
     const gap = Math.min(narrow ? 26 : 34, (width - (narrow ? 90 : 150)) / Math.max(1, count));
     const radius = Math.max(5, Math.min(narrow ? 9 : 11, gap * 0.38));
@@ -1420,12 +1424,27 @@ function drawBallRow(
 export function shotsBySide(
   outcomes: Outcome[],
   shotsTotal: number,
-  suddenDeath: boolean
+  /**
+   * True when another round is coming and its empty slots should already be
+   * on screen.
+   *
+   * Counting the rounds that had *started* meant the sixth pair only appeared
+   * once somebody had taken the eleventh penalty - so the moment a shootout
+   * went to sudden death, the scoreboard still showed a full five each and
+   * nothing to say what happens next. The empty pair is the announcement.
+   *
+   * False once the match is over, or a finished shootout would show a round
+   * nobody is going to take.
+   */
+  awaitingRound: boolean
 ): [(Outcome | undefined)[], (Outcome | undefined)[]] {
-  // Enough slots for the regulation five each, plus however many rounds of
-  // sudden death have started. A round in progress shows the taken shot and an
+  // The regulation five each, plus every round sudden death has reached, plus
+  // the one being waited for. A round in progress shows the taken shot and an
   // empty slot for the answer, which is the state the whole format turns on.
-  const rounds = Math.max(shotsTotal / 2, suddenDeath ? Math.ceil(outcomes.length / 2) : 0);
+  const rounds = Math.max(
+    shotsTotal / 2,
+    awaitingRound ? Math.floor(outcomes.length / 2) + 1 : Math.ceil(outcomes.length / 2)
+  );
   const rows: [(Outcome | undefined)[], (Outcome | undefined)[]] = [[], []];
   for (let round = 0; round < rounds; round++) {
     rows[0].push(outcomes[round * 2]);
@@ -1481,7 +1500,11 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   // reading your own record off it means counting every other position.
   const tight = width < NARROW;
   if (twoSided(frame)) {
-    const rows = shotsBySide(frame.outcomes, frame.shotsTotal, frame.suddenDeath);
+    const rows = shotsBySide(
+      frame.outcomes,
+      frame.shotsTotal,
+      frame.suddenDeath && frame.phase !== 'complete'
+    );
     // Two rows and two score lines have to fit above the keeper's banner, and
     // on a phone the mode buttons have already pushed everything down. At the
     // desktop size these overlapped "X IN GOAL" by about fifteen pixels.

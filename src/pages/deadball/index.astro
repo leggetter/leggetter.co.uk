@@ -15,7 +15,13 @@ import { DISCIPLINES } from '../../games/deadball/core/setpiece.ts';
 const views = listCameras();
 ---
 
-<Fullscreen title="Dead Ball" backHref="/" backLabel="Home" noindex>
+<Fullscreen
+  title="Dead Ball"
+  description="A penalty shootout. Drag to aim, release in the green, and bend it round the wall."
+  backHref="/"
+  backLabel="Home"
+  noindex
+>
   <div id="pitch-wrap">
     <canvas id="pitch"></canvas>
     {/*
@@ -140,6 +146,50 @@ const views = listCameras();
       decision, so it gets asked as one, and the two dialogs are sequential
       rather than stacked: this one closes before the other opens.
     */}
+    {/*
+      The waiting screen: where a game is sent, and the screen everybody sees
+      because every two-device game passes through it.
+
+      Its whole job is to be left, so there is no spinner and no tip on it.
+      Team, kick, a code to point a camera at, a link to send, and a way out.
+    */}
+    <dialog id="lobby" aria-labelledby="lobby-heading">
+      <div id="lobby-body" class="panel">
+        <h2 id="lobby-heading">Waiting for somebody</h2>
+        <p id="lobby-line"><b id="lobby-team">Your team</b> vs <span id="lobby-other">waiting…</span></p>
+        <p id="lobby-kick">Penalties shootout</p>
+
+        <div id="lobby-qr" aria-hidden="true"></div>
+
+        <p id="lobby-link"></p>
+        <div id="lobby-actions">
+          <button type="button" id="lobby-copy">Copy link</button>
+          <button type="button" id="lobby-share" hidden>Share</button>
+          <button type="button" id="lobby-cancel">Cancel</button>
+        </div>
+      </div>
+    </dialog>
+
+    {/*
+      What you are being invited to, before you accept it.
+
+      The guest sees the host's team and the kick first. Accepting something
+      you have not been shown is not accepting.
+    */}
+    <dialog id="accept" class="ph-no-capture" aria-labelledby="accept-heading">
+      <form id="accept-form">
+        <h2 id="accept-heading">You have been invited</h2>
+        <p id="accept-blurb"></p>
+        <label for="accept-name">Your team</label>
+        <input id="accept-name" name="acceptName" type="text" maxlength="12"
+          autocomplete="off" spellcheck="false" placeholder="Your team" />
+        <div id="accept-actions">
+          <button type="submit">Join the game</button>
+          <button type="button" id="accept-no">No thanks</button>
+        </div>
+      </form>
+    </dialog>
+
     <dialog id="confirm" aria-labelledby="confirm-heading">
       <div id="confirm-body" class="panel">
         <h2 id="confirm-heading">End this shootout?</h2>
@@ -183,6 +233,12 @@ const views = listCameras();
           per shootout belongs with the other things you choose once per
           shootout - not two taps away beside the sound.
         */}
+        <h3 id="where-heading" hidden>Where</h3>
+        <div class="choices" id="where-choices" hidden>
+          <button type="button" data-where="here" aria-pressed="true">This device</button>
+          <button type="button" data-where="apart" aria-pressed="false">Two devices</button>
+        </div>
+
         <h3 id="kick-heading">Kick</h3>
         <div class="choices" id="kick-choices">
           {
@@ -393,6 +449,11 @@ const views = listCameras();
   import { DEFAULT_NAMES, DEFAULT_TEAM } from '../../games/deadball/core/names';
   import { SKIES } from '../../games/deadball/content/skies.js';
   import { SKILL_BUDGET } from '../../games/deadball/core/squad';
+  import { DISCIPLINES } from '../../games/deadball/core/setpiece';
+  import { createLocalTransport } from '../../games/deadball/net/local';
+  import { forgetRoom, linkTo, roomFrom } from '../../games/deadball/net/link';
+  import type { TeamOnTheWire, Transport } from '../../games/deadball/net/Transport';
+  import { renderSVG } from 'uqr';
   // The derivation, so the swatches show what the pitch will actually draw
   // rather than what was stored. Five of the six are defaults most of the
   // time, and a default that has been nudged off a clash is still the answer.
@@ -517,6 +578,24 @@ const views = listCameras();
           ...document.querySelectorAll<HTMLButtonElement>('#kick-choices button'),
         ];
         let pendingKick = game.currentDiscipline();
+        let pendingWhere: 'here' | 'apart' = 'here';
+
+        const whereHeading = document.getElementById('where-heading');
+        const whereBox = document.getElementById('where-choices');
+        const whereChoices = [
+          ...document.querySelectorAll<HTMLButtonElement>('#where-choices button'),
+        ];
+        const paintWhere = () => {
+          for (const button of whereChoices) {
+            button.setAttribute('aria-pressed', String(button.dataset.where === pendingWhere));
+          }
+        };
+        for (const button of whereChoices) {
+          button.addEventListener('click', () => {
+            pendingWhere = button.dataset.where === 'apart' ? 'apart' : 'here';
+            paintWhere();
+          });
+        }
 
         const paintKick = () => {
           for (const button of kickChoices) {
@@ -537,6 +616,12 @@ const views = listCameras();
           pendingMode = mode;
           pendingKick = game.currentDiscipline();
           paintKick();
+          // Only a duel can be played apart. Solo has nobody to send it to and
+          // the computer is already here.
+          pendingWhere = 'here';
+          paintWhere();
+          if (whereHeading) whereHeading.hidden = mode !== 'duel';
+          if (whereBox) whereBox.hidden = mode !== 'duel';
           if (!panel || !fields[0] || !fields[1]) {
             // No form in the page for some reason: start anyway with whatever
             // names are already stored, rather than stranding the button. A
@@ -587,6 +672,19 @@ const views = listCameras();
           // The kick first, so the shootout that starts a line later is the one
           // that was asked for rather than the one before it.
           game.useDiscipline(pendingKick);
+          if (pendingMode === 'duel' && pendingWhere === 'apart') {
+            const name = fields[0]?.value ?? '';
+            closeNames();
+            void wire
+              .host({ discipline: pendingKick as never, shots: 5 }, myTeam(name))
+              .then(({ id, transport }) => {
+                follow(transport);
+                const label =
+                  DISCIPLINES.find((d) => d.id === pendingKick)?.label ?? 'Penalties';
+                showLobby(id, name, label);
+              });
+            return;
+          }
           if (pendingMode === 'solo') game.restart('solo');
           else game.restart(pendingMode, [fields[0]?.value ?? '', second]);
           closeNames();
@@ -881,6 +979,166 @@ const views = listCameras();
           (event.currentTarget as HTMLButtonElement).blur();
         });
         paintStyle();
+
+        /*
+          Two devices. The transport is the same interface a Durable Object
+          will be reached through, so none of what follows learns which it is
+          talking to - today it is another tab.
+        */
+        // sessionStorage, not localStorage: two tabs of one browser are two
+        // players here, and localStorage would give them one token between
+        // them. See tokenFor.
+        const wire = createLocalTransport(window.sessionStorage);
+        const lobby = document.getElementById('lobby') as HTMLDialogElement | null;
+        const accept = document.getElementById('accept') as HTMLDialogElement | null;
+        let live: Transport | null = null;
+
+        /** This side, as it goes on the wire. */
+        const myTeam = (name: string): TeamOnTheWire => {
+          const chosen = game.squad().find((p) => p.id === game.currentPlayerId());
+          return {
+            name,
+            // A squad rather than a player, because the intention is that every
+            // kick is taken by a different one of them.
+            squad: chosen ? [chosen] : [],
+            kit: { kit: chosen?.colors.kit ?? '#2f6fd0', trim: chosen?.colors.trim ?? '#f4f6f8' },
+          };
+        };
+
+        const setLobbyText = (id: string, text: string) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = text;
+        };
+
+        /** Watch a room and keep the waiting screen honest about it. */
+        const follow = (transport: Transport) => {
+          live = transport;
+          transport.onMessage((message) => {
+            if (message.kind === 'error') {
+              setLobbyText('lobby-other', message.reason);
+              return;
+            }
+            if (message.kind !== 'state') return;
+            const them = message.teams[1 - message.you];
+            const waiting = !them.name;
+            setLobbyText('lobby-other', waiting ? 'waiting…' : them.name);
+            setLobbyText('lobby-team', message.teams[message.you].name || 'Your team');
+            if (!waiting && lobby?.open) {
+              // Both in. Say what the coin said, then get out of the way.
+              const yours = message.first === message.you;
+              setLobbyText(
+                'lobby-heading',
+                yours ? 'You shoot first' : `${them.name} shoots first`
+              );
+              window.setTimeout(() => lobby?.close(), 1800);
+            }
+          });
+        };
+
+        /** Put a room on screen: code, link, and something to point a camera at. */
+        const showLobby = (id: string, team: string, kick: string) => {
+          const link = linkTo(id, new URL(window.location.href));
+          setLobbyText('lobby-team', team || 'Your team');
+          setLobbyText('lobby-other', 'waiting…');
+          setLobbyText('lobby-heading', 'Waiting for somebody');
+          setLobbyText('lobby-kick', `${kick} shootout`);
+          setLobbyText('lobby-link', link);
+          const qr = document.getElementById('lobby-qr');
+          // Drawn rather than fetched, so the waiting screen works on a phone
+          // that has already lost the network it is trying to share over.
+          if (qr) qr.innerHTML = renderSVG(link, { border: 2 });
+
+          const copy = document.getElementById('lobby-copy');
+          copy?.addEventListener('click', () => {
+            void navigator.clipboard?.writeText(link);
+            if (copy) copy.textContent = 'Copied';
+            window.setTimeout(() => copy && (copy.textContent = 'Copy link'), 1400);
+          });
+          const share = document.getElementById('lobby-share') as HTMLButtonElement | null;
+          // The actual use of this is sending it to somebody, and copy then
+          // switch apps is the clunkiest part of every link-based game.
+          if (share && typeof navigator.share === 'function') {
+            share.hidden = false;
+            share.addEventListener('click', () => {
+              void navigator.share({ title: 'Dead Ball', url: link }).catch(() => {});
+            });
+          }
+          if (!lobby?.open) lobby?.showModal();
+        };
+
+        /**
+         * Opened from a link.
+         *
+         * Shown what they are joining before they are asked to join it: the
+         * host's team and which kick. Accepting something you have not been
+         * shown is not accepting.
+         */
+        const invited = roomFrom(new URL(window.location.href));
+        if (invited) {
+          void wire.peek(invited).then((room) => {
+            const blurb = document.getElementById('accept-blurb');
+            if (!room) {
+              // A dead link is said plainly rather than left to fail on join.
+              // The usual cause is the host closing their tab, which in this
+              // build is exactly what "the server went away" looks like.
+              if (blurb) {
+                blurb.textContent =
+                  'That game is not there any more. Whoever invited you may have closed it.';
+              }
+              const join = document.querySelector<HTMLButtonElement>(
+                '#accept-form button[type=submit]'
+              );
+              if (join) join.disabled = true;
+            } else {
+              const kick =
+                DISCIPLINES.find((d) => d.id === room.settings.discipline)?.label ?? 'Penalties';
+              if (blurb) {
+                blurb.textContent = `${room.host.name || 'Somebody'} has invited you to a ${kick.toLowerCase()} shootout.`;
+              }
+            }
+            if (!accept?.open) accept?.showModal();
+          });
+        }
+
+        document.getElementById('accept-form')?.addEventListener('submit', (event) => {
+          event.preventDefault();
+          if (!invited) return;
+          const name = (document.getElementById('accept-name') as HTMLInputElement | null)?.value ?? '';
+          accept?.close();
+          void wire.guest(invited, myTeam(name)).then((transport) => {
+            follow(transport);
+            showJoined(name);
+          });
+        });
+
+        document.getElementById('accept-no')?.addEventListener('click', () => {
+          accept?.close();
+          // Out of the address bar too, or a refresh asks again.
+          forgetRoom(window.location, window.history);
+        });
+
+        /** The guest's side of the waiting screen: no link to share, just who. */
+        const showJoined = (name: string) => {
+          setLobbyText('lobby-heading', 'Joining');
+          setLobbyText('lobby-team', name || 'Your team');
+          setLobbyText('lobby-other', 'connecting…');
+          setLobbyText('lobby-link', '');
+          const qr = document.getElementById('lobby-qr');
+          if (qr) qr.innerHTML = '';
+          for (const id of ['lobby-copy', 'lobby-share']) {
+            const button = document.getElementById(id) as HTMLButtonElement | null;
+            if (button) button.hidden = true;
+          }
+          if (!lobby?.open) lobby?.showModal();
+        };
+
+        document.getElementById('lobby-cancel')?.addEventListener('click', () => {
+          // Destroys the room rather than walking away from it, so nothing
+          // accumulates that nobody will ever join.
+          live?.close();
+          live = null;
+          lobby?.close();
+        });
 
         const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
         const logDownload = document.getElementById('log-download') as HTMLButtonElement | null;
@@ -1209,7 +1467,9 @@ const views = listCameras();
      the same kind of thing. Both are a panel over the pitch asking a question. */
   #settings,
   #squad,
-  #confirm {
+  #confirm,
+  #lobby,
+  #accept {
     padding: 0;
     border: 0;
     background: none;
@@ -1630,6 +1890,16 @@ const views = listCameras();
     background: rgba(2, 8, 20, 0.88);
   }
 
+  #accept-form {
+    box-sizing: border-box;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(125, 211, 252, 0.28);
+    background: #0b1a2d;
+    color: #e6eef8;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
   #names-form {
     /* Same as the settings panel, and for the same reason - this one had the
        identical circular width and got away with it only because text inputs
@@ -1735,8 +2005,92 @@ const views = listCameras();
     outline-offset: 2px;
   }
 
-  #confirm::backdrop {
+  #confirm::backdrop,
+  #lobby::backdrop,
+  #accept::backdrop {
     background: rgba(2, 8, 20, 0.88);
+  }
+
+  #lobby-body,
+  #accept-form {
+    width: min(360px, 100vw - 32px);
+  }
+
+  #lobby-line {
+    margin: 0 0 2px;
+    font-size: 15px;
+  }
+
+  #lobby-kick {
+    margin: 0 0 14px;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(230, 238, 248, 0.5);
+  }
+
+  /* White behind it always, whatever the page is doing: a camera reads
+     contrast, and a dark-on-dark code is a code that does not scan. */
+  #lobby-qr {
+    width: 168px;
+    margin: 0 auto 12px;
+    padding: 8px;
+    border-radius: 10px;
+    background: #ffffff;
+    line-height: 0;
+  }
+
+  #lobby-qr svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  #lobby-qr:empty {
+    display: none;
+  }
+
+  #lobby-link {
+    margin: 0 0 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    /* A link is one long unbroken token and will happily leave the panel. */
+    overflow-wrap: anywhere;
+    color: rgba(230, 238, 248, 0.6);
+  }
+
+  #lobby-actions,
+  #accept-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #lobby-actions button,
+  #accept-actions button {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    background: rgba(125, 211, 252, 0.16);
+    color: #e6eef8;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  #lobby-actions button:focus-visible,
+  #accept-actions button:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  #accept-blurb {
+    margin: 0 0 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: rgba(230, 238, 248, 0.7);
   }
 
   #confirm-body {

@@ -162,6 +162,10 @@ means cancelling and making another one, which costs a tap and cannot go wrong.
 
 ### The waiting screen
 
+Built. The QR is rendered on the device with `uqr` - MIT, no dependencies of
+its own - rather than fetched from an image service, so the screen still works
+on a phone that has already lost the network it is trying to share over.
+
 ```
 Rovers  vs  waiting...
 Free kicks shootout
@@ -316,6 +320,30 @@ The project's rule has always been *assume anything committed is published*.
 The cross-device equivalent: **assume anything sent is stored**, and design for
 the version where it is.
 
+## Link previews
+
+Pasting an invite into a message should show something. `Fullscreen.astro` had
+**no Open Graph tags at all**, so every Dead Ball link previewed as nothing;
+it has them now, and every invite gets the same card: the game's name and what
+it is.
+
+**A personalised card needs the Worker**, and is worth wanting: *"Rovers have
+invited you to a free kicks shootout"* is a better thing to receive than the
+name of a website. A crawler reads the HTML it is served, and this site serves
+one static file for every `?g=` - so saying anything room-specific means
+something dynamic answering that URL, which is the Worker.
+
+**And it is worth deciding rather than defaulting**, because a personalised
+card puts the host's team name into whatever scrapes the link, where it is
+cached by a company neither player chose. The name already goes to the guest;
+that is the point. Going to Meta or Apple on the way is a different
+proposition, and this project has protected names hard enough that it should be
+a decision somebody made.
+
+The middle option, if that reads badly: a card that names the *kick* and not
+the team. "A free kicks shootout, two players" is most of the usefulness and
+none of the exposure.
+
 ## Where the code lives
 
 **Same repository, separate Worker.** Those are not in tension and the reasons
@@ -380,6 +408,37 @@ third.
 `core/remote.test.ts` covers it, including the thing that would actually hurt:
 **skipping the screen must not skip the commitment.** A keeper who has not
 chosen is a keeper the taker is shooting at for free.
+
+## What the same-browser transport cannot do
+
+`BroadcastChannel` is same-origin **and same-profile**. Two tabs of one browser
+hear each other; two browsers, two profiles, or a normal and a private window
+do not - verified rather than assumed, by opening a second profile and watching
+the guest be told the game was not there.
+
+That is the boundary of step 2 rather than a defect in it. The point of this
+transport is to debug the protocol, and a protocol can be debugged in two tabs.
+**Actually playing somebody on another device is what the Durable Object is
+for**, and nothing before it will do.
+
+Two things it did teach, both of which cost a browser to find and neither of
+which any test caught:
+
+- **A token is per *player*, not per browser.** Two tabs share `localStorage`,
+  so both minted the same token and the room correctly read the second join as
+  the first player reloading: one seat, two tabs, and a lobby waiting forever
+  for somebody already in it. The page hands the local transport
+  `sessionStorage`, which is per tab and still survives a refresh. A real
+  transport hands it `localStorage`, because two devices cannot share one.
+
+  The tests could not have found this: each gives its own factory its own fake
+  store, which is the one arrangement that cannot collide. There is now a test
+  that deliberately shares one.
+
+- **`peek` has to ask, not look it up.** The first version read a module-level
+  `Map` of hosted rooms. That works perfectly in the tab that created the room
+  and returns nothing in the tab that was *sent the link* - which is every tab
+  that will ever call it.
 
 ## Cost and abuse
 

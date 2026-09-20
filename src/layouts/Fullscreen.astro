@@ -9,6 +9,8 @@ interface Props {
   backLabel?: string;
   /** Keep the page out of search results (hidden pages, see src/lib/hidden.mjs). */
   noindex?: boolean;
+  /** Absolute or site-relative image for the link preview. */
+  image?: string | undefined;
 }
 
 const {
@@ -17,10 +19,12 @@ const {
   backHref = '/leggetter-family-tree/',
   backLabel = 'Family Tree',
   noindex = false,
+  image,
 } = Astro.props;
 
 const pageTitle = title ? `${title} - ${SITE_TITLE}` : SITE_TITLE;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(image, Astro.site) : undefined;
 ---
 
 <!doctype html>
@@ -31,6 +35,20 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    {/*
+      A link preview, because these pages get pasted into a message far more
+      often than they get linked from a page. `noindex` keeps it out of search
+      results and does not stop a messaging app fetching it for a card, which
+      is the behaviour wanted in both directions.
+    */}
+    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="og:title" content={title ?? SITE_TITLE} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    {description && <meta property="og:description" content={description} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <style>

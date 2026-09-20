@@ -80,6 +80,31 @@ describe('ids and tokens', () => {
 });
 
 describe('two tabs', () => {
+  test('two players are two tokens, or they share a seat', async () => {
+    // The bug these tests could not catch: every test above gives each factory
+    // its own store, which is the one case that cannot collide. Two tabs of a
+    // real browser share localStorage, both minted the same token, and the
+    // room correctly read the second join as the first player reloading.
+    const shared = fakeStore();
+    const one = createLocalTransport(shared, () => 0);
+    const two = createLocalTransport(shared, () => 0);
+    const { id, transport: host } = await one.host(
+      { discipline: 'penalties', shots: 5 },
+      team('Rovers')
+    );
+    const hostIn = inbox(host);
+    await two.guest(id, team('County'));
+    await settle();
+    const state = [...hostIn].reverse().find((m) => m.kind === 'state') as {
+      teams: TeamOnTheWire[];
+    };
+    assert.equal(
+      state.teams[1]?.name,
+      '',
+      'a shared store seated two players, which means the token is not per player'
+    );
+  });
+
   test('both sides are seated and told about each other', async () => {
     const { hostIn, guestIn } = await together();
     const hostState = [...hostIn].reverse().find((m) => m.kind === 'state');
@@ -119,14 +144,21 @@ describe('two tabs', () => {
     assert.match((error as { reason: string }).reason, /two players/i);
   });
 
-  test('peek answers what a guest is being invited to, before they accept', async () => {
-    const { id, hostFactory } = await together();
-    const seen = await hostFactory.peek(id);
+  test('peek answers from another browser, not out of a local Map', async () => {
+    // The first version read a module-level Map. That works beautifully in the
+    // tab that created the room and returns nothing in the tab that was sent
+    // the link - which is every tab that will ever call this. Asking from a
+    // *different* factory is what makes this test worth anything.
+    const { id } = await together();
+    const stranger = createLocalTransport(fakeStore(), () => 0);
+    const seen = await stranger.peek(id);
     assert.equal(seen?.settings.discipline, 'penalties');
     assert.equal(seen?.host.name, 'Rovers');
   });
 
-  test('peeking at a room that does not exist is null, not a crash', async () => {
+  test('peeking at a room nobody is hosting is null, not a hang', async () => {
+    // A link to a closed tab, which in this build is exactly what "the server
+    // went away" looks like.
     const factory = createLocalTransport(fakeStore(), () => 0);
     assert.equal(await factory.peek('ZZZZZZZZ'), null);
   });

@@ -42,8 +42,9 @@ const channelName = (id: string): string => `deadball:room:${id}`;
 type Envelope =
   | { wire: 'to-room'; from: string; message: Outbound }
   | { wire: 'to-seat'; to: Side | null; message: Inbound }
-  | { wire: 'who-is-there' }
-  | { wire: 'here' };
+  /** What is this game? Asked before joining, answered by whoever is hosting. */
+  | { wire: 'peek' }
+  | { wire: 'peeked'; settings: RoomSettings; host: TeamOnTheWire };
 
 /**
  * A room id somebody can read out loud and nobody can guess.
@@ -62,11 +63,26 @@ export function mintId(): string {
 }
 
 /**
- * A token for this browser, kept.
+ * A token for whoever is sitting here, kept.
  *
- * What makes a reload survivable: close the tab, reopen the link, and you are
- * still the keeper with your three saves. Without it a refresh mid-shootout
- * costs somebody their seat to themselves.
+ * What makes a reload survivable: refresh the page and you are still the
+ * keeper with your three saves. Without it a refresh mid-shootout costs
+ * somebody their seat to themselves.
+ *
+ * **Which storage decides what "here" means, and it matters.** Across two
+ * devices, a browser is a player and `localStorage` is right. Across two tabs
+ * of one browser - which is this transport's entire purpose - `localStorage`
+ * is shared, so both tabs mint the *same* token and the room treats the second
+ * join as the first player reloading. One seat, two tabs, and a lobby that
+ * waits forever for somebody already in it.
+ *
+ * So the caller passes the storage. The page hands this `sessionStorage`,
+ * which is per tab and still survives a refresh; a real transport would hand
+ * it `localStorage`, because two devices cannot share one.
+ *
+ * Worth recording how this got through: the tests give each factory its own
+ * fake store, which is the case that *cannot* collide. It took opening two
+ * real tabs.
  */
 export function tokenFor(storage: Pick<Storage, 'getItem' | 'setItem'>): string {
   const KEY = 'deadball:v1:token';
@@ -128,8 +144,15 @@ function makeTransport(
     const envelope = event.data as Envelope;
     if (isRoom) {
       if (envelope.wire === 'to-room') serve(envelope.from, envelope.message);
-      if (envelope.wire === 'who-is-there') {
-        channel.postMessage({ wire: 'here' } satisfies Envelope);
+      if (envelope.wire === 'peek' && roomRef) {
+        const host = roomRef.room.seats[0]?.team;
+        if (host) {
+          channel.postMessage({
+            wire: 'peeked',
+            settings: roomRef.room.settings,
+            host,
+          } satisfies Envelope);
+        }
       }
       return;
     }
@@ -172,12 +195,14 @@ function makeTransport(
 }
 
 /**
- * Rooms this tab is hosting, so `peek` can answer without a round trip.
+ * How long to wait for a host to say what their game is.
  *
- * Only ever populated in the tab that created the room, which is the same tab
- * that is serving it. A guest in another tab asks over the channel.
+ * Short, because both tabs are on the same machine and the only thing being
+ * waited for is a task queue. If nothing answers in this, nothing is hosting -
+ * which is what a link to a closed tab looks like, and is a real case: in this
+ * build the host tab *is* the server.
  */
-const hosted = new Map<string, { room: Room }>();
+const PEEK_MS = 400;
 
 export function createLocalTransport(
   storage: Pick<Storage, 'getItem' | 'setItem'>,
@@ -191,8 +216,9 @@ export function createLocalTransport(
       // The seed is the room's, not the URL's. Knowing it would tell you the
       // aim error about to be applied to your own shot, which is the one
       // number in the game worth knowing - see the open questions.
-      const ref = { room: openRoom(settings, (crypto.getRandomValues(new Uint32Array(1))[0] ?? 1) >>> 1) };
-      hosted.set(id, ref);
+      const ref = {
+        room: openRoom(settings, (crypto.getRandomValues(new Uint32Array(1))[0] ?? 1) >>> 1),
+      };
       const channel = new BroadcastChannel(channelName(id));
       const transport = makeTransport(
         channel,
@@ -217,11 +243,32 @@ export function createLocalTransport(
       );
     },
 
+    /**
+     * Ask the room what it is, before joining it.
+     *
+     * Over the channel rather than out of a Map. The first version read a
+     * module-level Map, which works beautifully in the tab that created the
+     * room and returns nothing in the tab that was sent the link - which is
+     * every tab that will ever call this. Found by opening two tabs, which is
+     * the entire reason this step exists before the Durable Object.
+     */
     async peek(id: string) {
-      const ref = hosted.get(id);
-      if (!ref) return null;
-      const host = ref.room.seats[0]?.team;
-      return host ? { settings: ref.room.settings, host } : null;
+      const channel = new BroadcastChannel(channelName(id));
+      (channel as { unref?: () => void }).unref?.();
+      return new Promise<{ settings: RoomSettings; host: TeamOnTheWire } | null>((resolve) => {
+        const done = (answer: { settings: RoomSettings; host: TeamOnTheWire } | null): void => {
+          clearTimeout(timer);
+          channel.close();
+          resolve(answer);
+        };
+        const timer = setTimeout(() => done(null), PEEK_MS);
+        (timer as unknown as { unref?: () => void }).unref?.();
+        channel.addEventListener('message', (event: MessageEvent) => {
+          const envelope = event.data as Envelope;
+          if (envelope.wire === 'peeked') done({ settings: envelope.settings, host: envelope.host });
+        });
+        channel.postMessage({ wire: 'peek' } satisfies Envelope);
+      });
     },
   };
 }

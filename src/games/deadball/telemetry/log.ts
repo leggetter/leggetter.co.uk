@@ -8,9 +8,10 @@
  * player take five penalties.
  *
  * **Nothing here is transmitted.** Records are written to this browser's
- * localStorage and go nowhere until somebody presses L and chooses to send the
- * file. No network call, no analytics endpoint, no identifiers beyond a random
- * per-session string that exists only to tell one sitting from another. The
+ * localStorage and go nowhere until somebody saves the file from the settings
+ * dialog and chooses to send it on. No network call, no analytics endpoint, no
+ * identifiers beyond a random per-session string that exists only to tell one
+ * sitting from another. The
  * page has PostHog on it like every page on the site; this deliberately does
  * not use it, because a log worth analysing is a log nobody has to think about
  * before letting their kids play.

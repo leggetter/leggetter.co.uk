@@ -44,10 +44,13 @@ Press on the ball and drag. Let go to shoot.
 
 Five penalties, then a screen telling you how you did.
 
-**Press `L` at any point to save a file of every shot you have taken.** It goes
-to your downloads and nowhere else - nothing is sent anywhere. It is genuinely
-useful: most of the tuning in this game came from reading those files rather
-than from anybody's opinion.
+**Settings has a button that saves a file of every shot you have taken**, and
+it tells you how many are in there before you press it. `L` still does the same
+thing from anywhere, for anyone who already has it in their fingers - but a key
+nobody has been told about is not a feature, and this is the half you can find.
+The file goes to your downloads and nowhere else - nothing is sent anywhere. It
+is genuinely useful: most of the tuning in this game came from reading those
+files rather than from anybody's opinion.
 
 ## How the game is put together
 

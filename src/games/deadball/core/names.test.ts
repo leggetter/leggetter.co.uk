@@ -65,8 +65,9 @@ test('unnamed only holds while both are untouched', () => {
 });
 
 test('a name never reaches the shot log', async () => {
-  // The log is exported by keypress and handed to somebody else to read, so it
-  // is the one file in this game that leaves the device a name was typed on.
+  // The log is saved from the settings dialog and handed to somebody else to
+  // read, so it is the one file in this game that leaves the device a name was
+  // typed on.
   // `takerSide` already says who did what. This test is here to fail if a
   // future field quietly adds one back.
   const source = await import('node:fs').then((fs) =>

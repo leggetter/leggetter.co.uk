@@ -665,9 +665,9 @@ Three things follow from names being typed rather than fixed:
   where the ball actually went. That last figure is the half of a duel the
   scoreline never shows, because keeping well looks exactly like the other
   person shooting badly.
-- **No name goes in the shot log.** The log is exported by keypress and handed
-  to someone else to read, which makes it the one file in the game that leaves
-  the device a name was typed on. `takerSide` already records who did what, and
+- **No name goes in the shot log.** The log is saved from the settings dialog
+  and handed to someone else to read, which makes it the one file in the game
+  that leaves the device a name was typed on. `takerSide` already records who did what, and
   a side means nothing without the export in front of you. There is a test that
   fails if a field carrying a name is ever added to `ShotRecord`. The form is
   also marked `ph-no-capture`, because this site loads PostHog on every page and
@@ -1541,6 +1541,19 @@ accessible name rather than removed, so a screen reader still hears "1 player".
 Worth recording as a pattern rather than a one-off: this bar has now overflowed
 twice, once when **v computer** was added and again with the time of day. A
 control bar that grows a button per feature will do it again.
+
+**The shot log now has a button here too, and `L` still works.** The log was the
+one thing in the game with no way in that did not require reading this document
+first - which is a strange property for the feature every tuning decision came
+out of. It went into settings rather than the bar because it is a diagnostic and
+not something you reach for between penalties, and the bar is the thing that
+keeps overflowing. The label carries the count, "Download shot log (47 shots)",
+and the button is disabled at zero: a button that hands you an empty file is
+worse than no button. Next to it is **Clear the log**, which arms on the first
+press and wipes on the second. One press would put an irreversible wipe of every
+sitting a thumb's width from the button people actually came for, and `confirm()`
+is not the answer, because it freezes the page for anything driving the browser -
+which is how this gets checked.
 
 **The far goal is stroked, not filled, and that is a deliberate lie.** A post is
 12 cm across, which at 105 m is a third of a pixel; filled honestly it vanished

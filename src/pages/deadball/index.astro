@@ -237,6 +237,27 @@ const views = listCameras();
           }
         </div>
 
+        {/*
+          The log only ever came out by pressing L, which nobody who had not
+          read the docs was going to find. The key still works for anyone who
+          has it in their fingers; this is the half you can discover. It sits in
+          settings rather than in the bar because it is a diagnostic, not
+          something you reach for between penalties.
+        */}
+        <h3>Shot log</h3>
+        <div id="log-actions">
+          <button type="button" id="log-download">Download shot log</button>
+          {/*
+            Two presses, not one. Everything that got tuned in this game was
+            tuned off these files, and a wipe takes back every sitting at once -
+            but confirm() freezes the page for anything driving the browser, so
+            the button arms itself instead and disarms again on its own.
+          */}
+          <button type="button" id="log-clear" data-armed="false">Clear the log</button>
+        </div>
+        <p id="log-note">The log stays on this device. Nothing in it is sent
+          anywhere, and it holds no names.</p>
+
         <div id="settings-actions">
           <button type="button" id="settings-close">Done</button>
         </div>
@@ -531,6 +552,34 @@ const views = listCameras();
         ];
         const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
 
+        const logDownload = document.getElementById('log-download') as HTMLButtonElement | null;
+        const logClear = document.getElementById('log-clear') as HTMLButtonElement | null;
+
+        // The clear button only wipes on its second press. Armed state lives
+        // here rather than on the element so a stray repaint cannot resurrect
+        // it, and the timer disarms it for anyone who walked away mid-press.
+        let clearArmed = false;
+        let disarmTimer = 0;
+        const disarmClear = () => {
+          clearArmed = false;
+          window.clearTimeout(disarmTimer);
+        };
+
+        const paintLog = () => {
+          const count = game.log.all().length;
+          if (logDownload) {
+            // The count is the whole point of the label: a button that hands
+            // you an empty file is worse than no button at all.
+            logDownload.textContent = `Download shot log (${count} ${count === 1 ? 'shot' : 'shots'})`;
+            logDownload.disabled = count === 0;
+          }
+          if (logClear) {
+            logClear.hidden = count === 0;
+            logClear.textContent = clearArmed ? 'Press again to clear' : 'Clear the log';
+            logClear.dataset.armed = String(clearArmed);
+          }
+        };
+
         const paintSettings = () => {
           const muted = game.isMuted();
           for (const button of soundChoices) {
@@ -542,7 +591,30 @@ const views = listCameras();
           for (const button of skyChoices) {
             button.setAttribute('aria-pressed', String(button.dataset.sky === game.currentSkyId()));
           }
+          paintLog();
         };
+
+        logDownload?.addEventListener('click', () => {
+          game.log.download();
+          disarmClear();
+          paintLog();
+        });
+
+        logClear?.addEventListener('click', () => {
+          if (!clearArmed) {
+            clearArmed = true;
+            window.clearTimeout(disarmTimer);
+            disarmTimer = window.setTimeout(() => {
+              disarmClear();
+              paintLog();
+            }, 4000);
+            paintLog();
+            return;
+          }
+          disarmClear();
+          game.log.clear();
+          paintLog();
+        });
 
         for (const button of soundChoices) {
           button.addEventListener('click', () => {
@@ -568,6 +640,9 @@ const views = listCameras();
         document.getElementById('squad-close')?.addEventListener('click', () => squad?.close());
 
         document.getElementById('settings-open')?.addEventListener('click', (event) => {
+          // A dialog opening is a fresh start, so nothing is left armed from
+          // the last time it was open.
+          disarmClear();
           paintSettings();
           if (!settings?.open) settings?.showModal();
           (event.currentTarget as HTMLButtonElement).blur();
@@ -832,6 +907,7 @@ const views = listCameras();
 
   .choices button:focus-visible,
   #settings-actions button:focus-visible,
+  #log-actions button:focus-visible,
   #squad-actions button:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 2px;
@@ -1015,6 +1091,7 @@ const views = listCameras();
   }
 
   #settings-actions button,
+  #log-actions button,
   #squad-actions button {
     width: 100%;
     padding: 10px 12px;
@@ -1026,6 +1103,49 @@ const views = listCameras();
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
+  }
+
+  /* Stacked rather than side by side: the destructive one should not be a
+     thumb's width from the one people actually came here to press. */
+  #log-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #log-download:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  /* Smaller and quieter than the download on purpose, in both senses: it is
+     the one you do once, and it is the one you must not hit by accident.
+     Selected through the parent because `#log-actions button` above is a more
+     specific selector than a bare id and would otherwise win every property
+     here. */
+  #log-actions #log-clear {
+    width: auto;
+    padding: 6px 14px;
+    border-color: rgba(230, 238, 248, 0.2);
+    background: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(230, 238, 248, 0.6);
+  }
+
+  #log-actions #log-clear[data-armed='true'] {
+    border-color: rgba(248, 180, 125, 0.7);
+    color: #f8b47d;
+  }
+
+  /* Same size and weight as the note under the naming form, which makes the
+     same promise about the same data. */
+  #log-note {
+    margin: 10px 0 18px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: rgba(230, 238, 248, 0.45);
   }
 
   /* Muted is the state worth flagging, so it goes quiet rather than loud: the

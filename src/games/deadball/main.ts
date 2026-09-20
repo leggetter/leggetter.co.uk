@@ -25,8 +25,9 @@ export async function start(canvas: HTMLCanvasElement): Promise<Game> {
     storage: createLocalStorage(),
   });
 
-  // Press L to save the shot log. Deliberately a key rather than a button:
-  // it keeps the pitch clean, and nothing about the game depends on it.
+  // Press L to save the shot log. The discoverable way is the button in the
+  // settings dialog; this stays because it costs nothing and it is already in
+  // the fingers of the people who have been reading the files.
   window.addEventListener('keydown', (event) => {
     if (event.key === 'l' || event.key === 'L') game.log.download();
   });

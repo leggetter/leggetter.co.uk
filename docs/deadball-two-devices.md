@@ -163,10 +163,15 @@ rather than as an error.
 **This is the part to decide before writing any code.**
 
 Everything about names in this project has rested on one property: **they never
-leave the device they were typed on.** The naming dialog says so in as many
-words, it is marked `ph-no-capture` so the site's analytics cannot see it, and
-the shot log deliberately records `takerSide` rather than a name - with a test
-that fails if anybody adds one.
+leave the device they were typed on.** The form is marked `ph-no-capture` so
+the site's analytics cannot see it, and the shot log deliberately records
+`takerSide` rather than a name - with a test that fails if anybody adds one.
+
+The dialog used to say so in as many words, in small print under the form. That
+line has been removed: it was reassurance about something already true, sitting
+in front of somebody trying to type a name. **This document is where it comes
+back** - see [Say so, in the room](#what-this-costs-in-privacy) below - because
+then it stops being reassurance and becomes a disclosure.
 
 Cross-device breaks that, necessarily. The other player has to see who they are
 playing, so a name has to cross the wire and sit in a server's memory.

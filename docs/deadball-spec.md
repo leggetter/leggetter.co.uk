@@ -675,8 +675,16 @@ Three things follow from names being typed rather than fixed:
   a side means nothing without the export in front of you. There is a test that
   fails if a field carrying a name is ever added to `ShotRecord`. The form is
   also marked `ph-no-capture`, because this site loads PostHog on every page and
-  the promise printed under the form should be kept by the page rather than by a
-  setting in a dashboard.
+  "almost certainly, depending on a setting in a dashboard" is not a good enough
+  answer for a box a child types their name into.
+
+  **The small print under the form has gone**, and the class has not. A line
+  saying names never leave the device was reassurance about something that was
+  already true, printed where somebody was trying to type a name - and
+  reassurance is not what was keeping the promise. The code was. What the line
+  will be needed for is [Phase 6](#two-devices-later), where names *do* leave
+  the device and there is something to disclose rather than something to
+  reassure about.
 
 **The whole problem is that they share a screen.** Whoever goes second can see
 what the first one did, and a keeper who has watched the aim being set is not
@@ -937,9 +945,8 @@ a crowd gets drawn.
 One thing from it belongs here, because it changes a rule this document has
 held since Phase 3: **player names have to leave the device.** The other player
 has to see who they are playing. Everything about names so far has rested on
-them never going anywhere - the dialog says so, it is marked `ph-no-capture`,
-and the shot log records a side rather than a name with a test to keep it that
-way. Cross-device necessarily breaks that, and the other document decides it
+them never going anywhere - the form is marked `ph-no-capture`, and the shot
+log records a side rather than a name with a test to keep it that way. Cross-device necessarily breaks that, and the other document decides it
 deliberately rather than letting it happen.
 
 Wanted, and deliberately not first. The interesting question in Phase 3 is

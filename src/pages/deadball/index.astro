@@ -120,11 +120,16 @@ const views = listCameras();
     {/*
       ph-no-capture: this site loads PostHog on every page, this one included.
       Autocapture does not send input values and session replay masks them by
-      default, so names were almost certainly never leaving the device - but
-      "almost certainly, depending on a setting in a dashboard" is not what the
-      note at the bottom of this form promises. The class is PostHog's own
-      opt-out and it holds for both, so the promise is kept by the page rather
-      than by a remote config nobody here can see.
+      default, so names were almost certainly never leaving the device - and
+      "almost certainly, depending on a setting in a dashboard" is not a good
+      enough answer for a box a child types their name into. The class is
+      PostHog's own opt-out and it holds for both, so it is the page that keeps
+      names off the wire rather than a remote config nobody here can see.
+
+      This used to be justified by a line of small print under the form saying
+      names never leave the device. The small print has gone; the reason for
+      the class has not, and it is the code rather than the sentence that was
+      ever doing the work.
     */}
     {/*
       Asked before the dialog that starts a game, not inside it.
@@ -194,8 +199,6 @@ const views = listCameras();
           <button type="submit">Start the shootout</button>
           <button type="button" id="names-cancel">Cancel</button>
         </div>
-        <p id="names-note">Names stay on this device. They are never sent
-          anywhere and never go into the shot log.</p>
       </form>
     </dialog>
     {/*
@@ -377,9 +380,6 @@ const views = listCameras();
           */}
           <button type="button" id="log-clear" data-armed="false">Clear the log</button>
         </div>
-        <p id="log-note">The log stays on this device. Nothing in it is sent
-          anywhere, and it holds no names.</p>
-
         <div id="settings-actions">
           <button type="button" id="settings-close">Done</button>
         </div>
@@ -1596,14 +1596,6 @@ const views = listCameras();
 
   /* Same size and weight as the note under the naming form, which makes the
      same promise about the same data. */
-  #kick-note,
-  #log-note {
-    margin: 10px 0 18px;
-    font-size: 11.5px;
-    line-height: 1.45;
-    color: rgba(230, 238, 248, 0.45);
-  }
-
   /* Muted is the state worth flagging, so it goes quiet rather than loud: the
      icon dims instead of the button lighting up. */
   #mute[aria-pressed='true'] #mute-icon {
@@ -1822,13 +1814,6 @@ const views = listCameras();
 
   #names-form #names-warning[hidden] {
     display: none;
-  }
-
-  #names-note {
-    margin: 12px 0 0;
-    font-size: 11.5px;
-    line-height: 1.45;
-    color: rgba(230, 238, 248, 0.45);
   }
 
   /* On a phone the labels do not fit beside each other at the top of a shot

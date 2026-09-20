@@ -57,10 +57,16 @@ export function cleanName(raw: string, side: 0 | 1): string {
  * Same length cap and the same stripping - a team name is drawn onto the same
  * canvas and a stray right-to-left override moves the same text. Only the
  * fallback differs.
+ *
+ * The fallback is a parameter because the two teams in `versus` answer to
+ * different names when nobody has typed one: your side is `Your Team`, and
+ * theirs is whatever the taker profile is called. The fallback is passed
+ * through untouched - it comes from `content/`, not from a text field, and
+ * capping it at `MAX_NAME` would rename The Steady One to `The Steady O`.
  */
-export function cleanTeam(raw: unknown): string {
+export function cleanTeam(raw: unknown, fallback: string = DEFAULT_TEAM): string {
   const typed = typeof raw === 'string' ? cleanName(raw, 0) : DEFAULT_NAMES[0];
-  return typed === DEFAULT_NAMES[0] ? DEFAULT_TEAM : typed;
+  return typed === DEFAULT_NAMES[0] ? fallback : typed;
 }
 
 /** Both at once, for whatever arrives from storage or from the form. */

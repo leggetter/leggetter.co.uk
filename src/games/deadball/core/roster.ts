@@ -97,8 +97,14 @@ const clampSkill = (value: unknown): number => {
  * straight into `ctx.fillStyle`, and a canvas silently ignores a value it
  * cannot parse - so a bad colour would not throw, it would leave the figure
  * drawn in whatever colour happened to be set last.
+ *
+ * Exported because the kits have the same problem and there should be one
+ * answer to it. A stored kit is the same sort of input a stored player is:
+ * older than a typed one, not more trustworthy, and a browser console away
+ * from holding anything at all. Reused rather than reimplemented in the
+ * presentation, which is where it would have drifted.
  */
-function cleanColour(value: unknown, fallback: string): string {
+export function cleanColour(value: unknown, fallback: string): string {
   if (typeof value !== 'string') return fallback;
   const trimmed = value.trim();
   return /^#[0-9a-fA-F]{3}$|^#[0-9a-fA-F]{6}$/.test(trimmed) ? trimmed : fallback;

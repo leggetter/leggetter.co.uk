@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { cleanName, cleanNames, DEFAULT_NAMES, MAX_NAME, unnamed } from './names.ts';
+import {
+  cleanName,
+  cleanNames,
+  cleanTeam,
+  DEFAULT_NAMES,
+  DEFAULT_TEAM,
+  MAX_NAME,
+  unnamed,
+} from './names.ts';
 
 test('a typed name survives intact', () => {
   assert.equal(cleanName('Ama', 0), 'Ama');
@@ -45,6 +53,48 @@ test('control characters and bidi overrides are removed', () => {
 test('a name made only of strippable characters falls back rather than blanking', () => {
   assert.equal(cleanName('\u0007', 0), DEFAULT_NAMES[0]);
   assert.equal(cleanName('\u200b\u200b', 1), DEFAULT_NAMES[1]);
+});
+
+test('a team keeps its own default when nobody says', () => {
+  assert.equal(cleanTeam('Northgate'), 'Northgate');
+  assert.equal(cleanTeam(''), DEFAULT_TEAM);
+  assert.equal(cleanTeam(null), DEFAULT_TEAM);
+});
+
+test('an unnamed opponent is the taker profile, not a blank and not a placeholder', () => {
+  // The name on the scoreboard has to be the profile's own, because the
+  // profile is what is actually playing: Phase 4.5 swaps in teams with
+  // different abilities, and a side nobody renamed should arrive called
+  // whatever that side is called.
+  const profile = 'The Steady One';
+  assert.equal(cleanTeam('', profile), profile);
+  assert.equal(cleanTeam('   ', profile), profile);
+  assert.equal(cleanTeam(undefined, profile), profile);
+  assert.equal(cleanTeam(null, profile), profile);
+  assert.equal(cleanTeam(42, profile), profile);
+  // Strippable characters only is the same as saying nothing.
+  assert.equal(cleanTeam('\u200b\u202e', profile), profile);
+  // And the profile's own name is passed through rather than capped: it comes
+  // from content/, not from a text field, and MAX_NAME would shorten this one.
+  assert.ok(profile.length > MAX_NAME);
+});
+
+test('an opponent name is cleaned as hard as a person is', () => {
+  // Drawn onto the same canvas as everything else, so the same rules: no
+  // newlines, no direction overrides, and the same length cap.
+  const profile = 'The Steady One';
+  assert.equal(cleanTeam('North\ngate', profile), 'Northgate');
+  assert.equal(cleanTeam('A\u202eB\u200bC', profile), 'ABC');
+  // Cut at the cap mid-word, like a person's name is: twelve characters of
+  // anybody's team is already as wide as the score line can take.
+  const long = cleanTeam('Northgate Athletic Reserves', profile);
+  assert.equal(long, 'Northgate At');
+  assert.ok(long.length <= MAX_NAME);
+  assert.equal(long, long.trim());
+});
+
+test('a named opponent is kept, whichever side it belongs to', () => {
+  assert.equal(cleanTeam('  Rovers  ', 'The Steady One'), 'Rovers');
 });
 
 test('anything at all can arrive from storage', () => {

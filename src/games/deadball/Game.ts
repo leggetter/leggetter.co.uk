@@ -30,6 +30,8 @@ import type {
   Dive,
   FrameState,
   KeeperProfile,
+  KitOverrides,
+  KitSlot,
   Player,
   Shot,
   ShotInput,
@@ -40,6 +42,7 @@ import { ROSTER } from './content/players.js';
 import { DEFAULT_SKY_ID } from './content/skies.js';
 import {
   buildRoster,
+  cleanColour,
   cleanPlayer,
   customOf,
   makeId,
@@ -109,7 +112,12 @@ export interface GameOptions {
 
 export interface Game {
   stop(): void;
-  /** Start again in this mode. */
+  /**
+   * Start again in this mode.
+   *
+   * The pair is the two sides in scoreboard order, whoever they are: two
+   * people in a duel, your team and theirs against the computer.
+   */
   restart(mode: MatchMode, names?: DuelNames): void;
   currentMode(): MatchMode;
   /** What the two sides are called. Cleaned, so never empty. */
@@ -131,6 +139,27 @@ export interface Game {
   currentTeam(): string;
   /** What the computer is called, for a screen that has to name it. */
   opponentName(): string;
+  /**
+   * What the computer is called when nobody has renamed it.
+   *
+   * Separate from `opponentName` so a form can offer it as a placeholder
+   * without typing it into the field: an empty field means "whatever this
+   * opponent is called", which is not the same answer once the opponent
+   * changes.
+   */
+  defaultOpponentName(): string;
+  /**
+   * What the four strips have been set to, where anything has been.
+   *
+   * Only the keys somebody has changed. Absent means the derived default, so a
+   * dialog showing these has to resolve them before it can paint a swatch -
+   * which is the point: the default moves when the roster player does.
+   */
+  kitOverrides(): KitOverrides;
+  /** Set one strip, or hand back the default for it by passing null. */
+  setKit(slot: KitSlot, colour: string | null): void;
+  /** All six back to their defaults. */
+  resetKits(): void;
   /** The shot log for this device. Nothing in it leaves the machine. */
   log: ShotLog;
   /** Swap the camera at runtime. Phase 2 hangs a control off this. */
@@ -169,6 +198,24 @@ export async function startGame(options: GameOptions): Promise<Game> {
   const takerProfile: TakerProfile =
     ((TAKERS as TakerProfile[]).find((t) => t.id === DEFAULT_TAKER_ID) ??
       (TAKERS as TakerProfile[])[0]) as TakerProfile;
+
+  // What you have decided to call them, falling back to the profile's own
+  // name. The fallback is the profile rather than a placeholder because the
+  // profile is the real name: Phase 4.5 swaps in teams with their own
+  // abilities, and a side nobody renamed should arrive called whatever it is.
+  let opponentTeam: string = cleanTeam(settings.opponentTeam, takerProfile.name);
+
+  /**
+   * What the strips have been set to, if anything.
+   *
+   * Sieved on the way in rather than trusted: a key holding something a canvas
+   * could not parse is dropped entirely, which puts it back to meaning "use
+   * the default" instead of leaving a value nothing downstream can use. The
+   * presentation cleans again at the point of drawing, because that is the
+   * last place a bad colour can still be caught; this exists so the dialog is
+   * never showing a swatch the pitch disagrees with.
+   */
+  let kits: KitOverrides = onlyColours(settings.kits);
 
   /**
    * What the computer has already tried this shootout.
@@ -305,7 +352,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
     taker: match.taker,
     keeperSide: keeperSide(match),
     scores: match.scores,
-    names: match.mode === 'versus' ? [teamName, takerProfile.name] : names,
+    names: match.mode === 'versus' ? [teamName, opponentTeam] : names,
+    kits,
     suddenDeath: inSuddenDeath(match),
     // Hidden from the taker on purpose: the dive is only ever drawn while its
     // owner is choosing it, never once the device has changed hands.
@@ -624,9 +672,19 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     restart(mode: MatchMode, typed?: DuelNames): void {
       if (typed && mode === 'versus') {
-        // One field was shown, so only the first value means anything.
+        // Both sides, in the order they sit on the scoreboard: yours, then
+        // theirs. The same pair a duel sends, because `versus` has two sides
+        // too - they are teams rather than people.
         teamName = cleanTeam(typed[0]);
-        remember({ teamName });
+        opponentTeam = cleanTeam(typed[1], takerProfile.name);
+        // Nothing typed stores nothing, rather than storing the profile's name
+        // as though it had been chosen. Otherwise leaving the field alone once
+        // would freeze today's name onto tomorrow's opponent, and Phase 4.5 is
+        // a file full of teams with names of their own.
+        remember({
+          teamName,
+          opponentTeam: opponentTeam === takerProfile.name ? undefined : opponentTeam,
+        });
       } else if (typed) {
         names = cleanNames(typed);
         remember({ duelNames: names });
@@ -652,7 +710,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     currentTeam: () => teamName,
 
-    opponentName: () => takerProfile.name,
+    opponentName: () => opponentTeam,
+
+    defaultOpponentName: () => takerProfile.name,
 
     stop(): void {
       running = false;
@@ -712,6 +772,25 @@ export async function startGame(options: GameOptions): Promise<Game> {
       }
     },
 
+    kitOverrides: () => ({ ...kits }),
+
+    setKit(slot: KitSlot, colour: string | null): void {
+      // A blank is a clear, not a colour. Otherwise the empty string a form
+      // can hand back would be stored as though somebody had chosen it, and
+      // every reader downstream would have to know that empty means default.
+      const clean = colour === null ? null : cleanColour(colour, '');
+      const next = { ...kits };
+      if (clean) next[slot] = clean;
+      else delete next[slot];
+      kits = next;
+      remember({ kits });
+    },
+
+    resetKits(): void {
+      kits = {};
+      remember({ kits });
+    },
+
     setMuted(next: boolean): void {
       muted = next;
       presentation.setMuted(next);
@@ -720,4 +799,22 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     isMuted: () => muted,
   };
+}
+
+/**
+ * Whatever is in the store, as kit settings: the keys holding a colour, and
+ * nothing else.
+ *
+ * A key that survives is one somebody set. A key that does not is one nobody
+ * did, which is the same thing as a key that was never there - so junk and
+ * absence land on the same answer rather than on two different ones.
+ */
+function onlyColours(stored: unknown): KitOverrides {
+  const source = (stored ?? {}) as Record<string, unknown>;
+  const kits: KitOverrides = {};
+  for (const slot of ['own', 'ownTrim', 'other', 'otherTrim', 'ownKeeper', 'otherKeeper'] as const) {
+    const colour = cleanColour(source[slot], '');
+    if (colour) kits[slot] = colour;
+  }
+  return kits;
 }

@@ -36,6 +36,8 @@ import {
   type Reaction,
 } from './stand.ts';
 import { createOverrides } from './sounds.ts';
+import { buildLineup, drawLineup } from './lineup.ts';
+import { awayTaking, drawRestingKeeper, kitsFor, restingKeeperColours } from './draw.ts';
 import { createProjector, type Projector } from './project.ts';
 import { drawScene } from './scene.ts';
 
@@ -63,7 +65,8 @@ export class ClassicPresentation implements Presentation {
   /** Stand indices furthest first, recomputed only when the camera moves. */
   private order: number[] = [];
   private sky: SkyPalette = skyFor(DEFAULT_SKY_ID);
-  private reaction: Reaction = { elapsed: null, from: 0, strength: 0 };
+  private reaction: Reaction = { elapsed: null, from: 0, strength: 0, celebrating: 'home' };
+  private readonly lineup = buildLineup();
   private lastClock = 0;
   /**
    * Asked for no animation. Read once at construction rather than per frame,
@@ -114,7 +117,7 @@ export class ClassicPresentation implements Presentation {
       // A cheer and a stand rising are one event with two responses, which is
       // why they are set off in the same loop: there is nothing keeping them
       // in step because there is nothing to keep in step.
-      if (event.kind === 'resolved') this.react(event.outcome, frame.ball.position.x);
+      if (event.kind === 'resolved') this.react(event.outcome, frame.ball.position.x, frame);
     }
 
     // Presentation time, not simulation time: the crowd keeps reacting while
@@ -145,6 +148,20 @@ export class ClassicPresentation implements Presentation {
       fromBehindTheGoal: this.camera.fromBehindTheGoal,
       sky: this.sky,
       backdrop: this.backdrop,
+      // Only the camera behind the goal is pointed at the halfway line. From
+      // the penalty end these twenty are behind the camera, which is where
+      // they are in life, so there is nothing to draw and nothing to hide.
+      lineup: this.camera.fromBehindTheGoal
+        ? () =>
+            drawLineup(this.ctx, projector, this.lineup, kitsFor(frame), frame.clock, this.reaction)
+        : null,
+      // One camera again, and for the opposite reason to the lineup: this one
+      // stands beside the goal rather than behind it, so it is the angled
+      // camera that has it in shot and the two at the goalmouth that do not.
+      // Asked of the camera rather than of its id - see `seesBesideTheGoal`.
+      restingKeeper: this.camera.seesBesideTheGoal
+        ? () => drawRestingKeeper(this.ctx, projector, restingKeeperColours(frame), frame.clock)
+        : null,
       crowd: atlas
         ? () =>
             drawCrowd(
@@ -180,12 +197,22 @@ export class ClassicPresentation implements Presentation {
    * ball's crossing point seeds the spread, so the reaction starts near where
    * it went and travels outward.
    */
-  private react(outcome: string | undefined, crossingX: number): void {
-    const strength = outcome === 'goal' ? 1 : outcome === 'saved' ? 0.55 : 0.3;
+  private react(outcome: string | undefined, crossingX: number, frame: FrameState): void {
+    // A save is now one end's moment rather than the whole ground's, so it is
+    // worth more than it was when everybody rose at everything.
+    const strength = outcome === 'goal' ? 1 : outcome === 'saved' ? 0.85 : 0.5;
+
+    // Who is pleased, worked out where both halves of the question are known.
+    // A goal belongs to whoever took it, and everything else belongs to the
+    // side keeping - so when the computer scores, the far end goes up.
+    const scored = outcome === 'goal';
+    const takerIsHome = !awayTaking(frame);
+
     this.reaction = {
       elapsed: 0,
       from: Math.max(-1, Math.min(1, crossingX / 6)),
       strength,
+      celebrating: takerIsHome === scored ? 'home' : 'away',
     };
   }
 

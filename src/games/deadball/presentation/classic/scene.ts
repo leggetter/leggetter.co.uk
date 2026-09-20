@@ -30,6 +30,7 @@ import {
   drawShotDial,
   drawSky,
   drawTaker,
+  keeperColours,
 } from './draw.ts';
 
 export interface SceneOptions {
@@ -45,6 +46,16 @@ export interface SceneOptions {
   backdrop?: HTMLCanvasElement | null;
   /** Drawn over the backdrop, every frame, because only the people move. */
   crowd?: (() => void) | null;
+  /**
+   * The twenty on the halfway line. Null from the two cameras at the penalty
+   * end, which are facing the other way.
+   */
+  lineup?: (() => void) | null;
+  /**
+   * The keeper with nothing to do, standing beside the goal. Null from the
+   * cameras that are not looking at the ground beside the posts.
+   */
+  restingKeeper?: (() => void) | null;
   /** Day, dusk or night. Changes the sky, the light on the grass and
    *  whether the floodlights are on. */
   sky?: SkyPalette;
@@ -80,6 +91,16 @@ export function drawScene(
   // everything at this end.
   drawFarGoal(ctx, proj, -PITCH_LENGTH);
 
+  // Halfway, so: nearer than the far goal and the stand behind it, further
+  // than everything at this end. Drawn before the goalmouth rather than with
+  // the crowd, because they are standing on the pitch and the crowd is not.
+  options.lineup?.();
+
+  // On the goal line, so: nearer than the halfway line, further than anything
+  // at the spot. Outside the posts either way, so nothing here overlaps the
+  // goalmouth and the order costs nothing - it is here because it is true.
+  options.restingKeeper?.();
+
   if (options.fromBehindTheGoal) {
     // Furthest first: the taker is away down the pitch, the ball is coming
     // toward us, and the goal we are standing in is the nearest thing there is.
@@ -87,7 +108,15 @@ export function drawScene(
     drawAim(ctx, proj, frame);
     drawBallTrail(ctx, proj, frame.trail);
     drawBall(ctx, proj, frame.ball.position);
-    drawKeeper(ctx, proj, frame.keeper, frame.keeperProfile.reach, frame.clock, frame.phase);
+    drawKeeper(
+      ctx,
+      proj,
+      frame.keeper,
+      frame.keeperProfile.reach,
+      frame.clock,
+      frame.phase,
+      keeperColours(frame)
+    );
     drawGoalFrame(ctx, proj);
     drawNet(ctx, proj);
   } else {
@@ -96,7 +125,15 @@ export function drawScene(
     // painted over their arms, which reads as a keeper stuck in the netting.
     drawNet(ctx, proj);
     drawGoalFrame(ctx, proj);
-    drawKeeper(ctx, proj, frame.keeper, frame.keeperProfile.reach, frame.clock, frame.phase);
+    drawKeeper(
+      ctx,
+      proj,
+      frame.keeper,
+      frame.keeperProfile.reach,
+      frame.clock,
+      frame.phase,
+      keeperColours(frame)
+    );
     drawAim(ctx, proj, frame);
     drawTaker(ctx, proj, frame);
     drawBallTrail(ctx, proj, frame.trail);

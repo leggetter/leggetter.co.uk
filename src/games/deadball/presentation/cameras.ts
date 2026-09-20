@@ -58,6 +58,29 @@ export interface CameraSpec {
    * than the furthest, so they are drawn last. Draw order is depth.
    */
   readonly fromBehindTheGoal: boolean;
+  /**
+   * True when this camera is meant to show the ground beside the goal, well
+   * outside the posts, rather than only the goalmouth.
+   *
+   * A flag rather than geometry, and that is a concession. The resting keeper
+   * stands 2.8 m outside the left post on the goal line, which *looks* like it
+   * should fall out of the framing - it is far outside what `behind-taker`
+   * says it needs to show. It does not, because `frame` is a minimum: the
+   * focal length is the tightest of the framing rules and the fov cap, and on
+   * anything wider than about 5:4 the cap wins and the horizontal field keeps
+   * growing with the viewport. Measured at 1920x1080, `behind-taker` sees
+   * ±9.97 m at the goal line - so a figure at -6.5 lands 327 px in from the
+   * left edge, plainly in shot, on the one camera it must never appear from.
+   * It only falls outside on a viewport taller than it is wide, which is a
+   * phone held upright and nothing else.
+   *
+   * There is no x that is outside `behind-taker` at every aspect ratio and
+   * inside `angled-behind`, because both cameras share a fov and the wide end
+   * is bound by that rather than by where they point. So this is said rather
+   * than derived. It lives here, with the rest of what a camera implies, so
+   * the drawing code never has to name a camera by id.
+   */
+  readonly seesBesideTheGoal: boolean;
 }
 
 /**
@@ -82,6 +105,7 @@ const BEHIND_TAKER: CameraSpec = {
   },
   mirrored: false,
   fromBehindTheGoal: false,
+  seesBesideTheGoal: false,
 };
 
 /**
@@ -138,6 +162,9 @@ const ANGLED_BEHIND: CameraSpec = {
   },
   mirrored: false,
   fromBehindTheGoal: false,
+  // Swung out to the side and raised, so the ground beside the goal is in
+  // shot and reads as ground beside the goal rather than as a strip of grass.
+  seesBesideTheGoal: true,
 };
 
 /**
@@ -145,8 +172,10 @@ const ANGLED_BEHIND: CameraSpec = {
  * you, the taker is away in the distance, and the ball comes at the screen.
  *
  * The natural angle for the keeper's turn in a duel, and the one place where
- * both `mirrored` and `fromBehindTheGoal` are true - which between them are the
- * only two things a camera changes beyond its own position.
+ * both `mirrored` and `fromBehindTheGoal` are true. Those were the only two
+ * things a camera changed beyond its own position until the resting keeper
+ * needed a third; see `seesBesideTheGoal` for why that one could not be
+ * measured instead of declared.
  */
 const KEEPER_BEHIND = NET_DEPTH + 4.2;
 
@@ -167,6 +196,9 @@ const KEEPER_CAM: CameraSpec = {
   },
   mirrored: true,
   fromBehindTheGoal: true,
+  // Standing in the goal looking the other way: the ground beside the posts is
+  // behind this camera, not in front of it.
+  seesBesideTheGoal: false,
 };
 
 export const CAMERAS: Record<string, CameraSpec> = {

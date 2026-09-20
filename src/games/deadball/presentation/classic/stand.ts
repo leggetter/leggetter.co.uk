@@ -182,6 +182,16 @@ const JUMP_HEIGHT = 0.55;
 const LIVE_HEIGHT_PX = 9.5;
 
 /**
+ * The stand behind the far goal, which belongs to the other team.
+ *
+ * Index into `STANDS`. The away end is the far one both because that is where
+ * a club puts a visiting support, and because it is the end you are looking
+ * straight at from behind your own goal - so the split is visible from the one
+ * camera that can see both ends at once.
+ */
+export const AWAY_END = 1;
+
+/**
  * Muted on purpose.
  *
  * The first pass used full-saturation primaries, which at this distance read
@@ -309,6 +319,16 @@ export interface Reaction {
   from: number;
   /** How hard the crowd took it. A save lifts fewer people than a goal. */
   strength: number;
+  /**
+   * Which side is enjoying this.
+   *
+   * Not "did it go in": that is only the same question while the home side is
+   * the one taking. Once the computer takes its turn, a goal is *their* goal,
+   * and the end that rises is the far one. Decided once, where both the taker
+   * and the outcome are known, rather than re-derived by everybody who draws
+   * a person.
+   */
+  celebrating: 'home' | 'away';
 }
 
 /**
@@ -327,7 +347,28 @@ function lift(person: Person, reaction: Reaction): number {
   // Up fast, down slower, which is what a jump looks like.
   const u = t / person.duration;
   const shape = u < 0.3 ? u / 0.3 : 1 - (u - 0.3) / 0.7;
-  return shape * person.amplitude * reaction.strength * JUMP_HEIGHT;
+  return shape * person.amplitude * reaction.strength * allegiance(person, reaction) * JUMP_HEIGHT;
+}
+
+/**
+ * Whose end this is, and whether they are enjoying it.
+ *
+ * Before this the whole ground rose at everything, which is wrong in the one
+ * direction that matters: a save is the single moment when three quarters of a
+ * stadium is silent and one end of it has lost its mind. One end erupting
+ * while the rest shifts and mutters is most of what tells a goal from a save
+ * without reading the scoreline.
+ *
+ * The visitors are put behind the far goal, which is where an away following
+ * is put and, usefully, the end you are looking at from behind your own.
+ */
+export function allegiance(person: Pick<Person, 'stand'>, reaction: Reaction): number {
+  const home = person.stand !== AWAY_END;
+  const theirs = home === (reaction.celebrating === 'home');
+  // Not zero. A crowd that freezes reads as a crowd that has been switched
+  // off, and the people who have just watched their penalty saved do move -
+  // they just do not jump.
+  return theirs ? 1 : 0.16;
 }
 
 /**

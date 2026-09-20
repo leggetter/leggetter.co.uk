@@ -1021,7 +1021,37 @@ Three decisions worth keeping:
 - **Shipped ids are claimed before custom ones are read**, so nothing in storage can shadow a real player and replace somebody's footballer with a forgery.
 - **Only custom players can be deleted.** The shipped roster is not editable from the game; it is editable from the file, which is the point of it.
 
-**The settings dialog is now doing two jobs.** It holds sound and time of day, which are preferences, and the player picker, which is a choice about the game. That is one dialog too many things, and the next thing added to it should probably split it rather than make it longer. Noting it here rather than pre-emptively rebuilding it: it is legible at this size, and the third item is when it stops being.
+### Everybody gets 300 points
+
+`SKILL_BUDGET = 300`, of a possible 400, spread across power, accuracy, curve and composure. It applies to the shipped roster and to anybody invented.
+
+**This started as a constraint on the editor and turned out to be a fix for the roster.** Before it, Marchetti spent 335 points and Okafor 277 - so Marchetti was better at three skills out of four and level on the fourth, and picking anybody else was a handicap. The picker was decoration. A budget is what makes four players four *choices*.
+
+- **Shipped players are checked by a test, not clamped.** `content/players.js` is a file somebody is invited to edit by hand, and quietly rewriting their numbers would mean the file and the game disagree with nobody being told. The test names the player and says how many points to move.
+- **Invented players are clamped, not checked**, because their numbers come off a disk a browser console can write to. Over-budget skills are scaled down together, so the shape survives: a power merchant stays a power merchant, just a legal one.
+- **The form clamps live.** A slider stops where the points run out, which says what the rule is while you are breaking it - nothing to read, nothing to undo, and no way to submit something invalid.
+- **Underspending is allowed.** It is only self-harm, and refusing to accept a deliberately weak player would be a rule with nothing behind it.
+
+A second test asserts **nobody on the roster is at least as good as anybody else at everything**. The budget makes that likely; it does not make it true, since 300 points can still be spent strictly worse.
+
+Attributes are gentle on purpose - `power` scales strike speed by 0.85 to 1.15 - so rebalancing the roster onto the budget changed how the four compare without changing how the game feels.
+
+### One dialog became two
+
+Phase 4 put the picker in the settings dialog and this document noted, at the time, that it was one dialog doing two jobs and the next addition should split it rather than lengthen it. It was split immediately after, on the same observation from the other direction: **who takes the penalty is part of the game; sound and time of day are preferences about the machine you are playing on.**
+
+- **Players** sits with the game controls, behind a shirt icon rather than a cog or a person. The button says what is behind it without a word on it, and the kit swatches in the panel are the same idea.
+- **Settings** sits in the far corner of the bar, behind a rule, away from everything that changes the game. A cog next to "2 players" reads as another thing to play with.
+
+### The bar, for the third time
+
+**This is the third time the control bar has overflowed, once per feature that added a button**, and the first two fixes both treated the symptom. The cause was that `#modes` and `#views` were positioned in opposite corners independently, so neither could see the other, and every new button ate into a margin nobody was measuring.
+
+It is now one grid: `1fr auto 1fr`, with an empty column as the counterweight that puts the modes in the true middle. Grid tracks cannot overlap, and `1fr` is `minmax(auto, 1fr)`, so neither side is squeezed under its own content - which is what wrapped the camera labels onto two lines when this was first tried as a plain flex row.
+
+Two breakpoints now, because there were always two questions: the row stops fitting at about 1000px and the clusters return to opposite corners; the short labels stay a phone thing at 560px, where they belong.
+
+**The check is a width sweep**, fifteen widths from 320 to 1600, asserting no two controls overlap and nothing leaves the viewport. It exists because the first version of this split overlapped at 860px and looked perfectly fine at 1280, which is the width it was being looked at.
 
 ## The hidden page
 

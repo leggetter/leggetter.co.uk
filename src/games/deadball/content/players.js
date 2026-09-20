@@ -16,8 +16,13 @@
  *   foot       'left' or 'right'. Changes which way the ball naturally drifts.
  *   colors     kit is the shirt, trim is the shorts and socks.
  *
- * Making everyone 100 makes the game boring, which is worth trying once so you
- * can see why.
+ * You get 300 points to spread across power, accuracy, curve and composure -
+ * not 400. Everybody on this list spends exactly 300, and so does anybody
+ * invented in the game, so a strength has to be paid for out of something
+ * else. A test will tell you if your player does not add up.
+ *
+ * That is the whole game of this file. Making everyone 100 was the boring
+ * version, and now it is not available.
  */
 
 /** @typedef {import('../core/types.ts').Player} Player */
@@ -27,40 +32,40 @@ export const ROSTER = [
   {
     id: 'marchetti',
     name: 'Dario Marchetti',
-    power: 72,
-    accuracy: 88,
-    curve: 91,
-    composure: 84,
+    power: 60,
+    accuracy: 85,
+    curve: 93,
+    composure: 62,
     foot: 'left',
     colors: { kit: '#2f6fd0', trim: '#f4f6f8' },
   },
   {
     id: 'okafor',
     name: 'Ade Okafor',
-    power: 94,
-    accuracy: 64,
-    curve: 48,
-    composure: 71,
+    power: 97,
+    accuracy: 67,
+    curve: 46,
+    composure: 90,
     foot: 'right',
     colors: { kit: '#e03131', trim: '#1d1d1d' },
   },
   {
     id: 'lindqvist',
     name: 'Nils Lindqvist',
-    power: 61,
-    accuracy: 93,
-    curve: 70,
-    composure: 95,
+    power: 52,
+    accuracy: 95,
+    curve: 61,
+    composure: 92,
     foot: 'right',
     colors: { kit: '#f5b301', trim: '#1b3a6b' },
   },
   {
     id: 'moreau',
     name: 'Yann Moreau',
-    power: 80,
-    accuracy: 76,
-    curve: 83,
-    composure: 52,
+    power: 82,
+    accuracy: 78,
+    curve: 85,
+    composure: 55,
     foot: 'left',
     colors: { kit: '#14967f', trim: '#f4f6f8' },
   },

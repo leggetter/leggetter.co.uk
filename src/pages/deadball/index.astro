@@ -23,29 +23,81 @@ const views = listCameras();
       and tap targets for nothing. The game only has to be told which one was
       pressed.
     */}
-    <nav id="modes" aria-label="Players">
-      <button type="button" data-mode="solo" aria-pressed="true"
-        ><span class="wide">1 player</span><span class="narrow" aria-hidden="true">1P</span
-      ></button>
-      <button type="button" data-mode="versus" aria-pressed="false"
-        ><span class="wide">v computer</span><span class="narrow" aria-hidden="true">v CPU</span
-      ></button>
-      <button type="button" data-mode="duel" aria-pressed="false"
-        ><span class="wide">2 players</span><span class="narrow" aria-hidden="true">2P</span
-      ></button>
-      <button type="button" id="settings-open" title="Settings">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="icon">
-          <circle cx="12" cy="12" r="5.2" fill="none" stroke="currentColor" stroke-width="3.2" />
-          <path
-            d="M18.2 12h2.4M5.8 12H3.4M12 18.2v2.4M12 5.8V3.4M16.38 16.38l1.7 1.7M7.62 7.62L5.92 5.92M7.62 16.38l-1.7 1.7M16.38 7.62l1.7-1.7"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-          />
-        </svg>
-        <span class="visually-hidden">Settings</span>
-      </button>
-    </nav>
+    {/*
+      One flex row rather than two absolutely positioned corners.
+
+      This bar has now overflowed three times, once per feature that added a
+      button, and every time for the same reason: two clusters placed
+      independently, neither able to see the other. Flex items cannot overlap.
+      With room, the modes sit centred; without it they slide left rather than
+      landing on top of the cameras.
+    */}
+    <div id="bar">
+      <span id="bar-gap" aria-hidden="true"></span>
+      <nav id="modes" aria-label="Players">
+        <button type="button" data-mode="solo" aria-pressed="true"
+          ><span class="wide">1 player</span><span class="narrow" aria-hidden="true">1P</span
+        ></button>
+        <button type="button" data-mode="versus" aria-pressed="false"
+          ><span class="wide">v computer</span><span class="narrow" aria-hidden="true">v CPU</span
+        ></button>
+        <button type="button" data-mode="duel" aria-pressed="false"
+          ><span class="wide">2 players</span><span class="narrow" aria-hidden="true">2P</span
+        ></button>
+        {/*
+          A shirt, not a cog and not a person. Choosing a player is about which
+          kit runs up, and the swatches in the dialog are the same idea - so the
+          button says what is behind it without a word on it.
+        */}
+        <button type="button" id="squad-open" title="Players">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="icon">
+            <path
+              d="M9 3.2 15 3.2 20.8 6.6 18.4 11 16.6 9.9 16.6 20.8 7.4 20.8 7.4 9.9 5.6 11 3.2 6.6Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.1"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M9 3.2Q12 6.9 15 3.2"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.1"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span class="visually-hidden">Players</span>
+        </button>
+      </nav>
+      {/*
+        The far corner, behind a rule, away from everything that changes the
+        game. A cog next to "2 players" reads as another thing to play with.
+      */}
+      <div id="right">
+        <nav id="views" aria-label="Camera angle">
+          <span id="views-label">Camera</span>
+          {
+            views.map(({ id, label }) => (
+              <button type="button" data-view={id} aria-pressed={String(id === DEFAULT_CAMERA)}>
+                {label}
+              </button>
+            ))
+          }
+        </nav>
+        <button type="button" id="settings-open" title="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="icon">
+            <circle cx="12" cy="12" r="5.2" fill="none" stroke="currentColor" stroke-width="3.2" />
+            <path
+              d="M18.2 12h2.4M5.8 12H3.4M12 18.2v2.4M12 5.8V3.4M16.38 16.38l1.7 1.7M7.62 7.62L5.92 5.92M7.62 16.38l-1.7 1.7M16.38 7.62l1.7-1.7"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            />
+          </svg>
+          <span class="visually-hidden">Settings</span>
+        </button>
+      </div>
+    </div>
     {/*
       Real text inputs rather than something typed onto the canvas: a phone
       keyboard, autocapitalisation, paste and a screen reader all come free,
@@ -86,11 +138,16 @@ const views = listCameras();
       belong behind one button - and the row goes back to being about what you
       are playing.
     */}
-    <dialog id="settings" aria-labelledby="settings-heading">
-      <div id="settings-body">
-        <h2 id="settings-heading">Settings</h2>
+    {/*
+      Two dialogs, not one. Who takes the penalty is part of the game; sound
+      and the time of day are preferences about the machine you are playing on.
+      They were in one panel for exactly one phase and it was already the
+      longest thing on the screen.
+    */}
+    <dialog id="squad" aria-labelledby="squad-heading">
+      <div id="squad-body" class="panel">
+        <h2 id="squad-heading">Players</h2>
 
-        <h3>Your player</h3>
         <div id="player-list" class="stack"></div>
         <p id="player-stats"></p>
         <div id="player-actions">
@@ -107,22 +164,31 @@ const views = listCameras();
           <input id="player-name" type="text" maxlength="18" autocomplete="off"
             spellcheck="false" placeholder="New Player" />
 
+          {/*
+            aria-live so the budget is announced when a slider moves it. A
+            slider that silently refuses to go further is the one part of this
+            form that needs saying out loud.
+          */}
+          <p id="skill-budget" aria-live="polite">
+            <span id="skill-left">0</span> points left
+          </p>
+
           <div class="skills">
             <label for="skill-power">Power</label>
-            <input id="skill-power" type="range" min="0" max="100" value="70" />
-            <output for="skill-power">70</output>
+            <input id="skill-power" type="range" min="0" max="100" value="75" />
+            <output for="skill-power">75</output>
 
             <label for="skill-accuracy">Accuracy</label>
-            <input id="skill-accuracy" type="range" min="0" max="100" value="70" />
-            <output for="skill-accuracy">70</output>
+            <input id="skill-accuracy" type="range" min="0" max="100" value="75" />
+            <output for="skill-accuracy">75</output>
 
             <label for="skill-curve">Curve</label>
-            <input id="skill-curve" type="range" min="0" max="100" value="70" />
-            <output for="skill-curve">70</output>
+            <input id="skill-curve" type="range" min="0" max="100" value="75" />
+            <output for="skill-curve">75</output>
 
             <label for="skill-composure">Composure</label>
-            <input id="skill-composure" type="range" min="0" max="100" value="70" />
-            <output for="skill-composure">70</output>
+            <input id="skill-composure" type="range" min="0" max="100" value="75" />
+            <output for="skill-composure">75</output>
           </div>
 
           <h3>Foot</h3>
@@ -143,6 +209,16 @@ const views = listCameras();
             <button type="button" id="player-cancel">Cancel</button>
           </div>
         </form>
+
+        <div id="squad-actions">
+          <button type="button" id="squad-close">Done</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="settings" aria-labelledby="settings-heading">
+      <div id="settings-body" class="panel">
+        <h2 id="settings-heading">Settings</h2>
 
         <h3>Sound</h3>
         <div class="choices" id="sound-choices">
@@ -166,16 +242,6 @@ const views = listCameras();
         </div>
       </div>
     </dialog>
-    <nav id="views" aria-label="Camera angle">
-      <span id="views-label">Camera</span>
-      {
-        views.map(({ id, label }) => (
-          <button type="button" data-view={id} aria-pressed={String(id === DEFAULT_CAMERA)}>
-            {label}
-          </button>
-        ))
-      }
-    </nav>
   </div>
 </Fullscreen>
 
@@ -183,6 +249,7 @@ const views = listCameras();
   import { start } from '../../games/deadball/main';
   import { DEFAULT_NAMES, DEFAULT_TEAM } from '../../games/deadball/core/names';
   import { SKIES } from '../../games/deadball/content/skies.js';
+  import { SKILL_BUDGET } from '../../games/deadball/core/roster';
 
   const canvas = document.getElementById('pitch');
 
@@ -333,6 +400,7 @@ const views = listCameras();
         paintModes();
 
         const settings = document.getElementById('settings') as HTMLDialogElement | null;
+        const squad = document.getElementById('squad') as HTMLDialogElement | null;
 
         const playerList = document.getElementById('player-list');
         const playerStats = document.getElementById('player-stats');
@@ -379,15 +447,45 @@ const views = listCameras();
         const showForm = (show: boolean) => {
           if (playerForm) playerForm.hidden = !show;
           if (inventButton) inventButton.hidden = show;
-          if (show) field('player-name')?.focus();
+          if (show) {
+            paintSkills();
+            field('player-name')?.focus();
+          }
         };
 
-        for (const skill of skills) {
-          const input = field(`skill-${skill}`);
-          input?.addEventListener('input', () => {
+        const skillInputs = skills.map((skill) => field(`skill-${skill}`));
+        const skillLeft = document.getElementById('skill-left');
+        const budgetLine = document.getElementById('skill-budget');
+
+        const spent = () =>
+          skillInputs.reduce((total, input) => total + Number(input?.value ?? 0), 0);
+
+        /**
+         * Clamp the slider that just moved, then repaint.
+         *
+         * Clamped rather than validated on submit: a slider that stops where
+         * the points run out says what the rule is while you are breaking it,
+         * and there is nothing to read and nothing to undo.
+         */
+        const paintSkills = (moved?: HTMLInputElement) => {
+          if (moved) {
+            const others = spent() - Number(moved.value);
+            const ceiling = SKILL_BUDGET - others;
+            if (Number(moved.value) > ceiling) moved.value = String(Math.max(0, ceiling));
+          }
+          for (const [i, skill] of skills.entries()) {
             const out = document.querySelector(`output[for="skill-${skill}"]`);
-            if (out) out.textContent = input.value;
-          });
+            if (out) out.textContent = skillInputs[i]?.value ?? '';
+          }
+          const left = SKILL_BUDGET - spent();
+          if (skillLeft) skillLeft.textContent = String(left);
+          // Spent out is the normal end state, not an error - so it goes quiet
+          // rather than red. Only having points going begging is worth a nudge.
+          budgetLine?.classList.toggle('spare', left > 0);
+        };
+
+        for (const input of skillInputs) {
+          input?.addEventListener('input', () => paintSkills(input));
         }
 
         for (const button of document.querySelectorAll<HTMLButtonElement>('#foot-choices button')) {
@@ -419,6 +517,7 @@ const views = listCameras();
           // whole reason for the form.
           if (id) game.usePlayer(id);
           if (playerForm) playerForm.reset();
+          paintSkills();
           showForm(false);
           paintPlayers();
         });
@@ -458,18 +557,28 @@ const views = listCameras();
           });
         }
 
-        document.getElementById('settings-open')?.addEventListener('click', (event) => {
-          paintSettings();
+        document.getElementById('squad-open')?.addEventListener('click', (event) => {
           paintPlayers();
           showForm(false);
+          if (!squad?.open) squad?.showModal();
+          // Blurred so the button does not keep a focus ring behind the panel,
+          // which reads as two things being open at once.
+          (event.currentTarget as HTMLButtonElement).blur();
+        });
+        document.getElementById('squad-close')?.addEventListener('click', () => squad?.close());
+
+        document.getElementById('settings-open')?.addEventListener('click', (event) => {
+          paintSettings();
           if (!settings?.open) settings?.showModal();
           (event.currentTarget as HTMLButtonElement).blur();
         });
         document
           .getElementById('settings-close')
           ?.addEventListener('click', () => settings?.close());
+
         paintSettings();
         paintPlayers();
+        paintSkills();
       })
       .catch((error) => console.error('[deadball] failed to start', error));
   }
@@ -495,24 +604,53 @@ const views = listCameras();
     -webkit-touch-callout: none;
   }
 
-  #modes {
+  #bar {
     position: absolute;
     top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 12px;
+    right: 12px;
+    display: grid;
+    /* An empty column the same width as the right-hand one, so the modes land
+       in the true middle. `1fr` is `minmax(auto, 1fr)`, so neither side is
+       squeezed under its content - which is what wrapped the camera labels
+       onto two lines when this was a plain flex row. */
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    /* Wider than the 6px inside a group, or the seven buttons read as one
+       strip of seven rather than three groups of related things. */
+    gap: 22px;
+  }
+
+  #modes {
     display: flex;
     gap: 6px;
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
 
+  #right {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    align-items: center;
+  }
+
   #views {
-    position: absolute;
-    top: 12px;
-    right: 12px;
     display: flex;
     gap: 6px;
     align-items: center;
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  /* A rule rather than only a gap: the gap says "further away", the rule says
+     "a different kind of thing". */
+  #settings-open::after {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 5px;
+    bottom: 5px;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.16);
   }
 
   #views-label {
@@ -524,7 +662,11 @@ const views = listCameras();
   }
 
   #modes button,
-  #views button {
+  #views button,
+  #settings-open {
+    /* Never wrapped onto two lines: a label that wraps is also a label that
+       has been squeezed, and the bar should move before the words do. */
+    white-space: nowrap;
     /* Big enough to hit with a thumb; the WCAG target minimum is 24px. */
     min-height: 32px;
     padding: 0 10px;
@@ -538,7 +680,8 @@ const views = listCameras();
   }
 
   #modes button:hover,
-  #views button:hover {
+  #views button:hover,
+  #settings-open:hover {
     background: rgba(8, 20, 30, 0.85);
     border-color: rgba(255, 255, 255, 0.45);
     color: #fff;
@@ -581,7 +724,8 @@ const views = listCameras();
   }
 
   #modes button:focus-visible,
-  #views button:focus-visible {
+  #views button:focus-visible,
+  #settings-open:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 2px;
   }
@@ -591,13 +735,18 @@ const views = listCameras();
     display: none;
   }
 
-  #settings-open {
+  #settings-open,
+  #squad-open {
     min-width: 34px;
     padding-left: 9px;
     padding-right: 9px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+
+  #settings-open {
+    position: relative;
   }
 
   .icon {
@@ -608,7 +757,8 @@ const views = listCameras();
 
   /* Shares the naming dialog's chrome rather than inventing a second look for
      the same kind of thing. Both are a panel over the pitch asking a question. */
-  #settings {
+  #settings,
+  #squad {
     padding: 0;
     border: 0;
     background: none;
@@ -617,11 +767,12 @@ const views = listCameras();
     max-height: none;
   }
 
-  #settings::backdrop {
+  #settings::backdrop,
+  #squad::backdrop {
     background: rgba(2, 8, 20, 0.88);
   }
 
-  #settings-body {
+  .panel {
     width: min(340px, calc(100vw - 32px));
     /* The dialog has grown a roster. Scroll it rather than let it run off a
        phone, and leave room so it never touches the edges. */
@@ -636,12 +787,12 @@ const views = listCameras();
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
 
-  #settings-body h2 {
+  .panel h2 {
     margin: 0 0 14px;
     font-size: 19px;
   }
 
-  #settings-body h3 {
+  .panel h3 {
     margin: 0 0 7px;
     font-size: 12px;
     text-transform: uppercase;
@@ -680,7 +831,8 @@ const views = listCameras();
   }
 
   .choices button:focus-visible,
-  #settings-actions button:focus-visible {
+  #settings-actions button:focus-visible,
+  #squad-actions button:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 2px;
   }
@@ -764,6 +916,25 @@ const views = listCameras();
     margin-bottom: 18px;
   }
 
+  /* Sits between the name and the sliders, where it is read on the way down
+     to them rather than found afterwards. */
+  #skill-budget {
+    margin: 10px 0 2px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(230, 238, 248, 0.45);
+  }
+
+  #skill-budget.spare {
+    color: #7dd3fc;
+  }
+
+  #skill-budget #skill-left {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
   #player-form label {
     display: block;
     font-size: 11px;
@@ -843,7 +1014,8 @@ const views = listCameras();
     color: #06263a;
   }
 
-  #settings-actions button {
+  #settings-actions button,
+  #squad-actions button {
     width: 100%;
     padding: 10px 12px;
     border-radius: 999px;
@@ -996,6 +1168,52 @@ const views = listCameras();
 
   /* On a phone the labels do not fit beside each other at the top of a shot
      that is already tight for room, so they wrap to a column instead. */
+  /*
+    Below this the row stops fitting: full wording, three camera labels and
+    the cog want about 790px, and under ~1000px the camera buttons start
+    spilling out of their own flex box. So the two clusters go back to
+    opposite corners, with the cameras stacked under the cog.
+
+    Measured, not guessed - there is a width sweep in the browser check, and
+    it is there because the first version of this bar overlapped at 860px and
+    looked perfectly fine at 1280.
+  */
+  @media (max-width: 999px) {
+    #bar {
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+    }
+    #bar-gap {
+      display: none;
+    }
+    #modes {
+      flex-wrap: wrap;
+    }
+    #right {
+      flex-direction: column;
+      align-items: flex-end;
+      /* Well clear of the 4px between camera buttons, so the cog underneath
+         them does not read as a fourth camera. */
+      gap: 14px;
+    }
+    #views {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    #views-label {
+      display: none;
+    }
+    /* The rule is drawn down the left of the cog, which in a column is the
+       wrong edge entirely. The gap carries it here. */
+    #settings-open::after {
+      display: none;
+    }
+  }
+
   @media (max-width: 559px) {
     /*
       The mode row and the camera column share the top of a phone screen, and
@@ -1020,25 +1238,11 @@ const views = listCameras();
     }
 
     #modes button,
-    #views button {
+    #views button,
+    #settings-open {
       padding-left: 10px;
       padding-right: 10px;
     }
 
-    #modes {
-      top: 8px;
-      left: 8px;
-      transform: none;
-    }
-    #views {
-      top: 8px;
-      right: 8px;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-    }
-    #views-label {
-      display: none;
-    }
   }
 </style>

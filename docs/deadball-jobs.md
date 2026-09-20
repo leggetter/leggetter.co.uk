@@ -119,7 +119,8 @@ assuming you broke it.
 
 **File:** `src/games/deadball/content/players.js`
 
-Copy one of the blocks and change it. Every skill runs from 0 to 100:
+Copy one of the blocks and change it. Every skill runs from 0 to 100, and you
+get **300 points to spread across the four of them** - not 400:
 
 | Skill | What it does |
 |---|---|
@@ -130,14 +131,19 @@ Copy one of the blocks and change it. Every skill runs from 0 to 100:
 | `foot` | `'left'` or `'right'`. Changes which way the ball naturally drifts. |
 | `colors` | `kit` is the shirt, `trim` is the shorts and socks. Any web colour. |
 
-To play as them, open the game, press the cog, and pick them under **Your
-player**. No code change - if the file is right, they are in the list.
+Everybody on the list spends exactly 300, so a strength has to come out of
+something else. `npm run test:game` will tell you if yours does not add up, and
+by how much.
+
+To play as them, open the game, press the shirt button, and pick them. No code
+change - if the file is right, they are in the list.
 
 **Done when:** you can see their kit colours on the pitch and the name in the
 top-left corner.
 
 **Try this:** make one with `accuracy: 100` and one with `accuracy: 30`, and
-take five penalties with each. The difference is bigger than it sounds.
+take five penalties with each. The difference is bigger than it sounds. Then
+try spending all 300 on power and see how far that gets you.
 
 ### 4. Invent a keeper
 

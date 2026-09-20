@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
 import { ROSTER } from '../content/players.js';
+import type { Player } from './types.ts';
 import {
   buildRoster,
   cleanPlayer,
@@ -19,6 +20,8 @@ import {
   MAX_CUSTOM,
   MAX_PLAYER_NAME,
   playerFor,
+  SKILL_BUDGET,
+  spentOn,
 } from './roster.ts';
 
 describe('the shipped roster', () => {
@@ -43,6 +46,42 @@ describe('the shipped roster', () => {
 
   test('none of them is marked custom, so none can be deleted from the game', () => {
     assert.equal(customOf(buildRoster(ROSTER, [])).length, 0);
+  });
+
+  test('every player spends exactly the budget', () => {
+    // The message matters more than the assertion here: this is the test a
+    // first contributor hits after adding a footballer, and it should tell
+    // them the rule rather than that a number was not another number.
+    for (const player of ROSTER) {
+      const spent = spentOn(player);
+      assert.equal(
+        spent,
+        SKILL_BUDGET,
+        `${player.name} spends ${spent} points. Everybody gets ${SKILL_BUDGET} to ` +
+          `spread across power, accuracy, curve and composure - no more, and ` +
+          `no fewer, or they are just worse than everybody else for no reason. ` +
+          (spent > SKILL_BUDGET
+            ? `Take ${spent - SKILL_BUDGET} off something.`
+            : `Put ${SKILL_BUDGET - spent} more somewhere.`)
+      );
+    }
+  });
+
+  test('nobody is strictly better than anybody else', () => {
+    // What the budget is actually for. Before it, Marchetti beat Okafor on
+    // three skills out of four and drew the fourth, so picking anybody else
+    // was a handicap and the picker was decoration.
+    const beats = (a: Player, b: Player): boolean =>
+      a.power >= b.power &&
+      a.accuracy >= b.accuracy &&
+      a.curve >= b.curve &&
+      a.composure >= b.composure;
+    for (const a of ROSTER) {
+      for (const b of ROSTER) {
+        if (a.id === b.id) continue;
+        assert.ok(!beats(a, b), `${a.name} is at least as good as ${b.name} at everything`);
+      }
+    }
   });
 });
 
@@ -106,6 +145,40 @@ describe('cleaning a player', () => {
     const good = cleanPlayer({ colors: { kit: '#ABC', trim: '#123456' } }, 'x', true);
     assert.equal(good.colors.kit, '#ABC');
     assert.equal(good.colors.trim, '#123456');
+  });
+
+  test('an invented player over the budget is scaled down to fit', () => {
+    // Only reachable from a hand-edited store: the form cannot go over. Scaled
+    // rather than truncated, so the shape survives - this one is still a power
+    // player afterwards, just a legal one.
+    const cheat = cleanPlayer(
+      { power: 100, accuracy: 100, curve: 100, composure: 100 },
+      'x',
+      true
+    );
+    assert.equal(spentOn(cheat), SKILL_BUDGET);
+    assert.deepEqual([cheat.power, cheat.accuracy, cheat.curve, cheat.composure], [75, 75, 75, 75]);
+
+    const lopsided = cleanPlayer({ power: 100, accuracy: 80, curve: 60, composure: 60 }, 'y', true);
+    assert.equal(spentOn(lopsided), SKILL_BUDGET);
+    assert.ok(
+      lopsided.power > lopsided.accuracy &&
+        lopsided.accuracy > lopsided.curve,
+      'the order of their skills changed, so they are a different player now'
+    );
+  });
+
+  test('under the budget is left alone, because that is only self-harm', () => {
+    const weak = cleanPlayer({ power: 10, accuracy: 10, curve: 10, composure: 10 }, 'x', true);
+    assert.deepEqual([weak.power, weak.accuracy, weak.curve, weak.composure], [10, 10, 10, 10]);
+  });
+
+  test('a shipped player is never silently scaled', () => {
+    // The test above is how a shipped player over the budget gets caught. If
+    // cleaning nerfed them instead, the file would disagree with the game and
+    // nobody would be told.
+    const over = cleanPlayer({ power: 100, accuracy: 100, curve: 100, composure: 100 }, 'x', false);
+    assert.equal(spentOn(over), 400);
   });
 
   test('foot is one of two things', () => {

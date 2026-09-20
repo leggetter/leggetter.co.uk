@@ -123,6 +123,20 @@ const views = listCameras();
         <label for="name-1" id="label-1">Keeps first</label>
         <input id="name-1" name="name1" type="text" maxlength="12" autocomplete="off"
           spellcheck="false" placeholder="Player 2" />
+        {/*
+          The computer's side, named by you. In the template and hidden rather
+          than created when `versus` is picked: Astro scopes this component's
+          CSS by stamping an attribute on the elements it renders, so anything
+          document.createElement builds matches none of it and comes out as a
+          bare browser default. That has caught this page three times.
+
+          No placeholder here. It is whatever the opponent is called, which
+          lives in content/takers.js, and writing it into the markup would be a
+          second copy to keep in step. The script fills it in.
+        */}
+        <label for="name-opponent" id="label-opponent" hidden>Their team</label>
+        <input id="name-opponent" name="nameOpponent" type="text" maxlength="12"
+          autocomplete="off" spellcheck="false" hidden />
         <div id="names-actions">
           <button type="submit">Start the shootout</button>
           <button type="button" id="names-cancel">Cancel</button>
@@ -319,6 +333,8 @@ const views = listCameras();
           document.getElementById('name-0'),
           document.getElementById('name-1'),
         ] as (HTMLInputElement | null)[];
+        const opponentField = document.getElementById('name-opponent') as HTMLInputElement | null;
+        const opponentLabel = document.getElementById('label-opponent');
         const cancel = document.getElementById('names-cancel');
         const heading = document.getElementById('names-heading');
         const blurb = document.getElementById('names-blurb');
@@ -328,13 +344,13 @@ const views = listCameras();
          * The same dialog, asking a different question.
          *
          * A duel wants two people's names, because two people are in the room.
-         * Against the computer there is one side to name and it is a team, not
-         * a person - so the second field goes away rather than being filled in
-         * with something nobody typed.
+         * Against the computer there are two teams to name - yours and theirs -
+         * so the duel's second field goes away and the opponent's takes its
+         * place, rather than either being filled in with something nobody typed.
          */
         const dressFor = (mode: 'duel' | 'versus', opponent: string) => {
           const duel = mode === 'duel';
-          if (heading) heading.textContent = duel ? 'Who is playing?' : 'Name your team';
+          if (heading) heading.textContent = duel ? 'Who is playing?' : 'Name the teams';
           if (blurb) {
             blurb.textContent = duel
               ? 'Whoever goes first shoots first. You can change these any time by pressing 2 players again.'
@@ -346,6 +362,12 @@ const views = listCameras();
           // for a field that is not there.
           if (labels[1]) labels[1].hidden = !duel;
           if (fields[1]) fields[1].hidden = !duel;
+          if (opponentLabel) opponentLabel.hidden = duel;
+          if (opponentField) {
+            opponentField.hidden = duel;
+            // Their real name, so leaving the field alone visibly keeps it.
+            opponentField.placeholder = game.defaultOpponentName();
+          }
         };
 
         const closeNames = () => {
@@ -383,6 +405,13 @@ const views = listCameras();
                 ? ''
                 : current[0];
           fields[1].value = current[1] === DEFAULT_NAMES[1] ? '' : current[1];
+          // Empty unless it has been renamed, for the same reason as the other
+          // two: the placeholder already says what it is called, and making
+          // that real text means clearing it before typing.
+          if (opponentField) {
+            const opponent = game.opponentName();
+            opponentField.value = opponent === game.defaultOpponentName() ? '' : opponent;
+          }
           if (!panel.open) panel.showModal();
           fields[0].focus();
           fields[0].select();
@@ -392,7 +421,13 @@ const views = listCameras();
           event.preventDefault();
           // Sent as typed. The game cleans and caps them, so the rules live in
           // one place rather than half here and half there.
-          game.restart(pendingMode, [fields[0]?.value ?? '', fields[1]?.value ?? '']);
+          //
+          // Both modes send the two sides in scoreboard order. Which field
+          // holds side 1 is the only difference: a person in a duel, the
+          // opponent's team against the computer.
+          const second =
+            pendingMode === 'versus' ? (opponentField?.value ?? '') : (fields[1]?.value ?? '');
+          game.restart(pendingMode, [fields[0]?.value ?? '', second]);
           closeNames();
         });
 
@@ -1187,6 +1222,11 @@ const views = listCameras();
        identical circular width and got away with it only because text inputs
        give it an intrinsic width to fall back on. */
     width: min(360px, calc(100vw - 32px));
+    /* This page does not load the site stylesheet, so there is no global
+       border-box rule under it and the 22px of padding was being added
+       *outside* the width: 358 + 44 = 402px of form inside a 390px phone,
+       measured. The gutter the calc promises is only real with this line. */
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -1223,7 +1263,10 @@ const views = listCameras();
     color: #4ade80;
   }
 
-  #names-form label[for='name-1'] {
+  /* Side 1 in both modes: the second person in a duel, the computer's team
+     against it. Same colour, because the scoreboard draws them the same. */
+  #names-form label[for='name-1'],
+  #names-form label[for='name-opponent'] {
     color: #7dd3fc;
   }
 

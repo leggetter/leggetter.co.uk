@@ -109,7 +109,12 @@ export interface GameOptions {
 
 export interface Game {
   stop(): void;
-  /** Start again in this mode. */
+  /**
+   * Start again in this mode.
+   *
+   * The pair is the two sides in scoreboard order, whoever they are: two
+   * people in a duel, your team and theirs against the computer.
+   */
   restart(mode: MatchMode, names?: DuelNames): void;
   currentMode(): MatchMode;
   /** What the two sides are called. Cleaned, so never empty. */
@@ -131,6 +136,15 @@ export interface Game {
   currentTeam(): string;
   /** What the computer is called, for a screen that has to name it. */
   opponentName(): string;
+  /**
+   * What the computer is called when nobody has renamed it.
+   *
+   * Separate from `opponentName` so a form can offer it as a placeholder
+   * without typing it into the field: an empty field means "whatever this
+   * opponent is called", which is not the same answer once the opponent
+   * changes.
+   */
+  defaultOpponentName(): string;
   /** The shot log for this device. Nothing in it leaves the machine. */
   log: ShotLog;
   /** Swap the camera at runtime. Phase 2 hangs a control off this. */
@@ -169,6 +183,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
   const takerProfile: TakerProfile =
     ((TAKERS as TakerProfile[]).find((t) => t.id === DEFAULT_TAKER_ID) ??
       (TAKERS as TakerProfile[])[0]) as TakerProfile;
+
+  // What you have decided to call them, falling back to the profile's own
+  // name. The fallback is the profile rather than a placeholder because the
+  // profile is the real name: Phase 4.5 swaps in teams with their own
+  // abilities, and a side nobody renamed should arrive called whatever it is.
+  let opponentTeam: string = cleanTeam(settings.opponentTeam, takerProfile.name);
 
   /**
    * What the computer has already tried this shootout.
@@ -305,7 +325,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     taker: match.taker,
     keeperSide: keeperSide(match),
     scores: match.scores,
-    names: match.mode === 'versus' ? [teamName, takerProfile.name] : names,
+    names: match.mode === 'versus' ? [teamName, opponentTeam] : names,
     suddenDeath: inSuddenDeath(match),
     // Hidden from the taker on purpose: the dive is only ever drawn while its
     // owner is choosing it, never once the device has changed hands.
@@ -624,9 +644,19 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     restart(mode: MatchMode, typed?: DuelNames): void {
       if (typed && mode === 'versus') {
-        // One field was shown, so only the first value means anything.
+        // Both sides, in the order they sit on the scoreboard: yours, then
+        // theirs. The same pair a duel sends, because `versus` has two sides
+        // too - they are teams rather than people.
         teamName = cleanTeam(typed[0]);
-        remember({ teamName });
+        opponentTeam = cleanTeam(typed[1], takerProfile.name);
+        // Nothing typed stores nothing, rather than storing the profile's name
+        // as though it had been chosen. Otherwise leaving the field alone once
+        // would freeze today's name onto tomorrow's opponent, and Phase 4.5 is
+        // a file full of teams with names of their own.
+        remember({
+          teamName,
+          opponentTeam: opponentTeam === takerProfile.name ? undefined : opponentTeam,
+        });
       } else if (typed) {
         names = cleanNames(typed);
         remember({ duelNames: names });
@@ -652,7 +682,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     currentTeam: () => teamName,
 
-    opponentName: () => takerProfile.name,
+    opponentName: () => opponentTeam,
+
+    defaultOpponentName: () => takerProfile.name,
 
     stop(): void {
       running = false;

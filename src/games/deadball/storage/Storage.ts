@@ -56,6 +56,16 @@ export interface Settings {
    * then finding it in a person's place on the two-player scoreboard.
    */
   teamName?: string;
+  /**
+   * What you have decided to call the computer's side, when you have said.
+   *
+   * An override rather than the name itself: absent means the taker profile's
+   * own name, which is the real one - Phase 4.5 gives different AI teams
+   * different abilities, and this field must not freeze a name onto one of
+   * them. Cleaned on the way in and on the way out, like every other name
+   * here, because this store is a browser console away from holding anything.
+   */
+  opponentTeam?: string;
   /** Which presentation package was last used. */
   packageId?: string;
   /** Sound off. Stored, because having to mute it every visit is worse than

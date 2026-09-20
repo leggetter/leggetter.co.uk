@@ -120,7 +120,7 @@ src/games/deadball/
     rules.ts                  # outcome at the line, and frame contact
     match.ts                  # pure reducer: (state, MatchMessage) -> state
     tuning.ts                 # fingerprint of the constants, for replay
-    names.ts                  # what the two people in a duel are called
+    names.ts                  # what a side is called: two people, or two teams
     events.ts                 # discrete things worth hearing (Phase 3.5)
     taker.ts                  # the computer deciding a penalty (Phase 3.75)
     roster.ts                 # who takes it, and inventing somebody (Phase 4)
@@ -792,7 +792,8 @@ sends a different player up each round.
 [Teams](#teams-and-a-ladder-to-climb) is what fixes that, and it makes the
 computer harder to read as a side effect rather than as extra work. The computer's *name* on
 the scoreboard comes from its taker profile, so it reads correctly; only the
-attributes are borrowed.
+attributes are borrowed. You can rename it - see below - but the profile is
+still where the name comes from when you have not.
 
 ### Teams, and a ladder to climb
 
@@ -818,12 +819,24 @@ a name is who you are**, and the two answer different questions:
 | Two players | A name | A name |
 
 **Half of this is already built.** Starting a game against the computer asks
-you to name your team, in the same dialog a duel uses with one field instead of
-two and different copy. The two are stored apart - `teamName` against
-`duelNames` - because they answer different questions, and sharing one slot
-meant naming your team and then finding it standing in a person's place on the
-two-player scoreboard. What is left for this phase is the *opponent* being a
-team rather than a single taker profile.
+you to name *both* teams, in the same dialog a duel uses with different copy
+and the second field asking for the opponent rather than for a second person.
+Each side is stored apart - `teamName` and `opponentTeam` against `duelNames` -
+because they answer different questions, and sharing one slot meant naming your
+team and then finding it standing in a person's place on the two-player
+scoreboard.
+
+**The opponent's field is an override, not the name.** Leave it alone and the
+scoreboard says whatever the taker profile is called, which is the real answer
+and the one that has to survive this phase: a file of teams with their own
+abilities means the name belongs to the opponent, not to a settings slot.
+Nothing is stored for a side you did not rename, so a blank field cannot
+freeze today's name onto tomorrow's team. What the typed one gets is the
+cleaning every other name gets - `cleanTeam`, the same cap and the same
+stripping - because it is drawn onto the same canvas.
+
+What is left for this phase is the *opponent* being a team rather than a single
+taker profile: a squad of takers, a keeper and a kit behind that name.
 
 Later, a human side could *also* pick a team - which would mean a kit rather
 than a different name, since `Player.colors` already exists and a team is the

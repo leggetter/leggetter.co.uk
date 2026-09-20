@@ -287,14 +287,16 @@ which a Durable Object is not.
 4. ~~**Is the name a person or a team?**~~ **Largely answered, by something that
    already shipped.** There are three naming concepts in the game now, not one:
    `DuelNames` - two personal names, 12 characters, for a hotseat duel;
-   `teamName` - `cleanTeam`, defaulting to "Your Team", added for `versus`; and
-   the roster's player names at 18 characters.
+   `teamName` and `opponentTeam` - both `cleanTeam`, defaulting to "Your Team"
+   and to the taker profile's own name, added for `versus`; and the roster's
+   player names at 18 characters.
 
    `versus` already resolves it. `Game.ts` labels that match
-   `[teamName, takerProfile.name]`: **your side is a team and the opponent's is
-   a player.** Cross-device should follow `versus` rather than the hotseat
-   duel, because the duel's personal names exist for the case where two people
-   are looking at the same screen and nothing needs to cross a wire.
+   `[teamName, opponentTeam]`: **both sides are teams**, each named by the
+   person at the keyboard and each falling back to a label rather than to a
+   blank. Cross-device should follow `versus` rather than the hotseat duel,
+   because the duel's personal names exist for the case where two people are
+   looking at the same screen and nothing needs to cross a wire.
 
    That also settles the privacy question in [What this costs in
    privacy](#what-this-costs-in-privacy) without needing a new rule: **the team

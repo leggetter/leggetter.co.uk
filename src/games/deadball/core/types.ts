@@ -77,6 +77,16 @@ export interface Player {
   accuracy: number;
   curve: number;
   composure: number;
+  /**
+   * How much they can loft a dead ball and still bring it down.
+   *
+   * Free kicks only - a penalty is struck flat from eleven metres and there is
+   * nothing to go over. Below about 40 a four-man wall cannot be cleared at
+   * all; above about 60 it can, and reliably. That is the whole difference
+   * between a player who has to shoot around a wall and one who can go over
+   * it, which is the difference a dead-ball specialist actually has.
+   */
+  dip: number;
   foot: 'left' | 'right';
   colors: { kit: string; trim: string };
 }

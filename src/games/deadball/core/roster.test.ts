@@ -38,6 +38,7 @@ describe('the shipped roster', () => {
       assert.equal(player.accuracy, source.accuracy);
       assert.equal(player.curve, source.curve);
       assert.equal(player.composure, source.composure);
+      assert.equal(player.dip, source.dip, `${source.id} dip changed`);
       assert.equal(player.foot, source.foot);
       assert.deepEqual(player.colors, source.colors, `${source.id} colours changed`);
       assert.equal(player.custom, false);
@@ -75,7 +76,8 @@ describe('the shipped roster', () => {
       a.power >= b.power &&
       a.accuracy >= b.accuracy &&
       a.curve >= b.curve &&
-      a.composure >= b.composure;
+      a.composure >= b.composure &&
+      a.dip >= b.dip;
     for (const a of ROSTER) {
       for (const b of ROSTER) {
         if (a.id === b.id) continue;
@@ -152,14 +154,21 @@ describe('cleaning a player', () => {
     // rather than truncated, so the shape survives - this one is still a power
     // player afterwards, just a legal one.
     const cheat = cleanPlayer(
-      { power: 100, accuracy: 100, curve: 100, composure: 100 },
+      { power: 100, accuracy: 100, curve: 100, composure: 100, dip: 100 },
       'x',
       true
     );
     assert.equal(spentOn(cheat), SKILL_BUDGET);
-    assert.deepEqual([cheat.power, cheat.accuracy, cheat.curve, cheat.composure], [75, 75, 75, 75]);
+    assert.deepEqual(
+      [cheat.power, cheat.accuracy, cheat.curve, cheat.composure, cheat.dip],
+      [75, 75, 75, 75, 75]
+    );
 
-    const lopsided = cleanPlayer({ power: 100, accuracy: 80, curve: 60, composure: 60 }, 'y', true);
+    const lopsided = cleanPlayer(
+      { power: 100, accuracy: 95, curve: 90, composure: 85, dip: 80 },
+      'y',
+      true
+    );
     assert.equal(spentOn(lopsided), SKILL_BUDGET);
     assert.ok(
       lopsided.power > lopsided.accuracy &&
@@ -169,16 +178,27 @@ describe('cleaning a player', () => {
   });
 
   test('under the budget is left alone, because that is only self-harm', () => {
-    const weak = cleanPlayer({ power: 10, accuracy: 10, curve: 10, composure: 10 }, 'x', true);
-    assert.deepEqual([weak.power, weak.accuracy, weak.curve, weak.composure], [10, 10, 10, 10]);
+    const weak = cleanPlayer(
+      { power: 10, accuracy: 10, curve: 10, composure: 10, dip: 10 },
+      'x',
+      true
+    );
+    assert.deepEqual(
+      [weak.power, weak.accuracy, weak.curve, weak.composure, weak.dip],
+      [10, 10, 10, 10, 10]
+    );
   });
 
   test('a shipped player is never silently scaled', () => {
     // The test above is how a shipped player over the budget gets caught. If
     // cleaning nerfed them instead, the file would disagree with the game and
     // nobody would be told.
-    const over = cleanPlayer({ power: 100, accuracy: 100, curve: 100, composure: 100 }, 'x', false);
-    assert.equal(spentOn(over), 400);
+    const over = cleanPlayer(
+      { power: 100, accuracy: 100, curve: 100, composure: 100, dip: 100 },
+      'x',
+      false
+    );
+    assert.equal(spentOn(over), 500);
   });
 
   test('foot is one of two things', () => {

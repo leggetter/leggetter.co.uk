@@ -13,11 +13,14 @@
  *   curve      how much bend they get when you hook the drag.
  *   composure   only matters when it is the last penalty and it is all on them.
  *              Low composure players get worse when it counts.
+ *   dip        free kicks only. How much they can loft it over a wall and
+ *              still bring it down under the bar. Below about 40 a four-man
+ *              wall cannot be cleared; above about 60 it can.
  *   foot       'left' or 'right'. Changes which way the ball naturally drifts.
  *   colors     kit is the shirt, trim is the shorts and socks.
  *
- * You get 300 points to spread across power, accuracy, curve and composure -
- * not 400. Everybody on this list spends exactly 300, and so does anybody
+ * You get 375 points to spread across power, accuracy, curve, composure and
+ * dip - not 500. Everybody on this list spends exactly 375, and so does anybody
  * invented in the game, so a strength has to be paid for out of something
  * else. A test will tell you if your player does not add up.
  *
@@ -32,40 +35,44 @@ export const ROSTER = [
   {
     id: 'marchetti',
     name: 'Dario Marchetti',
-    power: 60,
+    power: 55,
     accuracy: 85,
     curve: 93,
-    composure: 62,
+    composure: 57,
+    dip: 85,
     foot: 'left',
     colors: { kit: '#2f6fd0', trim: '#f4f6f8' },
   },
   {
     id: 'okafor',
     name: 'Ade Okafor',
-    power: 97,
-    accuracy: 67,
-    curve: 46,
-    composure: 90,
+    power: 99,
+    accuracy: 70,
+    curve: 45,
+    composure: 96,
+    dip: 65,
     foot: 'right',
     colors: { kit: '#e03131', trim: '#1d1d1d' },
   },
   {
     id: 'lindqvist',
     name: 'Nils Lindqvist',
-    power: 52,
-    accuracy: 95,
-    curve: 61,
-    composure: 92,
+    power: 48,
+    accuracy: 96,
+    curve: 62,
+    composure: 95,
+    dip: 74,
     foot: 'right',
     colors: { kit: '#f5b301', trim: '#1b3a6b' },
   },
   {
     id: 'moreau',
     name: 'Yann Moreau',
-    power: 82,
-    accuracy: 78,
-    curve: 85,
-    composure: 55,
+    power: 86,
+    accuracy: 80,
+    curve: 88,
+    composure: 48,
+    dip: 73,
     foot: 'left',
     colors: { kit: '#14967f', trim: '#f4f6f8' },
   },

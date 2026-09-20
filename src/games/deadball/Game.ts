@@ -23,6 +23,19 @@ import {
   type SetPiece,
 } from './core/setpiece.ts';
 import { buildWall, type Wall } from './core/wall.ts';
+
+/** 0..1 from a 0..100 attribute. */
+const unit = (v: number): number => Math.max(0, Math.min(1, v / 100));
+
+/**
+ * How much less the aim strays on a free kick.
+ *
+ * The aim sigmas were tuned against a penalty: eleven metres, an open goal and
+ * nothing in the way. The same numbers from twenty metres, with four people
+ * across the half of the goal you want, read as a ball that goes wherever it
+ * likes - which is exactly how it was reported.
+ */
+const FREE_KICK_AIM_EASE = 0.62;
 import { idleDrift, planKeeper } from './core/keeper.ts';
 import {
   inSuddenDeath,
@@ -431,6 +444,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
     const pressure = match.shotIndex >= match.shotsTotal - 1 ? 1 : 0;
     const shot = resolveShot(input, player, rng, {
       origin: piece.origin,
+      // Free kicks only. `dip` decides whether this player can go over a wall
+      // at all, and the aim is eased because the sigmas were tuned against a
+      // penalty with a clear sight of an open goal from eleven metres.
+      loft: piece.penalty ? 0 : unit(player.dip),
+      aimEase: piece.penalty ? 1 : FREE_KICK_AIM_EASE,
       pressure,
     });
 

@@ -210,6 +210,10 @@ const views = listCameras();
             <label for="skill-composure">Composure</label>
             <input id="skill-composure" type="range" min="0" max="100" value="75" />
             <output for="skill-composure">75</output>
+
+            <label for="skill-dip">Dip</label>
+            <input id="skill-dip" type="range" min="0" max="100" value="75" />
+            <output for="skill-dip">75</output>
           </div>
 
           <h3>Foot</h3>
@@ -531,7 +535,7 @@ const views = listCameras();
         const playerForm = document.getElementById('player-form') as HTMLFormElement | null;
         const inventButton = document.getElementById('player-invent');
         const deleteButton = document.getElementById('player-delete') as HTMLButtonElement | null;
-        const skills = ['power', 'accuracy', 'curve', 'composure'] as const;
+        const skills = ['power', 'accuracy', 'curve', 'composure', 'dip'] as const;
         let foot: 'left' | 'right' = 'right';
 
         const field = (id: string) => document.getElementById(id) as HTMLInputElement | null;
@@ -563,7 +567,7 @@ const views = listCameras();
 
           const chosen = game.roster().find((p) => p.id === current);
           if (playerStats && chosen) {
-            playerStats.textContent = `POW ${chosen.power} · ACC ${chosen.accuracy} · CUR ${chosen.curve} · COM ${chosen.composure} · ${chosen.foot} foot`;
+            playerStats.textContent = `POW ${chosen.power} · ACC ${chosen.accuracy} · CUR ${chosen.curve} · COM ${chosen.composure} · DIP ${chosen.dip} · ${chosen.foot} foot`;
           }
           if (deleteButton) deleteButton.hidden = !chosen?.custom;
           // Your side's default is whoever is taking them, so picking somebody
@@ -637,6 +641,7 @@ const views = listCameras();
             accuracy: Number(field('skill-accuracy')?.value),
             curve: Number(field('skill-curve')?.value),
             composure: Number(field('skill-composure')?.value),
+            dip: Number(field('skill-dip')?.value),
             foot,
             colors: { kit: field('kit-colour')?.value, trim: field('trim-colour')?.value },
           });

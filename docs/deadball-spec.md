@@ -1047,7 +1047,7 @@ Three decisions worth keeping:
 
 ### Everybody gets 300 points
 
-`SKILL_BUDGET = 300`, of a possible 400, spread across power, accuracy, curve and composure. It applies to the shipped roster and to anybody invented.
+`SKILL_BUDGET = 375`, of a possible 500, spread across power, accuracy, curve, composure and dip. It applies to the shipped roster and to anybody invented.
 
 **This started as a constraint on the editor and turned out to be a fix for the roster.** Before it, Marchetti spent 335 points and Okafor 277 - so Marchetti was better at three skills out of four and level on the fourth, and picking anybody else was a handicap. The picker was decoration. A budget is what makes four players four *choices*.
 
@@ -1351,6 +1351,28 @@ The decision table at the top of this document already said the rest: penalties 
 **The camera follows the ball.** Every `CameraSpec` was written against the penalty spot, so each is now read as *an offset from the ball in the frame of the shot* - so far behind, so far across, so far up - and rebuilt around wherever the ball actually is, including the framing distance. For the penalty spot this returns the spec unchanged, and a test asserts exactly that: five phases of camera work are not up for renegotiation because free kicks arrived.
 
 **A comment I had to take back.** The wall is tested against the segment the ball travelled rather than its position at the end of the step, and I wrote that a point test would let the hardest shots through. It would not: at 120 Hz the ball moves 27 cm a step and a person is 74 cm across, so end-of-step sampling already catches it. The planted-bug check found it - the test passed with the swept maths removed. The swept test stays because it costs one dot product and stops being belt-and-braces the moment somebody changes the tick rate, and the comment now says that instead of the thing that was not true.
+
+### Dip, and why the wall was unbeatable
+
+Reported from play: *"it needs to be more possible to shoot over the wall"*, and *"near impossible to get it where you're aiming"*. One of those was true, the other was not, and it took measuring to tell which.
+
+**The ball does not swerve more on a free kick.** Scatter at the line measured **0.43 m for a penalty and 0.42 m for a free kick** - identical, because `launchVelocity` solves for a point on the goal plane and the aim sigmas are in metres there. A free-kick *accuracy* attribute would have fixed nothing.
+
+**The wall was not hard, it was absolute.** Aim at the post it covers: **100% blocked**. Aim away: **85% goal**. No middle, no partial credit, which is exactly what "random" feels like from the inside.
+
+**And it could not be beaten over the top, at all.** A grid of wall heights from 2.15 m down to 1.65 m against every aim height and every spin gave **zero goals**. Two wrong guesses died here: lowering the wall (the shot that clears it is still rising, so it goes over the bar) and topspin (`lift > 0.5` drives the ball *down*, so it was lower at the wall and blocked more).
+
+The cause was one line. `launchVelocity` fixed the horizontal speed from the distance and solved only for the launch angle, so **there was exactly one trajectory to any target: the flattest arc that arrives.** Right for a penalty, wrong for a free kick, where the whole point is to go over four people nine metres away and come down before the crossbar.
+
+**`loft` spends part of the speed budget going up.** The ball takes longer to arrive, so the solver launches it higher, and the arc clears the wall and drops onto the same target. `LOFT_SHARE = 0.6`, tuned by measurement: below about 0.4 a four-man wall cannot be cleared, above about 0.6 it can.
+
+**`dip` is the fifth attribute, and it drives loft on free kicks.** Penalties pass 0 and are untouched. Shooting straight at the post the wall covers now measures 90% for a specialist on 85 dip and 13% past a four-man wall for a power player on 65 - the difference between a taker who can go over a wall and one who has to go around it, which is the difference a dead-ball specialist actually has.
+
+**The budget moved with it: 375 of a possible 500.** Same 75 average, same share of the maximum, same feeling of having to give something up. A fifth skill on the old 300 would have quietly made everybody worse at the four they already had.
+
+**Aiming was eased for free kicks only**, to 0.62 of the sigma - 0.45 m of scatter down to 0.28 m. The numbers were tuned against eleven metres, an open goal and nothing in the way; the same numbers from twenty with four people across the half you want are a different proposition.
+
+**The tuning fingerprint moved to `f0459d48`.** Deliberate: `LOFT_SHARE` is a new physics constant and the fingerprint exists to make exactly this kind of change impossible to slip in unnoticed.
 
 ### What playing it kept finding
 

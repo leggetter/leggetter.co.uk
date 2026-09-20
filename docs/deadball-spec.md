@@ -896,6 +896,25 @@ roster and the hoardings already follow, and for the same reason.
 
 ### Two devices, later
 
+**Planned in detail in its own document:
+[deadball-two-devices.md](deadball-two-devices.md).** What stays here is the
+choice of technology and why. What moved there is how the thing works - who
+holds the state, what crosses the wire, what happens when somebody closes a
+laptop, and what the first server in this project costs its owner.
+
+It is separate because it is the only part of Dead Ball that introduces a
+server, and a server has an operational surface - a bill, an abuse story,
+somebody else's data on a disk - which is a different kind of thinking from how
+a crowd gets drawn.
+
+One thing from it belongs here, because it changes a rule this document has
+held since Phase 3: **player names have to leave the device.** The other player
+has to see who they are playing. Everything about names so far has rested on
+them never going anywhere - the dialog says so, it is marked `ph-no-capture`,
+and the shot log records a side rather than a name with a test to keep it that
+way. Cross-device necessarily breaks that, and the other document decides it
+deliberately rather than letting it happen.
+
 Wanted, and deliberately not first. The interesting question in Phase 3 is
 whether a human keeper is any fun, and that answer is identical on one device or
 two. Networking would delay finding out and change nothing about it.
@@ -1023,7 +1042,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
 | **4.5** | Teams, and a cup run against progressively better ones. Solo climbs the same ladder against their keepers. See [Teams, and a ladder to climb](#teams-and-a-ladder-to-climb) | A reason to play the next one |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
-| **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
+| **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) and [deadball-two-devices.md](deadball-two-devices.md) | Play somebody who is not in the room |
 | **7** | A second presentation package, which is the only thing that proves the boundary. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |
 | **Later** | A keeper that reads your pattern, free kicks and the wall, a realistic 3D package, side-on view, a leaderboard | |
 

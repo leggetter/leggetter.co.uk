@@ -9,11 +9,25 @@ why every licence here was read before the file went in. This document is the
 record of that, and what lets anyone else check the same thing without taking
 it on trust.
 
-**The set is not all under one licence.** Five files are CC0 1.0, which imposes
-no obligation at all. `goal.mp3` is under the **Pixabay Content License**,
-which is more restrictive, and the entry below says so plainly along with the
-clause that matters. That was a deliberate choice by the repository owner after
-hearing the alternatives, not an oversight.
+**The set is not all under one licence, but none of it requires attribution.**
+Five files are CC0 1.0, which imposes no obligation at all. `goal.mp3` is under
+the **Pixabay Content License**, which does not require attribution either but
+is more restrictive in another way; the entry below says so plainly along with
+the clause that matters. That was a deliberate choice after hearing the
+alternatives, not an oversight.
+
+**Attribution-required licences are not used here, and that is a rule rather
+than a coincidence.** CC-BY would permit everything this project needs, and the
+obligation is small - credit the author, note the change, link the licence. But
+it has to be discharged where a person *using* the work can find it, not only
+in a repository file like this one, which would mean the game growing a credits
+screen and every future contributor remembering why. A standard nobody has to
+remember beats a small obligation that compounds. So: CC0, or a licence that
+explicitly says attribution is not required.
+
+Which makes this file evidence rather than compliance. Nothing here is legally
+required to be credited; it is written down so that the check is auditable and
+so the next person does not have to take it on trust.
 
 All were retrieved on **2026-09-19**.
 

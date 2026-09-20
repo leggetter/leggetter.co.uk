@@ -274,6 +274,18 @@ a commit message. The roster is made-up people on purpose.
 **No real footballers either.** No real names, no club badges, no photos. Not
 worth the argument, and invented ones are more fun anyway.
 
+**Nothing that needs crediting.** If you bring in a sound or an image from
+somewhere, it has to be **CC0**, or under a licence that says in plain words
+that attribution is not required. Not CC-BY, even though CC-BY is perfectly
+fair and the job is small - once one file needs a credit, the game needs a
+credits screen and everyone after you needs to remember why. One rule with no
+exceptions is easier to keep than a small obligation nobody can see.
+
+There is a record of where every sound came from in
+`public/deadball/sounds/CREDITS.md`. Add to it if you add anything, even though
+nothing in there legally has to be credited: it is what lets the next person
+check without taking it on trust.
+
 ## Who owns this
 
 The game is licensed BSD-3-Clause - see `src/games/deadball/LICENSE`. In plain

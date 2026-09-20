@@ -1644,6 +1644,15 @@ This repo is public, and this file lives in it.
   a board is a short string in a content file that renders straight onto the
   pitch, which makes it the easiest place in the project to put a real name on
   the public web without meaning to.
+- **Nothing that requires attribution.** Settled after a CC-BY crowd recording
+  turned up that was better than what it would have replaced. CC-BY permits
+  everything this project needs and the obligation is small - credit the
+  author, note the change, link the licence - but it has to be discharged
+  somewhere a person *using* the work can find it, which means the game
+  acquiring a credits screen it does not have and every future contributor
+  remembering the rule. A standard nobody has to remember beats a small
+  obligation that compounds. In practice: **CC0, or a licence that explicitly
+  says attribution is not required.**
 - Custom players live in `localStorage`, not in the repo.
 - No names in the shot log. It is the one file here that leaves the device, and
   `takerSide` already says who did what. There is a test that fails if a field

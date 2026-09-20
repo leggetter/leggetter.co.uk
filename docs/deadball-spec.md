@@ -102,6 +102,29 @@ Everything else falls out of that. A camera view is a projection function. `behi
 
 `ShotInput` is what the human did. `Shot` is what the simulation runs. Player attributes and nerves sit in between. That gap is what makes attributes meaningful and what makes the two-player payload small: `ShotInput` plus a seed is enough to reproduce a shot exactly.
 
+### The words each layer uses
+
+`core/` uses football words, because it models football: squad, taker, keeper,
+kick, shootout, wall, dip. When a name drifts off that, it gets corrected -
+`roster` became `squad` across 160 references for exactly this reason, and the
+dialog had been saying "Squad" for a phase while the code said something else.
+
+`net/` uses networking words, because it models a connection. A **room** is the
+thing two people join in order to play each other: two seats, two tokens, when
+each was last heard from, what the coin said, and which messages have already
+been honoured. Exactly one of the eight fields on it is football.
+
+**That is not a lapse, it is the boundary.** Football has no concept for "the
+thing two people join in order to play each other" - that only exists because
+there is a wire - so reaching for a football word there would mean inventing
+one. A room holds a match; it is not a match. The seats already outlive the
+match (leaving keeps a seat, so reopening the link gets it back) and will
+outlive several of them once a rematch can be played down the same link.
+
+The rule, for the next one of these: **name a thing in the vocabulary of what
+it models, and let the vocabulary change at the layer boundary.** `Game.ts` is
+the client, `room.ts` is the connection, `match.ts` is the football.
+
 ### Module layout
 
 ```

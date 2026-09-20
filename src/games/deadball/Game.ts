@@ -193,6 +193,8 @@ export interface Game {
   currentSkyId(): string;
   useDiscipline(id: string): void;
   currentDiscipline(): string;
+  /** A kick has been taken and the shootout is not over. */
+  inProgress(): boolean;
   /** Cycle to the next way of striking it, and what that is now. */
   cycleStyle(): string;
   currentStyle(): { id: string; label: string; hint: string };
@@ -820,20 +822,28 @@ export async function startGame(options: GameOptions): Promise<Game> {
     /**
      * Penalties, free kicks, or both.
      *
-     * Restarts the shootout rather than changing it underneath somebody: half
-     * a round of penalties followed by half a round of free kicks is not a
-     * result anybody asked for, and the scoreboard would not say which was
-     * which.
+     * Stores the choice and stops there. It used to restart, because changing
+     * it mid-shootout leaves a scoreboard that cannot say what it counted -
+     * but the only way in is now the dialog that starts a game, and that
+     * restarts a line later. Two restarts is one too many.
      */
     useDiscipline(id: string): void {
       const next = cleanDiscipline(id);
       if (next === discipline) return;
       discipline = next;
       remember({ discipline: next });
-      resetMatch(match.mode);
     },
 
     currentDiscipline: () => discipline,
+
+    /**
+     * There is a shootout going on that starting a new one would end.
+     *
+     * A kick has been taken and it is not over. Before the first kick there is
+     * nothing to lose, and after the last one the thing on screen is a result
+     * rather than a game.
+     */
+    inProgress: () => match.shotIndex > 0 && match.phase !== 'complete',
 
     cycleStyle(): string {
       styleId = nextStyle(styleId);

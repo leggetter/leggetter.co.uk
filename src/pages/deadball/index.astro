@@ -151,6 +151,32 @@ const views = listCameras();
         <label for="name-opponent" id="label-opponent" hidden>Their team</label>
         <input id="name-opponent" name="nameOpponent" type="text" maxlength="12"
           autocomplete="off" spellcheck="false" hidden />
+
+        {/*
+          Which kick, asked where the game starts rather than in Settings.
+          It decides what you are about to play, and a thing you choose once
+          per shootout belongs with the other things you choose once per
+          shootout - not two taps away beside the sound.
+        */}
+        <h3 id="kick-heading">Kick</h3>
+        <div class="choices" id="kick-choices">
+          {
+            DISCIPLINES.map(({ id, label }) => (
+              <button type="button" data-kick={id} aria-pressed={String(id === 'penalties')}>
+                {label}
+              </button>
+            ))
+          }
+        </div>
+        <p id="kick-note">Free kick positions and the wall are different every kick.</p>
+
+        {/*
+          Only when there is something to lose. A warning that is always there
+          is furniture, and furniture does not get read.
+        */}
+        <p id="names-warning" hidden>
+          You are in the middle of a shootout. Starting a new one ends it.
+        </p>
         <div id="names-actions">
           <button type="submit">Start the shootout</button>
           <button type="button" id="names-cancel">Cancel</button>
@@ -303,18 +329,6 @@ const views = listCameras();
       <div id="settings-body" class="panel">
         <h2 id="settings-heading">Settings</h2>
 
-        <h3>Kick</h3>
-        <div class="choices" id="kick-choices">
-          {
-            DISCIPLINES.map(({ id, label }) => (
-              <button type="button" data-kick={id} aria-pressed={String(id === 'penalties')}>
-                {label}
-              </button>
-            ))
-          }
-        </div>
-        <p id="kick-note">Free kick positions and the wall are different every kick.</p>
-
         <h3>Sound</h3>
         <div class="choices" id="sound-choices">
           <button type="button" data-sound="on" aria-pressed="true">On</button>
@@ -421,6 +435,7 @@ const views = listCameras();
         const opponentField = document.getElementById('name-opponent') as HTMLInputElement | null;
         const opponentLabel = document.getElementById('label-opponent');
         const cancel = document.getElementById('names-cancel');
+        const warning = document.getElementById('names-warning');
         const heading = document.getElementById('names-heading');
         const blurb = document.getElementById('names-blurb');
         const labels = [document.getElementById('label-0'), document.getElementById('label-1')];
@@ -433,13 +448,32 @@ const views = listCameras();
          * so the duel's second field goes away and the opponent's takes its
          * place, rather than either being filled in with something nobody typed.
          */
-        const dressFor = (mode: 'duel' | 'versus', opponent: string) => {
+        const dressFor = (mode: 'solo' | 'duel' | 'versus', opponent: string) => {
           const duel = mode === 'duel';
-          if (heading) heading.textContent = duel ? 'Who is playing?' : 'Name the teams';
+          const solo = mode === 'solo';
+          if (heading) {
+            heading.textContent = solo
+              ? 'On your own'
+              : duel
+                ? 'Who is playing?'
+                : 'Name the teams';
+          }
           if (blurb) {
-            blurb.textContent = duel
-              ? 'Whoever goes first shoots first. You can change these any time by pressing 2 players again.'
-              : `Five penalties each against ${opponent}, and you go in goal for theirs.`;
+            blurb.textContent = solo
+              ? 'Five of them, against a keeper. Nobody to hand the phone to.'
+              : duel
+                ? 'Whoever goes first shoots first. You can change these any time by pressing 2 players again.'
+                : `Five each against ${opponent}, and you go in goal for theirs.`;
+          }
+          // Solo has one player and no opponent worth naming, so the whole
+          // naming half of this form goes away and the kick choice is the
+          // reason the dialog still opens.
+          for (const label of labels) if (label) label.hidden = solo;
+          for (const field of fields) if (field) field.hidden = solo;
+          if (solo) {
+            if (opponentLabel) opponentLabel.hidden = true;
+            if (opponentField) opponentField.hidden = true;
+            return;
           }
           if (labels[0]) labels[0].textContent = duel ? 'Shoots first' : 'Your team';
           if (fields[0]) fields[0].placeholder = duel ? 'Player 1' : 'Your team';
@@ -463,10 +497,33 @@ const views = listCameras();
         // and in one place.
         panel?.addEventListener('close', paintModes);
 
-        let pendingMode: 'duel' | 'versus' = 'duel';
+        let pendingMode: 'solo' | 'duel' | 'versus' = 'solo';
 
-        const openNames = (mode: 'duel' | 'versus' = 'duel') => {
+        const kickChoices = [
+          ...document.querySelectorAll<HTMLButtonElement>('#kick-choices button'),
+        ];
+        let pendingKick = game.currentDiscipline();
+
+        const paintKick = () => {
+          for (const button of kickChoices) {
+            button.setAttribute('aria-pressed', String(button.dataset.kick === pendingKick));
+          }
+        };
+        for (const button of kickChoices) {
+          button.addEventListener('click', () => {
+            // Held until Start, so backing out of this dialog leaves the game
+            // you were already playing exactly as it was - including what it
+            // was being played with.
+            if (button.dataset.kick) pendingKick = button.dataset.kick;
+            paintKick();
+          });
+        }
+
+        const openNames = (mode: 'solo' | 'duel' | 'versus' = 'solo') => {
           pendingMode = mode;
+          pendingKick = game.currentDiscipline();
+          paintKick();
+          if (warning) warning.hidden = !game.inProgress();
           if (!panel || !fields[0] || !fields[1]) {
             // No form in the page for some reason: start anyway with whatever
             // names are already stored, rather than stranding the button. A
@@ -498,8 +555,10 @@ const views = listCameras();
             opponentField.value = opponent === game.defaultOpponentName() ? '' : opponent;
           }
           if (!panel.open) panel.showModal();
-          fields[0].focus();
-          fields[0].select();
+          if (mode !== 'solo') {
+            fields[0].focus();
+            fields[0].select();
+          }
         };
 
         form?.addEventListener('submit', (event) => {
@@ -512,7 +571,11 @@ const views = listCameras();
           // opponent's team against the computer.
           const second =
             pendingMode === 'versus' ? (opponentField?.value ?? '') : (fields[1]?.value ?? '');
-          game.restart(pendingMode, [fields[0]?.value ?? '', second]);
+          // The kick first, so the shootout that starts a line later is the one
+          // that was asked for rather than the one before it.
+          game.useDiscipline(pendingKick);
+          if (pendingMode === 'solo') game.restart('solo');
+          else game.restart(pendingMode, [fields[0]?.value ?? '', second]);
           closeNames();
         });
 
@@ -523,16 +586,11 @@ const views = listCameras();
             const mode = button.dataset.mode;
             // Restarts the shootout, which is the honest thing to do: half a
             // solo round cannot be continued as a duel.
-            if (mode === 'solo') {
-              closeNames();
-              game.restart('solo');
-            } else if (mode === 'versus') {
-              openNames('versus');
-            } else if (mode === 'duel') {
-              // Ask before starting, and ask again if the button is pressed
-              // during a duel, which is how you correct a typo mid-shootout.
-              openNames('duel');
-            }
+            // Every mode asks now, solo included. It used to start on the
+            // press, which was fine while there was nothing to choose and
+            // nothing to lose - and is not, now that the kick is chosen here
+            // and a press can end a shootout somebody is halfway through.
+            if (mode === 'solo' || mode === 'versus' || mode === 'duel') openNames(mode);
             paintModes();
             button.blur();
           });
@@ -771,10 +829,6 @@ const views = listCameras();
         paintStyle();
 
         const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
-        const kickChoices = [
-          ...document.querySelectorAll<HTMLButtonElement>('#kick-choices button'),
-        ];
-
         const logDownload = document.getElementById('log-download') as HTMLButtonElement | null;
         const logClear = document.getElementById('log-clear') as HTMLButtonElement | null;
 
@@ -814,12 +868,6 @@ const views = listCameras();
           for (const button of skyChoices) {
             button.setAttribute('aria-pressed', String(button.dataset.sky === game.currentSkyId()));
           }
-          for (const button of kickChoices) {
-            button.setAttribute(
-              'aria-pressed',
-              String(button.dataset.kick === game.currentDiscipline())
-            );
-          }
           paintLog();
         };
 
@@ -855,15 +903,6 @@ const views = listCameras();
           button.addEventListener('click', () => {
             if (button.dataset.sky) game.useSky(button.dataset.sky);
             paintSettings();
-          });
-        }
-        for (const button of kickChoices) {
-          button.addEventListener('click', () => {
-            // Starts the shootout again, because changing halfway through
-            // would leave a scoreboard that cannot say what it counted.
-            if (button.dataset.kick) game.useDiscipline(button.dataset.kick);
-            paintSettings();
-            paintModes();
           });
         }
 
@@ -1647,6 +1686,41 @@ const views = listCameras();
   #names-actions button:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 2px;
+  }
+
+  /* A field label, not a section heading: it sits among the other labels in
+     this form and should not shout over them. */
+  #kick-heading {
+    margin: 4px 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(230, 238, 248, 0.6);
+  }
+
+  #kick-note {
+    margin: 8px 0 4px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: rgba(230, 238, 248, 0.45);
+  }
+
+  /* Amber rather than red: this is worth reading before you press the button,
+     and it is not an error - you may well mean it. */
+  #names-form #names-warning {
+    margin: 12px 0 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(240, 180, 60, 0.32);
+    background: rgba(240, 180, 60, 0.1);
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #f3c969;
+  }
+
+  #names-form #names-warning[hidden] {
+    display: none;
   }
 
   #names-note {

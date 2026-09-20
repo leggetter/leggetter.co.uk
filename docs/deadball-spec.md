@@ -1362,6 +1362,33 @@ True, and worse than it sounded. Each kick rolled its own discipline, and becaus
 
 Kicks now come in **pairs**, and both halves of a pair face the same kick - same discipline, same spot, same wall, same post covered. Fairness is not only which *kind*: one side taking a twenty-metre central free kick while the other takes an angled one past four men is the same unfairness in a different coat. Solo keeps a fresh kick every time, because there is nobody to be fair to and pairing would only halve the variety.
 
+### Where a game starts
+
+The kick used to be chosen in Settings and the mode on the bar, so **starting a
+game was two controls in two places and one of them was filed with the sound.**
+
+Both now live where the game begins. Pressing **1 player**, **v computer** or
+**2 players** opens one dialog that asks everything a shootout needs: which
+kick, and who is playing. A thing you choose once per shootout belongs with the
+other things you choose once per shootout.
+
+Three consequences worth having written down:
+
+- **Solo asks too, now.** It used to start on the press, which was right while
+  there was nothing to choose and nothing to lose. There is now both.
+- **The choice is held until Start.** Backing out leaves the game you were
+  already playing exactly as it was, including what it was being played with -
+  so the dialog is safe to open and read.
+- **A shootout in progress is said out loud.** *"You are in the middle of a
+  shootout. Starting a new one ends it."* Only when there is something to lose:
+  a warning that is always there is furniture, and furniture does not get read.
+  Amber rather than red, because it is not an error - you may well mean it.
+
+`useDiscipline` stopped restarting the match when this landed. It restarted
+because changing mid-shootout leaves a scoreboard that cannot say what it
+counted, and that reasoning still holds - but the only way in is now a dialog
+that restarts a line later, and two restarts is one too many.
+
 ### The keeper was hanging in the air
 
 Reported from play, and the third member of a family (see below): the keeper reached full stretch and stayed there until the ball hit the net.

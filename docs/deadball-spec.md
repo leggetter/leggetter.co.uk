@@ -1368,6 +1368,57 @@ where a real pylon is thirty or more, because every camera here eats vertical
 frame and a true-height mast put its head off the top of the screen - leaving a
 bare pole, which is a pole and not a floodlight.
 
+#### Sky, cloud and a tree line
+
+The sky was one dark gradient and the ground beyond the stands was nothing,
+which read as emptiness rather than as evening. Three whole looks now - day,
+dusk and night - each a row of colours in `content/skies.js`, plus cloud and a
+line of trees at the four corners.
+
+All of it static, so all of it lands in the same pre-rendered backdrop as the
+terracing and costs nothing per frame. That needed no measuring: it is one blit
+either way.
+
+**The one thing that is not taste: a lit floodlight needs darkness to be in.**
+A glowing pylon against a bright noon sky looks like a mistake, so `floodlight`
+is a number in the palette - zero at midday, half at dusk, full at night - and
+a sky that says it is daytime turns the glow off. Same reason the grass carries
+a wash per palette: a night pitch is not dark green, it is green with a lot of
+blue over it, and that is most of what makes floodlit turf read as floodlit.
+
+Clouds are placed in the world rather than on the screen, at a few hundred
+metres and ringed all the way round. Screen-space clouds would be cheaper and
+would sit in exactly the same place whichever way you were facing, which is the
+one thing a sky must not do.
+
+**The trees had to go beyond the stands, and the first attempt did not.** At
+58 m out they were *inside* the side stands, which reach 59, so the near pair
+towered over the whole ground from twenty metres away. Trees outside a stadium
+are behind the stands and show through the gaps - and the gaps are the only
+place there was a hole to fill.
+
+Nothing here moves a stand or shortens one. From behind the taker the stand
+still fills the frame and none of this is visible, which is correct: from that
+seat you cannot see the sky either. The angled camera is nearly the same, so in
+practice this is scenery for the camera behind the goal, which is the one that
+had nothing.
+
+#### Settings, behind one button
+
+Sound and time of day were two more buttons in the row that says what you are
+playing. On a phone that row ran underneath the camera list, which sat on top
+of them and swallowed the tap - so neither control could be reached at all.
+They are settings rather than things you reach for mid-shot, so they went
+behind one button and into a dialog sharing the naming dialog's chrome.
+
+That alone was not enough. The mode row still overlapped, so on narrow screens
+the labels shorten - `1P`, `v CPU`, `2P` - with the full wording kept as the
+accessible name rather than removed, so a screen reader still hears "1 player".
+
+Worth recording as a pattern rather than a one-off: this bar has now overflowed
+twice, once when **v computer** was added and again with the time of day. A
+control bar that grows a button per feature will do it again.
+
 **The far goal is stroked, not filled, and that is a deliberate lie.** A post is
 12 cm across, which at 105 m is a third of a pixel; filled honestly it vanished
 into the antialiasing and the far end had no goal in it. A stroke with a floor

@@ -12,6 +12,7 @@
  */
 
 import type { FrameState } from '../../core/types.ts';
+import { shadeGrass, type SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
 import type { Projector } from './project.ts';
 import {
@@ -44,6 +45,9 @@ export interface SceneOptions {
   backdrop?: HTMLCanvasElement | null;
   /** Drawn over the backdrop, every frame, because only the people move. */
   crowd?: (() => void) | null;
+  /** Day, dusk or night. Changes the sky, the light on the grass and
+   *  whether the floodlights are on. */
+  sky?: SkyPalette;
 }
 
 export function drawScene(
@@ -54,8 +58,13 @@ export function drawScene(
   height: number,
   options: SceneOptions = {}
 ): void {
-  drawSky(ctx, proj);
+  drawSky(ctx, proj, options.sky);
   drawPitch(ctx, proj);
+
+  // The light on the grass, before anything standing on it. A night pitch is
+  // not dark green, it is green with a lot of blue over it, and that is most
+  // of what makes floodlit turf read as floodlit.
+  if (options.sky) shadeGrass(ctx, proj, options.sky);
 
   // After the grass and before everything else. The pitch stripes run well
   // past the stand, so drawing this first would bury it under distant grass;

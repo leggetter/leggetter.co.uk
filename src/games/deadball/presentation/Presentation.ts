@@ -118,6 +118,15 @@ export interface Presentation {
 
   setMuted(muted: boolean): void;
 
+  /**
+   * Day, dusk or night.
+   *
+   * On the package rather than on the game, because what time it is is a
+   * question about how the thing looks. A package that drew a scoreboard and
+   * nothing else would be entitled to ignore it.
+   */
+  setSky(id: string): void;
+
   destroy(): void;
 }
 

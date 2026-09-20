@@ -36,6 +36,7 @@ import type {
 } from './core/types.ts';
 import { attachDragInput, type DragInput } from './input/drag.ts';
 import { TAKERS, DEFAULT_TAKER_ID } from './content/takers.js';
+import { DEFAULT_SKY_ID } from './content/skies.js';
 import { createEventLog } from './core/events.ts';
 import { decideShot, type TakerProfile } from './core/taker.ts';
 import {
@@ -114,6 +115,9 @@ export interface Game {
   currentViewId(): string;
   setMuted(muted: boolean): void;
   isMuted(): boolean;
+  /** Day, dusk or night. Remembered, like the camera. */
+  useSky(id: string): void;
+  currentSkyId(): string;
 }
 
 export async function startGame(options: GameOptions): Promise<Game> {
@@ -171,6 +175,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   let muted = settings.muted ?? false;
   presentation.setMuted(muted);
+
+  let skyId = settings.skyId ?? DEFAULT_SKY_ID;
+  presentation.setSky(skyId);
 
   // What the simulation said happened, drained once per rendered frame. The
   // loop may step several times between frames, so collecting rather than
@@ -627,6 +634,14 @@ export async function startGame(options: GameOptions): Promise<Game> {
     },
 
     currentViewId: () => camera.id,
+
+    useSky(id: string): void {
+      skyId = id;
+      presentation.setSky(id);
+      remember({ skyId: id });
+    },
+
+    currentSkyId: () => skyId,
 
     setMuted(next: boolean): void {
       muted = next;

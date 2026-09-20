@@ -24,6 +24,7 @@ import {
 import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
 import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
+import type { SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
 import type { Projector } from './project.ts';
 import { ARM_SPAN } from '../../core/keeper.ts';
@@ -110,11 +111,11 @@ function fillWorld(ctx: Ctx, proj: Projector, points: Vec3[], color: string): vo
   ctx.fill();
 }
 
-export function drawSky(ctx: Ctx, proj: Projector): void {
+export function drawSky(ctx: Ctx, proj: Projector, palette?: SkyPalette): void {
   const horizon = proj.horizon();
   const sky = ctx.createLinearGradient(0, 0, 0, Math.max(horizon, 1));
-  sky.addColorStop(0, COLORS.skyTop);
-  sky.addColorStop(1, COLORS.skyBottom);
+  sky.addColorStop(0, palette?.top ?? COLORS.skyTop);
+  sky.addColorStop(1, palette?.bottom ?? COLORS.skyBottom);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, proj.width, Math.max(horizon, 0));
 

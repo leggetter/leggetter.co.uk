@@ -29,6 +29,7 @@
  */
 
 import { BOARDS } from '../../content/boards.js';
+import { drawClouds, drawTrees, type SkyPalette } from './sky.ts';
 import { GOAL_WIDTH, NET_DEPTH } from '../../core/units.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
 import type { Projector } from './project.ts';
@@ -396,7 +397,8 @@ export function renderBackdrop(
   height: number,
   /** Everybody. Whoever is too small to animate is painted in here. */
   people?: Person[],
-  atlas?: CrowdAtlas
+  atlas?: CrowdAtlas,
+  sky?: SkyPalette
 ): HTMLCanvasElement | null {
   if (width <= 0 || height <= 0) return null;
   const canvas = document.createElement('canvas');
@@ -404,6 +406,13 @@ export function renderBackdrop(
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
+
+  // Beyond the ground and therefore first: cloud, then the tree line at the
+  // corners, then the stands in front of both.
+  if (sky) {
+    drawClouds(ctx, projector, sky);
+    drawTrees(ctx, projector, sky);
+  }
 
   // Back to front, so a near stand paints over a far one. The distant crowd
   // goes in with its own stand's terracing rather than all at the end, or a
@@ -418,7 +427,7 @@ export function renderBackdrop(
   }
   // Floodlights last: taller than everything, and standing at the corners
   // between the stands rather than in any of them.
-  drawFloodlights(ctx, projector);
+  drawFloodlights(ctx, projector, sky?.floodlight ?? 1);
   return canvas;
 }
 
@@ -577,7 +586,7 @@ function drawBoards(ctx: Ctx, projector: Projector, stand: StandSpec, offset: nu
  * tall enough to be in shot from every camera including the one looking out of
  * the goal, and they are static, so they cost nothing per frame.
  */
-function drawFloodlights(ctx: Ctx, projector: Projector): void {
+function drawFloodlights(ctx: Ctx, projector: Projector, strength: number): void {
   const x = PITCH_HALF_WIDTH + SIDE_GAP + 2;
   const z = [END_GAP + 2, -PITCH_LENGTH - END_GAP - 2];
   const corners: [number, number][] = [
@@ -627,15 +636,20 @@ function drawFloodlights(ctx: Ctx, projector: Projector): void {
 
     const lamp = projector.project(vec(cx, mast + 1.7, cz));
     if (!lamp) continue;
-    const r = Math.max(6, head * lamp.scale * 0.9);
-    const glow = ctx.createRadialGradient(lamp.x, lamp.y, 0, lamp.x, lamp.y, r);
-    glow.addColorStop(0, 'rgba(255, 252, 232, 0.85)');
-    glow.addColorStop(0.35, 'rgba(255, 249, 196, 0.28)');
-    glow.addColorStop(1, 'rgba(255, 249, 196, 0)');
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(lamp.x, lamp.y, r, 0, Math.PI * 2);
-    ctx.fill();
+
+    // Unlit at midday. A glow only reads as light if there is darkness to put
+    // it in, so a lit pylon against a bright noon sky looks like a mistake.
+    if (strength > 0.01) {
+      const r = Math.max(6, head * lamp.scale * 0.9);
+      const glow = ctx.createRadialGradient(lamp.x, lamp.y, 0, lamp.x, lamp.y, r);
+      glow.addColorStop(0, `rgba(255, 252, 232, ${0.85 * strength})`);
+      glow.addColorStop(0.35, `rgba(255, 249, 196, ${0.28 * strength})`);
+      glow.addColorStop(1, 'rgba(255, 249, 196, 0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(lamp.x, lamp.y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // The lamps themselves, a grid of them, so the head is not a flat slab.
     const across = Math.max(2, Math.round(head * lamp.scale * 0.22));
@@ -645,7 +659,7 @@ function drawFloodlights(ctx: Ctx, projector: Projector): void {
           vec(cx - head / 2 + ((i + 0.5) / across) * head, mast + 0.9 + j * 1.5, cz)
         );
         if (!at) continue;
-        ctx.fillStyle = 'rgba(255, 253, 240, 0.9)';
+        ctx.fillStyle = `rgba(255, 253, 240, ${0.35 + 0.55 * strength})`;
         ctx.beginPath();
         ctx.arc(at.x, at.y, Math.max(0.8, 0.35 * at.scale), 0, Math.PI * 2);
         ctx.fill();

@@ -4,6 +4,7 @@
 // astro.config.mjs and scripts/verify-urls.mjs both read.
 import Fullscreen from '../../layouts/Fullscreen.astro';
 import { DEFAULT_CAMERA, listCameras } from '../../games/deadball/presentation/registry.ts';
+import { DEFAULT_SKY_ID, SKIES } from '../../games/deadball/content/skies.js';
 
 // Rendered here rather than built in the browser. Astro scopes component CSS
 // by stamping an attribute on the elements in the template, so buttons created
@@ -23,21 +24,27 @@ const views = listCameras();
       pressed.
     */}
     <nav id="modes" aria-label="Players">
-      <button type="button" data-mode="solo" aria-pressed="true">1 player</button>
-      <button type="button" data-mode="versus" aria-pressed="false">v computer</button>
-      <button type="button" data-mode="duel" aria-pressed="false">2 players</button>
-      <button type="button" id="mute" aria-pressed="false" title="Sound on">
-        <svg id="mute-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M3 9.5v5h3.5L11 18V6L6.5 9.5H3z" fill="currentColor" />
-          <g id="mute-waves" fill="none" stroke="currentColor" stroke-width="1.9"
-            stroke-linecap="round">
-            <path d="M14.2 9.2a4 4 0 0 1 0 5.6" />
-            <path d="M17 6.6a7.7 7.7 0 0 1 0 10.8" />
-          </g>
-          <path id="mute-cross" d="M14.5 9.5l6 5M20.5 9.5l-6 5" stroke="currentColor"
-            stroke-width="1.9" stroke-linecap="round" hidden />
+      <button type="button" data-mode="solo" aria-pressed="true"
+        ><span class="wide">1 player</span><span class="narrow" aria-hidden="true">1P</span
+      ></button>
+      <button type="button" data-mode="versus" aria-pressed="false"
+        ><span class="wide">v computer</span><span class="narrow" aria-hidden="true">v CPU</span
+      ></button>
+      <button type="button" data-mode="duel" aria-pressed="false"
+        ><span class="wide">2 players</span><span class="narrow" aria-hidden="true">2P</span
+      ></button>
+      <button type="button" id="settings-open" title="Settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="icon">
+          <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" stroke-width="1.9" />
+          <path
+            d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6L17 17M7 7L5.4 5.4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+          />
         </svg>
-        <span class="visually-hidden">Sound</span>
+        <span class="visually-hidden">Settings</span>
       </button>
     </nav>
     {/*
@@ -73,6 +80,39 @@ const views = listCameras();
           anywhere and never go into the shot log.</p>
       </form>
     </dialog>
+    {/*
+      Sound and time of day used to be two more buttons in the row above, which
+      on a phone ran underneath the camera list and could not be tapped at all.
+      They are settings rather than things you reach for mid-shot, so they
+      belong behind one button - and the row goes back to being about what you
+      are playing.
+    */}
+    <dialog id="settings" aria-labelledby="settings-heading">
+      <div id="settings-body">
+        <h2 id="settings-heading">Settings</h2>
+
+        <h3>Sound</h3>
+        <div class="choices" id="sound-choices">
+          <button type="button" data-sound="on" aria-pressed="true">On</button>
+          <button type="button" data-sound="off" aria-pressed="false">Off</button>
+        </div>
+
+        <h3>Time of day</h3>
+        <div class="choices" id="sky-choices">
+          {
+            SKIES.map(({ id, label }) => (
+              <button type="button" data-sky={id} aria-pressed={String(id === DEFAULT_SKY_ID)}>
+                {label}
+              </button>
+            ))
+          }
+        </div>
+
+        <div id="settings-actions">
+          <button type="button" id="settings-close">Done</button>
+        </div>
+      </div>
+    </dialog>
     <nav id="views" aria-label="Camera angle">
       <span id="views-label">Camera</span>
       {
@@ -89,6 +129,7 @@ const views = listCameras();
 <script>
   import { start } from '../../games/deadball/main';
   import { DEFAULT_NAMES, DEFAULT_TEAM } from '../../games/deadball/core/names';
+  import { SKIES } from '../../games/deadball/content/skies.js';
 
   const canvas = document.getElementById('pitch');
 
@@ -238,24 +279,47 @@ const views = listCameras();
 
         paintModes();
 
-        const mute = document.getElementById('mute');
-        const waves = document.getElementById('mute-waves');
-        const cross = document.getElementById('mute-cross');
-        const paintMute = () => {
+        const settings = document.getElementById('settings') as HTMLDialogElement | null;
+        const soundChoices = [
+          ...document.querySelectorAll<HTMLButtonElement>('#sound-choices button'),
+        ];
+        const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
+
+        const paintSettings = () => {
           const muted = game.isMuted();
-          // aria-pressed still carries the state for a screen reader; it just
-          // no longer decides what the button looks like.
-          mute?.setAttribute('aria-pressed', String(muted));
-          if (waves) waves.toggleAttribute('hidden', muted);
-          if (cross) cross.toggleAttribute('hidden', !muted);
-          mute?.setAttribute('title', muted ? 'Sound off' : 'Sound on');
+          for (const button of soundChoices) {
+            button.setAttribute(
+              'aria-pressed',
+              String((button.dataset.sound === 'off') === muted)
+            );
+          }
+          for (const button of skyChoices) {
+            button.setAttribute('aria-pressed', String(button.dataset.sky === game.currentSkyId()));
+          }
         };
-        mute?.addEventListener('click', () => {
-          game.setMuted(!game.isMuted());
-          paintMute();
-          mute.blur();
+
+        for (const button of soundChoices) {
+          button.addEventListener('click', () => {
+            game.setMuted(button.dataset.sound === 'off');
+            paintSettings();
+          });
+        }
+        for (const button of skyChoices) {
+          button.addEventListener('click', () => {
+            if (button.dataset.sky) game.useSky(button.dataset.sky);
+            paintSettings();
+          });
+        }
+
+        document.getElementById('settings-open')?.addEventListener('click', (event) => {
+          paintSettings();
+          if (!settings?.open) settings?.showModal();
+          (event.currentTarget as HTMLButtonElement).blur();
         });
-        paintMute();
+        document
+          .getElementById('settings-close')
+          ?.addEventListener('click', () => settings?.close());
+        paintSettings();
       })
       .catch((error) => console.error('[deadball] failed to start', error));
   }
@@ -372,7 +436,12 @@ const views = listCameras();
     outline-offset: 2px;
   }
 
-  #mute {
+  /* One spelling or the other, never both. */
+  .narrow {
+    display: none;
+  }
+
+  #settings-open {
     min-width: 34px;
     padding-left: 9px;
     padding-right: 9px;
@@ -381,18 +450,98 @@ const views = listCameras();
     justify-content: center;
   }
 
-  #mute-icon {
+  .icon {
     width: 19px;
     height: 19px;
     display: block;
   }
 
-  /* The `hidden` attribute is defined for HTML elements, and these are SVG
-     ones - so setting it read as hidden to a test and drew anyway, putting the
-     waves and the cross on top of each other. Spelled out here rather than
-     relying on a UA stylesheet that has no obligation to cover this. */
-  #mute-icon [hidden] {
-    display: none;
+  /* Shares the naming dialog's chrome rather than inventing a second look for
+     the same kind of thing. Both are a panel over the pitch asking a question. */
+  #settings {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    max-width: none;
+    max-height: none;
+  }
+
+  #settings::backdrop {
+    background: rgba(2, 8, 20, 0.88);
+  }
+
+  #settings-body {
+    width: min(320px, calc(100% - 32px));
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(125, 211, 252, 0.28);
+    background: #0b1a2d;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+    color: #e6eef8;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  #settings-body h2 {
+    margin: 0 0 14px;
+    font-size: 19px;
+  }
+
+  #settings-body h3 {
+    margin: 0 0 7px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: rgba(230, 238, 248, 0.6);
+  }
+
+  .choices {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .choices button {
+    flex: 1;
+    padding: 9px 4px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background: rgba(125, 211, 252, 0.08);
+    color: #e6eef8;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .choices button[aria-pressed='true'] {
+    background: #7dd3fc;
+    border-color: #7dd3fc;
+    color: #06263a;
+  }
+
+  .choices button:hover {
+    filter: brightness(1.1);
+  }
+
+  .choices button:focus-visible,
+  #settings-actions button:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  #settings-actions button {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    background: rgba(125, 211, 252, 0.16);
+    color: #e6eef8;
+    font: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
   }
 
   /* Muted is the state worth flagging, so it goes quiet rather than loud: the
@@ -533,6 +682,34 @@ const views = listCameras();
   /* On a phone the labels do not fit beside each other at the top of a shot
      that is already tight for room, so they wrap to a column instead. */
   @media (max-width: 559px) {
+    /*
+      The mode row and the camera column share the top of a phone screen, and
+      at full wording they ran into each other - the camera list sat on top of
+      the settings button and swallowed the tap. Short labels are what make
+      them fit side by side without moving either.
+
+      Clipped rather than `display: none`, so the full wording is still the
+      button's accessible name and a screen reader hears "1 player".
+    */
+    .wide {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .narrow {
+      display: inline;
+    }
+
+    #modes button,
+    #views button {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
     #modes {
       top: 8px;
       left: 8px;

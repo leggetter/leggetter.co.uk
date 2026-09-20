@@ -6,8 +6,22 @@ both are in [docs/deadball-two-devices.md](../../docs/deadball-two-devices.md).
 
 ## Setting it up on Cloudflare, once
 
-1. **Workers & Pages → Create → Workers → Connect to Git**, and pick this
-   repository.
+It is **already deployed**, at
+`https://deadball-rooms.phil-4a3.workers.dev`, first put there from a laptop
+with
+
+```sh
+npx wrangler deploy --config workers/deadball/wrangler.jsonc
+```
+
+which is also how to push a fix in a hurry. What that command cannot do is
+connect the repository, so deploys stay manual until somebody does the
+following in the dashboard once. There is no `wrangler builds`.
+
+1. **Workers & Pages → deadball-rooms → Settings → Build → Connect**, and pick
+   this repository. (Connecting an existing Worker, not creating one - the
+   Worker, its Durable Object and its migration already exist, and *Create →
+   Connect to Git* would make a second one beside it.)
 2. **Root directory:** leave it at the repository root. Not `workers/deadball`,
    even though that is where the Worker is: the Worker imports
    `src/games/deadball/core/` directly, because the whole design rests on the
@@ -56,18 +70,19 @@ key. Nothing identifying is in any of it: no names, no tokens, no room ids. See 
 Writes are non-blocking and the binding is optional in code, so a missing
 dataset costs you the statistics rather than the game.
 
-## Then point the site at it
+## The site is already pointed at it
 
-The page only uses the server when it knows where it is. Set
+In [`.env.production`](../../.env.production), not in a dashboard variable.
+The URL is not a secret - it ships inside the page's JavaScript and anyone who
+opens the game can read it - so putting it in the repository costs nothing and
+buys two things: a clean checkout builds a working site, and the address
+production depends on shows up in a diff instead of living invisibly in
+somebody's browser tab.
 
-```
-PUBLIC_DEADBALL_ROOMS=https://deadball-rooms.<your-subdomain>.workers.dev
-```
-
-in the **site's** Workers Build environment variables. Without it the game
-falls back to the same-browser transport, where two tabs can play each other -
-which is what every local checkout does, and how the protocol was debugged
-before any of this existed.
+Only `astro build` reads it. `npm run dev` deliberately does not, so a local
+checkout keeps falling back to the same-browser transport where two tabs play
+each other - which is what every local checkout does, how the protocol was
+debugged before any of this existed, and worth keeping working.
 
 ## Running it locally
 

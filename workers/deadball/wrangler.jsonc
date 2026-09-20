@@ -1,0 +1,30 @@
+// The Dead Ball game server. A separate Worker from the site, on purpose.
+//
+// The site's own wrangler.jsonc has no `main`, no bindings and no migrations:
+// twenty-one years of writing served by a configuration with no runtime in it.
+// This is the first thing in the repository that can be *down* rather than
+// merely wrong, and a bad deploy of it should take down a penalty game rather
+// than 186 posts. See docs/deadball-two-devices.md.
+//
+// Deployed from the same repository by a second Workers Build, with the root
+// directory left at the repo root so the shared `core/` is reachable, and the
+// deploy command pointed at this file.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "deadball-rooms",
+  "main": "index.ts",
+  "compatibility_date": "2026-08-01",
+  "durable_objects": {
+    "bindings": [{ "name": "ROOMS", "class_name": "RoomObject" }]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      // SQLite-backed, which is the recommended backend and the only one
+      // available on the Workers Free plan. Key-value backed objects need a
+      // paid plan and buy nothing here.
+      "new_sqlite_classes": ["RoomObject"]
+    }
+  ],
+  "observability": { "enabled": true }
+}

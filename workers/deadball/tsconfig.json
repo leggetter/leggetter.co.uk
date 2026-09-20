@@ -1,0 +1,18 @@
+// Only the entry point is listed, so TypeScript follows the imports and
+// checks exactly what the Worker actually reaches - no more.
+//
+// That is load-bearing rather than tidy. There are no browser types here, so
+// anything that pulls `Game.ts`, a canvas or a `window` into the server fails
+// this check immediately, with a list of the globals a Worker does not have.
+// It is the same guarantee `core/portable.test.ts` makes, enforced from the
+// other end.
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types"],
+    "lib": ["ES2023"],
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["index.ts"]
+}

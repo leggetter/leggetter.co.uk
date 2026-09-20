@@ -451,6 +451,7 @@ const views = listCameras();
   import { SKILL_BUDGET } from '../../games/deadball/core/squad';
   import { DISCIPLINES } from '../../games/deadball/core/setpiece';
   import { createLocalTransport } from '../../games/deadball/net/local';
+  import { createRemoteTransport } from '../../games/deadball/net/remote';
   import { forgetRoom, linkTo, roomFrom } from '../../games/deadball/net/link';
   import type { TeamOnTheWire, Transport } from '../../games/deadball/net/Transport';
   import { renderSVG } from 'uqr';
@@ -998,10 +999,25 @@ const views = listCameras();
           will be reached through, so none of what follows learns which it is
           talking to - today it is another tab.
         */
-        // sessionStorage, not localStorage: two tabs of one browser are two
-        // players here, and localStorage would give them one token between
-        // them. See tokenFor.
-        const wire = createLocalTransport(window.sessionStorage);
+        /*
+          Which wire, decided by whether there is a server to talk to.
+
+          With `PUBLIC_DEADBALL_ROOMS` set, games go through the Durable Object
+          and two *devices* can play. Without it they go through a
+          BroadcastChannel and two *tabs* can - which is every local checkout,
+          and is how the whole protocol was debugged before any of this
+          existed.
+
+          The storage differs with it, and has to. Across two devices a browser
+          is a player, so the token lives in localStorage and survives closing
+          the tab. Across two tabs of one browser they would share it and the
+          room would read the second join as the first player reloading - so
+          the local wire gets sessionStorage, which is per tab. See `tokenFor`.
+        */
+        const roomsAt = import.meta.env.PUBLIC_DEADBALL_ROOMS as string | undefined;
+        const wire = roomsAt
+          ? createRemoteTransport(roomsAt.replace(/\/$/, ''), window.localStorage)
+          : createLocalTransport(window.sessionStorage);
         const lobby = document.getElementById('lobby') as HTMLDialogElement | null;
         const accept = document.getElementById('accept') as HTMLDialogElement | null;
         let live: Transport | null = null;

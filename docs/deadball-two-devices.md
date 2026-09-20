@@ -16,7 +16,13 @@ surface - a bill, an abuse story, someone else's data on a disk somewhere, and
 an outage. That is a different kind of thinking from how a crowd is drawn, and
 running the two together makes both harder to read.
 
-**A penalty has been taken across two tabs.** Steps 1 to 3 of the build order
+**A penalty has been taken between two browser profiles, through a Durable
+Object.** The whole build order is done: the interface, the room, the
+same-browser transport, the lobby, `Game.ts` following a room, and the server.
+Setting it up on Cloudflare is [one page of
+instructions](../workers/deadball/README.md) and no plan change.
+
+**A penalty was taken across two tabs first.** Steps 1 to 3 of the build order
 are done: the interface, the room, the same-browser transport, the lobby, and
 `Game.ts` following a room rather than owning the match. Both clients resolve
 to the same outcome and the same score independently. No infrastructure
@@ -461,6 +467,40 @@ Both halves are needed and they answer different questions:
   this build, the host closing their tab - there is nobody left to notice
   anything and silence is all there is to go on.
 
+## What the server cost, in practice
+
+**No plan change.** Durable Objects are on the Workers Free plan as long as
+they use the SQLite storage backend, which is what `new_sqlite_classes`
+selects. Free limits are five million row reads and a hundred thousand row
+writes a day.
+
+That last number changed the design. **A `put` is billed as a row written**, so
+persisting the room on every poll would spend eight thousand writes an hour on
+two people doing nothing. The room lives in memory - a Durable Object keeps it
+between requests for as long as it is alive, and two clients polling every two
+seconds keep it alive for the length of a game - and storage is for surviving
+an eviction rather than for being the truth. It is written when something
+actually happens, which is a handful of times per kick.
+
+**One hour and it deletes itself**, on an alarm set when the room opens.
+
+### Three HTTP bugs, and nothing else
+
+Worth listing because of how short the list is:
+
+- **A 204 cannot have a body.** The CORS preflight went through the same JSON
+  helper as everything else and threw a `TypeError` on every single one, so no
+  browser ever got past `OPTIONS`.
+- **The typecheck did not cover the Worker.** `tsconfig.json` includes
+  `src/**/*`, so a clean run said nothing about `workers/`. It has its own
+  config now, listing only the entry point so TypeScript follows the imports -
+  which means anything dragging a canvas or a `window` into the server fails
+  immediately, with a list of the globals a Worker does not have. The same
+  guarantee `core/portable.test.ts` makes, enforced from the other end.
+- **An old dev server was still holding the port**, so the environment variable
+  pointing the page at the server never reached it and the page quietly stayed
+  on the same-browser transport. Not a code bug, but an hour of one.
+
 ## What the same-browser transport cannot do
 
 `BroadcastChannel` is same-origin **and same-profile**. Two tabs of one browser
@@ -537,8 +577,16 @@ before any infrastructure exists**.
    whole protocol, the reconnect logic, the sealed dive and every failure in
    the table above, with no account, no deploy and no bill. Most of the bugs
    live here and can be found here.
-3. **The Durable Object** - the same interface over fetch. At this point the
-   client is already finished.
+3. ~~**The Durable Object** - the same interface over fetch.~~ **Built**, and
+   the claim held: the client *was* already finished. `net/remote.ts` is the
+   same `Transport` over fetch and polling, and `Game.ts` did not change by a
+   line to use it - it has never known which one it is talking to.
+
+   The Worker itself is about a hundred lines of moving bytes. Everything that
+   decides anything is `net/room.ts`, which had been running in a browser
+   against two tabs for hours before the server existed. **That is the whole
+   return on building step 2 first**: the protocol arrived at the server
+   already debugged, and the only bugs left to find there were about HTTP.
 4. **Polling first, WebSocket later.** Polling cannot get stuck in a state the
    code has not thought about, which is worth more at the start than the second
    it saves. The known upgrade path, and the reason to take it: the moment the

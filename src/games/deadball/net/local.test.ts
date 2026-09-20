@@ -40,8 +40,14 @@ function inbox(transport: Transport): Inbound[] {
   return seen;
 }
 
-/** BroadcastChannel delivers on a later tick, so let it. */
-const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 5));
+/**
+ * BroadcastChannel delivers on a later tick, so let it.
+ *
+ * Twenty rather than five. Five is enough on an idle machine and flaked once
+ * on a busy one, and a test that fails when something else is compiling is a
+ * test nobody will trust the next time it goes red.
+ */
+const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 20));
 
 /** A hosted room with a guest in it, each with their own browser. */
 async function together() {

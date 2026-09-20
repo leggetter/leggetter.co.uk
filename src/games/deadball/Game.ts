@@ -450,15 +450,40 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     if (message.kind !== 'state') return;
     together = message.together;
-
-    // Not while something is in the air. The room is right about the score and
-    // this client is right about where the ball currently is, and replacing the
-    // match underneath a flight throws away the half somebody is watching.
-    if (flight && !flight.outcome) return;
-
-    const theirs = message.match as MatchState;
-    match = { ...theirs, dive: match.dive };
     names = [message.teams[0].name || names[0], message.teams[1].name || names[1]];
+
+    /*
+      Not while the ball is on its way.
+
+      The room sends the resolved state in the *same reply* as the shot it
+      belongs to - it has finished the kick before the client has started
+      drawing it - so applying it on arrival jumps straight to the result and
+      the taker never sees their own penalty. Held instead, and applied when
+      the flight lands.
+
+      "On its way" starts at `pending`, not at `flight`: there is a run-up
+      first, and a shot that is still being walked up to is every bit as
+      interrupted by a scoreline as one in mid-air.
+    */
+    if (pending || (flight && !flight.outcome)) {
+      waiting = message.match as MatchState;
+      return;
+    }
+    adopt(message.match as MatchState);
+  }
+
+  /** Whatever the room last said, while this client was busy watching a ball. */
+  let waiting: MatchState | null = null;
+
+  /**
+   * Take the room's word for it.
+   *
+   * The dive is this client's own business: the room redacts it from every
+   * state it sends, because the taker must never see it, and the keeper knows
+   * where they pointed because they pointed there.
+   */
+  function adopt(theirs: MatchState): void {
+    match = { ...theirs, dive: match.dive };
   }
 
   /** Somebody on this device's squad, by id. */
@@ -857,6 +882,13 @@ export async function startGame(options: GameOptions): Promise<Game> {
       });
       match = reduce(match, { type: 'RESOLVE', outcome: flight.outcome });
       holdRemaining = RESOLVE_HOLD_SECONDS;
+      // The ball has landed, so whatever the room said while it was in the air
+      // can be applied now. Its answer wins over the one worked out here - and
+      // if the two differ, the score was never this client's to decide.
+      if (waiting) {
+        adopt(waiting);
+        waiting = null;
+      }
     }
   }
 

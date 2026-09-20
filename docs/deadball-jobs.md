@@ -44,10 +44,13 @@ Press on the ball and drag. Let go to shoot.
 
 Five penalties, then a screen telling you how you did.
 
-**Press `L` at any point to save a file of every shot you have taken.** It goes
-to your downloads and nowhere else - nothing is sent anywhere. It is genuinely
-useful: most of the tuning in this game came from reading those files rather
-than from anybody's opinion.
+**Settings has a button that saves a file of every shot you have taken**, and
+it tells you how many are in there before you press it. `L` still does the same
+thing from anywhere, for anyone who already has it in their fingers - but a key
+nobody has been told about is not a feature, and this is the half you can find.
+The file goes to your downloads and nowhere else - nothing is sent anywhere. It
+is genuinely useful: most of the tuning in this game came from reading those
+files rather than from anybody's opinion.
 
 ## How the game is put together
 
@@ -119,7 +122,8 @@ assuming you broke it.
 
 **File:** `src/games/deadball/content/players.js`
 
-Copy one of the blocks and change it. Every skill runs from 0 to 100:
+Copy one of the blocks and change it. Every skill runs from 0 to 100, and you
+get **300 points to spread across the four of them** - not 400:
 
 | Skill | What it does |
 |---|---|
@@ -130,14 +134,19 @@ Copy one of the blocks and change it. Every skill runs from 0 to 100:
 | `foot` | `'left'` or `'right'`. Changes which way the ball naturally drifts. |
 | `colors` | `kit` is the shirt, `trim` is the shorts and socks. Any web colour. |
 
-To play as them, change `DEFAULT_PLAYER_ID` at the bottom of the file to their
-`id`.
+Everybody on the list spends exactly 300, so a strength has to come out of
+something else. `npm run test:game` will tell you if yours does not add up, and
+by how much.
+
+To play as them, open the game, press the shirt button, and pick them. No code
+change - if the file is right, they are in the list.
 
 **Done when:** you can see their kit colours on the pitch and the name in the
 top-left corner.
 
 **Try this:** make one with `accuracy: 100` and one with `accuracy: 30`, and
-take five penalties with each. The difference is bigger than it sounds.
+take five penalties with each. The difference is bigger than it sounds. Then
+try spending all 300 on power and see how far that gets you.
 
 ### 4. Invent a keeper
 
@@ -187,18 +196,22 @@ are and that something is watching them.
 These are real features. Each one is self-contained - you should not need to
 touch the physics for any of them.
 
-### Pick your player before the shootout
+### A record that follows the player
 
-Right now the game plays as whoever `DEFAULT_PLAYER_ID` says. There should be a
-screen where you choose.
+Picking a player is built - cog, **Your player**, and you can invent one there
+too. What that left behind is a question nobody can answer yet: **is anyone
+actually better with one than another?**
 
-Everything needed is there: the roster is a list, and the game already takes a
-player as an argument. It needs somewhere to show them and something to
-remember the choice, and there is already a place for remembering things
-(`storage/`).
+Every shot in the log already records `playerId`. Nothing reads it back. So the
+job is to total those up per player and show it - scored out of taken, next to
+their name in the picker, or on the full-time screen.
 
-**Start at:** `src/games/deadball/main.ts`, which is where the player is
-currently picked.
+The interesting part is how little is enough. A ratio over four penalties is
+noise, and showing it as though it meant something is worse than showing
+nothing, so decide what you do until there is enough of it.
+
+**Start at:** `telemetry/analyse.ts`, which already groups shots, and
+`core/roster.ts` for what a player is.
 
 ### Celebrations
 

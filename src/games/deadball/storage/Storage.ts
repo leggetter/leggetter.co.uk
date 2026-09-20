@@ -63,4 +63,6 @@ export interface Settings {
   muted?: boolean;
   /** Day, dusk or night. */
   skyId?: string;
+  /** Who is taking the penalties. */
+  playerId?: string;
 }

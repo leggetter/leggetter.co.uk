@@ -258,11 +258,52 @@ which a Durable Object is not.
    was checked against planted violations rather than trusted: a `Date.now()`
    and a `performance.now()` added to `rng.ts` both fail it. So this is a
    standing guarantee rather than a fact that was true once.
-2. **What is the id?** The match seed is elegant and makes the URL mean
-   something. It also fixes the id's length at whatever the seed is. Worth a
-   look at whether forty bits of seed is both enough entropy and a sensible
-   seed.
+2. ~~**What is the id?** The match seed is elegant and makes the URL mean
+   something.~~ **Answered, and the answer is no.** Two findings, either of
+   which is enough on its own.
+
+   **The seed decides the shot, not just the keeper.** `Game.ts` resolves every
+   penalty through `createRng(shotSeed(match.seed, match.shotIndex))`, and that
+   stream is where the taker's aim error comes from - the same seed, XORed,
+   drives the keeper. `shotSeed` is a pure function of two numbers that would
+   both be public. So a player who can read the seed off the URL can compute
+   the error about to be applied to their own shot and aim to cancel it. That
+   is not a theoretical edge; it is the one number in the game worth knowing.
+
+   **And the seed is a masked clock**: `Date.now() & 0x7fffffff`. Against
+   somebody who knows roughly when a room was made, that is not 31 bits of
+   entropy, it is the number of milliseconds in the window they have to guess -
+   a few million, which is enumerable in minutes. A guessed room id does not
+   just leak a game; it lets a stranger take the seat the invited player was
+   coming for, because the server binds a side to whoever arrives first.
+
+   **So: the id is random and unrelated to the seed**, from
+   `crypto.getRandomValues`, and the seed stays server-side until the match is
+   over. Eight characters of base32 is forty bits and plenty, and separating
+   the two means the id can be sized for guessing resistance and the seed for
+   the simulation, which are different jobs.
 3. **Does a shootout survive one player being on a train?** Turn-based helps,
    but the answer decides how hard reconnect has to work.
-4. **Is the name a person or a team?** Phase 4.5 might answer this before Phase
-   6 needs to, which is a good argument for doing them in that order.
+4. ~~**Is the name a person or a team?**~~ **Largely answered, by something that
+   already shipped.** There are three naming concepts in the game now, not one:
+   `DuelNames` - two personal names, 12 characters, for a hotseat duel;
+   `teamName` - `cleanTeam`, defaulting to "Your Team", added for `versus`; and
+   the roster's player names at 18 characters.
+
+   `versus` already resolves it. `Game.ts` labels that match
+   `[teamName, takerProfile.name]`: **your side is a team and the opponent's is
+   a player.** Cross-device should follow `versus` rather than the hotseat
+   duel, because the duel's personal names exist for the case where two people
+   are looking at the same screen and nothing needs to cross a wire.
+
+   That also settles the privacy question in [What this costs in
+   privacy](#what-this-costs-in-privacy) without needing a new rule: **the team
+   name is what is sent**, it already exists, it is already stored, and it is
+   already the thing the game shows in the one mode with an opponent. A team
+   name crossing a wire is a different proposition from a child's first name,
+   and this way the safe option is also the default rather than an opt-in
+   somebody has to find.
+
+   Still open underneath it: whether a player may *also* send their roster
+   player's name, which is invented rather than personal and therefore probably
+   fine, and whether the two sides should see each other's kit colours.

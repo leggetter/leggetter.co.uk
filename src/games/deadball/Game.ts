@@ -36,7 +36,17 @@ import type {
 } from './core/types.ts';
 import { attachDragInput, type DragInput } from './input/drag.ts';
 import { TAKERS, DEFAULT_TAKER_ID } from './content/takers.js';
+import { ROSTER } from './content/players.js';
 import { DEFAULT_SKY_ID } from './content/skies.js';
+import {
+  buildRoster,
+  cleanPlayer,
+  customOf,
+  makeId,
+  playerFor,
+  MAX_CUSTOM,
+  type RosterEntry,
+} from './core/roster.ts';
 import { createEventLog } from './core/events.ts';
 import { decideShot, type TakerProfile } from './core/taker.ts';
 import {
@@ -104,6 +114,19 @@ export interface Game {
   currentMode(): MatchMode;
   /** What the two sides are called. Cleaned, so never empty. */
   currentNames(): DuelNames;
+
+  /** Everybody available: the shipped roster plus anybody invented here. */
+  roster(): RosterEntry[];
+  currentPlayerId(): string;
+  /** Take the next penalties as somebody else. Remembered. */
+  usePlayer(id: string): void;
+  /**
+   * Invent one. Returns the id it was given, which is derived from the name
+   * and made unique, or null when there is no room for another.
+   */
+  addPlayer(draft: unknown): string | null;
+  /** Only ever an invented one; the shipped roster is not editable here. */
+  removePlayer(id: string): void;
   /** Your side's name against the computer. Not a person; a team. */
   currentTeam(): string;
   /** What the computer is called, for a screen that has to name it. */
@@ -121,7 +144,7 @@ export interface Game {
 }
 
 export async function startGame(options: GameOptions): Promise<Game> {
-  const { canvas, player, keeper, storage } = options;
+  const { canvas, keeper, storage } = options;
 
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('penalty: 2d canvas context unavailable');
@@ -178,6 +201,20 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   let skyId = settings.skyId ?? DEFAULT_SKY_ID;
   presentation.setSky(skyId);
+
+  // The shipped roster plus anybody invented here. Rebuilt rather than mutated
+  // whenever it changes, so there is one place ids are made unique.
+  let roster: RosterEntry[] = buildRoster(
+    ROSTER,
+    (await storage.get<unknown>(KEYS.customRoster)) ?? []
+  );
+  // `player` is no longer a constructor argument: it changes while the game is
+  // running, which is the whole point of Phase 4.
+  let player: Player = playerFor(roster, settings.playerId ?? options.player?.id);
+
+  const saveCustom = (): void => {
+    void storage.set(KEYS.customRoster, customOf(roster));
+  };
 
   // What the simulation said happened, drained once per rendered frame. The
   // loop may step several times between frames, so collecting rather than
@@ -642,6 +679,38 @@ export async function startGame(options: GameOptions): Promise<Game> {
     },
 
     currentSkyId: () => skyId,
+
+    roster: () => roster.map((entry) => ({ ...entry })),
+
+    currentPlayerId: () => player.id,
+
+    usePlayer(id: string): void {
+      player = playerFor(roster, id);
+      remember({ playerId: player.id });
+    },
+
+    addPlayer(draft: unknown): string | null {
+      if (customOf(roster).length >= MAX_CUSTOM) return null;
+      const source = (draft ?? {}) as Record<string, unknown>;
+      const id = makeId(String(source.name ?? ''), roster.map((p) => p.id));
+      roster = [...roster, cleanPlayer(source, id, true)];
+      saveCustom();
+      return id;
+    },
+
+    removePlayer(id: string): void {
+      const target = roster.find((p) => p.id === id);
+      // The shipped roster is content, not data. Deleting from it here would
+      // leave the game disagreeing with the file it was read from.
+      if (!target?.custom) return;
+      roster = roster.filter((p) => p.id !== id);
+      saveCustom();
+      // Whoever was taking them has just been deleted, so somebody else is.
+      if (player.id === id) {
+        player = playerFor(roster, undefined);
+        remember({ playerId: player.id });
+      }
+    },
 
     setMuted(next: boolean): void {
       muted = next;

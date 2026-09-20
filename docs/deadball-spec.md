@@ -1062,7 +1062,15 @@ Four ways out, in rough order of how much they keep:
 | **The ladder raises everyone's cap.** Reach tier three and every player, yours and the computer's, plays at 320. | Keeps parity, and makes the progression the *ladder* rather than the player - which may be the honest place for it. See [Teams, and a ladder to climb](#teams-and-a-ladder-to-climb). |
 | **Growth is solo-career only; anything head-to-head normalises to 300.** | Keeps both. Costs an explanation - "your 340 player is playing at 300 here" is a sentence that has to appear on screen and be believed. |
 
-**Lean: the last one, with the third as the version to build first**, because a cap that moves for everybody needs no normalisation rule and no explaining. Nothing about this is decided.
+**A fifth, and currently the lean: points are earned only in solo and against the computer.** The modes already split along exactly the line this needs - solo and `versus` are you against the game, `duel` and two devices are you against a person - so progression lives entirely on the first side and anything head-to-head is played at a flat 300. The computer is a difficulty dial this project controls, so it can be made to keep up; another person is not.
+
+It is cleaner than normalising, because there is no conversion to explain and no moment where a number on screen is not the number in play. It also merges progression with [the ladder](#teams-and-a-ladder-to-climb) rather than running them as two systems, which is one fewer thing to balance.
+
+**What it costs is worth saying plainly: somebody who spends a week improving a player cannot show it to the person they most want to beat.** Given who this is being built for, that is the whole point of having done it. So the rule needs an escape hatch, and consent is the obvious one - a duel is played at parity by default, and "as you are" if *both* sides choose it. Nobody is ever beaten by a number they did not agree to, and across two devices it is a room setting both people can see, which is the easiest place in the whole design to ask a question.
+
+**One trap in the earning surface itself.** Solo has no opponent, so nothing can go wrong in it, so points only ever go up and grinding is strictly optimal. `versus` has a real opponent and a ladder to lose on. If the two are not to feel the same, the honest split is that **the ladder is where a player improves and solo is where they practise** - which also gives solo back a job it has been quietly losing since `versus` shipped.
+
+Nothing about this is decided.
 
 **What you earn points *for* matters more than the number.** The obvious answer is goals, and the obvious answer is wrong here specifically: [open question 5](#open-questions) records that the game has one correct answer and both testers found it - aim 0.7 to one side, near full power. Paying people for goals pays them for the thing that is already too easy, and buys a difficulty curve that goes the wrong way.
 

@@ -620,8 +620,8 @@ function drawFloodlights(ctx: Ctx, projector: Projector, strength: number): void
       'rgba(30, 41, 59, 0.92)'
     );
 
-    // The head, and the glow off it. The glow is what sells a floodlight;
-    // without it the mast reads as a pole with a box on top.
+    // The head. Lit, its face is warm rather than the grey box it is when off.
+    const lit = strength > 0.01;
     quad(
       ctx,
       projector,
@@ -631,15 +631,19 @@ function drawFloodlights(ctx: Ctx, projector: Projector, strength: number): void
         vec(cx + head / 2, mast + 3.4, cz),
         vec(cx - head / 2, mast + 3.4, cz),
       ],
-      'rgba(51, 65, 85, 0.95)'
+      lit ? 'rgba(74, 85, 104, 0.95)' : 'rgba(51, 65, 85, 0.95)'
     );
 
     const lamp = projector.project(vec(cx, mast + 1.7, cz));
     if (!lamp) continue;
 
-    // Unlit at midday. A glow only reads as light if there is darkness to put
-    // it in, so a lit pylon against a bright noon sky looks like a mistake.
-    if (strength > 0.01) {
+    // The halo, which only exists if there is darkness to put it in.
+    //
+    // This is why dusk looked switched off. The halo is pale yellow, and pale
+    // yellow on a bright orange sky has almost no contrast - the same gradient
+    // that blazes against a near-black night sky disappeared entirely at dusk.
+    // So the halo is what `strength` scales, and it is allowed to be nothing.
+    if (lit) {
       const r = Math.max(6, head * lamp.scale * 0.9);
       const glow = ctx.createRadialGradient(lamp.x, lamp.y, 0, lamp.x, lamp.y, r);
       glow.addColorStop(0, `rgba(255, 252, 232, ${0.85 * strength})`);
@@ -651,7 +655,13 @@ function drawFloodlights(ctx: Ctx, projector: Projector, strength: number): void
       ctx.fill();
     }
 
-    // The lamps themselves, a grid of them, so the head is not a flat slab.
+    // The lamps themselves, a grid of them, so the head is not a flat slab -
+    // and the thing that actually reads as "on".
+    //
+    // A lamp is as bright as it is whatever the sky is doing behind it, so
+    // these do not fade with `strength`: they are lit or they are dark, and
+    // the only thing the time of day changes is how far the light spills.
+    // Scaling them with the halo was the other half of why dusk looked off.
     const across = Math.max(2, Math.round(head * lamp.scale * 0.22));
     for (let i = 0; i < across; i++) {
       for (let j = 0; j < 2; j++) {
@@ -659,9 +669,23 @@ function drawFloodlights(ctx: Ctx, projector: Projector, strength: number): void
           vec(cx - head / 2 + ((i + 0.5) / across) * head, mast + 0.9 + j * 1.5, cz)
         );
         if (!at) continue;
-        ctx.fillStyle = `rgba(255, 253, 240, ${0.35 + 0.55 * strength})`;
+        const r = Math.max(0.8, 0.35 * at.scale);
+
+        // A small bloom around each lamp, so a lit head glows at its own scale
+        // even when the sky is too bright for the big halo to show.
+        if (lit && r > 1.2) {
+          const bloom = ctx.createRadialGradient(at.x, at.y, 0, at.x, at.y, r * 3.2);
+          bloom.addColorStop(0, 'rgba(255, 250, 225, 0.75)');
+          bloom.addColorStop(1, 'rgba(255, 250, 225, 0)');
+          ctx.fillStyle = bloom;
+          ctx.beginPath();
+          ctx.arc(at.x, at.y, r * 3.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = lit ? 'rgba(255, 253, 235, 0.97)' : 'rgba(255, 253, 240, 0.32)';
         ctx.beginPath();
-        ctx.arc(at.x, at.y, Math.max(0.8, 0.35 * at.scale), 0, Math.PI * 2);
+        ctx.arc(at.x, at.y, r, 0, Math.PI * 2);
         ctx.fill();
       }
     }

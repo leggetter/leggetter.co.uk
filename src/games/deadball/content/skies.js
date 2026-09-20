@@ -46,7 +46,10 @@ export const SKIES = [
     clouds: 16,
     trees: '#14161f',
     grassShade: 'rgba(60, 40, 90, 0.2)',
-    floodlight: 0.55,
+    // They are on at dusk, and visibly so. This scales the halo only - the
+    // lamps are at full brightness at any value above zero, because a lamp
+    // does not dim because the sky is light.
+    floodlight: 0.8,
   },
   {
     id: 'night',

@@ -1387,6 +1387,15 @@ Three consequences worth having written down:
   **Keep playing**. Only when there is something to lose; before the first kick
   there is nothing to ask about.
 
+  **"Something to lose" is not `shotIndex > 0`**, which is what it was first.
+  That counter only moves on the tap *after* a kick has finished, so from the
+  moment the ball was struck until somebody read the result, a shootout that
+  had visibly been played reported itself as untouched - and switching mode
+  threw it away without asking. Reported from play, and the window was every
+  single kick. A shootout has started once the ball has been **struck**,
+  whether or not anybody has looked at the outcome yet, and the count of kicks
+  is the outcomes rather than the index for the same reason.
+
   The two are **sequential, not stacked** - the question closes before the
   start dialog opens - because a dialog on top of a dialog is a back button
   nobody can predict, which this document already says once about the invent

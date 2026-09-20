@@ -172,3 +172,18 @@ export const FLIGHT_TIMEOUT = 4.0;
  * long enough for a keeper to walk under it.
  */
 export const LOFT_SHARE = 0.6;
+
+/**
+ * The fixed simulation step, in seconds.
+ *
+ * 120 Hz, so a shot is the same shot on a 60 Hz laptop and a 120 Hz phone.
+ * Lived in `Game.ts` until the room needed it too - it is a property of the
+ * simulation rather than of the thing driving it, and two definitions of a
+ * timestep is how two machines stop agreeing.
+ *
+ * Not part of the tuning fingerprint: changing it changes how finely the same
+ * physics is sampled rather than what the physics is. Worth knowing that a
+ * coarse step is what would make the wall's swept collision test start to
+ * matter - see `core/wall.ts`.
+ */
+export const STEP = 1 / 120;

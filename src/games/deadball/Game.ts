@@ -10,7 +10,8 @@
  * docs/deadball-spec.md for why that is not negotiable.
  */
 
-import { BALL_RADIUS, GOAL_HEIGHT, GOAL_WIDTH, PENALTY_DISTANCE } from './core/units.ts';
+import { BALL_RADIUS, GOAL_HEIGHT, GOAL_WIDTH, PENALTY_DISTANCE, STEP } from './core/units.ts';
+export { STEP };
 import type { Vec3 } from './core/vec3.ts';
 import { createRng, shotSeed } from './core/rng.ts';
 import { tuningFingerprint } from './core/tuning.ts';
@@ -87,7 +88,7 @@ import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
 import { forMatch, summarise, summariseDuel, type FullTime } from './telemetry/analyse.ts';
 
 /** Simulation step. Fixed so a shot is reproducible; see core/rng.ts. */
-export const STEP = 1 / 120;
+
 
 /** Cap on catch-up steps, so a backgrounded tab does not spiral on return. */
 const MAX_STEPS_PER_FRAME = 8;

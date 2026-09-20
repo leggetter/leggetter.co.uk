@@ -19,7 +19,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
 import { KEEPERS } from '../content/keepers.js';
-import { ROSTER } from '../content/players.js';
+import { SQUAD } from '../content/players.js';
 import { NO_EVENTS } from './events.ts';
 import { advance, createFlight } from './flight.ts';
 import { initialMatch, reduce } from './match.ts';
@@ -98,7 +98,7 @@ describe('core runs anywhere', () => {
   test('a whole shootout runs with nothing but core', () => {
     // The proof rather than the promise: reducer, physics, keeper and rules,
     // start to finish, using no import that a Worker would not have.
-    const player = ROSTER[0] as Player;
+    const player = SQUAD[0] as Player;
     const keeper = KEEPERS[0] as KeeperProfile;
     let match = initialMatch(42, 5, 'solo');
 

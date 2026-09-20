@@ -31,7 +31,7 @@ import { buildWall, HEIGHT, wallHit } from './wall.ts';
 import { distance, vec } from './vec3.ts';
 
 import { KEEPERS } from '../content/keepers.js';
-import { ROSTER } from '../content/players.js';
+import { SQUAD } from '../content/players.js';
 
 describe('which kick you are taking', () => {
   test('penalties are penalties, every time', () => {
@@ -242,7 +242,7 @@ describe('getting past it', () => {
 
 describe('a free kick, start to finish', () => {
   test('a straight one into the wall is blocked, and the flight ends', () => {
-    const player = ROSTER[0] as Player;
+    const player = SQUAD[0] as Player;
     const keeper = KEEPERS[0] as KeeperProfile;
     const piece = setPieceFor(2024, 0, 'freekicks');
     const wall = buildWall(piece);
@@ -268,7 +268,7 @@ describe('a free kick, start to finish', () => {
   test('a penalty in the same engine is unaffected', () => {
     // The wall is new code on the hot path of every shot ever taken. This is
     // the guard that it changed nothing for the game that already existed.
-    const player = ROSTER[0] as Player;
+    const player = SQUAD[0] as Player;
     const keeper = KEEPERS[0] as KeeperProfile;
     const shot = resolveShot(
       { aim: { x: 0.4, y: 0.5 }, power: 0.8, curve: 0, lift: 0.5, timing: 0 },

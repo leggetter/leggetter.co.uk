@@ -392,7 +392,7 @@ const views = listCameras();
   import { start } from '../../games/deadball/main';
   import { DEFAULT_NAMES, DEFAULT_TEAM } from '../../games/deadball/core/names';
   import { SKIES } from '../../games/deadball/content/skies.js';
-  import { SKILL_BUDGET } from '../../games/deadball/core/roster';
+  import { SKILL_BUDGET } from '../../games/deadball/core/squad';
   // The derivation, so the swatches show what the pitch will actually draw
   // rather than what was stored. Five of the six are defaults most of the
   // time, and a default that has been nudged off a clash is still the answer.
@@ -669,7 +669,7 @@ const views = listCameras();
           if (!playerList) return;
           const current = game.currentPlayerId();
           playerList.replaceChildren(
-            ...game.roster().map((entry) => {
+            ...game.squad().map((entry) => {
               const button = document.createElement('button');
               button.type = 'button';
               button.className = 'player';
@@ -690,7 +690,7 @@ const views = listCameras();
             })
           );
 
-          const chosen = game.roster().find((p) => p.id === current);
+          const chosen = game.squad().find((p) => p.id === current);
           if (playerStats && chosen) {
             playerStats.textContent = `POW ${chosen.power} · ACC ${chosen.accuracy} · CUR ${chosen.curve} · COM ${chosen.composure} · DIP ${chosen.dip} · ${chosen.foot} foot`;
           }
@@ -759,7 +759,7 @@ const views = listCameras();
         playerForm?.addEventListener('submit', (event) => {
           event.preventDefault();
           // Sent raw. The game cleans and caps it, so the rules live in one
-          // place rather than half here and half in core/roster.ts.
+          // place rather than half here and half in core/squad.ts.
           const id = game.addPlayer({
             name: field('player-name')?.value,
             power: Number(field('skill-power')?.value),
@@ -793,7 +793,7 @@ const views = listCameras();
          * Not a second validator - everything reaching this has already been
          * through `cleanColour`. `<input type="color">` simply refuses the
          * three-digit form and keeps whatever it had, which shows as the
-         * previous colour rather than as an error, and a hand-edited roster is
+         * previous colour rather than as an error, and a hand-edited squad is
          * entitled to write `#09f`.
          */
         const longHex = (colour: string) =>
@@ -811,7 +811,7 @@ const views = listCameras();
          * left alone until the gesture commits and `change` repaints the lot.
          */
         const paintKits = (except?: HTMLInputElement | null) => {
-          const chosen = game.roster().find((p) => p.id === game.currentPlayerId());
+          const chosen = game.squad().find((p) => p.id === game.currentPlayerId());
           if (!chosen) return;
           const kits = teamKits(chosen.colors.kit, chosen.colors.trim, game.kitOverrides());
           const showing = {
@@ -1231,7 +1231,7 @@ const views = listCameras();
        form when it was measured at 390px. */
     box-sizing: border-box;
     width: min(340px, calc(100vw - 32px));
-    /* The dialog has grown a roster. Scroll it rather than let it run off a
+    /* The dialog has grown a squad. Scroll it rather than let it run off a
        phone, and leave room so it never touches the edges. */
     max-height: calc(100vh - 48px);
     overflow-y: auto;

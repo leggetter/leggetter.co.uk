@@ -15,7 +15,7 @@
  * simulation has never known what anybody is wearing.
  */
 
-import { cleanColour } from '../../core/roster.ts';
+import { cleanColour } from '../../core/squad.ts';
 import type { KitOverrides } from '../../core/types.ts';
 
 /**
@@ -113,7 +113,7 @@ const FALLBACK_KITS = ['#b4322e', '#2f6fd0', '#f5c400', '#2f9e44', '#8338ec', '#
  *
  * They are settled in priority order, each one moved clear of everything
  * already settled: your outfield first and never moved, because it is the
- * roster player's own kit and the one thing on the pitch nobody should have
+ * squad player's own kit and the one thing on the pitch nobody should have
  * taken off them; then theirs, then your keeper, then theirs. A fixed second
  * colour on its own would eventually be somebody's invented kit, and two teams
  * in one strip is the one thing a football picture must never be.

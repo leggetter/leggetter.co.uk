@@ -2,17 +2,17 @@
  * Picking a footballer, and inventing one.
  *
  * Most of this is about not trusting input. A custom player comes from a form
- * and then from a disk, and the shipped roster is a file people are invited to
+ * and then from a disk, and the shipped squad is a file people are invited to
  * edit by hand - so every value here has been through somebody's fingers.
  */
 
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { ROSTER } from '../content/players.js';
+import { SQUAD } from '../content/players.js';
 import type { Player } from './types.ts';
 import {
-  buildRoster,
+  buildSquad,
   cleanPlayer,
   cleanPlayerName,
   customOf,
@@ -22,16 +22,16 @@ import {
   playerFor,
   SKILL_BUDGET,
   spentOn,
-} from './roster.ts';
+} from './squad.ts';
 
-describe('the shipped roster', () => {
+describe('the shipped squad', () => {
   test('every player in content/players.js survives cleaning unchanged', () => {
     // If cleaning altered a shipped player, either the file is wrong or the
     // rules are - and either way somebody's footballer is not what they wrote.
-    const built = buildRoster(ROSTER, []);
-    assert.equal(built.length, ROSTER.length);
+    const built = buildSquad(SQUAD, []);
+    assert.equal(built.length, SQUAD.length);
     for (const [i, player] of built.entries()) {
-      const source = ROSTER[i];
+      const source = SQUAD[i];
       assert.equal(player.id, source.id, 'id changed');
       assert.equal(player.name, source.name, `${source.id} name changed`);
       assert.equal(player.power, source.power, `${source.id} power changed`);
@@ -46,14 +46,14 @@ describe('the shipped roster', () => {
   });
 
   test('none of them is marked custom, so none can be deleted from the game', () => {
-    assert.equal(customOf(buildRoster(ROSTER, [])).length, 0);
+    assert.equal(customOf(buildSquad(SQUAD, [])).length, 0);
   });
 
   test('every player spends exactly the budget', () => {
     // The message matters more than the assertion here: this is the test a
     // first contributor hits after adding a footballer, and it should tell
     // them the rule rather than that a number was not another number.
-    for (const player of ROSTER) {
+    for (const player of SQUAD) {
       const spent = spentOn(player);
       assert.equal(
         spent,
@@ -78,8 +78,8 @@ describe('the shipped roster', () => {
       a.curve >= b.curve &&
       a.composure >= b.composure &&
       a.dip >= b.dip;
-    for (const a of ROSTER) {
-      for (const b of ROSTER) {
+    for (const a of SQUAD) {
+      for (const b of SQUAD) {
         if (a.id === b.id) continue;
         assert.ok(!beats(a, b), `${a.name} is at least as good as ${b.name} at everything`);
       }
@@ -232,49 +232,49 @@ describe('ids', () => {
   test('a custom player can never take a shipped id', () => {
     // Shipped ids are claimed first, so storage cannot shadow a real player -
     // which would silently replace somebody's footballer with a forgery.
-    const built = buildRoster(ROSTER, [{ id: ROSTER[0].id, name: 'Impostor' }]);
+    const built = buildSquad(SQUAD, [{ id: SQUAD[0].id, name: 'Impostor' }]);
     const shipped = built.filter((p) => !p.custom);
     const custom = built.filter((p) => p.custom);
-    assert.equal(shipped[0].id, ROSTER[0].id);
-    assert.equal(shipped[0].name, ROSTER[0].name, 'the shipped player is untouched');
+    assert.equal(shipped[0].id, SQUAD[0].id);
+    assert.equal(shipped[0].name, SQUAD[0].name, 'the shipped player is untouched');
     assert.equal(custom.length, 1);
-    assert.notEqual(custom[0].id, ROSTER[0].id);
+    assert.notEqual(custom[0].id, SQUAD[0].id);
   });
 });
 
-describe('building the roster', () => {
+describe('building the squad', () => {
   test('rubbish in storage does not break the game', () => {
     // This store is a browser console away from holding anything at all.
     for (const junk of [null, undefined, 'nope', 42, {}, [null, 'x', 7]]) {
-      const built = buildRoster(ROSTER, junk);
-      assert.ok(built.length >= ROSTER.length, `${JSON.stringify(junk)} lost the roster`);
+      const built = buildSquad(SQUAD, junk);
+      assert.ok(built.length >= SQUAD.length, `${JSON.stringify(junk)} lost the squad`);
       for (const p of built) assert.ok(p.name.length > 0);
     }
   });
 
-  test('a missing shipped roster still leaves somebody to take the penalty', () => {
-    const built = buildRoster(null, [{ name: 'Only One' }]);
+  test('a missing shipped squad still leaves somebody to take the penalty', () => {
+    const built = buildSquad(null, [{ name: 'Only One' }]);
     assert.equal(built.length, 1);
     assert.equal(playerFor(built, undefined).name, 'Only One');
   });
 
   test('custom players are capped', () => {
     const many = Array.from({ length: MAX_CUSTOM + 8 }, (_, i) => ({ name: `P${i}` }));
-    assert.equal(customOf(buildRoster(ROSTER, many)).length, MAX_CUSTOM);
+    assert.equal(customOf(buildSquad(SQUAD, many)).length, MAX_CUSTOM);
   });
 
   test('shipped players come first, so the order does not shuffle', () => {
-    const built = buildRoster(ROSTER, [{ name: 'Late Arrival' }]);
+    const built = buildSquad(SQUAD, [{ name: 'Late Arrival' }]);
     assert.deepEqual(
-      built.slice(0, ROSTER.length).map((p) => p.id),
-      ROSTER.map((p) => p.id)
+      built.slice(0, SQUAD.length).map((p) => p.id),
+      SQUAD.map((p) => p.id)
     );
     assert.equal(built[built.length - 1].custom, true);
   });
 
   test('picking falls back rather than returning nothing', () => {
-    const built = buildRoster(ROSTER, []);
-    assert.equal(playerFor(built, ROSTER[1].id).id, ROSTER[1].id);
+    const built = buildSquad(SQUAD, []);
+    assert.equal(playerFor(built, SQUAD[1].id).id, SQUAD[1].id);
     assert.equal(playerFor(built, 'nobody').id, built[0].id);
     assert.equal(playerFor(built, undefined).id, built[0].id);
   });

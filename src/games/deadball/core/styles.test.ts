@@ -17,9 +17,9 @@ import { defaultStyleId, nextStyle, PLAIN, styleFor, STYLES } from './styles.ts'
 import type { KeeperProfile, Player } from './types.ts';
 import { vec } from './vec3.ts';
 import { KEEPERS } from '../content/keepers.js';
-import { ROSTER } from '../content/players.js';
+import { SQUAD } from '../content/players.js';
 
-const player = ROSTER[0] as Player;
+const player = SQUAD[0] as Player;
 const spot = vec(0, 0.11, -20.5);
 const strike = (style: string | undefined) =>
   resolveShot(

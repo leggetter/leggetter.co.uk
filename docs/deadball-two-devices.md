@@ -458,7 +458,7 @@ which a Durable Object is not.
    already shipped.** There are three naming concepts in the game now, not one:
    `DuelNames` - two personal names, 12 characters, for a hotseat duel;
    `teamName` and `opponentTeam` - both `cleanTeam`, defaulting to "Your Team"
-   and to the taker profile's own name, added for `versus`; and the roster's
+   and to the taker profile's own name, added for `versus`; and the squad's
    player names at 18 characters.
 
    `versus` already resolves it. `Game.ts` labels that match
@@ -476,6 +476,6 @@ which a Durable Object is not.
    and this way the safe option is also the default rather than an opt-in
    somebody has to find.
 
-   Still open underneath it: whether a player may *also* send their roster
+   Still open underneath it: whether a player may *also* send their squad
    player's name, which is invented rather than personal and therefore probably
    fine, and whether the two sides should see each other's kit colours.

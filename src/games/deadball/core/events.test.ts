@@ -14,13 +14,13 @@ import { advance, createFlight } from './flight.ts';
 import { KEEPERS } from '../content/keepers.js';
 import { createRng } from './rng.ts';
 import { resolveShot, spotBall } from './shot.ts';
-import { ROSTER } from '../content/players.js';
+import { SQUAD } from '../content/players.js';
 import type { KeeperProfile, Player, ShotInput } from './types.ts';
 import { PENALTY_DISTANCE } from './units.ts';
 
 const STEP = 1 / 120;
 
-const player = ROSTER[0] as Player;
+const player = SQUAD[0] as Player;
 const keeper = KEEPERS[0] as KeeperProfile;
 
 /** Run one shot to the end and return everything it emitted, in order. */

@@ -1,7 +1,7 @@
 /**
  * Who is taking the penalty, and inventing somebody new to take it.
  *
- * The roster shipped in `content/players.js` is the low-barrier contribution
+ * The squad shipped in `content/players.js` is the low-barrier contribution
  * surface this project keeps talking about: copy a block, change the numbers,
  * refresh. Until now that was only half true, because seeing your footballer
  * meant editing `DEFAULT_PLAYER_ID` at the bottom of the same file - a code
@@ -35,7 +35,7 @@ export const MAX_CUSTOM = 12;
  * makes the picker a formality rather than a choice.
  *
  * 375 of a possible 500, so the average player is 75 in everything and any
- * strength has to be paid for out of something else. The shipped roster was
+ * strength has to be paid for out of something else. The shipped squad was
  * rebalanced onto it; a test holds them there.
  *
  * It was 300 of 400 until `dip` arrived with free kicks. A fifth skill on the
@@ -59,7 +59,7 @@ export const spentOn = (player: {
  * Four skills, scaled down together until they fit the budget.
  *
  * Only over-budget input gets here, and only from a disk - the form cannot go
- * over, and the shipped roster is checked by a test instead of being quietly
+ * over, and the shipped squad is checked by a test instead of being quietly
  * rewritten, because a file somebody hand-edited should tell them it is wrong
  * rather than silently show them numbers they did not type.
  *
@@ -86,9 +86,9 @@ function fitBudget(skills: number[]): number[] {
   return fitted;
 }
 
-export interface RosterEntry extends Player {
+export interface SquadMember extends Player {
   /** True for anybody invented here, which is the only sort that can be
-   *  deleted. The shipped roster is not editable from the game. */
+   *  deleted. The shipped squad is not editable from the game. */
   custom: boolean;
 }
 
@@ -160,10 +160,10 @@ export function makeId(name: string, taken: readonly string[]): string {
  * Whatever came out of the form or off the disk, as a player.
  *
  * Never throws and never returns a half-built one. Storage is a text file a
- * browser console can write to, and a shipped roster is a file somebody is
+ * browser console can write to, and a shipped squad is a file somebody is
  * invited to edit by hand, so both are inputs rather than promises.
  */
-export function cleanPlayer(raw: unknown, id: string, custom: boolean): RosterEntry {
+export function cleanPlayer(raw: unknown, id: string, custom: boolean): SquadMember {
   const source = (raw ?? {}) as Record<string, unknown>;
   const colours = (source.colors ?? {}) as Record<string, unknown>;
   const skills = [source.power, source.accuracy, source.curve, source.composure, source.dip].map(
@@ -192,14 +192,14 @@ export function cleanPlayer(raw: unknown, id: string, custom: boolean): RosterEn
 }
 
 /**
- * The shipped roster and anybody invented, in one list.
+ * The shipped squad and anybody invented, in one list.
  *
  * Shipped first, so the order does not shuffle when somebody adds one, and a
  * custom player can never take a shipped player's id - the shipped ones are
  * claimed before the custom ones are read.
  */
-export function buildRoster(shipped: unknown, stored: unknown): RosterEntry[] {
-  const roster: RosterEntry[] = [];
+export function buildSquad(shipped: unknown, stored: unknown): SquadMember[] {
+  const squad: SquadMember[] = [];
   const taken: string[] = [];
 
   for (const entry of Array.isArray(shipped) ? shipped : []) {
@@ -207,27 +207,27 @@ export function buildRoster(shipped: unknown, stored: unknown): RosterEntry[] {
     const id = typeof source.id === 'string' && source.id.length > 0 ? source.id : makeId('', taken);
     if (taken.includes(id)) continue;
     taken.push(id);
-    roster.push(cleanPlayer(source, id, false));
+    squad.push(cleanPlayer(source, id, false));
   }
 
   for (const entry of Array.isArray(stored) ? stored : []) {
-    if (roster.filter((p) => p.custom).length >= MAX_CUSTOM) break;
+    if (squad.filter((p) => p.custom).length >= MAX_CUSTOM) break;
     const source = (entry ?? {}) as Record<string, unknown>;
     const wanted = typeof source.id === 'string' ? source.id : '';
     const id = wanted && !taken.includes(wanted) ? wanted : makeId(String(source.name ?? ''), taken);
     taken.push(id);
-    roster.push(cleanPlayer(source, id, true));
+    squad.push(cleanPlayer(source, id, true));
   }
 
-  return roster;
+  return squad;
 }
 
 /** The named player, or the first one. Never undefined, because the caller
  *  has a shot to resolve either way. */
-export function playerFor(roster: readonly RosterEntry[], id: string | undefined): RosterEntry {
-  return roster.find((p) => p.id === id) ?? (roster[0] as RosterEntry);
+export function playerFor(squad: readonly SquadMember[], id: string | undefined): SquadMember {
+  return squad.find((p) => p.id === id) ?? (squad[0] as SquadMember);
 }
 
 /** Just the invented ones, in the shape that goes to storage. */
-export const customOf = (roster: readonly RosterEntry[]): RosterEntry[] =>
-  roster.filter((p) => p.custom);
+export const customOf = (squad: readonly SquadMember[]): SquadMember[] =>
+  squad.filter((p) => p.custom);

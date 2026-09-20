@@ -97,7 +97,7 @@ export interface Player {
  * The four strips, when somebody has said what they should be.
  *
  * Overrides, never replacements. Every key is optional and absent means "work
- * it out" - your side from the roster player, theirs from the away colour, and
+ * it out" - your side from the squad player, theirs from the away colour, and
  * a keeper strip each. That is the same rule `opponentTeam` follows and it is
  * there for the same reason: Phase 4.5 brings AI teams with identities of
  * their own, and a colour stored today must not freeze onto one of them. A
@@ -107,9 +107,9 @@ export interface Player {
  * own shirt, because eight colour pickers in one dialog is a paint program.
  */
 export interface KitOverrides {
-  /** Your outfield shirt. Defaults to the roster player's. */
+  /** Your outfield shirt. Defaults to the squad player's. */
   own?: string;
-  /** Your outfield shorts. Defaults to the roster player's trim. */
+  /** Your outfield shorts. Defaults to the squad player's trim. */
   ownTrim?: string;
   /** Their outfield shirt. Defaults to the away colour. */
   other?: string;

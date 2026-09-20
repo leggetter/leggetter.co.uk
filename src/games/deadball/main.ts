@@ -8,14 +8,14 @@
 
 import { startGame, type Game } from './Game.ts';
 import { createLocalStorage } from './storage/local.ts';
-import { DEFAULT_PLAYER_ID, ROSTER } from './content/players.js';
+import { DEFAULT_PLAYER_ID, SQUAD } from './content/players.js';
 import { DEFAULT_KEEPER_ID, KEEPERS } from './content/keepers.js';
 import type { KeeperProfile, Player } from './core/types.ts';
 
 export async function start(canvas: HTMLCanvasElement): Promise<Game> {
   // Only a starting point now: the game reads a stored choice over this, and
   // the picker changes it at runtime. Kept so a first visit has somebody.
-  const player: Player = ROSTER.find((p) => p.id === DEFAULT_PLAYER_ID) ?? ROSTER[0]!;
+  const player: Player = SQUAD.find((p) => p.id === DEFAULT_PLAYER_ID) ?? SQUAD[0]!;
   const keeper: KeeperProfile = KEEPERS.find((k) => k.id === DEFAULT_KEEPER_ID) ?? KEEPERS[0]!;
 
   const game = await startGame({

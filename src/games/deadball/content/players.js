@@ -31,7 +31,7 @@
 /** @typedef {import('../core/types.ts').Player} Player */
 
 /** @type {Player[]} */
-export const ROSTER = [
+export const SQUAD = [
   {
     id: 'marchetti',
     name: 'Dario Marchetti',

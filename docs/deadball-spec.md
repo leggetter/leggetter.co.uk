@@ -65,7 +65,7 @@ A game to build with the kids. The first version gets built solo so there is som
 | Shot types | Penalties first, free kicks second. **Both built.** | Free kicks add a wall, variable distance, and variable angle. Penalties are the same game with all three fixed, so they are strictly a subset - which is what made Phase 8 an afternoon of geometry rather than a second game |
 | Views in v1 | `behind-taker` and `angled-behind`, swappable at runtime. `keeper-cam` joined them in Phase 2 | Undecided which feels better, and the swap costs little once the projection boundary exists |
 | Art | 2D canvas primitives now, a second package later - see [What else a package could be](#what-else-a-package-could-be) | Pixel art needs assets, which is the slow part. The renderer interface is what makes it a later decision instead of a rewrite |
-| Roster | Invented players shipped as data, plus a custom player editor. Everybody spends the same 375 points - see [Everybody gets 375 points](#everybody-gets-375-points) | No likeness or trademark exposure on a public site, and inventing players is a good first contribution. The budget is what stops the editor making the roster pointless |
+| Squad | Invented players shipped as data, plus a custom player editor. Everybody spends the same 375 points - see [Everybody gets 375 points](#everybody-gets-375-points) | No likeness or trademark exposure on a public site, and inventing players is a good first contribution. The budget is what stops the editor making the squad pointless |
 | Language | TypeScript for the engine, JS or JSON for content | Types document the renderer and storage interfaces. The content files stay approachable |
 | Persistence | Interface from day one, `localStorage` implementation | Two-player later needs a remote store. An async interface now avoids a rewrite then |
 | Page | Hidden: `noindex`, out of the sitemap, no nav link | Matches how `draft: true` posts already work in this repo |
@@ -124,7 +124,7 @@ src/games/deadball/
     events.ts                 # discrete things worth hearing (Phase 3.5)
     taker.ts                  # the computer deciding a penalty (Phase 3.75)
     styles.ts                 # finesse, driven, knuckle: which ball you hit
-    roster.ts                 # who takes it, and inventing somebody (Phase 4)
+    squad.ts                 # who takes it, and inventing somebody (Phase 4)
     setpiece.ts               # where the ball is: three spots and a wall
     wall.ts                   # the wall, and whether the ball got past it
   presentation/               # how it looks AND how it sounds
@@ -592,7 +592,7 @@ Three implementations, in order: `memory` (tests), `local` (`localStorage`), and
 
 Keys namespaced `deadball:v1:*`. A `deadball:v1:schema` record holds the version, and `schema.ts` owns the migration functions. The migration path exists from the first release, because the first schema change happens the first time someone adds a field to a player.
 
-Stored: settings (view id, difficulty, sound, time of day, chosen player), profile (display name), custom roster, stats (best scores, longest streak, per-keeper record), and a capped match history.
+Stored: settings (view id, difficulty, sound, time of day, chosen player), profile (display name), custom squad, stats (best scores, longest streak, per-keeper record), and a capped match history.
 
 ## Two players
 
@@ -794,7 +794,7 @@ merely accurate; past a point it is just wild.
 #### What it does not do yet
 
 **Both sides still use the same footballer.** `resolveShot` is handed the one
-roster player for every shot, so the computer's power and accuracy are the
+squad player for every shot, so the computer's power and accuracy are the
 player's. That is also true of a duel today, and [Phase 4](#phases) - picking a
 player before a shootout - is what fixes both at once.
 
@@ -880,7 +880,7 @@ in a way one profile never can. That directly serves the rule
 not be readable. Five profiles in sequence is harder to read than one, and it
 is harder for free, because the mechanism already exists.
 
-It also makes the roster matter. The figure that runs up can be a named
+It also makes the squad matter. The figure that runs up can be a named
 footballer from `players.js`, wearing the team's kit, and the HUD can say who
 is taking this one - which is a thing shootouts do and this game does not.
 
@@ -927,7 +927,7 @@ any of it ships.
 
 **A team is another place a real name could reach the public web.** Invented
 clubs only, per [what not to commit](#what-not-to-commit) - the same rule the
-roster and the hoardings already follow, and for the same reason.
+squad and the hoardings already follow, and for the same reason.
 
 ### Two devices, later
 
@@ -1017,7 +1017,7 @@ interface Transport {
 One device needs no transport at all - the messages never leave the reducer.
 Two devices is an implementation of this and a room to point it at.
 
-## Roster and attributes
+## Squad and attributes
 
 ```json
 {
@@ -1044,30 +1044,30 @@ Attributes are `0..100` because that is the convention anyone who has played a f
 
 ### Players, and inventing one
 
-The custom player editor is a form that writes to `deadball:v1:roster:custom`. Shipped in Phase 4, with the picker, in the settings dialog.
+The custom player editor is a form that writes to `deadball:v1:squad:custom`. Shipped in Phase 4, with the picker, in the settings dialog.
 
 **The phase was chosen off this document rather than off a feature list.** `deadball-jobs.md` invites a first contribution by adding a footballer to `content/players.js` - and then required editing `DEFAULT_PLAYER_ID` in the same file to see them. A code change standing between somebody's first contribution and looking at it, in the one job written to need no code change. That is what Phase 4 removes.
 
 Three decisions worth keeping:
 
-- **`core/roster.ts` treats both inputs as untrusted.** The shipped roster is a file people are invited to edit by hand, and the custom list is a browser console away from holding anything at all. Skills clamp, colours are checked against what a canvas can actually parse - `ctx.fillStyle` ignores what it cannot read, silently, so a bad colour draws the figure in somebody else's kit rather than throwing - and names go through the same stripping as a duel name, because they are drawn on the same canvas and a right-to-left override moves text that is not its own.
+- **`core/squad.ts` treats both inputs as untrusted.** The shipped squad is a file people are invited to edit by hand, and the custom list is a browser console away from holding anything at all. Skills clamp, colours are checked against what a canvas can actually parse - `ctx.fillStyle` ignores what it cannot read, silently, so a bad colour draws the figure in somebody else's kit rather than throwing - and names go through the same stripping as a duel name, because they are drawn on the same canvas and a right-to-left override moves text that is not its own.
 - **Shipped ids are claimed before custom ones are read**, so nothing in storage can shadow a real player and replace somebody's footballer with a forgery.
-- **Only custom players can be deleted.** The shipped roster is not editable from the game; it is editable from the file, which is the point of it.
+- **Only custom players can be deleted.** The shipped squad is not editable from the game; it is editable from the file, which is the point of it.
 
 ### Everybody gets 375 points
 
-`SKILL_BUDGET = 375`, of a possible 500, spread across power, accuracy, curve, composure and dip. It applies to the shipped roster and to anybody invented.
+`SKILL_BUDGET = 375`, of a possible 500, spread across power, accuracy, curve, composure and dip. It applies to the shipped squad and to anybody invented.
 
-**This started as a constraint on the editor and turned out to be a fix for the roster.** Before it, Marchetti spent 335 points and Okafor 277 - so Marchetti was better at three skills out of four and level on the fourth, and picking anybody else was a handicap. The picker was decoration. A budget is what makes four players four *choices*.
+**This started as a constraint on the editor and turned out to be a fix for the squad.** Before it, Marchetti spent 335 points and Okafor 277 - so Marchetti was better at three skills out of four and level on the fourth, and picking anybody else was a handicap. The picker was decoration. A budget is what makes four players four *choices*.
 
 - **Shipped players are checked by a test, not clamped.** `content/players.js` is a file somebody is invited to edit by hand, and quietly rewriting their numbers would mean the file and the game disagree with nobody being told. The test names the player and says how many points to move.
 - **Invented players are clamped, not checked**, because their numbers come off a disk a browser console can write to. Over-budget skills are scaled down together, so the shape survives: a power merchant stays a power merchant, just a legal one.
 - **The form clamps live.** A slider stops where the points run out, which says what the rule is while you are breaking it - nothing to read, nothing to undo, and no way to submit something invalid.
 - **Underspending is allowed.** It is only self-harm, and refusing to accept a deliberately weak player would be a rule with nothing behind it.
 
-A second test asserts **nobody on the roster is at least as good as anybody else at everything**. The budget makes that likely; it does not make it true, since 375 points can still be spent strictly worse.
+A second test asserts **nobody on the squad is at least as good as anybody else at everything**. The budget makes that likely; it does not make it true, since 375 points can still be spent strictly worse.
 
-Attributes are gentle on purpose - `power` scales strike speed by 0.85 to 1.15 - so rebalancing the roster onto the budget changed how the four compare without changing how the game feels.
+Attributes are gentle on purpose - `power` scales strike speed by 0.85 to 1.15 - so rebalancing the squad onto the budget changed how the four compare without changing how the game feels.
 
 ### Earning points, later
 
@@ -1169,7 +1169,7 @@ in `versus`, the second person in a duel. Solo has no side 1.
   in the frame; see [Four strips, and the keeper who is not
   working](#four-strips-and-the-keeper-who-is-not-working).
 - **Unless the player picked that colour themselves**, in which case the hue is
-  rotated instead. Nils Lindqvist ships in amber and is the roster's own worked
+  rotated instead. Nils Lindqvist ships in amber and is the squad's own worked
   example, rather than a case somebody has to imagine.
 - **The shirts swap over on their turn.** The keeper is whoever is not taking,
   so you go in goal for theirs in your own kit. Without it the keeper stayed
@@ -1225,7 +1225,7 @@ close is turned round the hue wheel until it clears - the opposite hue first,
 then out from there in twelfths, with a flat palette for the greys and whites
 that have no hue to turn.
 
-**Defaults, in priority order.** Your outfield is the roster player's own kit
+**Defaults, in priority order.** Your outfield is the squad player's own kit
 and trim and is never moved - it is the one thing on the pitch nobody should
 have taken off them. Theirs is the away yellow, or a rotation of it if the
 player is already in yellow. Then green for your keeper and magenta for theirs.
@@ -1316,7 +1316,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
 | **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and sound - synthesised impacts, sampled crowd. See [Presentation packages](#presentation-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **3.75** ✅ | One player against the computer, alternating. See [One player against the computer](#one-player-against-the-computer) | You get to be the keeper without needing a second person |
-| **4** ✅ | `core/roster.ts`, a player picker and a custom player editor in the settings dialog, stored per device. See [Players, and inventing one](#players-and-inventing-one) | The roster is worth editing |
+| **4** ✅ | `core/squad.ts`, a player picker and a custom player editor in the settings dialog, stored per device. See [Players, and inventing one](#players-and-inventing-one) | The squad is worth editing |
 | **4.5** | Teams, and a cup run against progressively better ones. Solo climbs the same ladder against their keepers. See [Teams, and a ladder to climb](#teams-and-a-ladder-to-climb) | A reason to play the next one |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. A separate Worker in this repository, because this site has no server at all today. See [Two devices, later](#two-devices-later) and [deadball-two-devices.md](deadball-two-devices.md) | Play somebody who is not in the room |
@@ -1545,7 +1545,7 @@ template, so anything built with `document.createElement` matches none of it.
 The Phase 2 view switcher came out as bare browser buttons that way, and so did
 the Phase 4 player list, after the first one had been written down here. The
 switcher was fixed by moving the buttons into the template; the player list
-cannot be, because the roster grows at runtime, so those rules are marked
+cannot be, because the squad grows at runtime, so those rules are marked
 `:global` instead.
 
 The control bar is the other. It has overflowed three times, once per feature
@@ -2271,7 +2271,7 @@ reading that field gets an answer.
 - [x] `package.json` normalised to a valid SPDX identifier
 
 **The copyright line reads "Phil Leggetter and contributors" deliberately.** If
-the roster and keeper files end up largely somebody else's work, they are
+the squad and keeper files end up largely somebody else's work, they are
 authors, and the honest thing is to say so rather than quietly assigning
 everything to one person. "and contributors" credits them without publishing
 anybody's name in a public repo, which is the other constraint this project has
@@ -2281,8 +2281,8 @@ been working under throughout.
 
 This repo is public, and this file lives in it.
 
-- No names or ages of the kids, here or in commit messages. The roster, the keeper names, and the celebration lines are all places where an in-joke could put a real name on the public web without anyone deciding to.
-- No real footballer names, photos, or club badges, per the roster decision above.
+- No names or ages of the kids, here or in commit messages. The squad, the keeper names, and the celebration lines are all places where an in-joke could put a real name on the public web without anyone deciding to.
+- No real footballer names, photos, or club badges, per the squad decision above.
 - No real people's names on the advertising hoardings. Brands are a separate
   question and an allowed one - see [the boards](#what-is-behind-the-goal) - but
   a board is a short string in a content file that renders straight onto the

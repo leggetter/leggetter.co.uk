@@ -10,13 +10,13 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
 import { TAKERS } from '../content/takers.js';
-import { ROSTER } from '../content/players.js';
+import { SQUAD } from '../content/players.js';
 import { initialMatch, inSuddenDeath, keeperSide, reduce, type MatchState } from './match.ts';
 import { createRng } from './rng.ts';
 import { decideShot, type TakerProfile } from './taker.ts';
 import type { Player, ShotInput } from './types.ts';
 
-const player = ROSTER[0] as Player;
+const player = SQUAD[0] as Player;
 
 describe('versus turn order', () => {
   const versus = () => initialMatch(5, 5, 'versus');

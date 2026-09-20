@@ -35,7 +35,15 @@ export const KEYS = {
   settings: key('settings'),
   profile: key('profile'),
   stats: key('stats'),
-  customRoster: key('roster', 'custom'),
+  /**
+   * Still `roster` on disk, deliberately.
+   *
+   * The word in the code is "squad" now. The key is what somebody's invented
+   * players are actually stored under, and renaming it would quietly delete
+   * every one of them on the next visit. A tidy name is not worth that; the
+   * mismatch is, and this comment is the reason it is here.
+   */
+  customSquad: key('roster', 'custom'),
 } as const;
 
 export interface Settings {
@@ -73,7 +81,7 @@ export interface Settings {
    *
    * Overrides, for the same reason `opponentTeam` is one: every key is absent
    * until somebody changes that strip, and absent means the derived default -
-   * your side from the roster player, theirs from the away colour, a keeper
+   * your side from the squad player, theirs from the away colour, a keeper
    * strip each. Phase 4.5 brings AI teams with kits of their own, and a colour
    * stored today must not freeze onto one of them.
    *

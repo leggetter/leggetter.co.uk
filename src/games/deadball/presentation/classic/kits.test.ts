@@ -16,7 +16,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { ROSTER } from '../../content/players.js';
+import { SQUAD } from '../../content/players.js';
 import { awayTaking, keeperColours, restingKeeperColours, takerColours } from './draw.ts';
 import { KEEPER_KIT, OTHER_KEEPER_KIT, OWN_KEEPER_KIT, teamKits } from './kits.ts';
 
@@ -49,16 +49,16 @@ describe('the opposition kit', () => {
     // different derived colours for the same side read as three teams.
     //
     // Nils Lindqvist ships in amber, which is close enough to the keeper's
-    // yellow to count as the same strip, so he is the roster's own worked
+    // yellow to count as the same strip, so he is the squad's own worked
     // example of the exception rather than a case somebody has to imagine.
     let asKeeper = 0;
-    for (const player of ROSTER) {
+    for (const player of SQUAD) {
       const { own, other } = teamKits(player.colors.kit, player.colors.trim);
       if (other.kit === KEEPER_KIT) asKeeper++;
       else assert.ok(apart(own.kit, KEEPER_KIT) < 110, `${player.name} was moved off yellow for no reason`);
       assert.ok(apart(own.kit, other.kit) > 90, `${player.name} is playing against their own strip`);
     }
-    assert.ok(asKeeper >= ROSTER.length - 1, 'the keeper kit should be the usual answer');
+    assert.ok(asKeeper >= SQUAD.length - 1, 'the keeper kit should be the usual answer');
   });
 
   test('unless the player picked that colour themselves', () => {
@@ -72,7 +72,7 @@ describe('the opposition kit', () => {
   });
 
   test('every shipped player gets an opposition they can be told apart from', () => {
-    for (const player of ROSTER) {
+    for (const player of SQUAD) {
       const { own, other } = teamKits(player.colors.kit, player.colors.trim);
       assert.ok(
         apart(own.kit, other.kit) > 90,
@@ -233,7 +233,7 @@ describe('four strips, and the six pairs between them', () => {
   });
 
   test('and so are the four every shipped player gets', () => {
-    for (const player of ROSTER) {
+    for (const player of SQUAD) {
       for (const { label, gap } of pairs(player.colors.kit, player.colors.trim)) {
         assert.ok(gap >= 110, `${player.name}: ${label} are only ${gap.toFixed(0)} apart`);
       }
@@ -247,7 +247,7 @@ describe('four strips, and the six pairs between them', () => {
   });
 
   test('a keeper in the way of the outfield is moved, and the outfield is not', () => {
-    // Somebody picks the green their own keeper wears. The roster player's kit
+    // Somebody picks the green their own keeper wears. The squad player's kit
     // is the one thing that is never taken off them, so the keeper moves.
     const kits = teamKits(OWN_KEEPER_KIT, '#f4f6f8');
     assert.equal(kits.own.kit, OWN_KEEPER_KIT);
@@ -283,7 +283,7 @@ describe('kits somebody set', () => {
     assert.deepEqual(one.ownKeeper, derived.ownKeeper);
   });
 
-  test('changing the roster player still changes what your side wears', () => {
+  test('changing the squad player still changes what your side wears', () => {
     // The reason absence has to mean "work it out" rather than "here is a
     // colour": Phase 4.5 hands the opposition an identity of its own, and a
     // value stored today must not freeze onto it.

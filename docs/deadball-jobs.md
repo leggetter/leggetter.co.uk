@@ -244,14 +244,14 @@ noise, and showing it as though it meant something is worse than showing
 nothing, so decide what you do until there is enough of it.
 
 **Start at:** `telemetry/analyse.ts`, which already groups shots, and
-`core/roster.ts` for what a player is.
+`core/squad.ts` for what a player is.
 
 ### Celebrations
 
 When you score, something should happen. A line of text, a noise, anything.
 
 The interesting part of this job is deciding where it belongs. The words are
-content, so they want to be a data file like the roster. The drawing of them is
+content, so they want to be a data file like the squad. The drawing of them is
 `render/`. Nothing about it goes anywhere near `core/`, because scoring a goal
 does not change the rules.
 
@@ -315,7 +315,7 @@ something.
 **This repo is public.** Anything committed here is on the internet, for good.
 So: no real names, no real ages, nothing about anybody's school or where they
 live. Not in the code, not in a player's name, not in a celebration line, not in
-a commit message. The roster is made-up people on purpose.
+a commit message. The squad is made-up people on purpose.
 
 **No real footballers either.** No real names, no club badges, no photos. Not
 worth the argument, and invented ones are more fun anyway.

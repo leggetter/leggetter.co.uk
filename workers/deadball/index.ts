@@ -17,6 +17,7 @@
 import { DurableObject } from 'cloudflare:workers';
 
 import { inSuddenDeath } from '../../src/games/deadball/core/match.ts';
+import { setPieceFor } from '../../src/games/deadball/core/setpiece.ts';
 import { handle, openRoom, type Room } from '../../src/games/deadball/net/room.ts';
 import type { Inbound, Outbound, RoomSettings, Side } from '../../src/games/deadball/net/Transport.ts';
 
@@ -57,11 +58,27 @@ export class RoomObject extends DurableObject<Env> {
 
   private loaded = false;
 
-  /** Written once. A completed match that keeps being polled is still one match. */
+  /**
+   * Written once, whatever happened.
+   *
+   * A completed match that keeps being polled is still one match, and a match
+   * that completes and *then* times out is still one match. The flag is what
+   * stops the alarm writing a second row for a game that already reported.
+   */
   private recorded = false;
 
   /** When the room opened, for how long a shootout actually takes. */
   private opened = Date.now();
+
+  /**
+   * What ties a game's rows together.
+   *
+   * **Not the room id.** The room id is the invite link, and a link belongs in
+   * a message to somebody rather than in a table - even one that expires in an
+   * hour. This is random, means nothing outside these rows, and exists only so
+   * twelve kicks can be recognised as one shootout.
+   */
+  private key = '';
 
   /**
    * Read the room back after an eviction.
@@ -74,6 +91,27 @@ export class RoomObject extends DurableObject<Env> {
     if (this.loaded) return;
     this.loaded = true;
     this.room = (await this.ctx.storage.get<Room>('room')) ?? null;
+
+    /*
+      These two have to survive an eviction with the room, and it took writing
+      the alarm to see why.
+
+      `recorded` in memory only means an evicted room wakes up believing it has
+      never reported - so the TTL alarm writes a second row, marked abandoned,
+      for a game that finished an hour ago. And `opened` in memory only means
+      the duration of every evicted game is measured from whenever it happened
+      to be woken, which is a number that looks plausible and is nonsense.
+    */
+    const meta = await this.ctx.storage.get<{
+      recorded: boolean;
+      opened: number;
+      key: string;
+    }>('meta');
+    if (meta) {
+      this.recorded = meta.recorded;
+      this.opened = meta.opened;
+      this.key = meta.key;
+    }
   }
 
   /**
@@ -85,7 +123,13 @@ export class RoomObject extends DurableObject<Env> {
    * when the room changes, which is a handful of times per kick.
    */
   private async remember(): Promise<void> {
-    if (this.room) await this.ctx.storage.put('room', this.room);
+    if (!this.room) return;
+    await this.ctx.storage.put('room', this.room);
+    await this.ctx.storage.put('meta', {
+      recorded: this.recorded,
+      opened: this.opened,
+      key: this.key,
+    });
   }
 
   /** Open the room. Called once, by whoever minted the id. */
@@ -94,6 +138,8 @@ export class RoomObject extends DurableObject<Env> {
     if (this.room) return;
     this.room = openRoom(settings, seed);
     this.opened = Date.now();
+    this.recorded = false;
+    this.key = crypto.randomUUID();
     await this.remember();
     // Nothing accumulates: an abandoned room deletes itself rather than
     // waiting to be noticed.
@@ -132,8 +178,17 @@ export class RoomObject extends DurableObject<Env> {
     }
 
     // A ping that changed nothing is not worth a write.
-    if (message.kind !== 'ping' || before !== this.room) await this.remember();
+    for (const { message: out } of handled.out) {
+      if (out.kind === 'shot') this.recordShot(before, out);
+    }
+
+    const wasRecorded = this.recorded;
     this.record();
+    // Saved after recording, not before, or the flag that stops a second row
+    // never reaches storage and an eviction undoes it.
+    if (message.kind !== 'ping' || before !== this.room || this.recorded !== wasRecorded) {
+      await this.remember();
+    }
 
     const mine = ([0, 1] as Side[]).find((side) => this.room?.seats[side]?.token === token);
     if (mine === undefined) {
@@ -173,26 +228,110 @@ export class RoomObject extends DurableObject<Env> {
     const guestScore = match.scores[first === 0 ? 1 : 0];
     const winner = hostScore === guestScore ? 'draw' : hostScore > guestScore ? 'host' : 'guest';
 
+    this.write(winner);
+  }
+
+  /**
+   * One row per kick.
+   *
+   * **The objection to this was weaker than it looked.** The shot log is local
+   * only and deliberately never sent anywhere - but that is a rule about a
+   * *browser's* log, and in a two-device game the room has already been sent
+   * every shot, because it is the thing that resolves them. Nothing new
+   * crosses a wire here. The only question was whether to keep what is already
+   * in memory, and keeping it answers things the spec has had open for
+   * phases: whether everybody still shoots at the same spot, whether the three
+   * shot styles get used, whether `dip` earns its place, whether a wall is
+   * beatable by people rather than by a simulation.
+   *
+   * Still no names, and still nothing that identifies a person: which side,
+   * never who. Read off the message on its way out rather than by reaching
+   * into the room, so `room.ts` keeps not knowing that analytics exist.
+   *
+   * **It only sees two-device games.** Solo and hotseat never touch a server,
+   * so this is a sample of the rarest way the game is played, and any
+   * conclusion drawn from it should say so.
+   */
+  private recordShot(before: Room, shot: Extract<Inbound, { kind: 'shot' }>): void {
+    if (!this.env.RESULTS) return;
+    const { settings, first } = before;
+    const index = before.match.shotIndex;
+    const piece = setPieceFor(shot.seed, index, settings.discipline, true);
+    const takerSeat = before.match.taker === 0 ? first : 1 - first;
+
+    this.env.RESULTS.writeDataPoint({
+      indexes: [settings.discipline],
+      blobs: [
+        this.key,
+        'kick',
+        shot.outcome,
+        piece.penalty ? 'penalty' : piece.id,
+        shot.input.style ?? 'plain',
+      ],
+      doubles: [
+        index,
+        shot.input.aim.x,
+        shot.input.aim.y,
+        shot.input.power,
+        shot.input.curve,
+        shot.input.timing,
+        piece.wallCount,
+        // Which seat took it, so "do hosts win more" can be asked of kicks as
+        // well as of results. A seat, never a person.
+        takerSeat,
+      ],
+    });
+  }
+
+  /**
+   * The row itself.
+   *
+   * `winner` is 'host', 'guest', 'draw' or 'abandoned', and the last of those
+   * is the reason this is a separate method - see `alarm`.
+   */
+  private write(winner: string): void {
+    if (!this.room) return;
+    const { match, settings, diverged } = this.room;
+    const first = this.room.first;
     this.env.RESULTS?.writeDataPoint({
       indexes: [settings.discipline],
-      blobs: [settings.discipline, winner],
+      blobs: [this.key, 'result', winner, settings.discipline],
       doubles: [
         match.outcomes.length,
         // Derived rather than stored: sudden death is a question you ask of a
         // match, not a flag it carries.
         inSuddenDeath(match) ? 1 : 0,
-        hostScore,
-        guestScore,
+        match.scores[first === 0 ? 0 : 1],
+        match.scores[first === 0 ? 1 : 0],
         // How often a client's own answer differed from this one. Near zero is
         // the expectation; anything else means somebody is on a stale build.
         diverged,
         Math.round((Date.now() - this.opened) / 1000),
+        // How many seats were ever filled. An abandoned game that nobody
+        // joined is a different failure from one somebody walked out of.
+        this.room.seats.filter(Boolean).length,
       ],
     });
   }
 
-  /** The hour is up. */
+  /**
+   * The hour is up.
+   *
+   * **A game that never finished still counts.** Recording only completions
+   * would have meant the numbers described games that went well rather than
+   * games - and "how many get started and abandoned" is the more useful
+   * question, for a link somebody has to be bothered to open.
+   *
+   * So a room that reaches its TTL without completing writes a row saying so,
+   * with however many kicks it managed and how many seats were ever filled:
+   * nobody joined is a different failure from somebody walking out at 2-2.
+   */
   async alarm(): Promise<void> {
+    await this.wake();
+    if (!this.recorded && this.room) {
+      this.recorded = true;
+      this.write('abandoned');
+    }
     await this.ctx.storage.deleteAll();
     this.room = null;
     this.post = [null, null];

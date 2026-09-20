@@ -177,7 +177,9 @@ src/games/deadball/
     local.ts                  # localStorage
     schema.ts                 # versioned shapes + migrations (Phase 4, not built)
   telemetry/
-    log.ts                    # one record per shot, on this device only
+    log.ts                    # one record per shot. This device only - and
+                              #   see "what gets kept" in the two-devices doc,
+                              #   because a remote game is counted server-side
     analyse.ts                # what the log says, for full time and offline
   net/
     Transport.ts              # two devices: the interface and the messages

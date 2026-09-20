@@ -473,10 +473,33 @@ One row per finished shootout, written by the room, queryable with SQL.
 
 | | |
 | --- | --- |
-| **Kept** | discipline, kicks taken, whether it reached sudden death, both scores, how long it took, and how often a client's answer differed from the room's |
-| **Not kept** | team names, tokens, room ids, kit colours, anything about a shot |
+| **One row per game** | discipline, kicks taken, whether it reached sudden death, both scores, how long it took, how many seats were ever filled, and how often a client's answer differed from the room's |
+| **One row per kick** | which spot, how many in the wall, which shot style, where it was aimed, power, curl, timing, the outcome, and which *seat* took it |
+| **Never** | team names, tokens, room ids, kit colours, or anything identifying a person |
 
-**Outcomes, never names.** That rule was written down here before there was
+### Why the kicks too
+
+The first version kept only results, on the reasoning that the shot log is
+local and deliberately never sent anywhere. **That reasoning does not survive
+looking at it.** The log being local is a rule about a *browser's* copy, and in
+a two-device game the room has already been sent every shot - it is the thing
+that resolves them. Nothing new crosses a wire by keeping them; the only
+question was whether to hold on to what is already in memory.
+
+And holding on to it answers things this project has had open for phases:
+whether everybody still shoots at the same spot (open question 5 in the main
+spec, unanswered since Phase 1), whether the three shot styles actually get
+used, whether `dip` earns its place, whether a wall is beatable by people
+rather than by a simulation.
+
+**Two things to say out loud about the data.** It only ever sees two-device
+games, because solo and hotseat never touch a server - so it is a sample of the
+rarest way this game is played, and any conclusion from it should carry that.
+And the rows are tied together by a **random key minted with the room, not the
+room id**: the room id is the invite link, and a link belongs in a message to
+somebody rather than in a table, even one that expires in an hour.
+
+**Never names.** That rule was written down here before there was
 anywhere to break it, and the reason has not changed: names are the one thing
 this project has protected from the start. The naming form carries
 `ph-no-capture` so the site's analytics cannot see one, and the shot log records

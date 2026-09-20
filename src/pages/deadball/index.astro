@@ -35,13 +35,12 @@ const views = listCameras();
       ></button>
       <button type="button" id="settings-open" title="Settings">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="icon">
-          <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" stroke-width="1.9" />
+          <circle cx="12" cy="12" r="5.2" fill="none" stroke="currentColor" stroke-width="3.2" />
           <path
-            d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6L17 17M7 7L5.4 5.4"
+            d="M18.2 12h2.4M5.8 12H3.4M12 18.2v2.4M12 5.8V3.4M16.38 16.38l1.7 1.7M7.62 7.62L5.92 5.92M7.62 16.38l-1.7 1.7M16.38 7.62l1.7-1.7"
             fill="none"
             stroke="currentColor"
-            stroke-width="1.9"
-            stroke-linecap="round"
+            stroke-width="3"
           />
         </svg>
         <span class="visually-hidden">Settings</span>
@@ -472,7 +471,7 @@ const views = listCameras();
   }
 
   #settings-body {
-    width: min(320px, calc(100% - 32px));
+    width: min(320px, calc(100vw - 32px));
     padding: 22px;
     border-radius: 14px;
     border: 1px solid rgba(125, 211, 252, 0.28);
@@ -579,7 +578,10 @@ const views = listCameras();
   }
 
   #names-form {
-    width: min(360px, calc(100% - 32px));
+    /* Same as the settings panel, and for the same reason - this one had the
+       identical circular width and got away with it only because text inputs
+       give it an intrinsic width to fall back on. */
+    width: min(360px, calc(100vw - 32px));
     display: flex;
     flex-direction: column;
     gap: 6px;

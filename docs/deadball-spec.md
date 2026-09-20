@@ -513,7 +513,7 @@ answered before a file is downloaded rather than after.
 What it costs, stated plainly because these are the reasons it is not the next
 phase:
 
-- **Weight.** The whole site is text, and 256 KB of audio was agonised over. A
+- **Weight.** The whole site is text, and 246 KB of audio was agonised over. A
   rigged character with animations is measured in megabytes. This is an order
   of magnitude, not a percentage.
 - **The first runtime dependency.** The game currently has none - every entry
@@ -1401,7 +1401,7 @@ What stayed synthesised: the glove, the woodwork, and the referee's whistle.
 Short, physical, and in the frame's case better made than found, because a made
 post can ring at whatever pitch suits.
 
-What the reversal cost, recorded so the trade is visible: 256 KB, and a
+What the reversal cost, recorded so the trade is visible: 246 KB of audio, and a
 `CREDITS.md` naming a source, an author, a licence and a retrieval date for
 each file. Every licence was checked by reading it on that sound's own page
 rather than trusting a search filter, because a public repo redistributes what

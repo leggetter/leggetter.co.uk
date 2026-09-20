@@ -393,6 +393,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   let discipline: Discipline = cleanDiscipline(settings.discipline);
   let link: Link | null = null;
+  /** The other side is connected. Told by the room, not guessed at here. */
+  let together = true;
 
   /** Whose seat is taking this one. */
   const takingSide = (): Side =>
@@ -447,6 +449,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     }
 
     if (message.kind !== 'state') return;
+    together = message.together;
 
     // Not while something is in the air. The room is right about the score and
     // this client is right about where the ball currently is, and replacing the
@@ -517,6 +520,10 @@ export async function startGame(options: GameOptions): Promise<Game> {
     mode: match.mode,
     taker: match.taker,
     keeperSide: keeperSide(match),
+    remote: link !== null,
+    yourShot: myShot(),
+    yourGoal: myGoal(),
+    together,
     scores: match.scores,
     names: match.mode === 'versus' ? [teamName, opponentTeam] : names,
     kits,
@@ -974,6 +981,14 @@ export async function startGame(options: GameOptions): Promise<Game> {
       names = cleanNames(teams);
       resetMatch('remote');
       transport.onMessage((message) => follow(message));
+      // Both, and they answer different questions. The room says whether it
+      // has heard from the other seat; the transport says whether *this*
+      // client has heard from anything at all - which is the only thing left
+      // to go on when the room itself has gone away.
+      transport.onConnection((state) => {
+        if (state === 'alone' || state === 'closed') together = false;
+        if (state === 'together') together = true;
+      });
     },
 
     disconnect(): void {

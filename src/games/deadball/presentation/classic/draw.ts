@@ -1470,7 +1470,14 @@ export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, wi
   // avoided. Same reason the score line has its own clearance above.
   const headY = narrow ? 126 : 124;
 
-  const inGoal = `${frame.names[frame.keeperSide].toUpperCase()} IN GOAL`;
+  // "YOU ARE IN GOAL" where it is you. On one device both players read the
+  // same screen and a name is the only way to tell them apart; on two, a name
+  // is the slowest possible way to answer "is this mine", and it is the
+  // question being asked every single turn.
+  const inGoal =
+    frame.remote && frame.yourGoal
+      ? 'YOU ARE IN GOAL'
+      : `${frame.names[frame.keeperSide].toUpperCase()} IN GOAL`;
   fitFont(ctx, inGoal, 700, narrow ? 20 : 26, width - (narrow ? 48 : 32));
 
   // Its own scrim. The bar at the top has one; this block sits below it, on the
@@ -1493,9 +1500,10 @@ export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, wi
   // Both roles, every time. Naming only the keeper let "Player 2 in goal" read
   // as who Player 2 *is* rather than as what they are doing this turn, so the
   // swap went unnoticed and the winner made no sense.
+  const who = frame.remote && frame.yourShot ? 'you are' : `${frame.names[frame.taker]} is`;
   const turn = frame.suddenDeath
-    ? `sudden death  ·  ${frame.names[frame.taker]} is taking this one`
-    : `round ${round} of 5  ·  ${frame.names[frame.taker]} is taking this one`;
+    ? `sudden death  ·  ${who} taking this one`
+    : `round ${round} of 5  ·  ${who} taking this one`;
   fitFont(ctx, turn, 600, narrow ? 13 : 15, width - 24, 10);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
   ctx.fillText(turn, width / 2, headY + (narrow ? 22 : 24));
@@ -1880,4 +1888,48 @@ export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
 function wallColours(frame: FrameState): { kit: string; trim: string } {
   const kits = teamKits(frame.player.colors.kit, frame.player.colors.trim, frame.kits);
   return awayTaking(frame) ? kits.own : kits.other;
+}
+
+/**
+ * The other player has gone quiet.
+ *
+ * Said plainly and kept on screen, because the alternative is a board that
+ * looks perfectly fine while nothing is ever going to happen on it. Ten
+ * seconds of silence is the threshold - see `OFFLINE_AFTER_MS` - which is long
+ * enough to ride out a tunnel or a lock screen and short enough that somebody
+ * who has put their phone down is not left guessing.
+ *
+ * No timeout and no forfeit. This is a game between two people who know each
+ * other, and the honest failure is "we stopped playing", not a loss on the
+ * record - so it waits, and says so.
+ */
+export function drawAway(ctx: Ctx, frame: FrameState, width: number, height: number): void {
+  if (!frame.remote || frame.together) return;
+
+  const narrow = width < NARROW;
+  const them = frame.names[frame.yourShot ? frame.keeperSide : frame.taker];
+
+  ctx.save();
+  ctx.textAlign = 'center';
+
+  const band = narrow ? 74 : 86;
+  const top = height / 2 - band / 2;
+  const shade = ctx.createLinearGradient(0, top, 0, top + band);
+  shade.addColorStop(0, 'rgba(2, 8, 20, 0)');
+  shade.addColorStop(0.3, 'rgba(2, 8, 20, 0.82)');
+  shade.addColorStop(0.7, 'rgba(2, 8, 20, 0.82)');
+  shade.addColorStop(1, 'rgba(2, 8, 20, 0)');
+  ctx.fillStyle = shade;
+  ctx.fillRect(0, top, width, band);
+
+  const heading = `WAITING FOR ${them.toUpperCase()}`;
+  fitFont(ctx, heading, 700, narrow ? 19 : 24, width - (narrow ? 40 : 32));
+  ctx.fillStyle = '#f3c969';
+  ctx.fillText(heading, width / 2, height / 2 - (narrow ? 2 : 4));
+
+  ctx.font = `500 ${narrow ? 12 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.fillText('the game is still here when they come back', width / 2, height / 2 + (narrow ? 20 : 22));
+
+  ctx.restore();
 }

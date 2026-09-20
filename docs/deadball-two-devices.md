@@ -415,6 +415,52 @@ third.
 **skipping the screen must not skip the commitment.** A keeper who has not
 chosen is a keeper the taker is shooting at for free.
 
+## What the screen says
+
+A hotseat duel puts both players in front of one screen, so a name is enough:
+*Ama in goal* tells Ama something because Ama can see it. On two devices a name
+is the slowest possible way to answer **"is this mine"**, and that is the
+question being asked every single turn.
+
+So the screen says **you** where it is you - *YOU ARE IN GOAL*, *you are taking
+this one* - and a name only for the other side. The frame carries `yourShot`
+and `yourGoal` rather than a seat and the coin, so nothing that draws has to
+work out that `taker` is a side of the *tie* and which seat it means depends on
+what the coin said.
+
+**That mapping caused the two worst bugs in this phase, and both were only
+visible on screen.** Names were handed over in seat order while everything that
+draws indexes them by match side - so whenever the coin came down on the guest,
+every turn message named the wrong team, including telling a player they were
+waiting for themselves. The first screenshot said *"Rovers is taking this one"*
+while Rovers was in goal, and it took a second bug in the same family to notice
+the first.
+
+**Somebody going away is said plainly and left on screen**, because the
+alternative is a board that looks perfectly fine while nothing is ever going to
+happen on it. No timeout and no forfeit: *the game is still here when they come
+back*.
+
+**And the bar says `2 devices`.** A remote game is a duel whose other half is
+elsewhere, so the 2 players button is the one that lights - without that the
+mode was `remote`, no button matched it, and a game in progress showed as no
+game at all.
+
+### Nothing notices a silence unless something is talking
+
+The room works out whether both seats are live from when each was last heard,
+and **that is only recomputed when a message arrives** - so a player who had
+gone away, who is by definition not sending anything, was never noticed.
+
+Both halves are needed and they answer different questions:
+
+- **A `ping`**, every two seconds, so the room has something to recompute
+  against. A polled transport gets this free, because a poll *is* a heartbeat;
+  the same-browser one needs a timer.
+- **A watchdog in the transport**, because if the room itself has gone - in
+  this build, the host closing their tab - there is nobody left to notice
+  anything and silence is all there is to go on.
+
 ## What the same-browser transport cannot do
 
 `BroadcastChannel` is same-origin **and same-profile**. Two tabs of one browser

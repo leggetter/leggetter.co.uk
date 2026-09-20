@@ -17,6 +17,7 @@ import { PITCH_LENGTH } from './stand.ts';
 import type { Projector } from './project.ts';
 import {
   drawAim,
+  drawAway,
   drawBall,
   drawBallTrail,
   drawFarGoal,
@@ -151,5 +152,7 @@ export function drawScene(
   else drawShotDial(ctx, proj, frame);
 
   drawHud(ctx, frame, width, height);
+  // Over the HUD: it is the most important thing on the screen when it is on it.
+  drawAway(ctx, frame, width, height);
   if (frame.phase === 'handover') drawHandover(ctx, frame, width, height);
 }

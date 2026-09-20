@@ -491,8 +491,21 @@ const views = listCameras();
         const modes = [...document.querySelectorAll<HTMLButtonElement>('#modes button')];
         const paintModes = () => {
           const current = game.currentMode();
+          // A remote game is a duel whose other half is somewhere else, so the
+          // 2 players button is the one that is lit. Without this the mode was
+          // `remote`, no button matched it, and the bar showed a game in
+          // progress as no game at all.
+          const lit = current === 'remote' ? 'duel' : current;
           for (const button of modes) {
-            button.setAttribute('aria-pressed', String(button.dataset.mode === current));
+            button.setAttribute('aria-pressed', String(button.dataset.mode === lit));
+          }
+          const apart = game.connectedAs() !== null;
+          for (const button of modes) {
+            const wide = button.querySelector<HTMLElement>('.wide');
+            const narrow = button.querySelector<HTMLElement>('.narrow');
+            if (button.dataset.mode !== 'duel' || !wide || !narrow) continue;
+            wide.textContent = apart ? '2 devices' : '2 players';
+            narrow.textContent = apart ? '2D' : '2P';
           }
         };
 
@@ -1039,8 +1052,14 @@ const views = listCameras();
                   transport,
                   message.you,
                   message.first,
-                  // Scoreboard order, which is seat order: seat 0 then seat 1.
-                  message.you === 0 ? [mine, theirs] : [theirs, mine]
+                  // **Match-side order, not seat order.** Everything that draws
+                  // indexes names by `taker` and `keeperSide`, which are sides
+                  // of the tie - and match side 0 is whichever *seat* the coin
+                  // gave the first kick to. Handing these over in seat order
+                  // put the wrong name on every turn message whenever the coin
+                  // came down on the guest, including telling a player they
+                  // were waiting for themselves.
+                  message.first === message.you ? [mine, theirs] : [theirs, mine]
                 );
                 paintModes();
               }, 1800);

@@ -88,6 +88,17 @@ export type Outbound =
       idempotency: string;
     }
   | { kind: 'next' }
+  /**
+   * Still here.
+   *
+   * Nothing but a sign of life, and the room answers with the state. A polled
+   * transport gets this for free - a poll *is* a heartbeat - and the
+   * same-browser one has to send it on a timer, because otherwise "are we
+   * still together" is only ever recomputed when somebody does something, and
+   * a player who has gone away is exactly the player who is not doing
+   * anything.
+   */
+  | { kind: 'ping' }
   | { kind: 'leave' };
 
 /** What a client receives. */
@@ -143,6 +154,14 @@ export type Connection = 'connecting' | 'together' | 'alone' | 'closed';
  * place, rather than a `10000` somewhere in a polling loop.
  */
 export const OFFLINE_AFTER_MS = 10_000;
+
+/**
+ * How often to say nothing in particular.
+ *
+ * A fifth of the silence that counts as gone, so three can be missed before
+ * anybody is called away.
+ */
+export const PING_EVERY_MS = 2_000;
 
 export interface Transport {
   /** Everything that arrives. Returns a function that stops listening. */

@@ -186,6 +186,9 @@ export function handle(room: Room, from: string, message: Outbound, now: number)
       return setDive(alive, side, message.at, message.idempotency, now);
     case 'shoot':
       return shoot(alive, side, message, now);
+    case 'ping':
+      // The sign of life was recorded above; this is the answer to it.
+      return { room: alive, out: broadcast(alive, now) };
     case 'next':
       return { room: { ...alive, match: reduce(alive.match, { type: 'NEXT' }) }, out: [] };
     case 'leave':

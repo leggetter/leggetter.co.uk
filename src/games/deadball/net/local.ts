@@ -24,6 +24,7 @@
 
 import { tuningFingerprint } from '../core/tuning.ts';
 import { handle, openRoom, type Room } from './room.ts';
+import { OFFLINE_AFTER_MS, PING_EVERY_MS } from './Transport.ts';
 import type {
   Connection,
   Inbound,
@@ -115,7 +116,10 @@ function makeTransport(
     for (const listener of wiring.connections) listener(next);
   };
 
+  let lastHeard = now();
+
   const deliver = (message: Inbound): void => {
+    lastHeard = now();
     for (const listener of wiring.listeners) listener(message);
     if (message.kind === 'state') announce(message.together ? 'together' : 'alone');
   };
@@ -169,6 +173,23 @@ function makeTransport(
 
   send(join);
 
+  /**
+   * Say you are here, and notice when nothing says it back.
+   *
+   * Two jobs, and the second is the one that is easy to miss. Pinging makes
+   * the *room* recompute whether both seats are live, which is what tells a
+   * player their opponent has wandered off. The watchdog covers the case the
+   * room cannot: if the room itself has gone - in this transport, the host
+   * closing their tab - there is nobody left to notice anything, and silence
+   * is all there is to go on.
+   */
+  const heartbeat = setInterval(() => {
+    if (connection === 'closed') return;
+    send({ kind: 'ping' });
+    if (now() - lastHeard > OFFLINE_AFTER_MS) announce('alone');
+  }, PING_EVERY_MS);
+  (heartbeat as unknown as { unref?: () => void }).unref?.();
+
   return {
     onMessage(listener) {
       wiring.listeners.push(listener);
@@ -186,6 +207,7 @@ function makeTransport(
     close() {
       send({ kind: 'leave' });
       announce('closed');
+      clearInterval(heartbeat);
       channel.close();
     },
     get connection() {

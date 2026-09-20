@@ -260,6 +260,19 @@ export interface FrameState {
   taker: 0 | 1;
   /** Duel: whoever is not taking it. */
   keeperSide: 0 | 1;
+  /**
+   * Playing somebody who is not in the room.
+   *
+   * Carried as answers rather than as the seat and the coin, so nothing that
+   * draws has to work out that `taker` is a side of the tie and which seat it
+   * means depends on what the coin said. A screen asking "is this mine" should
+   * get to ask exactly that.
+   */
+  remote: boolean;
+  yourShot: boolean;
+  yourGoal: boolean;
+  /** The other player is connected. False once they have gone quiet. */
+  together: boolean;
   /** Duel: goals each. */
   scores: [number, number];
   /** Duel: what to call each side. Never reaches the simulation or the log. */

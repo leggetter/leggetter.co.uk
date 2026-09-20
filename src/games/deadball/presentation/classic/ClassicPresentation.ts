@@ -21,13 +21,16 @@ import type {
 import { createSynth, type Synth } from '../sounds/synth.ts';
 import { withOverrides } from '../sounds/Sounds.ts';
 import type { Mood, SoundSet } from '../sounds/Sounds.ts';
+import { DEFAULT_SKY_ID, SKIES } from '../../content/skies.js';
 import { dragToShot } from './aim.ts';
+import type { SkyPalette } from './sky.ts';
 import {
   buildAtlas,
   buildCrowd,
   crowdPixelHeight,
   drawCrowd,
   renderBackdrop,
+  standsByDepth,
   type CrowdAtlas,
   type Person,
   type Reaction,
@@ -57,6 +60,9 @@ export class ClassicPresentation implements Presentation {
   private atlas: CrowdAtlas | null = null;
   /** The stand and hoardings, rendered once per size and camera. */
   private backdrop: HTMLCanvasElement | null = null;
+  /** Stand indices furthest first, recomputed only when the camera moves. */
+  private order: number[] = [];
+  private sky: SkyPalette = skyFor(DEFAULT_SKY_ID);
   private reaction: Reaction = { elapsed: null, from: 0, strength: 0 };
   private lastClock = 0;
   /**
@@ -81,16 +87,24 @@ export class ClassicPresentation implements Presentation {
     this.height = height;
     this.projector = createProjector(camera, width, height);
 
-    // Both are expensive and neither changes between frames, so they are built
-    // here - on a resize or a camera change - and blitted after that.
-    // A camera looking away from the stand gets neither.
-    if (camera.fromBehindTheGoal) {
-      this.backdrop = null;
-      this.atlas = null;
-      return;
-    }
-    this.backdrop = renderBackdrop(this.projector, width, height);
+    // All three are expensive and none changes between frames, so they are
+    // built here - on a resize or a camera change - and reused after that.
+    //
+    // Every camera gets them now. This used to skip the lot when looking out
+    // from the goal, because the only stand was behind that camera and there
+    // was nothing to draw; with a stand at each end and down each side there
+    // always is.
+    this.order = standsByDepth(this.projector);
+    // The atlas first: the backdrop paints the distant crowd with it.
     this.atlas = buildAtlas(crowdPixelHeight(this.projector));
+    this.backdrop = renderBackdrop(
+      this.projector,
+      width,
+      height,
+      this.people,
+      this.atlas,
+      this.sky
+    );
   }
 
   render(frame: FrameState, events: readonly GameEvent[]): void {
@@ -129,6 +143,7 @@ export class ClassicPresentation implements Presentation {
     const projector: Projector = this.projector;
     drawScene(this.ctx, projector, frame, this.width, this.height, {
       fromBehindTheGoal: this.camera.fromBehindTheGoal,
+      sky: this.sky,
       backdrop: this.backdrop,
       crowd: atlas
         ? () =>
@@ -139,7 +154,8 @@ export class ClassicPresentation implements Presentation {
               atlas,
               frame.clock,
               this.reaction,
-              this.still
+              this.still,
+              this.order
             )
         : null,
     });
@@ -187,9 +203,23 @@ export class ClassicPresentation implements Presentation {
     this.synth.setMuted(muted);
   }
 
+  setSky(id: string): void {
+    this.sky = skyFor(id);
+    // The backdrop holds the cloud, the tree line and the floodlights, all of
+    // which change with the light, so it has to be built again. Which is fine:
+    // this happens when somebody presses a button, not sixty times a second.
+    if (this.camera) this.configure(this.camera, this.width, this.height);
+  }
+
   destroy(): void {
     this.synth.destroy();
   }
+}
+
+/** The named sky, or the default if somebody asks for one that is not there. */
+function skyFor(id: string): SkyPalette {
+  const found = (SKIES as SkyPalette[]).find((s) => s.id === id);
+  return (found ?? (SKIES as SkyPalette[])[0]) as SkyPalette;
 }
 
 /** What the crowd is doing, given what the game is doing. */

@@ -61,4 +61,6 @@ export interface Settings {
   /** Sound off. Stored, because having to mute it every visit is worse than
    *  having to unmute it once. */
   muted?: boolean;
+  /** Day, dusk or night. */
+  skyId?: string;
 }

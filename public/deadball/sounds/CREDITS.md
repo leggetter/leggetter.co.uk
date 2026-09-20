@@ -29,12 +29,14 @@ Which makes this file evidence rather than compliance. Nothing here is legally
 required to be credited; it is written down so that the check is auditable and
 so the next person does not have to take it on trust.
 
-All were retrieved on **2026-09-19**.
+Retrieved on **2026-09-19**, except the bed, which replaced an earlier one on
+the **20th**. Each entry gives its own date.
 
-Three of the six — the bed, the save and the groan — come from one afternoon at
-one ground, recorded by one person on one machine, so they sit together rather
-than sounding assembled. The cheer comes from elsewhere and was chosen by ear
-over a matched one from that same recording.
+**The save and the groan are the same crowd**, one afternoon at one ground
+recorded by one person on one machine, so those two sit together rather than
+sounding assembled. The bed and the cheer each come from somewhere else and
+were chosen by ear over matched alternatives - the bed because it has singing
+in it, which a murmur from the same recording did not.
 
 Each file was cut from its source, converted to mono, filtered and re-encoded
 as mp3. CC0 permits modification; the durations and levels below describe the

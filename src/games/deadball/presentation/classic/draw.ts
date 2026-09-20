@@ -362,7 +362,7 @@ export function drawGoalFrame(ctx: Ctx, proj: Projector, z = 0): void {
  * It is also the seam the pixel art renderer replaces: swap this one function
  * and everybody on the pitch changes together.
  */
-interface Figure {
+export interface Figure {
   /** Where the feet are planted on the ground. */
   feet: Vec3;
   /** Top of the torso. */
@@ -467,7 +467,7 @@ const wave = (clock: number, period: number, phase = 0): number =>
  */
 const isIdle = (phase: string): boolean => phase === 'ready';
 
-function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
+export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   const f = proj.project(figure.feet);
   const s = proj.project(figure.shoulder);
   const hd = proj.project(figure.head);

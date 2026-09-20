@@ -36,6 +36,7 @@ import {
   type Reaction,
 } from './stand.ts';
 import { createOverrides } from './sounds.ts';
+import { buildLineup, drawLineup, opposingKit } from './lineup.ts';
 import { createProjector, type Projector } from './project.ts';
 import { drawScene } from './scene.ts';
 
@@ -63,7 +64,8 @@ export class ClassicPresentation implements Presentation {
   /** Stand indices furthest first, recomputed only when the camera moves. */
   private order: number[] = [];
   private sky: SkyPalette = skyFor(DEFAULT_SKY_ID);
-  private reaction: Reaction = { elapsed: null, from: 0, strength: 0 };
+  private reaction: Reaction = { elapsed: null, from: 0, strength: 0, scored: false };
+  private readonly lineup = buildLineup();
   private lastClock = 0;
   /**
    * Asked for no animation. Read once at construction rather than per frame,
@@ -145,6 +147,20 @@ export class ClassicPresentation implements Presentation {
       fromBehindTheGoal: this.camera.fromBehindTheGoal,
       sky: this.sky,
       backdrop: this.backdrop,
+      // Only the camera behind the goal is pointed at the halfway line. From
+      // the penalty end these twenty are behind the camera, which is where
+      // they are in life, so there is nothing to draw and nothing to hide.
+      lineup: this.camera.fromBehindTheGoal
+        ? () =>
+            drawLineup(
+              this.ctx,
+              projector,
+              this.lineup,
+              opposingKit(frame.player.colors.kit, frame.player.colors.trim),
+              frame.clock,
+              this.reaction
+            )
+        : null,
       crowd: atlas
         ? () =>
             drawCrowd(
@@ -186,6 +202,7 @@ export class ClassicPresentation implements Presentation {
       elapsed: 0,
       from: Math.max(-1, Math.min(1, crossingX / 6)),
       strength,
+      scored: outcome === 'goal',
     };
   }
 

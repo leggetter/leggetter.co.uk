@@ -140,6 +140,7 @@ src/games/deadball/
       project.ts              # this package's camera maths
       aim.ts                  # drag -> ShotInput, under this projection
       stand.ts                # terracing, hoardings, crowd (Phase 3.5)
+      lineup.ts               # the other twenty, on the halfway line
       sounds.ts               # this package's overrides and its samples
     pixel/                    # later
   input/
@@ -1087,6 +1088,38 @@ Phase 4 put the picker in the settings dialog and this document noted, at the ti
 
 - **Players** sits with the game controls, behind a shirt icon rather than a cog or a person. The button says what is behind it without a word on it, and the kit swatches in the panel are the same idea.
 - **Settings** sits in the far corner of the bar, behind a rule, away from everything that changes the game. A cog next to "2 players" reads as another thing to play with.
+
+### The other twenty
+
+The players who are not taking it stand on the halfway line with their arms
+round each other, ten a side. Presentation only, like the crowd: none of it is
+game state and `core/` does not know they exist.
+
+**They are visible from one camera, and that is correct rather than a
+shortfall.** The halfway line is 52.5 m out and both cameras at the penalty end
+are pointed the other way, so from behind the taker these twenty are behind
+you - which is where they are in life. From behind the goal they are the middle
+distance, which is where a television camera puts them.
+
+Three decisions worth keeping:
+
+- **The linked arms are the whole silhouette.** Twenty people standing
+  separately on a line is a bus queue. The same twenty with a hand on each
+  neighbour's shoulder is a team watching a penalty, and it costs two vectors a
+  person.
+- **The opposition's kit is derived, not chosen.** A fixed second colour would
+  eventually be somebody's invented kit, and two teams in one strip is the one
+  thing a football picture must never be. Rotating the hue guarantees a
+  difference for any kit anybody writes, with a flat colour for the greys and
+  whites that have no hue to rotate. Their shorts are set against the *other
+  line's* shorts rather than their own shirt - keyed off the shirt, a blue kit
+  with white shorts put both teams in white.
+- **Only one team celebrates.** The crowd rises either way and harder for a
+  goal; the halfway line splits, which is the half of a shootout the scoreline
+  never shows. `Reaction` gained a `scored` flag for it.
+
+Cost is nothing: twenty figures against the crowd's fifteen thousand, drawn
+from one camera, measured at a flat 60 fps.
 
 ### The bar, for the third time
 

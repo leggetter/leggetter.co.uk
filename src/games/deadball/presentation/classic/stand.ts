@@ -309,6 +309,14 @@ export interface Reaction {
   from: number;
   /** How hard the crowd took it. A save lifts fewer people than a goal. */
   strength: number;
+  /**
+   * Whether it went in.
+   *
+   * The crowd does not care - it rises either way, harder for a goal. The
+   * halfway line does, because only one of the two teams is celebrating and
+   * which one is the entire point of drawing them.
+   */
+  scored: boolean;
 }
 
 /**

@@ -45,6 +45,11 @@ export interface SceneOptions {
   backdrop?: HTMLCanvasElement | null;
   /** Drawn over the backdrop, every frame, because only the people move. */
   crowd?: (() => void) | null;
+  /**
+   * The twenty on the halfway line. Null from the two cameras at the penalty
+   * end, which are facing the other way.
+   */
+  lineup?: (() => void) | null;
   /** Day, dusk or night. Changes the sky, the light on the grass and
    *  whether the floodlights are on. */
   sky?: SkyPalette;
@@ -79,6 +84,11 @@ export function drawScene(
   // where it sits in depth - nearer than the stand behind it, further than
   // everything at this end.
   drawFarGoal(ctx, proj, -PITCH_LENGTH);
+
+  // Halfway, so: nearer than the far goal and the stand behind it, further
+  // than everything at this end. Drawn before the goalmouth rather than with
+  // the crowd, because they are standing on the pitch and the crowd is not.
+  options.lineup?.();
 
   if (options.fromBehindTheGoal) {
     // Furthest first: the taker is away down the pitch, the ball is coming

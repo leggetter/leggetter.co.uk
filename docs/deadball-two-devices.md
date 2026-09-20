@@ -23,7 +23,8 @@ and nothing else.
 
 | | |
 | --- | --- |
-| **Decision** | Build the transport interface and a same-browser implementation *first*, so the whole protocol is designed and tested before any infrastructure exists. Then one Durable Object per game, polled, on a separate Worker. |
+| **Decision** | Build the transport interface and a same-browser implementation *first*, so the whole protocol is designed and tested before any infrastructure exists. Then one Durable Object per game, polled, on a separate Worker in this repository. See [Where the code lives](#where-the-code-lives). |
+| **The shape** | Host names their own team and picks the kick; a link is minted and cannot then change; the guest sees what they are joining, names themselves, accepts; a coin decides who shoots first. See [Starting a game](#starting-a-game). |
 | **Authority** | The server holds the match state and runs the same reducer the client does. Its job is not to stop cheating in general; it is to **enforce the order of commitment** - the keeper's pick is sealed until the shot arrives. |
 | **The thing to decide before building** | Player names have to leave the device for the first time. See [What this costs in privacy](#what-this-costs-in-privacy), which is the section to read if you read only one. |
 | **Not building** | Chat, accounts, matchmaking, lobbies, spectators, leaderboards. |
@@ -90,7 +91,7 @@ because they become it.
 
 | Message | When | Payload |
 | --- | --- | --- |
-| `join` | On opening the URL | player token, tuning fingerprint, chosen name |
+| `join` | On opening the URL | player token, tuning fingerprint, **their own** team name and kit |
 | `dive` | Keeper picks a corner | `{ x, y }` |
 | `shoot` | Taker releases the drag | `ShotInput`, and the `Outcome` their own client computed |
 | `next` | Tapping through a resolved shot | - |
@@ -122,6 +123,121 @@ So `core/tuning.ts` earns its keep here: **the fingerprint goes in the `join`
 handshake, and a mismatch refuses the join** with "one of you needs to
 refresh". That is a real bug caught at the door rather than an unexplainable
 divergence logged halfway through a shootout.
+
+## Starting a game
+
+Four steps, and a screen in the middle that is easy to forget when sketching
+this and turns out to be the one everybody sees.
+
+1. **The host picks a new game**, names *their own* team, and chooses the kick -
+   penalties, free kicks, or both.
+2. **A game id is minted** and becomes a URL.
+3. **The host waits**, on a screen whose whole job is to be left (below).
+4. **The guest opens the link**, sees what they are being invited to, names
+   *their own* team, and accepts. A coin is flipped, and it starts.
+
+**Each side names only its own team.** In `versus` today you name both, because
+one of them is a computer that cannot type. Across two devices that would be
+naming somebody else's team, which is a strange thing to do and a worse thing
+to have done to you.
+
+**The kick belongs to the match and only the host picks it.** Both sides must
+play the same discipline or it is two competitions scored against each other -
+that is settled, and there is a test for it. One person has to choose and the
+one who started the game is the obvious one.
+
+### The kick cannot change once the id is minted
+
+This is worth stating as a rule rather than leaving to good sense, because the
+obvious convenience - *let the host change their mind while nobody has joined* -
+is a **race**. The guest reads "free kicks" on the accept screen, the host
+switches to penalties, the guest accepts. They have now agreed to something
+they never saw.
+
+Making the settings immutable at the moment of minting removes the whole class
+rather than timing around it. **The room is the settings.** Changing your mind
+means cancelling and making another one, which costs a tap and cannot go wrong.
+
+### The waiting screen
+
+```
+Rovers  vs  waiting...
+Free kicks shootout
+
+  [QR]     deadball.../g/7k2p9x
+
+           [ Copy ]  [ Share ]
+
+                     [ Cancel ]
+```
+
+- **Share, not only Copy.** The actual use of this feature is sending a link to
+  somebody on a phone. `navigator.share()` opens the system share sheet
+  straight into whatever they message each other with; copy-then-switch-apps is
+  the clunkiest part of every link-based game. Falls back to Copy where it is
+  not supported.
+- **A QR code**, because a good share of these will be two people in the same
+  house on two devices, and pointing a camera at a screen beats sending
+  yourself a message.
+- **Cancel destroys the room**, rather than navigating away from it. Otherwise
+  abandoned rooms accumulate and the TTL is a safety net doing a plan's job.
+- **Nothing else.** The temptation is a spinner or a tip. Both are noise on a
+  screen that exists to be left.
+
+### Who shoots first
+
+**Flipped, shown to both, and nobody chooses.**
+
+Always-host-first is simpler and hands a real edge to whoever happened to press
+the button: teams going first win around 60% of real shootouts. Between two
+people who know each other that is an argument waiting to happen.
+
+A toss where the winner *chooses* is the faithful version and adds an
+interaction at the exact moment both people are finally ready to play, to
+settle something most players do not care about - with one of them watching the
+other decide. So: flip it, say what it said, kick off. Derived from the match
+seed, so it is deterministic and a replay lands the same way.
+
+### Kits
+
+Each side brings the kit already set on their device, so setup asks for
+nothing extra. But two devices change the model in a way worth naming:
+**the opponent's kit stops being derived and starts being received.**
+
+`teamKits()` invents the opposition's colours today because there is nobody to
+ask. With two devices there is, and the interesting problem is not what to do
+about a clash - it is **how both devices agree on what was done.**
+
+The failure mode is concrete. Both sides are in blue. Your device decides
+*they* should move and draws them in orange; their device decides *you* should
+move and draws you in orange. You are now looking at two different matches, and
+on the halfway line, where twenty figures are split by team, it is not subtle.
+
+**The rule:** both devices know the host's kit, the guest's kit, and which is
+which. **The guest's is the one that moves.** Each device computes it
+independently and arrives at the same answer, because `separate()` is
+deterministic - a fixed list of hue rotations tried in order, and an ordered
+fallback palette for the greys and whites with no hue to turn. No server
+arbitration, and nothing to keep in step.
+
+The trap is the near-miss version: *each device nudges its own kit if it
+clashes*. Then both move, and you get the mirror problem instead.
+
+**All four strips still have to be distinct**, not three. The resting keeper
+beside the goal put both keepers on screen at once, and that constraint carries
+straight over.
+
+The device whose kit moved says so, very quietly, under the team name -
+*"kit adjusted to avoid a clash"* - so nobody thinks their settings broke.
+
+### Choosing a kit at all
+
+Six colour pickers is a fine way to build a strip at leisure and a poor way to
+do it on a phone while somebody waits for you to join. **A short list of named
+strips** - red and white, blue and white, yellow and black, all green - picked
+in one tap, with the custom pickers still there underneath for anyone who wants
+them. That turns kit selection from a setup step into a non-step, which is what
+it needs to be at the moment two people are trying to start a game.
 
 ## Identity without login
 
@@ -197,6 +313,43 @@ and write down what was decided:
 The project's rule has always been *assume anything committed is published*.
 The cross-device equivalent: **assume anything sent is stored**, and design for
 the version where it is.
+
+## Where the code lives
+
+**Same repository, separate Worker.** Those are not in tension and the reasons
+pull in opposite directions, so both are worth stating.
+
+**Same repository, because `core/` has to be the same file.** The whole premise
+is that the match reducer decides the rules on the server and on the client
+without anybody writing them twice, and `core/portable.test.ts` already proves
+it can: no import outside `core/` and `content/`, no browser or Node global, no
+clock, and a whole shootout run start to finish on those imports alone. A second
+repository would turn that guarantee into a publish step and a version number.
+
+**A separate Worker, because this site currently has no server at all.**
+`wrangler.jsonc` is `assets` and nothing else - no `main`, no bindings, no
+migrations. Twenty-one years of writing is served as static files by a
+configuration with no runtime in it, and that is a property worth keeping
+rather than a detail.
+
+Adding a Durable Object to that config means adding a script entry, a binding
+and a `migrations` block to the thing that deploys the blog. Which buys:
+
+| | |
+| --- | --- |
+| **Blast radius** | A bad multiplayer deploy should take down multiplayer. It should not be able to take down 186 posts. |
+| **Cadence** | The game changed a dozen times today. The blog changes when there is something to say. They should not share a deploy. |
+| **Shape** | One is static assets on a CDN. The other is stateful, per-room and hibernating. Same bill, different animals. |
+| **Rollback** | Reverting the game should not revert the site, and the reverse. |
+
+So: `workers/deadball/` in this repo, its own `wrangler.jsonc`, importing
+`../../src/games/deadball/core/` directly. Routed on its own path, or its own
+subdomain - the page fetches it, and the page is still a static file.
+
+**What this costs:** a second deploy to think about, and the first thing in the
+repository that can be *down* rather than merely wrong. That is the real change
+to the architecture, and it is the reason this document exists separately from
+the spec.
 
 ## Cost and abuse
 
@@ -288,7 +441,19 @@ which a Durable Object is not.
    the two means the id can be sized for guessing resistance and the seed for
    the simulation, which are different jobs.
 3. **Does a shootout survive one player being on a train?** Turn-based helps,
-   but the answer decides how hard reconnect has to work.
+   but the answer decides how hard reconnect has to work. It is less "does it
+   survive" than "what does the waiting player see, and after how long" - an
+   immediate *waiting for Rovers* is honest and twitchy on a flaky connection;
+   a grace period hides the blips and makes a real disconnection feel like a
+   hang.
+
+4. **Do hosts win more?** Worth knowing, because it is the whole justification
+   for flipping a coin rather than letting the host shoot first. **Not worth
+   sending to analytics to find out**: the Durable Object already sees every
+   match start and finish and can count it without anything leaving for a third
+   party. The line to hold, if this ever does go further, is *outcomes, never
+   names* - the naming form carries `ph-no-capture` for exactly that reason and
+   the shot log records a side rather than a name with a test to keep it so.
 4. ~~**Is the name a person or a team?**~~ **Largely answered, by something that
    already shipped.** There are three naming concepts in the game now, not one:
    `DuelNames` - two personal names, 12 characters, for a hotseat duel;

@@ -608,11 +608,15 @@ const views = listCameras();
           }
           pendingMode = mode;
           if (confirmBlurb) {
+            // Zero is reachable: a shootout counts as started the moment the
+            // ball is struck, and the first kick has no outcome until it lands.
             const kicks = game.kicksTaken();
             confirmBlurb.textContent =
-              kicks === 1
-                ? 'One kick has been taken. Starting a new shootout loses it.'
-                : `${kicks} kicks have been taken. Starting a new shootout loses them.`;
+              kicks === 0
+                ? 'This one is still in the air. Starting a new shootout ends it.'
+                : kicks === 1
+                  ? 'One kick has been taken. Starting a new shootout loses it.'
+                  : `${kicks} kicks have been taken. Starting a new shootout loses them.`;
           }
           if (!confirmPanel.open) confirmPanel.showModal();
           // Focus the way out rather than the way through, so a stray Enter

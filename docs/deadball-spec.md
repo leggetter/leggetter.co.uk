@@ -1895,12 +1895,19 @@ Worth recording as a pattern rather than a one-off: this bar has now overflowed
 twice, once when **v computer** was added and again with the time of day. A
 control bar that grows a button per feature will do it again.
 
-**The shot log now has a button here too, and `L` still works.** The log was the
-one thing in the game with no way in that did not require reading this document
-first - which is a strange property for the feature every tuning decision came
-out of. It went into settings rather than the bar because it is a diagnostic and
-not something you reach for between penalties, and the bar is the thing that
-keeps overflowing. The label carries the count, "Download shot log (47 shots)",
+**The shot log is a button here, and only a button.** It was `L` and nothing
+else for five phases - the one thing in the game with no way in that did not
+require reading this document first, which is a strange property for the
+feature every tuning decision came out of. It went into settings rather than
+the bar because it is a diagnostic and not something you reach for between
+penalties, and the bar is the thing that keeps overflowing.
+
+**The key is gone, and so is the line at full time that advertised it.** It was
+kept at first on the grounds that it cost nothing and was already in somebody's
+fingers. That was true and it was still two ways to do one thing, one of which
+needed telling people about in three documents - and the full-time screen was
+spending a line of its own on the half that could not be found. One way in,
+where it can be seen. The label carries the count, "Download shot log (47 shots)",
 and the button is disabled at zero: a button that hands you an empty file is
 worse than no button. Next to it is **Clear the log**, which arms on the first
 press and wipes on the second. One press would put an irreversible wipe of every

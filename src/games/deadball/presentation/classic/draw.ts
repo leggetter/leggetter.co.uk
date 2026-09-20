@@ -1393,7 +1393,7 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
   // No keyboard on a phone, so do not offer a keyboard shortcut there.
   ctx.fillText(
-    narrow ? 'tap to play again' : 'click to play again   ·   press L to save the shot log',
+    narrow ? 'tap to play again' : 'click to play again',
     centre,
     height - 34
   );

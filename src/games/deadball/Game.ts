@@ -840,14 +840,27 @@ export async function startGame(options: GameOptions): Promise<Game> {
     /**
      * There is a shootout going on that starting a new one would end.
      *
-     * A kick has been taken and it is not over. Before the first kick there is
-     * nothing to lose, and after the last one the thing on screen is a result
-     * rather than a game.
+     * Not `shotIndex > 0`. That only moves on `NEXT`, which is the tap after a
+     * kick has finished - so from the moment the ball was struck until the
+     * moment somebody tapped through, a shootout that had visibly been played
+     * reported itself as untouched, and switching mode threw it away without
+     * asking. Reported from play, and the window is every kick.
+     *
+     * A shootout has started once the ball has been struck, whether or not
+     * anybody has read the result yet. Before that there is nothing to lose;
+     * after `complete` the thing on screen is a result rather than a game.
      */
-    inProgress: () => match.shotIndex > 0 && match.phase !== 'complete',
+    inProgress: () =>
+      match.phase !== 'complete' &&
+      (match.outcomes.length > 0 || match.phase === 'runup' || match.phase === 'flight' || match.phase === 'resolved'),
 
-    /** How many kicks have been taken, for saying what is about to be lost. */
-    kicksTaken: () => match.shotIndex,
+    /**
+     * How many kicks have been taken, for saying what is about to be lost.
+     *
+     * Outcomes rather than `shotIndex`, for the same reason: a kick has been
+     * taken once it has an outcome, not once somebody has tapped past it.
+     */
+    kicksTaken: () => match.outcomes.length,
 
     cycleStyle(): string {
       styleId = nextStyle(styleId);

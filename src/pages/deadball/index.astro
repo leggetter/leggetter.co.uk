@@ -162,6 +162,12 @@ const views = listCameras();
       <div id="squad-body" class="panel">
         <h2 id="squad-heading">Players</h2>
 
+        {/*
+          Two headed halves rather than one long run: who takes them, then what
+          everybody wears. The dialog was already the longest thing on the
+          screen and six colour inputs is what made the seam worth marking.
+        */}
+        <h3>Squad</h3>
         <div id="player-list" class="stack"></div>
         <p id="player-stats"></p>
         <div id="player-actions">
@@ -224,6 +230,51 @@ const views = listCameras();
           </div>
         </form>
 
+        {/*
+          Kits, in here rather than in settings, and for the reason the two
+          dialogs were split in the first place: what the teams wear is part of
+          the game, and sound and the time of day are preferences about the
+          machine. Still one dialog - it scrolls, and a third would be a third
+          thing to find - but the two halves are headed now rather than running
+          on, because six colour inputs after a squad list needs a line drawn
+          between them.
+
+          In the template, not document.createElement. Astro scopes this
+          component's CSS by stamping an attribute on the elements it renders,
+          so anything built in the browser matches none of it and comes out as
+          a bare default. That has caught this page three times.
+
+          No values in the markup. The defaults are derived - your side from
+          whoever is taking the penalties, theirs from the away colour - and
+          writing them here would be a second copy to keep in step. The script
+          fills them in, and fills them in again when the taker changes.
+        */}
+        <h3>Kits</h3>
+        <p id="kit-note">Four strips, all six pairs on screen at once. Two that
+          land too close together get nudged apart, and a keeper's shorts follow
+          their own shirt.</p>
+
+        <div class="strips">
+          <span></span>
+          <span class="strip-head">Shirt</span>
+          <span class="strip-head">Shorts</span>
+          <span class="strip-head">Keeper</span>
+
+          <span class="strip-side">Yours</span>
+          <input id="strip-own" type="color" aria-label="Your shirt" />
+          <input id="strip-ownTrim" type="color" aria-label="Your shorts" />
+          <input id="strip-ownKeeper" type="color" aria-label="Your keeper's shirt" />
+
+          <span class="strip-side">Theirs</span>
+          <input id="strip-other" type="color" aria-label="Their shirt" />
+          <input id="strip-otherTrim" type="color" aria-label="Their shorts" />
+          <input id="strip-otherKeeper" type="color" aria-label="Their keeper's shirt" />
+        </div>
+
+        <div id="kit-actions">
+          <button type="button" id="kit-reset">Back to the default kits</button>
+        </div>
+
         <div id="squad-actions">
           <button type="button" id="squad-close">Done</button>
         </div>
@@ -285,6 +336,10 @@ const views = listCameras();
   import { DEFAULT_NAMES, DEFAULT_TEAM } from '../../games/deadball/core/names';
   import { SKIES } from '../../games/deadball/content/skies.js';
   import { SKILL_BUDGET } from '../../games/deadball/core/roster';
+  // The derivation, so the swatches show what the pitch will actually draw
+  // rather than what was stored. Five of the six are defaults most of the
+  // time, and a default that has been nudged off a clash is still the answer.
+  import { teamKits } from '../../games/deadball/presentation/classic/kits';
 
   const canvas = document.getElementById('pitch');
 
@@ -498,6 +553,9 @@ const views = listCameras();
             playerStats.textContent = `POW ${chosen.power} · ACC ${chosen.accuracy} · CUR ${chosen.curve} · COM ${chosen.composure} · ${chosen.foot} foot`;
           }
           if (deleteButton) deleteButton.hidden = !chosen?.custom;
+          // Your side's default is whoever is taking them, so picking somebody
+          // else moves it. Anything overridden stays where it was put.
+          paintKits();
         };
 
         const showForm = (show: boolean) => {
@@ -582,6 +640,82 @@ const views = listCameras();
           game.removePlayer(game.currentPlayerId());
           paintPlayers();
         });
+
+        const kitSlots = ['own', 'ownTrim', 'ownKeeper', 'other', 'otherTrim', 'otherKeeper'] as const;
+        const kitInputs = kitSlots.map((slot) => field(`strip-${slot}`));
+
+        /**
+         * The long form of a hex colour.
+         *
+         * Not a second validator - everything reaching this has already been
+         * through `cleanColour`. `<input type="color">` simply refuses the
+         * three-digit form and keeps whatever it had, which shows as the
+         * previous colour rather than as an error, and a hand-edited roster is
+         * entitled to write `#09f`.
+         */
+        const longHex = (colour: string) =>
+          /^#[0-9a-fA-F]{3}$/.test(colour)
+            ? `#${colour[1]}${colour[1]}${colour[2]}${colour[2]}${colour[3]}${colour[3]}`
+            : colour;
+
+        /**
+         * Put the four strips in the six swatches.
+         *
+         * Resolved rather than stored: the swatch shows what will be drawn, so
+         * a colour that had to be nudged off another one says so by being the
+         * nudged colour. `except` is whichever picker is mid-gesture - writing
+         * to it while it is being dragged fights the native control, so it is
+         * left alone until the gesture commits and `change` repaints the lot.
+         */
+        const paintKits = (except?: HTMLInputElement | null) => {
+          const chosen = game.roster().find((p) => p.id === game.currentPlayerId());
+          if (!chosen) return;
+          const kits = teamKits(chosen.colors.kit, chosen.colors.trim, game.kitOverrides());
+          const showing = {
+            own: kits.own.kit,
+            ownTrim: kits.own.trim,
+            ownKeeper: kits.ownKeeper.kit,
+            other: kits.other.kit,
+            otherTrim: kits.other.trim,
+            otherKeeper: kits.otherKeeper.kit,
+          };
+          for (const [i, slot] of kitSlots.entries()) {
+            const input = kitInputs[i];
+            if (!input || input === except) continue;
+            input.value = longHex(showing[slot]);
+          }
+        };
+
+        for (const [i, slot] of kitSlots.entries()) {
+          const input = kitInputs[i];
+          // Stored on the first move rather than behind a separate "use this"
+          // toggle. Touching a picker is the act of choosing, and six of those
+          // plus six checkboxes is a paint program, not a dialog.
+          //
+          // Two events, because they answer different questions. `input` fires
+          // all the way through the gesture and is what makes the pitch follow
+          // the picker live. `change` fires once at the end, and is where the
+          // picker itself is allowed to snap to the colour that will actually
+          // be drawn - which is the same one, unless it had to be nudged off
+          // something else.
+          input?.addEventListener('input', () => {
+            game.setKit(slot, input.value);
+            paintKits(input);
+          });
+          input?.addEventListener('change', () => {
+            game.setKit(slot, input.value);
+            paintKits();
+          });
+        }
+
+        document.getElementById('kit-reset')?.addEventListener('click', () => {
+          // Clears, rather than writing today's defaults back in. A stored
+          // colour that happens to equal the default is still a stored colour,
+          // and it would stop following the taker the moment they changed.
+          game.resetKits();
+          paintKits();
+        });
+
         const soundChoices = [
           ...document.querySelectorAll<HTMLButtonElement>('#sound-choices button'),
         ];
@@ -883,6 +1017,12 @@ const views = listCameras();
   }
 
   .panel {
+    /* This page does not load the site stylesheet, so the global border-box
+       rule is not under it: without this the 22px of padding and the 1px
+       border sat outside the width and the panel came out 386px wide in a
+       375px viewport, clipped on both dialogs. The same line fixed the naming
+       form when it was measured at 390px. */
+    box-sizing: border-box;
     width: min(340px, calc(100vw - 32px));
     /* The dialog has grown a roster. Scroll it rather than let it run off a
        phone, and leave room so it never touches the edges. */
@@ -1112,6 +1252,79 @@ const views = listCameras();
     border: 1px solid rgba(125, 211, 252, 0.3);
     background: #061426;
     cursor: pointer;
+  }
+
+  /* Four columns rather than the invent form's two: a row per side, and the
+     shirt, the shorts and the keeper across it. Reading down a column compares
+     the two sides, which is the comparison that matters. */
+  .strips {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr 1fr;
+    align-items: center;
+    gap: 6px 8px;
+    margin-bottom: 12px;
+  }
+
+  .strips input[type='color'] {
+    width: 100%;
+    height: 32px;
+    padding: 0;
+    border-radius: 7px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background: #061426;
+    cursor: pointer;
+  }
+
+  .strips input[type='color']:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  .strip-head {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: rgba(230, 238, 248, 0.45);
+    text-align: center;
+  }
+
+  .strip-side {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: rgba(230, 238, 248, 0.55);
+    white-space: nowrap;
+  }
+
+  #kit-note {
+    margin: 0 0 10px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: rgba(230, 238, 248, 0.45);
+  }
+
+  /* Quiet, like the log's clear button and for the same reason: it is the one
+     you press once, after something has gone wrong with your own choices. */
+  #kit-actions {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  #kit-reset {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(230, 238, 248, 0.2);
+    background: none;
+    color: rgba(230, 238, 248, 0.6);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  #kit-reset:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
   }
 
   #player-form-actions {

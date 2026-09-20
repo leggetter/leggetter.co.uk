@@ -6,20 +6,55 @@
  * on the halfway line, and the computer when it is taking its turn. One colour
  * means *them*, everywhere it appears.
  *
+ * Four strips now rather than two: an outfield strip and a keeper strip each.
+ * All four are settable and all four have a default, and a setting is an
+ * override rather than a replacement - absent means "work it out", and a blank
+ * never wins.
+ *
  * Presentation, not game state. Nothing here can change an outcome, and the
  * simulation has never known what anybody is wearing.
  */
 
+import { cleanColour } from '../../core/roster.ts';
+import type { KitOverrides } from '../../core/types.ts';
+
 /**
- * The opposition's colour, and the keeper's.
+ * The away side's colour. Named for the keeper, which it no longer only means.
  *
- * Real keepers wear a different strip from their own outfield players, and
- * this deliberately does not. The convention exists so a referee can pick the
- * keeper out of a crowded box; there is no crowded box in a penalty shootout,
- * and what this game needs instead is for a child to know instantly which of
- * the two figures on screen is on their side. Readability wins.
+ * This used to be the whole argument: keepers deliberately did *not* get a
+ * strip of their own, because the convention exists so a referee can pick the
+ * keeper out of a crowded box, there is no crowded box in a shootout, and what
+ * the game needed instead was for a child to know instantly which of the two
+ * figures on screen was on their side.
+ *
+ * **That is reversed, on the repo owner's instruction.** The reasoning above
+ * was sound while the only two figures on the pitch were a taker and a keeper.
+ * The halfway line changed the frame: it put a keeper and their own ten
+ * outfield players on screen together for the first time, all in one colour,
+ * and a keeper who is indistinguishable from the line behind them is not a
+ * keeper, it is an eleventh outfield player standing in the goal. So each side
+ * now has a keeper strip as well - see `OWN_KEEPER_KIT` and
+ * `OTHER_KEEPER_KIT`.
+ *
+ * What survives the reversal is the readability rule that motivated it: one
+ * colour still means *them*. This yellow is the away side's outfield strip -
+ * the far half of the halfway line, and the figure on the spot when it is
+ * their turn - rather than the keeper's, and the export keeps its old name
+ * because that is what it has always been called.
  */
 export const KEEPER_KIT = '#ffd23f';
+
+/**
+ * The two keeper strips.
+ *
+ * Green and magenta because those are the two that clear every other shirt on
+ * the pitch by a distance, checked in RGB rather than by eye: violet was the
+ * obvious pick for the away keeper and sits about 80 from the default blue,
+ * which is inside `TOO_CLOSE` and would have been nudged off it on every
+ * single frame. Magenta is about 200 from the blue, the yellow and the green.
+ */
+export const OWN_KEEPER_KIT = '#2f9e44';
+export const OTHER_KEEPER_KIT = '#d6336c';
 
 export interface TeamKit {
   kit: string;
@@ -29,8 +64,12 @@ export interface TeamKit {
 export interface TeamKits {
   /** The taker's team. Whatever they picked. */
   own: TeamKit;
-  /** Whoever they are playing: the keeper, the far line, the computer. */
+  /** Whoever they are playing: the far line, the computer on its turn. */
   other: TeamKit;
+  /** Your keeper. In goal on their turn, beside the goal on yours. */
+  ownKeeper: TeamKit;
+  /** Theirs. In goal on your turn, beside the goal on theirs. */
+  otherKeeper: TeamKit;
 }
 
 /** How far apart two colours are in RGB. Crude, and enough to catch a clash. */
@@ -45,33 +84,118 @@ function apart(a: string, b: string): number {
 const TOO_CLOSE = 110;
 
 /**
- * Both teams' colours, from the one the player chose.
+ * Where to try next when a strip is too close to one already on the pitch.
  *
- * The opposition wear the keeper's yellow, because the keeper *is* the
- * opposition - unless the player has picked something close to that yellow
- * themselves, in which case the hue is rotated instead. A fixed second colour
- * on its own would eventually be somebody's invented kit, and two teams in one
- * strip is the one thing a football picture must never be.
+ * The opposite hue first, because that is the biggest move there is and it is
+ * the one this file has always made. Then out from there in twelfths,
+ * alternating sides, so the answer stays near the colour somebody asked for
+ * when a smaller turn is enough.
  */
-export function teamKits(kit: string, trim: string): TeamKits {
-  const hsl = toHsl(kit);
-  const clash = apart(kit, KEEPER_KIT) < TOO_CLOSE;
+const TURNS = [6, 5, 7, 4, 8, 3, 9, 2, 10, 1, 11].map((twelfth) => twelfth / 12);
 
-  const shirt = !clash
-    ? KEEPER_KIT
-    : hsl && hsl.s > 0.18
-      ? fromHsl((hsl.h + 0.5) % 1, Math.max(0.5, hsl.s), clamp(hsl.l, 0.34, 0.6))
-      : '#b4322e';
+/**
+ * Where to go when there is no hue to turn.
+ *
+ * White, black and grey all sit on the axis where rotating the hue does
+ * nothing at all, and a keeper in white is a kit somebody will pick. Ordered,
+ * so the answer is the same every time rather than the first one that happens
+ * to fit.
+ */
+const FALLBACK_KITS = ['#b4322e', '#2f6fd0', '#f5c400', '#2f9e44', '#8338ec', '#f2f4f5', '#141418'];
 
+/**
+ * Everybody's colours, from the one the player chose and anything overridden.
+ *
+ * Four strips, and **all six pairs of them can share a screen.** Five always
+ * could; the sixth - one keeper against the other - arrived with the resting
+ * keeper standing beside the goal, and it is the reason all four have to be
+ * mutually distinct rather than only the pairs that obviously meet.
+ *
+ * They are settled in priority order, each one moved clear of everything
+ * already settled: your outfield first and never moved, because it is the
+ * roster player's own kit and the one thing on the pitch nobody should have
+ * taken off them; then theirs, then your keeper, then theirs. A fixed second
+ * colour on its own would eventually be somebody's invented kit, and two teams
+ * in one strip is the one thing a football picture must never be.
+ */
+export function teamKits(kit: string, trim: string, chosen: KitOverrides = {}): TeamKits {
+  // The player's own kit is the fallback rather than a constant, so choosing a
+  // different footballer still changes what your side wears. The fallback is
+  // passed through exactly as written, short hex and all.
+  const own = cleanColour(chosen.own, kit);
+  const ownTrim = cleanColour(chosen.ownTrim, trim);
+
+  const other = separate(cleanColour(chosen.other, KEEPER_KIT), [own]);
   // The opposition's shorts are set against the *other side's shorts*, not
   // against their own shirt. Keyed off the shirt, a blue kit with white shorts
   // put both teams in white and the two lines only differed above the waist.
-  const ownTrim = toHsl(trim);
+  const otherTrim = cleanColour(chosen.otherTrim, contrasting(ownTrim));
+
+  const ownKeeper = separate(cleanColour(chosen.ownKeeper, OWN_KEEPER_KIT), [own, other]);
+  const otherKeeper = separate(cleanColour(chosen.otherKeeper, OTHER_KEEPER_KIT), [
+    own,
+    other,
+    ownKeeper,
+  ]);
 
   return {
-    own: { kit, trim },
-    other: { kit: shirt, trim: ownTrim && ownTrim.l > 0.5 ? '#1d1d20' : '#eef2f6' },
+    own: { kit: own, trim: ownTrim },
+    other: { kit: other, trim: otherTrim },
+    // A keeper's shorts come off the lightness of their own shirt rather than
+    // being asked for. Nobody is standing next to them in the other keeper
+    // strip, so the argument that put the outfield shorts against the *other*
+    // team's does not apply, and it is two fewer colour pickers in a dialog
+    // that already has six.
+    ownKeeper: { kit: ownKeeper, trim: contrasting(ownKeeper) },
+    otherKeeper: { kit: otherKeeper, trim: contrasting(otherKeeper) },
   };
+}
+
+/** Dark shorts under a light shirt and light under a dark one. */
+function contrasting(colour: string): string {
+  const hsl = toHsl(colour);
+  return hsl && hsl.l > 0.5 ? '#1d1d20' : '#eef2f6';
+}
+
+/**
+ * The colour asked for, or the nearest turn of the hue that clears the rest.
+ *
+ * `clearOf` is everything already on the pitch. An unparseable colour measures
+ * as infinitely far away, which is deliberate: it is somebody else's problem
+ * to fall back, and a junk value should not drag a good one off its hue.
+ *
+ * If nothing clears the threshold - which needs a deliberately cornered
+ * palette - the furthest candidate wins rather than the request, because a
+ * shirt that is merely close is better than two teams in the same one.
+ */
+function separate(wanted: string, clearOf: readonly string[]): string {
+  let best = wanted;
+  let bestGap = -1;
+
+  for (const candidate of [wanted, ...rotations(wanted), ...FALLBACK_KITS]) {
+    const gap = clearOf.reduce(
+      (closest, other) => Math.min(closest, apart(candidate, other)),
+      Number.POSITIVE_INFINITY
+    );
+    if (gap >= TOO_CLOSE) return candidate;
+    if (gap > bestGap) {
+      best = candidate;
+      bestGap = gap;
+    }
+  }
+
+  return best;
+}
+
+/** The same colour turned round the wheel. Empty for anything without a hue. */
+function rotations(colour: string): string[] {
+  const hsl = toHsl(colour);
+  if (!hsl || hsl.s <= 0.18) return [];
+  // Saturation floored and lightness pulled toward the middle, or turning the
+  // hue of a pale wash produces another pale wash and moves nothing visible.
+  const s = Math.max(0.5, hsl.s);
+  const l = clamp(hsl.l, 0.34, 0.6);
+  return TURNS.map((turn) => fromHsl((hsl.h + turn) % 1, s, l));
 }
 
 const clamp = (v: number, lo: number, hi: number): number => (v < lo ? lo : v > hi ? hi : v);

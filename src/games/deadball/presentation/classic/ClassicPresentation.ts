@@ -37,8 +37,7 @@ import {
 } from './stand.ts';
 import { createOverrides } from './sounds.ts';
 import { buildLineup, drawLineup } from './lineup.ts';
-import { awayTaking } from './draw.ts';
-import { teamKits } from './kits.ts';
+import { awayTaking, drawRestingKeeper, kitsFor, restingKeeperColours } from './draw.ts';
 import { createProjector, type Projector } from './project.ts';
 import { drawScene } from './scene.ts';
 
@@ -154,14 +153,14 @@ export class ClassicPresentation implements Presentation {
       // they are in life, so there is nothing to draw and nothing to hide.
       lineup: this.camera.fromBehindTheGoal
         ? () =>
-            drawLineup(
-              this.ctx,
-              projector,
-              this.lineup,
-              teamKits(frame.player.colors.kit, frame.player.colors.trim),
-              frame.clock,
-              this.reaction
-            )
+            drawLineup(this.ctx, projector, this.lineup, kitsFor(frame), frame.clock, this.reaction)
+        : null,
+      // One camera again, and for the opposite reason to the lineup: this one
+      // stands beside the goal rather than behind it, so it is the angled
+      // camera that has it in shot and the two at the goalmouth that do not.
+      // Asked of the camera rather than of its id - see `seesBesideTheGoal`.
+      restingKeeper: this.camera.seesBesideTheGoal
+        ? () => drawRestingKeeper(this.ctx, projector, restingKeeperColours(frame), frame.clock)
         : null,
       crowd: atlas
         ? () =>

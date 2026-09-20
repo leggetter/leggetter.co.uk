@@ -26,7 +26,7 @@ import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
 import type { SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
-import { KEEPER_KIT, teamKits } from './kits.ts';
+import { KEEPER_KIT, teamKits, type TeamKits } from './kits.ts';
 import type { Projector } from './project.ts';
 import { ARM_SPAN } from '../../core/keeper.ts';
 
@@ -648,6 +648,58 @@ export function drawKeeper(
 }
 
 /**
+ * Where the keeper with nothing to do stands.
+ *
+ * Beside the goal rather than in it: 2.8 m outside the left post and level
+ * with the line, which is where a substitute keeper stands watching a
+ * shootout. The left rather than a side per team, because `angled-behind` is
+ * swung out to +x and this is the half of the goal it frames with room to
+ * spare - the mirror spot at +6.5 lands within about 20 px of the right-hand
+ * edge on a tall phone, and a figure half off the screen reads as a mistake.
+ */
+const RESTING_KEEPER_X = -6.5;
+const RESTING_KEEPER_Z = -0.2;
+
+/**
+ * The other team's keeper, waiting out the penalty.
+ *
+ * Standing and breathing, and that is the whole of it. Nothing here is allowed
+ * to read as the keeper who is actually working: different strip - the four
+ * are kept mutually distinct for exactly this reason - well outside the posts,
+ * bare hands where the working keeper has gloves, and never a dive however the
+ * shot goes. A second figure in gloves near a goalmouth is a second keeper,
+ * and there is only ever one of those.
+ *
+ * Idles on its own clock like the lineup does, with the sway and the breath on
+ * different periods so the two never line up into an obvious bob.
+ */
+export function drawRestingKeeper(
+  ctx: Ctx,
+  proj: Projector,
+  colours: { kit: string; trim: string },
+  clock: number
+): void {
+  const sway = wave(clock, SWAY_PERIOD) * 0.03;
+  const breath = wave(clock, BREATH_PERIOD, 0.35) * 0.022;
+
+  const x = RESTING_KEEPER_X + sway;
+  const z = RESTING_KEEPER_Z;
+  const shoulderY = 1.44 + breath;
+
+  drawFigure(ctx, proj, {
+    feet: vec(x, 0.06, z),
+    shoulder: vec(x, shoulderY, z),
+    head: vec(x, shoulderY + 0.26 + breath * 1.4, z),
+    // Arms folded in rather than out: hands near the chest, which at this
+    // distance is the silhouette of somebody watching rather than set.
+    hands: [vec(x + 0.18, shoulderY - 0.28, z), vec(x - 0.18, shoulderY - 0.28, z)],
+    toes: [vec(x - 0.15, 0.03, z - 0.05), vec(x + 0.15, 0.03, z + 0.05)],
+    kit: colours.kit,
+    trim: colours.trim,
+  });
+}
+
+/**
  * How far from the middle something at this depth can stand and stay on
  * screen, in meters, leaving `margin` meters of air beyond it.
  *
@@ -763,28 +815,54 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
 }
 
 /**
+ * The four strips this frame, settings and all.
+ *
+ * One call site for the derivation, so the taker, the two keepers and the
+ * halfway line cannot disagree about who is wearing what.
+ */
+export const kitsFor = (frame: FrameState): TeamKits =>
+  teamKits(frame.player.colors.kit, frame.player.colors.trim, frame.kits);
+
+/**
  * What the figure on the spot is wearing.
  *
- * The away side is side 1, so on their turn the taker wears the shirt the
- * keeper and the far half of the halfway line are already wearing. One colour
- * means *them*, wherever they happen to be standing.
+ * The away side is side 1, so on their turn the taker wears the shirt the far
+ * half of the halfway line is already wearing. One colour means *them*,
+ * wherever they happen to be standing.
  */
 export function takerColours(frame: FrameState): { kit: string; trim: string } {
-  const kits = teamKits(frame.player.colors.kit, frame.player.colors.trim);
+  const kits = kitsFor(frame);
   return awayTaking(frame) ? kits.other : kits.own;
 }
 
 /**
  * What the figure in the goal is wearing.
  *
- * The keeper is on whichever side is not taking, so the shirts swap over when
+ * The keeper is on whichever side is not taking, so the strips swap over when
  * the away side's turn comes round: you go in goal, and you go in goal in your
- * own kit. Without this the keeper stayed yellow while the computer ran up in
- * yellow too, and both figures on the screen were the opposition.
+ * own side's keeper strip. Without the swap the keeper stayed yellow while the
+ * computer ran up in yellow too, and both figures on the screen were the
+ * opposition.
+ *
+ * A keeper strip rather than the side's outfield one, since the halfway line
+ * started putting a keeper and their own ten in the same frame. See
+ * `KEEPER_KIT`.
  */
 export function keeperColours(frame: FrameState): { kit: string; trim: string } {
-  const kits = teamKits(frame.player.colors.kit, frame.player.colors.trim);
-  return awayTaking(frame) ? kits.own : kits.other;
+  const kits = kitsFor(frame);
+  return awayTaking(frame) ? kits.ownKeeper : kits.otherKeeper;
+}
+
+/**
+ * What the keeper who is *not* working is wearing.
+ *
+ * The other one: whoever is taking this penalty has a keeper with nothing to
+ * do, and they are the figure standing beside the goal. So on your turn it is
+ * yours waiting and theirs in goal, and on theirs it is the other way round.
+ */
+export function restingKeeperColours(frame: FrameState): { kit: string; trim: string } {
+  const kits = kitsFor(frame);
+  return awayTaking(frame) ? kits.otherKeeper : kits.ownKeeper;
 }
 
 /**

@@ -10,6 +10,8 @@
  * the game. See schema.ts for how it moves.
  */
 
+import type { KitOverrides } from '../core/types.ts';
+
 export interface Storage {
   get<T>(key: string): Promise<T | null>;
   set<T>(key: string, value: T): Promise<void>;
@@ -66,6 +68,21 @@ export interface Settings {
    * here, because this store is a browser console away from holding anything.
    */
   opponentTeam?: string;
+  /**
+   * What the four strips have been set to, where anything has been.
+   *
+   * Overrides, for the same reason `opponentTeam` is one: every key is absent
+   * until somebody changes that strip, and absent means the derived default -
+   * your side from the roster player, theirs from the away colour, a keeper
+   * strip each. Phase 4.5 brings AI teams with kits of their own, and a colour
+   * stored today must not freeze onto one of them.
+   *
+   * Cleaned on the way out as well as in. This store is a browser console away
+   * from holding anything, and a colour goes straight into `ctx.fillStyle`,
+   * which ignores what it cannot parse *silently* - so a bad one does not
+   * throw, it draws the figure in whoever's colour was set last.
+   */
+  kits?: KitOverrides;
   /** Which presentation package was last used. */
   packageId?: string;
   /** Sound off. Stored, because having to mute it every visit is worse than

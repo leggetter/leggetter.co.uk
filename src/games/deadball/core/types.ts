@@ -80,6 +80,37 @@ export interface Player {
 }
 
 /**
+ * The four strips, when somebody has said what they should be.
+ *
+ * Overrides, never replacements. Every key is optional and absent means "work
+ * it out" - your side from the roster player, theirs from the away colour, and
+ * a keeper strip each. That is the same rule `opponentTeam` follows and it is
+ * there for the same reason: Phase 4.5 brings AI teams with identities of
+ * their own, and a colour stored today must not freeze onto one of them. A
+ * blank must never win, which is why these are absent rather than empty.
+ *
+ * Six keys rather than eight. A keeper's trim comes off the lightness of their
+ * own shirt, because eight colour pickers in one dialog is a paint program.
+ */
+export interface KitOverrides {
+  /** Your outfield shirt. Defaults to the roster player's. */
+  own?: string;
+  /** Your outfield shorts. Defaults to the roster player's trim. */
+  ownTrim?: string;
+  /** Their outfield shirt. Defaults to the away colour. */
+  other?: string;
+  /** Their outfield shorts. Defaults to whatever yours are not. */
+  otherTrim?: string;
+  /** Your keeper's shirt. */
+  ownKeeper?: string;
+  /** Their keeper's shirt. */
+  otherKeeper?: string;
+}
+
+/** Which of the six a setting is for. */
+export type KitSlot = keyof KitOverrides;
+
+/**
  * How a keeper decided to go, on this shot.
  *
  * A penalty is in the air for about 450 ms and a corner is more than a dive
@@ -215,6 +246,14 @@ export interface FrameState {
   scores: [number, number];
   /** Duel: what to call each side. Never reaches the simulation or the log. */
   names: [string, string];
+  /**
+   * What the four strips have been set to, where anything has been.
+   *
+   * Optional because absent is the normal state and means the derived
+   * defaults. Presentation, like `player.colors`: nothing here can change an
+   * outcome and the simulation has never known what anybody is wearing.
+   */
+  kits?: KitOverrides;
   /** Duel: the regulation five each are gone and nobody has won yet. */
   suddenDeath: boolean;
   /** Duel: where the keeper has committed, once they have. */

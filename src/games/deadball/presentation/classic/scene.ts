@@ -51,6 +51,11 @@ export interface SceneOptions {
    * end, which are facing the other way.
    */
   lineup?: (() => void) | null;
+  /**
+   * The keeper with nothing to do, standing beside the goal. Null from the
+   * cameras that are not looking at the ground beside the posts.
+   */
+  restingKeeper?: (() => void) | null;
   /** Day, dusk or night. Changes the sky, the light on the grass and
    *  whether the floodlights are on. */
   sky?: SkyPalette;
@@ -90,6 +95,11 @@ export function drawScene(
   // than everything at this end. Drawn before the goalmouth rather than with
   // the crowd, because they are standing on the pitch and the crowd is not.
   options.lineup?.();
+
+  // On the goal line, so: nearer than the halfway line, further than anything
+  // at the spot. Outside the posts either way, so nothing here overlaps the
+  // goalmouth and the order costs nothing - it is here because it is true.
+  options.restingKeeper?.();
 
   if (options.fromBehindTheGoal) {
     // Furthest first: the taker is away down the pitch, the ball is coming

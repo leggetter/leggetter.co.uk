@@ -1102,6 +1102,8 @@ Phase 4 put the picker in the settings dialog and this document noted, at the ti
 - **Players** sits with the game controls, behind a shirt icon rather than a cog or a person. The button says what is behind it without a word on it, and the kit swatches in the panel are the same idea.
 - **Settings** sits in the far corner of the bar, behind a rule, away from everything that changes the game. A cog next to "2 players" reads as another thing to play with.
 
+**The kits went into Players, on the same rule.** What the two teams wear is part of the game; sound and the time of day are preferences about the machine. That made the Players dialog longer again, so it is now two headed halves - **Squad**, then **Kits** - rather than one run of controls. Not a third dialog: it scrolls, and a third would be a third thing to find.
+
 ### The other twenty
 
 The players who are not taking it stand on the halfway line with their arms
@@ -1120,13 +1122,16 @@ Three decisions worth keeping:
   separately on a line is a bus queue. The same twenty with a hand on each
   neighbour's shoulder is a team watching a penalty, and it costs two vectors a
   person.
-- **The opposition's kit is derived, not chosen.** A fixed second colour would
-  eventually be somebody's invented kit, and two teams in one strip is the one
-  thing a football picture must never be. Rotating the hue guarantees a
-  difference for any kit anybody writes, with a flat colour for the greys and
-  whites that have no hue to rotate. Their shorts are set against the *other
-  line's* shorts rather than their own shirt - keyed off the shirt, a blue kit
-  with white shorts put both teams in white.
+- **The opposition's kit is derived unless somebody says otherwise.** A fixed
+  second colour would eventually be somebody's invented kit, and two teams in
+  one strip is the one thing a football picture must never be. Rotating the hue
+  guarantees a difference for any kit anybody writes, with a flat colour for the
+  greys and whites that have no hue to rotate. Their shorts are set against the
+  *other line's* shorts rather than their own shirt - keyed off the shirt, a
+  blue kit with white shorts put both teams in white. All four strips are
+  settable now; the derivation is what a strip nobody has set falls back to. See
+  [Four strips, and the keeper who is not
+  working](#four-strips-and-the-keeper-who-is-not-working).
 - **Only one side celebrates, and "did it go in" is not the question.** A goal
   belongs to whoever took it. That is the same thing as "the player scored"
   right up until the computer takes its turn, at which point keying off the
@@ -1145,12 +1150,14 @@ Two rules that turned out to be the same rule.
 **Side 1 is the away team, in both modes that have two sides** - the computer
 in `versus`, the second person in a duel. Solo has no side 1.
 
-- **They wear the keeper's yellow**, because the keeper is one of them. One
-  colour means *them* wherever it appears: the keeper facing you, the far half
-  of the halfway line, and the figure on the spot when it is their turn. Real
-  keepers wear a different strip from their own outfield players and this
-  deliberately does not - that convention exists so a referee can pick the
-  keeper out of a crowded box, and there is no crowded box in a shootout.
+- **They wear the away yellow**, and one colour still means *them* wherever it
+  appears: the far half of the halfway line, and the figure on the spot when it
+  is their turn. It used to mean the keeper as well - keepers deliberately did
+  not get a strip of their own, on the grounds that the convention exists so a
+  referee can pick the keeper out of a crowded box and there is no crowded box
+  in a shootout. **That is reversed**, because the halfway line changed what is
+  in the frame; see [Four strips, and the keeper who is not
+  working](#four-strips-and-the-keeper-who-is-not-working).
 - **Unless the player picked that colour themselves**, in which case the hue is
   rotated instead. Nils Lindqvist ships in amber and is the roster's own worked
   example, rather than a case somebody has to imagine.
@@ -1169,6 +1176,96 @@ The ground used to rise at everything, which is wrong in the one direction that
 matters: a save is the single moment when most of a stadium is silent and one
 end of it has lost its mind. The unhappy end still moves, at 0.16 - a crowd
 that stops dead reads as a crowd that has been switched off.
+
+### Four strips, and the keeper who is not working
+
+Two strips became four: **an outfield strip and a keeper strip for each side**,
+all four settable, all four with a default.
+
+**A decision was reversed to get here.** Keepers used to share their side's
+outfield colour on purpose, and the reasoning was sound at the time: the
+referee's reason for a distinct keeper strip is a crowded box, there is no
+crowded box in a shootout, and what the game needed was for a child to know
+instantly which of the two figures on screen was on their side. What changed is
+the frame. The halfway line put a keeper and their own ten outfield players on
+screen together for the first time, all in one colour - and a keeper who cannot
+be told from the line behind them is not a keeper, they are an eleventh
+outfield player standing in the goal.
+
+**The resting keeper is what makes it one change rather than two.** When you
+take, their keeper is in goal and yours has nothing to do, so yours stands
+beside the goal watching - and the other way round on their turn. That is the
+sixth pair. Four strips is six pairs, but only five could ever share a screen,
+because there is only ever one keeper on the pitch:
+
+| Pair | Seen together when |
+|---|---|
+| your outfield / their outfield | the halfway line, always |
+| your outfield / their keeper | you are taking |
+| their outfield / your keeper | they are taking |
+| your keeper / your own outfield | your keeper in goal, your line on halfway |
+| their keeper / their own outfield | their keeper in goal, their line on halfway |
+| your keeper / their keeper | one in goal, one beside it |
+
+The last row is new, and it is the one that is easy to miss: **once the resting
+keeper is on screen, all four have to be mutually distinct**, not just the pairs
+that obviously meet. So all six are measured, with the same crude RGB distance
+and the same 110 threshold that caught two teams in one strip, and anything too
+close is turned round the hue wheel until it clears - the opposite hue first,
+then out from there in twelfths, with a flat palette for the greys and whites
+that have no hue to turn.
+
+**Defaults, in priority order.** Your outfield is the roster player's own kit
+and trim and is never moved - it is the one thing on the pitch nobody should
+have taken off them. Theirs is the away yellow, or a rotation of it if the
+player is already in yellow. Then green for your keeper and magenta for theirs.
+Magenta rather than the obvious violet: violet sits about 80 from the default
+blue, inside the threshold, so it would have been nudged off it on every frame.
+Magenta is about 200 from the blue, the yellow and the green. Checked in RGB,
+because the pair that fails this is always the pair that looked fine.
+
+**Six colour inputs, not eight.** A keeper's shorts come off the lightness of
+their own shirt rather than being asked for. The argument that put the outfield
+shorts against the *other* team's shorts does not apply to a keeper, because
+nobody is standing beside them in the other keeper strip.
+
+**Every one of the six is an override, never a replacement.** Absent means
+"work it out", so a strip nobody has touched follows the default when the
+default moves - pick a different footballer and your side's colours change with
+them. This is the same rule the opponent's name follows and it is there for the
+same reason: Phase 4.5 brings AI teams with identities of their own, and a
+colour stored today must not freeze onto one of them. A stored blank never
+wins; junk out of storage falls back to the default rather than reaching a
+canvas, because `ctx.fillStyle` ignores what it cannot parse *silently* - a bad
+colour does not throw, it draws the figure in somebody else's kit. There is one
+validator for that, `cleanColour`, and it is reused rather than reimplemented.
+
+**The resting keeper is visible from one camera, and that one had to be told.**
+The figure stands 2.8 m outside the left post on the goal line, which looks like
+it should fall out of the framing - it is far outside what `behind-taker` says
+it needs to show. It does not. `frame` is a *minimum*: the focal length is the
+tightest of the framing rules and the fov cap, and on anything wider than about
+5:4 the cap wins and the horizontal field keeps growing with the viewport.
+Measured at 1920x1080, `behind-taker` sees ±9.97 m at the goal line, so a figure
+at -6.5 lands 327 px in from the left edge - plainly in shot, on the one camera
+it must never appear from. There is no x that is outside `behind-taker` at every
+aspect ratio and inside `angled-behind`, because both cameras share a fov and
+the wide end is bound by that rather than by where they point.
+
+So `angled-behind` carries a `seesBesideTheGoal` flag, alongside `mirrored` and
+`fromBehindTheGoal`, and the drawing asks the camera rather than naming it by
+id. That is a third thing a camera changes beyond its own position, where the
+document previously said there were two.
+
+**Nothing about the resting keeper may read as the keeper who is working:** a
+different strip, guaranteed by the mutual distinctness above; well outside the
+posts; bare hands where the working keeper has gloves; and never a dive, however
+the shot goes. Idling only, with the lineup's sway and breathe on different
+periods.
+
+**None of this is game state.** Presentation, like the crowd and the halfway
+line. Nothing here can change an outcome, and the simulation has never known
+what anybody is wearing.
 
 ### The bar, for the third time
 
@@ -1393,6 +1490,15 @@ Three smaller things come with it:
   then removed. `100dvh` with a `vh` fallback.
 - **The dial sits where the drag starts**, so on a small screen it is under the
   thumb. Worth looking at once it can be played.
+
+**And a fourth, found twice.** This page does not load the site stylesheet, so
+the global `border-box` rule is not under it. A dialog declaring
+`width: min(340px, calc(100vw - 32px))` therefore put its 22px of padding and
+its 1px border *outside* that width: measured, 386px of panel in a 375px
+viewport, clipped on both dialogs. The naming form had the same bug at 390px
+and was fixed on its own; the panels kept it until somebody measured them too.
+One line each, and the lesson is the second half - a rule you assume is global
+is not global on a page that does not load the sheet it lives in.
 
 ### Somebody to take the penalty
 

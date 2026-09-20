@@ -1379,10 +1379,19 @@ Three consequences worth having written down:
 - **The choice is held until Start.** Backing out leaves the game you were
   already playing exactly as it was, including what it was being played with -
   so the dialog is safe to open and read.
-- **A shootout in progress is said out loud.** *"You are in the middle of a
-  shootout. Starting a new one ends it."* Only when there is something to lose:
-  a warning that is always there is furniture, and furniture does not get read.
-  Amber rather than red, because it is not an error - you may well mean it.
+- **Ending a shootout is asked as a question, not warned about.** It was a line
+  of amber text inside the form first. That is a *warning*, and a warning can
+  be read past - the button beside it still said "Start the shootout" and still
+  did. So a shootout in progress now gets its own dialog first, which says how
+  many kicks are about to be lost and offers **End it and start again** or
+  **Keep playing**. Only when there is something to lose; before the first kick
+  there is nothing to ask about.
+
+  The two are **sequential, not stacked** - the question closes before the
+  start dialog opens - because a dialog on top of a dialog is a back button
+  nobody can predict, which this document already says once about the invent
+  form. The way *out* holds the focus, so a stray Enter keeps the game rather
+  than ending it, and the destructive button is the quieter of the two.
 
 `useDiscipline` stopped restarting the match when this landed. It restarted
 because changing mid-shootout leaves a scoreboard that cannot say what it

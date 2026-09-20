@@ -126,6 +126,26 @@ const views = listCameras();
       opt-out and it holds for both, so the promise is kept by the page rather
       than by a remote config nobody here can see.
     */}
+    {/*
+      Asked before the dialog that starts a game, not inside it.
+
+      It was a line of amber text in the form first. That is a warning, and a
+      warning can be read past - the button beside it still said "Start the
+      shootout" and still did. Ending a game somebody is in the middle of is a
+      decision, so it gets asked as one, and the two dialogs are sequential
+      rather than stacked: this one closes before the other opens.
+    */}
+    <dialog id="confirm" aria-labelledby="confirm-heading">
+      <div id="confirm-body" class="panel">
+        <h2 id="confirm-heading">End this shootout?</h2>
+        <p id="confirm-blurb">You are in the middle of one.</p>
+        <div id="confirm-actions">
+          <button type="button" id="confirm-yes">End it and start again</button>
+          <button type="button" id="confirm-no">Keep playing</button>
+        </div>
+      </div>
+    </dialog>
+
     <dialog id="names" class="ph-no-capture" aria-labelledby="names-heading">
       <form id="names-form">
         <h2 id="names-heading">Who is playing?</h2>
@@ -170,13 +190,6 @@ const views = listCameras();
         </div>
         <p id="kick-note">Free kick positions and the wall are different every kick.</p>
 
-        {/*
-          Only when there is something to lose. A warning that is always there
-          is furniture, and furniture does not get read.
-        */}
-        <p id="names-warning" hidden>
-          You are in the middle of a shootout. Starting a new one ends it.
-        </p>
         <div id="names-actions">
           <button type="submit">Start the shootout</button>
           <button type="button" id="names-cancel">Cancel</button>
@@ -435,7 +448,8 @@ const views = listCameras();
         const opponentField = document.getElementById('name-opponent') as HTMLInputElement | null;
         const opponentLabel = document.getElementById('label-opponent');
         const cancel = document.getElementById('names-cancel');
-        const warning = document.getElementById('names-warning');
+        const confirmPanel = document.getElementById('confirm') as HTMLDialogElement | null;
+        const confirmBlurb = document.getElementById('confirm-blurb');
         const heading = document.getElementById('names-heading');
         const blurb = document.getElementById('names-blurb');
         const labels = [document.getElementById('label-0'), document.getElementById('label-1')];
@@ -523,7 +537,6 @@ const views = listCameras();
           pendingMode = mode;
           pendingKick = game.currentDiscipline();
           paintKick();
-          if (warning) warning.hidden = !game.inProgress();
           if (!panel || !fields[0] || !fields[1]) {
             // No form in the page for some reason: start anyway with whatever
             // names are already stored, rather than stranding the button. A
@@ -581,6 +594,43 @@ const views = listCameras();
 
         cancel?.addEventListener('click', closeNames);
 
+        /**
+         * Ask before ending a shootout somebody is in the middle of.
+         *
+         * Sequential rather than stacked - this closes before the other opens -
+         * because a dialog on top of a dialog is a back button nobody can
+         * predict, which is written down a few sections up in the spec.
+         */
+        const startGame = (mode: 'solo' | 'duel' | 'versus') => {
+          if (!game.inProgress() || !confirmPanel) {
+            openNames(mode);
+            return;
+          }
+          pendingMode = mode;
+          if (confirmBlurb) {
+            const kicks = game.kicksTaken();
+            confirmBlurb.textContent =
+              kicks === 1
+                ? 'One kick has been taken. Starting a new shootout loses it.'
+                : `${kicks} kicks have been taken. Starting a new shootout loses them.`;
+          }
+          if (!confirmPanel.open) confirmPanel.showModal();
+          // Focus the way out rather than the way through, so a stray Enter
+          // keeps the game rather than ending it.
+          document.getElementById('confirm-no')?.focus();
+        };
+
+        document.getElementById('confirm-yes')?.addEventListener('click', () => {
+          confirmPanel?.close();
+          openNames(pendingMode);
+        });
+        document.getElementById('confirm-no')?.addEventListener('click', () => {
+          confirmPanel?.close();
+        });
+        // However it closed, Escape included: the buttons go back to showing
+        // the mode that is actually being played.
+        confirmPanel?.addEventListener('close', paintModes);
+
         for (const button of modes) {
           button.addEventListener('click', () => {
             const mode = button.dataset.mode;
@@ -590,7 +640,7 @@ const views = listCameras();
             // press, which was fine while there was nothing to choose and
             // nothing to lose - and is not, now that the kick is chosen here
             // and a press can end a shootout somebody is halfway through.
-            if (mode === 'solo' || mode === 'versus' || mode === 'duel') openNames(mode);
+            if (mode === 'solo' || mode === 'versus' || mode === 'duel') startGame(mode);
             paintModes();
             button.blur();
           });
@@ -1154,7 +1204,8 @@ const views = listCameras();
   /* Shares the naming dialog's chrome rather than inventing a second look for
      the same kind of thing. Both are a panel over the pitch asking a question. */
   #settings,
-  #squad {
+  #squad,
+  #confirm {
     padding: 0;
     border: 0;
     background: none;
@@ -1684,6 +1735,52 @@ const views = listCameras();
   }
 
   #names-actions button:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  #confirm::backdrop {
+    background: rgba(2, 8, 20, 0.88);
+  }
+
+  #confirm-body {
+    width: min(360px, 100vw - 32px);
+  }
+
+  #confirm-blurb {
+    margin: 0 0 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: rgba(230, 238, 248, 0.7);
+  }
+
+  #confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #confirm-actions button {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    background: rgba(125, 211, 252, 0.16);
+    color: #e6eef8;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* The one that loses something is the quieter of the two, and the one that
+     keeps the game is the one under your thumb. */
+  #confirm-actions #confirm-yes {
+    background: rgba(240, 180, 60, 0.14);
+    border-color: rgba(240, 180, 60, 0.4);
+    color: #f3c969;
+  }
+
+  #confirm-actions button:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 2px;
   }

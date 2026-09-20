@@ -195,6 +195,7 @@ export interface Game {
   currentDiscipline(): string;
   /** A kick has been taken and the shootout is not over. */
   inProgress(): boolean;
+  kicksTaken(): number;
   /** Cycle to the next way of striking it, and what that is now. */
   cycleStyle(): string;
   currentStyle(): { id: string; label: string; hint: string };
@@ -844,6 +845,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
      * rather than a game.
      */
     inProgress: () => match.shotIndex > 0 && match.phase !== 'complete',
+
+    /** How many kicks have been taken, for saying what is about to be lost. */
+    kicksTaken: () => match.shotIndex,
 
     cycleStyle(): string {
       styleId = nextStyle(styleId);

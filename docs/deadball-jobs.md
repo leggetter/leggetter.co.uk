@@ -48,8 +48,8 @@ Press on the ball and drag. Let go to shoot.
 Five kicks each, then a screen telling you how you did.
 
 **Pressing any of the mode buttons asks what you want before it starts** -
-penalties, free kicks, or both - and tells you if it is about to end a shootout
-you are in the middle of. A free kick
+penalties, free kicks, or both - and asks first if it is about to end a shootout you
+are in the middle of. A free kick
 is taken from the left, the middle or the right - it moves every time - with
 two to four of the other lot standing in a wall ten yards away. The wall lines
 up to block the near post, so you go over it, round it, or you pick the other

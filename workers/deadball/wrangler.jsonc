@@ -26,5 +26,10 @@
       "new_sqlite_classes": ["RoomObject"]
     }
   ],
+  // One row per finished shootout. Outcomes, never names - see the privacy
+  // section of docs/deadball-two-devices.md. Writes are non-blocking and the
+  // binding does not exist in local development, which the code allows for.
+  "analytics_engine_datasets": [{ "binding": "RESULTS", "dataset": "deadball_matches" }],
+
   "observability": { "enabled": true }
 }

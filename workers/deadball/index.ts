@@ -16,11 +16,20 @@
 
 import { DurableObject } from 'cloudflare:workers';
 
+import { inSuddenDeath } from '../../src/games/deadball/core/match.ts';
 import { handle, openRoom, type Room } from '../../src/games/deadball/net/room.ts';
 import type { Inbound, Outbound, RoomSettings, Side } from '../../src/games/deadball/net/Transport.ts';
 
 interface Env {
   ROOMS: DurableObjectNamespace<RoomObject>;
+  /**
+   * One row per finished shootout.
+   *
+   * Optional on purpose. Analytics Engine bindings do not exist in local
+   * development, and a game that will not start because nobody is counting it
+   * would be a poor trade.
+   */
+  RESULTS?: AnalyticsEngineDataset;
 }
 
 /** An hour. Generous for a shootout and short enough that nothing piles up. */
@@ -47,6 +56,12 @@ export class RoomObject extends DurableObject<Env> {
   private post: [Waiting | null, Waiting | null] = [null, null];
 
   private loaded = false;
+
+  /** Written once. A completed match that keeps being polled is still one match. */
+  private recorded = false;
+
+  /** When the room opened, for how long a shootout actually takes. */
+  private opened = Date.now();
 
   /**
    * Read the room back after an eviction.
@@ -78,6 +93,7 @@ export class RoomObject extends DurableObject<Env> {
     await this.wake();
     if (this.room) return;
     this.room = openRoom(settings, seed);
+    this.opened = Date.now();
     await this.remember();
     // Nothing accumulates: an abandoned room deletes itself rather than
     // waiting to be noticed.
@@ -117,6 +133,7 @@ export class RoomObject extends DurableObject<Env> {
 
     // A ping that changed nothing is not worth a write.
     if (message.kind !== 'ping' || before !== this.room) await this.remember();
+    this.record();
 
     const mine = ([0, 1] as Side[]).find((side) => this.room?.seats[side]?.token === token);
     if (mine === undefined) {
@@ -126,6 +143,52 @@ export class RoomObject extends DurableObject<Env> {
     const waiting = this.post[mine];
     this.post[mine] = { token, messages: [] };
     return waiting?.token === token ? waiting.messages : [];
+  }
+
+  /**
+   * What happened, once, when it is over.
+   *
+   * **Outcomes, never names.** No team name, no token, no room id and no kit
+   * goes in here. The rule was written down before there was anywhere to break
+   * it, in the privacy section of docs/deadball-two-devices.md, and the reason
+   * is that names are the one thing this project has protected from the start -
+   * the naming form carries `ph-no-capture` and the shot log records a side
+   * rather than a name with a test to keep it so.
+   *
+   * What is here answers the question that made analytics worth having at all:
+   * **do hosts win more?** If they do, the coin flip earned its place; if they
+   * do not, it was worth knowing that too.
+   *
+   * Written from the room rather than from a browser, because the room is the
+   * thing that actually resolved every shot. A client reporting its own result
+   * is a client being asked to mark its own homework.
+   */
+  private record(): void {
+    if (this.recorded || !this.room || this.room.match.phase !== 'complete') return;
+    this.recorded = true;
+
+    const { match, settings, first, diverged } = this.room;
+    // Scores are by side of the tie; the coin says which seat each was.
+    const hostScore = match.scores[first === 0 ? 0 : 1];
+    const guestScore = match.scores[first === 0 ? 1 : 0];
+    const winner = hostScore === guestScore ? 'draw' : hostScore > guestScore ? 'host' : 'guest';
+
+    this.env.RESULTS?.writeDataPoint({
+      indexes: [settings.discipline],
+      blobs: [settings.discipline, winner],
+      doubles: [
+        match.outcomes.length,
+        // Derived rather than stored: sudden death is a question you ask of a
+        // match, not a flag it carries.
+        inSuddenDeath(match) ? 1 : 0,
+        hostScore,
+        guestScore,
+        // How often a client's own answer differed from this one. Near zero is
+        // the expectation; anything else means somebody is on a stale build.
+        diverged,
+        Math.round((Date.now() - this.opened) / 1000),
+      ],
+    });
   }
 
   /** The hour is up. */

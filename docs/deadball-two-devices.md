@@ -467,6 +467,41 @@ Both halves are needed and they answer different questions:
   this build, the host closing their tab - there is nobody left to notice
   anything and silence is all there is to go on.
 
+## What gets kept
+
+One row per finished shootout, written by the room, queryable with SQL.
+
+| | |
+| --- | --- |
+| **Kept** | discipline, kicks taken, whether it reached sudden death, both scores, how long it took, and how often a client's answer differed from the room's |
+| **Not kept** | team names, tokens, room ids, kit colours, anything about a shot |
+
+**Outcomes, never names.** That rule was written down here before there was
+anywhere to break it, and the reason has not changed: names are the one thing
+this project has protected from the start. The naming form carries
+`ph-no-capture` so the site's analytics cannot see one, and the shot log records
+a side rather than a name with a test that fails if anybody adds one. A row
+that said who won by name would quietly undo all of it.
+
+**Written by the room, not by a browser**, and that is the part worth arguing
+for. The room already resolved every shot; it is the only thing in the system
+whose account of a match is authoritative. **A client reporting its own result
+is a client being asked to mark its own homework** - which is exactly the
+property the sealed dive exists to avoid, so reintroducing it for the sake of a
+statistic would be an odd trade.
+
+**Not PostHog**, for that reason rather than out of principle. The site loads
+PostHog and it would have been the shorter path, but the events would have had
+to come from the page: the one participant that is not authoritative, and the
+one already marked `ph-no-capture` for this exact game. Counting from the
+server costs a binding and keeps the data on infrastructure that is already
+holding the match.
+
+`diverged` is in there deliberately. It counts how often a client's own
+simulation disagreed with the room's, and the realistic cause is somebody
+running a stale bundle. Near zero is the expectation; anything else is worth
+knowing before it is reported as "the game cheated".
+
 ## What the server cost, in practice
 
 **No plan change.** Durable Objects are on the Workers Free plan as long as
@@ -650,13 +685,10 @@ which a Durable Object is not.
    a grace period hides the blips and makes a real disconnection feel like a
    hang.
 
-4. **Do hosts win more?** Worth knowing, because it is the whole justification
-   for flipping a coin rather than letting the host shoot first. **Not worth
-   sending to analytics to find out**: the Durable Object already sees every
-   match start and finish and can count it without anything leaving for a third
-   party. The line to hold, if this ever does go further, is *outcomes, never
-   names* - the naming form carries `ph-no-capture` for exactly that reason and
-   the shot log records a side rather than a name with a test to keep it so.
+4. ~~**Do hosts win more?**~~ **Being counted.** One row per finished
+   shootout, written by the room to [Workers Analytics
+   Engine](#what-gets-kept), which is enough to answer it. Whether the coin
+   flip earned its place is now a query rather than an argument.
 4. ~~**Is the name a person or a team?**~~ **Largely answered, by something that
    already shipped.** There are three naming concepts in the game now, not one:
    `DuelNames` - two personal names, 12 characters, for a hotseat duel;

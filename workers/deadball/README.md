@@ -35,6 +35,26 @@ poll.** A `put` is billed as a row written, and two clients polling every two
 seconds would spend eight thousand writes an hour doing nothing at all. It is
 saved when something actually changes, which is a handful of times per kick.
 
+## Results
+
+One row per finished shootout goes to a Workers Analytics Engine dataset called
+`deadball_matches`, queryable through the [SQL
+API](https://developers.cloudflare.com/analytics/analytics-engine/sql-api/):
+
+```sql
+SELECT blob2 AS winner, count() AS games
+FROM deadball_matches
+WHERE timestamp > NOW() - INTERVAL '30' DAY
+GROUP BY winner
+```
+
+which answers the question the coin flip was built for. Nothing identifying is
+in there - no names, no tokens, no room ids. See **What gets kept** in
+[docs/deadball-two-devices.md](../../docs/deadball-two-devices.md).
+
+Writes are non-blocking and the binding is optional in code, so a missing
+dataset costs you the statistics rather than the game.
+
 ## Then point the site at it
 
 The page only uses the server when it knows where it is. Set

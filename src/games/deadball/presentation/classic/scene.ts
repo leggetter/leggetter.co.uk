@@ -30,6 +30,7 @@ import {
   drawShotDial,
   drawSky,
   drawTaker,
+  keeperColours,
 } from './draw.ts';
 
 export interface SceneOptions {
@@ -97,7 +98,15 @@ export function drawScene(
     drawAim(ctx, proj, frame);
     drawBallTrail(ctx, proj, frame.trail);
     drawBall(ctx, proj, frame.ball.position);
-    drawKeeper(ctx, proj, frame.keeper, frame.keeperProfile.reach, frame.clock, frame.phase);
+    drawKeeper(
+      ctx,
+      proj,
+      frame.keeper,
+      frame.keeperProfile.reach,
+      frame.clock,
+      frame.phase,
+      keeperColours(frame)
+    );
     drawGoalFrame(ctx, proj);
     drawNet(ctx, proj);
   } else {
@@ -106,7 +115,15 @@ export function drawScene(
     // painted over their arms, which reads as a keeper stuck in the netting.
     drawNet(ctx, proj);
     drawGoalFrame(ctx, proj);
-    drawKeeper(ctx, proj, frame.keeper, frame.keeperProfile.reach, frame.clock, frame.phase);
+    drawKeeper(
+      ctx,
+      proj,
+      frame.keeper,
+      frame.keeperProfile.reach,
+      frame.clock,
+      frame.phase,
+      keeperColours(frame)
+    );
     drawAim(ctx, proj, frame);
     drawTaker(ctx, proj, frame);
     drawBallTrail(ctx, proj, frame.trail);

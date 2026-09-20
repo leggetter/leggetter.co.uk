@@ -26,6 +26,7 @@ import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
 import type { SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
+import { KEEPER_KIT, teamKits } from './kits.ts';
 import type { Projector } from './project.ts';
 import { ARM_SPAN } from '../../core/keeper.ts';
 
@@ -46,7 +47,7 @@ const COLORS = {
   frame: '#f2f4f5',
   frameShade: '#c3c9cc',
   net: 'rgba(255, 255, 255, 0.22)',
-  keeperKit: '#ffd23f',
+  keeperKit: KEEPER_KIT,
   keeperTrim: '#1d1d1d',
   keeperGlove: '#f4f6f8',
   ball: '#fbfbfb',
@@ -551,7 +552,9 @@ export function drawKeeper(
   keeper: KeeperState,
   reach: number,
   clock: number,
-  phase: string
+  phase: string,
+  /** Whose goal this is. The keeper is on whichever side is not taking. */
+  colours: { kit: string; trim: string } = { kit: KEEPER_KIT, trim: COLORS.keeperTrim }
 ): void {
   const { hands, body, stance } = keeper;
 
@@ -638,8 +641,8 @@ export function drawKeeper(
     head,
     hands: extension < 0.04 ? idle : held,
     toes: [trail(0.14, 0.16), trail(0.3, -0.16)],
-    kit: COLORS.keeperKit,
-    trim: COLORS.keeperTrim,
+    kit: colours.kit,
+    trim: colours.trim,
     gloves: reach * 0.34,
   });
 }
@@ -751,14 +754,49 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
     head: vec(shoulder.x - side * 0.08, shoulder.y + 0.26 + breath * 0.35, shoulder.z),
     hands: [hand(-1), hand(1)],
     toes: [toe(-1), toe(1)],
-    kit: frame.player.colors.kit,
-    trim: frame.player.colors.trim,
+    ...takerColours(frame),
     // He matters while aiming and running in. Once the ball has gone he is a
     // large figure standing between the camera and the only thing worth
     // watching, so he drops back rather than staying at full strength.
     alpha: frame.phase === 'ready' || frame.phase === 'runup' ? 1 : 0.4,
   });
 }
+
+/**
+ * What the figure on the spot is wearing.
+ *
+ * The away side is side 1, so on their turn the taker wears the shirt the
+ * keeper and the far half of the halfway line are already wearing. One colour
+ * means *them*, wherever they happen to be standing.
+ */
+export function takerColours(frame: FrameState): { kit: string; trim: string } {
+  const kits = teamKits(frame.player.colors.kit, frame.player.colors.trim);
+  return awayTaking(frame) ? kits.other : kits.own;
+}
+
+/**
+ * What the figure in the goal is wearing.
+ *
+ * The keeper is on whichever side is not taking, so the shirts swap over when
+ * the away side's turn comes round: you go in goal, and you go in goal in your
+ * own kit. Without this the keeper stayed yellow while the computer ran up in
+ * yellow too, and both figures on the screen were the opposition.
+ */
+export function keeperColours(frame: FrameState): { kit: string; trim: string } {
+  const kits = teamKits(frame.player.colors.kit, frame.player.colors.trim);
+  return awayTaking(frame) ? kits.own : kits.other;
+}
+
+/**
+ * Whether the away side is the one taking this penalty.
+ *
+ * Side 1 is the away team in both two-sided modes: the computer in `versus`,
+ * and the second person in a duel. Solo has no side 1. Keeping it one rule
+ * rather than a `versus` special case means the shirt somebody is wearing and
+ * the end that rises for them cannot disagree.
+ */
+export const awayTaking = (frame: Pick<FrameState, 'mode' | 'taker'>): boolean =>
+  frame.mode !== 'solo' && frame.taker === 1;
 
 const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
 

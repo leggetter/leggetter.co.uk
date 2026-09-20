@@ -19,6 +19,7 @@
 import { vec, type Vec3 } from '../../core/vec3.ts';
 import { drawFigure } from './draw.ts';
 import type { Projector } from './project.ts';
+import type { TeamKits } from './kits.ts';
 import { PITCH_LENGTH, type Reaction } from './stand.ts';
 
 /** Ten a side, which is the eleven minus whoever is taking it. */
@@ -93,106 +94,19 @@ export function buildLineup(): LineupPerson[] {
   return people;
 }
 
-/** Kit colours for the two lines. */
-export interface LineupKits {
-  /** The taker's team. */
-  own: { kit: string; trim: string };
-  /** Whoever they are playing. */
-  other: { kit: string; trim: string };
-}
-
-/**
- * The opposition's kit, derived rather than chosen.
- *
- * A fixed second colour would eventually be the same colour as somebody's
- * invented kit, and two teams in one strip is the one thing a football
- * picture must never be. Rotating the hue guarantees a difference for any kit
- * anybody writes, including ones that do not exist yet.
- *
- * Greys and whites have no hue to rotate, so they get a colour outright.
- */
-export function opposingKit(kit: string, trim: string): LineupKits {
-  const hsl = toHsl(kit);
-  const other =
-    hsl && hsl.s > 0.18
-      ? fromHsl((hsl.h + 0.5) % 1, Math.max(0.5, hsl.s), clamp(hsl.l, 0.34, 0.6))
-      : '#b4322e';
-
-  // The opposition's shorts are set against the *other line's shorts*, not
-  // against their own shirt. Keyed off the shirt, a blue kit with white shorts
-  // put both teams in white and the two lines only differed above the waist.
-  const ownTrim = toHsl(trim);
-  const other_trim = ownTrim && ownTrim.l > 0.5 ? '#1d1d20' : '#eef2f6';
-
-  return {
-    own: { kit, trim },
-    other: { kit: other, trim: other_trim },
-  };
-}
-
-const clamp = (v: number, lo: number, hi: number): number => (v < lo ? lo : v > hi ? hi : v);
-
-function toHsl(colour: string): { h: number; s: number; l: number } | null {
-  const hex = colour.trim();
-  const full =
-    /^#[0-9a-f]{3}$/i.test(hex)
-      ? `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`
-      : /^#[0-9a-f]{6}$/i.test(hex)
-        ? hex
-        : null;
-  if (!full) return null;
-
-  const r = parseInt(full.slice(1, 3), 16) / 255;
-  const g = parseInt(full.slice(3, 5), 16) / 255;
-  const b = parseInt(full.slice(5, 7), 16) / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  const d = max - min;
-  if (d === 0) return { h: 0, s: 0, l };
-
-  const s = d / (1 - Math.abs(2 * l - 1));
-  const h =
-    max === r
-      ? ((g - b) / d + (g < b ? 6 : 0)) / 6
-      : max === g
-        ? ((b - r) / d + 2) / 6
-        : ((r - g) / d + 4) / 6;
-  return { h, s, l };
-}
-
-function fromHsl(h: number, s: number, l: number): string {
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const x = c * (1 - Math.abs(((h * 6) % 2) - 1));
-  const m = l - c / 2;
-  const [r, g, b] =
-    h < 1 / 6
-      ? [c, x, 0]
-      : h < 2 / 6
-        ? [x, c, 0]
-        : h < 3 / 6
-          ? [0, c, x]
-          : h < 4 / 6
-            ? [0, x, c]
-            : h < 5 / 6
-              ? [x, 0, c]
-              : [c, 0, x];
-  const byte = (v: number): string =>
-    Math.round((v + m) * 255)
-      .toString(16)
-      .padStart(2, '0');
-  return `#${byte(r)}${byte(g)}${byte(b)}`;
-}
-
 /**
  * How far off the ground somebody is, right now.
  *
- * Only one team celebrates. A goal is the taker's team; anything else is the
- * keeper's, which is the half of a shootout the scoreline never shows.
+ * Only one team celebrates, and which one is not simply "did it go in". The
+ * side that just took it celebrates a goal; the other side celebrates
+ * everything else. When the computer is taking, that is the other way round
+ * from the player's point of view, which is the whole reason this is decided
+ * where the taker is known rather than here.
  */
 function lift(person: LineupPerson, reaction: Reaction): number {
   if (reaction.elapsed === null) return 0;
-  const celebrating = reaction.scored ? 0 : 1;
+  // Team 0 wears the player's kit and stands with the home end.
+  const celebrating = reaction.celebrating === 'home' ? 0 : 1;
   if (person.team !== celebrating) return 0;
 
   const t = reaction.elapsed - person.delay;
@@ -216,7 +130,7 @@ export function drawLineup(
   ctx: CanvasRenderingContext2D,
   proj: Projector,
   people: readonly LineupPerson[],
-  kits: LineupKits,
+  kits: TeamKits,
   clock: number,
   reaction: Reaction
 ): void {

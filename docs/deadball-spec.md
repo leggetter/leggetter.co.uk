@@ -1114,12 +1114,48 @@ Three decisions worth keeping:
   whites that have no hue to rotate. Their shorts are set against the *other
   line's* shorts rather than their own shirt - keyed off the shirt, a blue kit
   with white shorts put both teams in white.
-- **Only one team celebrates.** The crowd rises either way and harder for a
-  goal; the halfway line splits, which is the half of a shootout the scoreline
-  never shows. `Reaction` gained a `scored` flag for it.
+- **Only one side celebrates, and "did it go in" is not the question.** A goal
+  belongs to whoever took it. That is the same thing as "the player scored"
+  right up until the computer takes its turn, at which point keying off the
+  outcome alone puts the wrong end up - twice, in opposite directions. So
+  `Reaction` carries `celebrating: 'home' | 'away'`, decided once where both
+  the taker and the outcome are known, rather than re-derived by everybody who
+  draws a person.
 
 Cost is nothing: twenty figures against the crowd's fifteen thousand, drawn
 from one camera, measured at a flat 60 fps.
+
+### The away end, and one colour for *them*
+
+Two rules that turned out to be the same rule.
+
+**Side 1 is the away team, in both modes that have two sides** - the computer
+in `versus`, the second person in a duel. Solo has no side 1.
+
+- **They wear the keeper's yellow**, because the keeper is one of them. One
+  colour means *them* wherever it appears: the keeper facing you, the far half
+  of the halfway line, and the figure on the spot when it is their turn. Real
+  keepers wear a different strip from their own outfield players and this
+  deliberately does not - that convention exists so a referee can pick the
+  keeper out of a crowded box, and there is no crowded box in a shootout.
+- **Unless the player picked that colour themselves**, in which case the hue is
+  rotated instead. Nils Lindqvist ships in amber and is the roster's own worked
+  example, rather than a case somebody has to imagine.
+- **The shirts swap over on their turn.** The keeper is whoever is not taking,
+  so you go in goal for theirs in your own kit. Without it the keeper stayed
+  yellow while the computer ran up in yellow too, and both figures on screen
+  were the opposition.
+- **A duel gets this for free**, and needed it: both people take with the same
+  player, so before this the two turns were drawn identically and the only way
+  to tell whose penalty it was was to read the HUD.
+
+**The stand behind the far goal is the away end.** It is where a club puts a
+visiting support, and it is the end you look straight at from behind your own
+goal - so the split is visible from the one camera that can see both at once.
+The ground used to rise at everything, which is wrong in the one direction that
+matters: a save is the single moment when most of a stadium is silent and one
+end of it has lost its mind. The unhappy end still moves, at 0.16 - a crowd
+that stops dead reads as a crowd that has been switched off.
 
 ### The bar, for the third time
 

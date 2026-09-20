@@ -27,10 +27,14 @@ A game to build with the kids. The first version gets built solo so there is som
 
 - Real footballer names, photos, or club badges.
 - A global leaderboard or any server-side state.
-- Sound, beyond a hook where it will eventually go.
-- Mobile-*first* polish. It is designed against a laptop. It does have to work on
-  a phone, which as of Phase 1.5 it does not - see [Any shape of
-  screen](#any-shape-of-screen).
+- ~~Sound, beyond a hook where it will eventually go.~~ **Overtaken in Phase
+  3.5**, and not by drift: it was asked for directly, with a list of eight
+  specific sounds attached.
+- Mobile-*first* polish. It is designed against a laptop. It does have to work
+  on a phone, which as of Phase 1.75 it does - see [Any shape of
+  screen](#any-shape-of-screen). Still not designed phone-first, and the
+  control bar is where that keeps showing: see [The bar, for the third
+  time](#the-bar-for-the-third-time).
 
 ## Measures of success
 
@@ -39,9 +43,13 @@ A game to build with the kids. The first version gets built solo so there is som
 - Both views get played back to back and one of them wins on feel, not on
   argument. **The three exist; which one wins is still open**, and is now a
   question of playing rather than of building.
-- **The kids each land a merged change.** Still the real measure, and still
-  unmet: every commit so far is one person and an assistant. The surfaces exist
-  and work, which was the hard part; nobody has been handed them, which is not.
+- **Everybody it is being built with lands a merged change.** Still the real
+  measure, and still unmet: every commit so far is one person and an assistant.
+  The surfaces exist and work, which was the hard part; nobody has been handed
+  them, which is not. Three people now rather than two, and the most recent two
+  phases were both chosen off that - Phase 3.75 because it was asked for, and
+  Phase 4 because [deadball-jobs.md](deadball-jobs.md) was telling a first
+  contributor to make a code change in the one job written to need none.
 - A third renderer can be added later without editing anything under `core/`.
   **Met.** Two more cameras landed without a line changing under `core/`. Each
   is about sixty lines and most of that is the camera's own geometry.
@@ -55,9 +63,9 @@ A game to build with the kids. The first version gets built solo so there is som
 | --- | --- | --- |
 | Shot mechanic | Drag from the ball: direction, power, and curve in one gesture | Highest skill ceiling of the options considered, and the only one that makes a free kick around a wall interesting |
 | Shot types | Penalties first, free kicks second | Free kicks add a wall, variable distance, and variable angle. Penalties are the same game with all three fixed, so they are strictly a subset |
-| Views in v1 | `behind-taker` and `angled-behind`, swappable at runtime | Undecided which feels better, and the swap costs little once the projection boundary exists |
+| Views in v1 | `behind-taker` and `angled-behind`, swappable at runtime. `keeper-cam` joined them in Phase 2 | Undecided which feels better, and the swap costs little once the projection boundary exists |
 | Art | 2D canvas primitives now, a second package later - see [What else a package could be](#what-else-a-package-could-be) | Pixel art needs assets, which is the slow part. The renderer interface is what makes it a later decision instead of a rewrite |
-| Roster | Invented players shipped as data, plus a custom player editor | No likeness or trademark exposure on a public site, and inventing players is a good first contribution |
+| Roster | Invented players shipped as data, plus a custom player editor. Everybody spends the same 300 points - see [Everybody gets 300 points](#everybody-gets-300-points) | No likeness or trademark exposure on a public site, and inventing players is a good first contribution. The budget is what stops the editor making the roster pointless |
 | Language | TypeScript for the engine, JS or JSON for content | Types document the renderer and storage interfaces. The content files stay approachable |
 | Persistence | Interface from day one, `localStorage` implementation | Two-player later needs a remote store. An async interface now avoids a rewrite then |
 | Page | Hidden: `noindex`, out of the sitemap, no nav link | Matches how `draft: true` posts already work in this repo |
@@ -202,9 +210,9 @@ interface Shot {
 
 ### The release sweep
 
-Not in the first draft of this document. It came from Max, and it is the second
-skill axis: the drag says what you intend, the release says whether you managed
-it.
+Not in the first draft of this document. It was asked for rather than designed
+here, and it is the second skill axis: the drag says what you intend, the
+release says whether you managed it.
 
 A marker runs corner to corner while the drag is held. Where it sits at the
 moment of release becomes `ShotInput.timing`, and the penalty is **signed**
@@ -344,7 +352,7 @@ extracted first because they were sitting inside the reference view:
   camera, a mapping and a call to this.
 
 Both paths are as they were at the time. Phase 3.5 moves them into the `classic`
-package - see [Render packages](#render-packages) - where "shared by every view"
+package - see [Presentation packages](#presentation-packages) - where "shared by every view"
 becomes "shared by every camera this package draws", which is what it always
 meant.
 
@@ -366,7 +374,7 @@ goal. Pointed straight at the goal the composition is correct and the shot is
 not: the ball and the taker are far nearer the camera, so centring the goal
 pushes them off the bottom corner.
 
-### Render packages
+### Presentation packages
 
 The model holds game state and emits events. **Everything else is one render
 package's business** - how the pitch is drawn, how many people are in the stand,
@@ -417,7 +425,8 @@ implementation would carry its own copy of what a post sounds like. The shared
 default set is the answer to that, rather than keeping audio out of the packages
 entirely. Inheritance gets the protection; ownership gets the freedom.
 
-It also settles a tension in [Synthesised, not sampled](#synthesised-not-sampled)
+It also settles a tension in [Synthesised by default, sampled where it
+showed](#synthesised-by-default-sampled-where-it-showed)
 rather than reopening it. The default set is synthesised, for the reasons given
 there. A package that wants to ship sample files is free to, and inherits the
 consequences along with the sounds: the weight lands in that package, and so
@@ -577,7 +586,7 @@ Async even though `localStorage` is synchronous. The trade-off: slightly more aw
 
 Three implementations, in order: `memory` (tests), `local` (`localStorage`), and later `remote` (a Cloudflare Worker route backed by KV or D1, which this site already deploys onto).
 
-Keys namespaced `deadball:v1:*`. A `ps:schema` record holds the version, and `schema.ts` owns the migration functions. The migration path exists from the first release, because the first schema change happens the first time someone adds a field to a player.
+Keys namespaced `deadball:v1:*`. A `deadball:v1:schema` record holds the version, and `schema.ts` owns the migration functions. The migration path exists from the first release, because the first schema change happens the first time someone adds a field to a player.
 
 Stored: settings (view id, difficulty, sound, time of day, chosen player), profile (display name), custom roster, stats (best scores, longest streak, per-keeper record), and a capped match history.
 
@@ -1036,6 +1045,34 @@ A second test asserts **nobody on the roster is at least as good as anybody else
 
 Attributes are gentle on purpose - `power` scales strike speed by 0.85 to 1.15 - so rebalancing the roster onto the budget changed how the four compare without changing how the game feels.
 
+### Earning points, later
+
+**Not built. Filed under Later, and written down now because it pulls directly against the section above.**
+
+The idea: play, and earn points to improve your player. It is the obvious next thing once a player is yours rather than picked, and it is what would make the invented one worth keeping instead of remade every session.
+
+**The tension is the whole design problem.** The budget exists so that no player is strictly better than another. Earned points break that on purpose. A player at 340 makes the shipped four pointless, makes the picker decoration again, and makes a duel against somebody on 300 a formality - which is exactly the state Phase 4's budget was introduced to get out of.
+
+Four ways out, in rough order of how much they keep:
+
+| Approach | What it costs |
+| --- | --- |
+| **Earned points raise your cap.** 300 becomes 320, 340. | The satisfying one, and the one that undoes the budget. Everything above. |
+| **Earned points buy a respec.** You move points rather than add them. | Keeps parity exactly. Weak as a reward: nothing gets better, it moves. |
+| **The ladder raises everyone's cap.** Reach tier three and every player, yours and the computer's, plays at 320. | Keeps parity, and makes the progression the *ladder* rather than the player - which may be the honest place for it. See [Teams, and a ladder to climb](#teams-and-a-ladder-to-climb). |
+| **Growth is solo-career only; anything head-to-head normalises to 300.** | Keeps both. Costs an explanation - "your 340 player is playing at 300 here" is a sentence that has to appear on screen and be believed. |
+
+**Lean: the last one, with the third as the version to build first**, because a cap that moves for everybody needs no normalisation rule and no explaining. Nothing about this is decided.
+
+**What you earn points *for* matters more than the number.** The obvious answer is goals, and the obvious answer is wrong here specifically: [open question 5](#open-questions) records that the game has one correct answer and both testers found it - aim 0.7 to one side, near full power. Paying people for goals pays them for the thing that is already too easy, and buys a difficulty curve that goes the wrong way.
+
+So reward what the dominant strategy cannot give you: scoring in a corner you have not used this session, scoring in sudden death, beating a keeper who has read you. That turns progression into the pressure that open question 5 is still looking for, rather than another reason to hit the same spot.
+
+Two things it would need that do not exist yet:
+
+- **A record that follows the player.** Every shot already logs a `playerId` and nothing reads it back. That is written up as a Tier 2 job, and it is the piece this is built on rather than a separate feature.
+- **Earned points are stored, so they are untrusted.** Same rule as everything else here: a browser console can set the number to nine thousand, so it is clamped on the way in like a custom player's skills, and the cap is a constant rather than a promise.
+
 ### One dialog became two
 
 Phase 4 put the picker in the settings dialog and this document noted, at the time, that it was one dialog doing two jobs and the next addition should split it rather than lengthen it. It was split immediately after, on the same observation from the other direction: **who takes the penalty is part of the game; sound and time of day are preferences about the machine you are playing on.**
@@ -1080,14 +1117,14 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **1.75** ✅ | A camera that frames the goal at any shape of screen, and a HUD that fits a phone | Playable on a phone, which it currently is not |
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
-| **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and sound - synthesised impacts, sampled crowd. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
+| **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and sound - synthesised impacts, sampled crowd. See [Presentation packages](#presentation-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **3.75** ✅ | One player against the computer, alternating. See [One player against the computer](#one-player-against-the-computer) | You get to be the keeper without needing a second person |
 | **4** ✅ | `core/roster.ts`, a player picker and a custom player editor in the settings dialog, stored per device. See [Players, and inventing one](#players-and-inventing-one) | The roster is worth editing |
 | **4.5** | Teams, and a cup run against progressively better ones. Solo climbs the same ladder against their keepers. See [Teams, and a ladder to climb](#teams-and-a-ladder-to-climb) | A reason to play the next one |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) and [deadball-two-devices.md](deadball-two-devices.md) | Play somebody who is not in the room |
 | **7** | A second presentation package, which is the only thing that proves the boundary. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |
-| **Later** | A keeper that reads your pattern, free kicks and the wall, a realistic 3D package, side-on view, a leaderboard | |
+| **Later** | A keeper that reads your pattern, earning points to improve your player (see [Earning points, later](#earning-points-later)), free kicks and the wall, a realistic 3D package, side-on view, a leaderboard | |
 
 **Free kicks moved to Later.** They were Phase 3 on the grounds that they
 complete the shot model, which is still true and is not the same as being the
@@ -1110,8 +1147,8 @@ play, which is what 1.5 and 1.75 were both for.
 
 ### What playing it kept finding
 
-Bugs of the same shape, which is worth writing down because a fifth is
-probably in here somewhere. Make that five, and the fifth is not a bug in the
+Bugs of the same shape, which is worth writing down because the next one is
+probably in here somewhere. Make that six, and the last two are not bugs in the
 simulation at all.
 
 **A number that is not the unit it looks like.** `Rng.nextBell` has a standard
@@ -1147,10 +1184,34 @@ Every screen now names both roles, the taker is captioned for the whole shot,
 and the full-time pips ring in the owner's colour whatever the outcome, so a
 scoreline can be checked without counting positions.
 
-The common thread: all five were found by playing or by measuring, and none by
-reading the code. The shot log exists because of it. The fifth is the one that
-argues hardest for the log - it was a question about a screenshot, and the log
-could not answer it, because it recorded no side. It does now.
+**A rule the code obeys that the page does not.** Twice now, and both times the
+failure was silent: nothing threw, every test passed, and the only way to find
+it was to look at the screen.
+
+Astro scopes component CSS by stamping an attribute on the elements in its
+template, so anything built with `document.createElement` matches none of it.
+The Phase 2 view switcher came out as bare browser buttons that way, and so did
+the Phase 4 player list, after the first one had been written down here. The
+switcher was fixed by moving the buttons into the template; the player list
+cannot be, because the roster grows at runtime, so those rules are marked
+`:global` instead.
+
+The control bar is the other. It has overflowed three times, once per feature
+that added a button, because `#modes` and `#views` were placed in opposite
+corners independently and neither could see the other. The first two fixes
+treated the symptom. It is now one grid, where tracks cannot overlap by
+construction, and the check is a width sweep across fifteen widths - which
+exists because the third overflow was invisible at 1280 and twenty pixels deep
+at 860.
+
+The common thread: all six were found by playing, by measuring, or by looking,
+and none by reading the code. The shot log exists because of the first four.
+The fifth is the one that argues hardest for the log - it was a question about
+a screenshot, and the log could not answer it, because it recorded no side. It
+does now. The sixth argues for something else: **a test that renders nothing
+cannot see anything**, so the visual work gets checked by a browser and a pair
+of eyes, and the parts that can be reduced to a number - does anything overlap,
+does anything leave the screen - get reduced to one and swept.
 
 ### Full time: what the shot log knows
 
@@ -1522,7 +1583,7 @@ decides what it sounds like.** A `core/` that imports an `AudioContext` is the
 same mistake as a `core/` that imports a canvas.
 
 `Game.ts` drains it and hands it to the active
-[render package](#render-packages), which decides both what the crowd does about
+[presentation package](#presentation-packages), which decides both what the crowd does about
 it and what it sounds like.
 
 Those being one package's decision is the point: the rise on a goal and the cheer
@@ -1669,35 +1730,51 @@ change the game.
 
 ## Contribution surfaces
 
-Deliberately two tiers, because the two contributors are at very different points.
+Deliberately two tiers, because the people this is for are at very different points.
 
 The jobs themselves are written up for the people doing them in
 [deadball-jobs.md](deadball-jobs.md), which is the document to
 hand somebody rather than this one. What follows is why it is split the way it
 is.
 
-**Tier 1 - data only, no build knowledge, immediate visual feedback.** Every one of these is a single file edit and a page refresh:
+**Tier 1 - data only, no build knowledge, immediate visual feedback.** Every one of these is a single file edit and a page refresh. What exists today:
 
-- Add players to `content/roster.json`.
+- Add players to `content/players.js`, spending 300 points. Since Phase 4 they
+  appear in the picker with no second edit anywhere.
 - Write keeper personalities in `content/keepers.js` (names, reaction times, how much they guess).
-- Celebration and commentary lines in `content/celebrations.js`.
-- Kit and pitch color palettes in `content/palettes.js`.
+- How the computer takes a penalty, in `content/takers.js`.
+- Every sound, in `content/sounds.js`.
 - What the advertising hoardings say, in `content/boards.js`. No real people's
   names, per [What not to commit](#what-not-to-commit).
+- Times of day, in `content/skies.js`.
 - Tune difficulty numbers and see the game get harder.
+
+Named here before they existed, and still not built: `content/celebrations.js`
+and `content/palettes.js`. Both are wanted, and celebrations is written up as a
+job. Listing them as though they were there was the kind of thing that sends
+somebody looking for a file that does not exist.
 
 **Tier 2 - feature work with a clear boundary:**
 
-- Sound (Phase 3.5). Every sound is a handful of numbers in `content/sounds.js`,
-  and judging whether one is right needs ears rather than a build step.
-- A new view. One file plus one registry line, with two existing implementations to read first.
-- The custom player editor (Phase 4). A self-contained form plus storage calls.
+- A new view. One file plus one registry line, with three existing implementations to read first.
+- A record that follows the player. Every shot already logs a `playerId` and
+  nothing reads it back, so nobody can say whether one player suits them better
+  than another.
 - Keeper AI improvements: the profile struct is the whole surface area.
 - Physics tuning with the test suite as a safety net.
 
+Built since this list was written, and left here because what they cost is the
+useful part: sound (Phase 3.5) turned out to be Tier 1, because every sound is
+a handful of numbers and judging one needs ears rather than a build step. The
+custom player editor (Phase 4) was Tier 2 as predicted - a self-contained form
+plus storage calls - and the part that took the thought was none of that, it
+was deciding what to do with numbers that arrive off a disk.
+
 ## Testing
 
-`core/` is pure functions over plain data, so it is testable without a browser, a framework, or a dependency. Node 25 strips TypeScript types natively, so `node --test src/games/deadball/core/*.test.ts` runs `.ts` files directly with nothing added to `package.json`. Verified on Node v25.1.0 against a throwaway typed test file, which passed.
+`core/` is pure functions over plain data, so it is testable without a browser, a framework, or a dependency. Node 25 strips TypeScript types natively, so `.ts` test files run directly with no build step and no test framework. Verified on Node v25.1.0.
+
+`npm run test:game`, which is `node --test 'src/games/deadball/**/*.test.ts'`. **The quotes are load-bearing** - `sh` does not expand `**` recursively, so unquoted it silently matches only `core/` and a whole directory of tests reports as passing by not running.
 
 The constraint that comes with type stripping: no TypeScript constructs that emit runtime code. No `enum`, no `namespace`, no constructor parameter properties. Interfaces, type aliases, generics, and `as` are all fine, and the code above uses nothing else. Union types instead of enums, which is the better habit anyway.
 
@@ -1707,9 +1784,28 @@ Worth testing:
 - Aim error stays inside the cone implied by `accuracy` across many seeds.
 - A keeper with `reactionMs` above the flight time never saves.
 - The wall blocks a straight shot at the position it is meant to and a curled one gets past it.
-- Schema migrations move a v1 record to v2 without loss.
+- Schema migrations move a v1 record to v2 without loss. Not built, and neither is `schema.ts`.
+
+Two habits that the bugs below argued for, rather than anything theoretical:
+
+- **`core/` is checked for portability by a test**, not by intention. No import
+  outside `core/` and `content/`, no browser or Node global, no wall clock, and
+  a whole shootout run start to finish on those imports alone. The two-devices
+  plan rests on that being true; an intention at the top of a file is not a
+  guarantee.
+- **A test is not trusted until it has been seen to fail.** Every assertion of
+  the "nothing may ever do X" kind here has been run against a planted X. Two
+  have been written that passed against the thing they were meant to catch:
+  a name-leak check whose `\bname\b` never matched `takerName`, and a check
+  that an SVG was hidden, which passed because the attribute was set and the
+  attribute does nothing.
 
 Not worth testing: rendering. Compare views by playing them.
+
+Worth checking by looking, which is not the same as testing: **anything whose
+failure is visual and silent.** Both of the recent ones were - see the fifth and
+sixth entries in [What playing it kept
+finding](#what-playing-it-kept-finding).
 
 ## Open questions
 

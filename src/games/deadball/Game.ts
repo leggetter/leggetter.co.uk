@@ -23,6 +23,7 @@ import {
   type SetPiece,
 } from './core/setpiece.ts';
 import { buildWall, type Wall } from './core/wall.ts';
+import { defaultStyleId, nextStyle, styleFor, STYLES } from './core/styles.ts';
 
 /** 0..1 from a 0..100 attribute. */
 const unit = (v: number): number => Math.max(0, Math.min(1, v / 100));
@@ -192,6 +193,9 @@ export interface Game {
   currentSkyId(): string;
   useDiscipline(id: string): void;
   currentDiscipline(): string;
+  /** Cycle to the next way of striking it, and what that is now. */
+  cycleStyle(): string;
+  currentStyle(): { id: string; label: string; hint: string };
 }
 
 export async function startGame(options: GameOptions): Promise<Game> {
@@ -350,6 +354,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
   let keeperSim = idleKeeper();
 
   let discipline: Discipline = cleanDiscipline(settings.discipline);
+  let styleId: string = STYLES.some((s) => s.id === settings.styleId)
+    ? (settings.styleId as string)
+    : defaultStyleId();
   let piece: SetPiece = setPieceFor(
     match.seed,
     match.shotIndex,
@@ -432,8 +439,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
   const computerIsTaking = (): boolean =>
     match.mode === 'versus' && match.taker === 1 && match.phase === 'ready';
 
-  function take(input: ShotInput): void {
+  function take(shape: ShotInput): void {
     if (match.phase !== 'ready') return;
+    // Stamped here rather than in the view, for the same reason `timing` is:
+    // the gesture says where and how hard, the game owns which ball was hit.
+    const input: ShotInput = { ...shape, style: styleId };
     lastInput = input;
 
     // One stream per shot, drawn from the match seed, so a shot can be
@@ -824,6 +834,17 @@ export async function startGame(options: GameOptions): Promise<Game> {
     },
 
     currentDiscipline: () => discipline,
+
+    cycleStyle(): string {
+      styleId = nextStyle(styleId);
+      remember({ styleId });
+      return styleId;
+    },
+
+    currentStyle() {
+      const style = styleFor(styleId);
+      return { id: style.id, label: style.label, hint: style.hint };
+    },
 
     roster: () => roster.map((entry) => ({ ...entry })),
 

@@ -25,6 +25,7 @@ import {
 } from './units.ts';
 import type { Player, Shot, ShotInput } from './types.ts';
 import type { Rng } from './rng.ts';
+import { styleFor } from './styles.ts';
 import { flyToLine } from './predict.ts';
 import { vec, type Vec3 } from './vec3.ts';
 
@@ -114,11 +115,14 @@ export function resolveShot(
 ): Shot {
   const origin = context.origin;
   const pressure = clamp(context.pressure ?? 0, 0, 1);
+  const style = styleFor(input.style);
   const power = clamp(input.power, 0, 1);
 
   // Where the player meant to put it, on the plane of the goal.
   const intendedX = clamp(input.aim.x, -1, 1) * AIM_HALF_WIDTH;
-  const intendedY = clamp(input.aim.y, 0, 1) * AIM_HEIGHT;
+  // A driven shot stays low however far up the screen the drag went. It is a
+  // decision about how to hit it, not a worse version of aiming.
+  const intendedY = clamp(input.aim.y, 0, 1) * AIM_HEIGHT * style.height;
 
   // How badly this one was struck. Independent of the footballer's attributes
   // on purpose: this is the person holding the mouse, not the player on the
@@ -161,9 +165,13 @@ export function resolveShot(
   const speed =
     (MIN_STRIKE_SPEED + (MAX_STRIKE_SPEED - MIN_STRIKE_SPEED) * power) *
     (0.85 + 0.3 * unit(player.power)) *
-    (1 - mistimed * TIMING_PACE_LOSS);
+    (1 - mistimed * TIMING_PACE_LOSS) *
+    style.power;
 
-  const loft = clamp(context.loft ?? 0, 0, 1);
+  // A driven shot spends almost none of its pace going up, whatever the
+  // taker's `dip` is: that is what makes it the shot you take under a wall
+  // rather than over one.
+  const loft = clamp((context.loft ?? 0) * style.loft, 0, 1);
   const velocity = launchVelocity(origin, targetX, targetY, speed, loft);
 
   /**
@@ -186,8 +194,17 @@ export function resolveShot(
   // Spin about +y bends the flight along +x, so a positive curve input pushes
   // the ball to the taker's right. A left foot naturally opens the other way.
   const footBias = player.foot === 'left' ? -0.08 : 0.08;
+  /**
+   * Which way a knuckleball breaks.
+   *
+   * Drawn from the same seed as everything else, so it is fixed for one flight
+   * and replays exactly - but it is not derived from anything the taker chose,
+   * so nobody can aim it. Including them.
+   */
+  const wobble = style.wobble === 0 ? 0 : (rng.next() * 2 - 1) * style.wobble;
+
   const sideSpin =
-    (clamp(input.curve, -1, 1) + footBias) *
+    ((clamp(input.curve, -1, 1) + footBias) * style.curve + wobble) *
     MAX_SIDE_SPIN *
     (0.6 + 0.4 * unit(player.curve)) *
     stretch *

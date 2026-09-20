@@ -123,6 +123,7 @@ src/games/deadball/
     names.ts                  # what a side is called: two people, or two teams
     events.ts                 # discrete things worth hearing (Phase 3.5)
     taker.ts                  # the computer deciding a penalty (Phase 3.75)
+    styles.ts                 # finesse, driven, knuckle: which ball you hit
     roster.ts                 # who takes it, and inventing somebody (Phase 4)
     setpiece.ts               # where the ball is: three spots and a wall
     wall.ts                   # the wall, and whether the ball got past it
@@ -1385,6 +1386,45 @@ Reported after dip shipped: *"the ball still goes nowhere near where you've aime
 The deadzone is now proportional to the drag - a long drag wanders further in absolute terms without being any less straight - and the hook ramps from its edge rather than stepping off it. Twenty pixels of wander now gives 0.01 of curl instead of 0.47, and a deliberate hook still reaches the full range.
 
 **Worth keeping as a lesson:** three separate measurements said the ball was not scattering, and all three were right. The complaint was about *swerve*, which is a different quantity, and it lived in the input layer rather than in `core/` at all.
+
+### Three ways to hit it
+
+Finesse, driven, knuckle - one button, bottom left, cycling. Not a mode and not
+a setting: it is a decision made between one kick and the next, so it sits
+where a thumb already is rather than two taps into a dialog. The control bar is
+also full, and this project has learned what happens when something else goes
+in it.
+
+**A style is not an attribute.** `curve` is how well a player bends a ball;
+this is whether they tried to bend *this* one. Every field is a multiplier on
+what the gesture already said, so the one gesture stays the one gesture and the
+decision sits beside it. The numbers live in `content/shots.js`, which is a
+Tier 1 file: change one, refresh, take five.
+
+| | bends | pace | arcs | stays low | unreadable |
+| --- | --- | --- | --- | --- | --- |
+| **Finesse** | 1.7x | 0.88 | full dip | - | - |
+| **Driven** | 0.35x | 1.12 | almost none | yes | - |
+| **Knuckle** | 0.15x | 1.06 | half | - | yes |
+
+They are genuinely different shots rather than three labels. Aimed straight at
+the post a four-man wall is covering: **finesse 87%, driven 0%, knuckle 0%** -
+because driven is the shot you take *under* a wall and finesse is the one you
+take over it. Aimed away from the wall, all three are worth having: 93%, 85%,
+92%.
+
+**A knuckleball is not inaccurate, it is unreadable.** Its spin is drawn from
+the shot's own seed, so it is fixed for one flight and replays exactly - but it
+is not derived from anything the taker chose, so nobody can aim it. Including
+them. The keeper commits on where the ball is pointed and the ball does not go
+there.
+
+**Absent means plain, not the default selection.** A `ShotInput` with no style
+on it has not made a choice, and if "no style" had quietly meant finesse then
+every shot in the game that predates this would have gained 1.7x the bend.
+That is exactly what the first version did, and three keeper tests said so
+within a minute. The *game* opens on finesse, which is a choice the player is
+making.
 
 ### What playing it kept finding
 

@@ -20,6 +20,8 @@ export interface ShotInput {
   aim: { x: number; y: number };
   /** 0..1, mapped onto the strike speed range. */
   power: number;
+  /** How it is being struck. See core/styles.ts. Absent means the default. */
+  style?: string;
   /** -1..1. Negative bends left as the taker sees it. */
   curve: number;
   /** 0..1. Below 0.5 is backspin and floats, above is topspin and dips. */

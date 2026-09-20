@@ -100,4 +100,6 @@ export interface Settings {
    * cannot leave somebody staring at a pitch with no ball on it.
    */
   discipline?: string;
+  /** How you are striking it: finesse, driven or knuckle. See core/styles.ts. */
+  styleId?: string;
 }

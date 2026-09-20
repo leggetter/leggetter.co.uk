@@ -1024,13 +1024,26 @@ const views = listCameras();
             setLobbyText('lobby-other', waiting ? 'waiting…' : them.name);
             setLobbyText('lobby-team', message.teams[message.you].name || 'Your team');
             if (!waiting && lobby?.open) {
-              // Both in. Say what the coin said, then get out of the way.
+              // Both in. Say what the coin said, then get out of the way and
+              // hand the match to the room.
               const yours = message.first === message.you;
               setLobbyText(
                 'lobby-heading',
                 yours ? 'You shoot first' : `${them.name} shoots first`
               );
-              window.setTimeout(() => lobby?.close(), 1800);
+              const mine = message.teams[message.you].name;
+              const theirs = them.name;
+              window.setTimeout(() => {
+                lobby?.close();
+                game.connect(
+                  transport,
+                  message.you,
+                  message.first,
+                  // Scoreboard order, which is seat order: seat 0 then seat 1.
+                  message.you === 0 ? [mine, theirs] : [theirs, mine]
+                );
+                paintModes();
+              }, 1800);
             }
           });
         };
@@ -1135,9 +1148,12 @@ const views = listCameras();
         document.getElementById('lobby-cancel')?.addEventListener('click', () => {
           // Destroys the room rather than walking away from it, so nothing
           // accumulates that nobody will ever join.
-          live?.close();
+          if (game.connectedAs() !== null) game.disconnect();
+          else live?.close();
           live = null;
           lobby?.close();
+          forgetRoom(window.location, window.history);
+          paintModes();
         });
 
         const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];

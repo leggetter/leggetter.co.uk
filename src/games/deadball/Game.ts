@@ -24,6 +24,23 @@ import {
   type SetPiece,
 } from './core/setpiece.ts';
 import { buildWall, type Wall } from './core/wall.ts';
+import type { Inbound, Side, Transport } from './net/Transport.ts';
+
+/**
+ * Playing somebody who is not in the room.
+ *
+ * The match stops being this client's to decide. The three places a local game
+ * changes it - a dive, a shot, tapping through - send a message instead, and
+ * the room says what happened. Everything else is unchanged: the same
+ * reducer, the same physics, the same animation, driven from the same seed.
+ */
+interface Link {
+  transport: Transport;
+  /** Which seat this client is in. */
+  side: Side;
+  /** Which seat shoots first, so a match `taker` can be read as a side. */
+  first: Side;
+}
 import { defaultStyleId, nextStyle, styleFor, STYLES } from './core/styles.ts';
 
 /** 0..1 from a 0..100 attribute. */
@@ -194,6 +211,23 @@ export interface Game {
   currentSkyId(): string;
   useDiscipline(id: string): void;
   currentDiscipline(): string;
+  /** Hand the match over to a room. See docs/deadball-two-devices.md. */
+  connect(transport: Transport, side: Side, first: Side, teams: DuelNames): void;
+  disconnect(): void;
+  connectedAs(): Side | null;
+  /** A read-only look at where the match is, for the console. */
+  snapshot(): {
+    mode: string;
+    phase: string;
+    taker: 0 | 1;
+    shotIndex: number;
+    scores: [number, number];
+    names: [string, string];
+    connectedAs: Side | null;
+    yourShot: boolean;
+    yourGoal: boolean;
+    outcomes: string[];
+  };
   /** A kick has been taken and the shootout is not over. */
   inProgress(): boolean;
   kicksTaken(): number;
@@ -358,6 +392,21 @@ export async function startGame(options: GameOptions): Promise<Game> {
   let keeperSim = idleKeeper();
 
   let discipline: Discipline = cleanDiscipline(settings.discipline);
+  let link: Link | null = null;
+
+  /** Whose seat is taking this one. */
+  const takingSide = (): Side =>
+    link ? ((match.taker === 0 ? link.first : 1 - link.first) as Side) : 0;
+
+  /** It is this client's turn to shoot. */
+  const myShot = (): boolean => !link || takingSide() === link.side;
+
+  /** It is this client's turn in goal. */
+  const myGoal = (): boolean => !link || takingSide() !== link.side;
+
+  /** Something to hang an idempotency key off, so a retry is not a second one. */
+  let stamped = 0;
+  const stamp = (what: string): string => `${what}:${match.shotIndex}:${stamped++}`;
   let styleId: string = STYLES.some((s) => s.id === settings.styleId)
     ? (settings.styleId as string)
     : defaultStyleId();
@@ -369,6 +418,48 @@ export async function startGame(options: GameOptions): Promise<Game> {
   );
   let wall: Wall = buildWall(piece);
   let ballPosition = piece.origin;
+
+  /**
+   * What the room says, applied here.
+   *
+   * Two kinds of message matter. A `shot` is set up exactly as a local one is
+   * and animated by the machinery that already exists - from the room's seed,
+   * so both clients watch the same flight rather than each watching their own.
+   * A `state` is the truth about the match, adopted whenever there is nothing
+   * mid-air to interrupt.
+   */
+  function follow(message: Inbound): void {
+    if (!link) return;
+
+    if (message.kind === 'shot') {
+      const piece = setPieceFor(message.seed, match.shotIndex, discipline, true);
+      const taker =
+        (message.taker === player.id ? player : squadOf(message.taker)) ?? player;
+      const shot = resolveShot(message.input, taker, createRng(shotSeed(message.seed, match.shotIndex)), {
+        origin: piece.origin,
+        loft: piece.penalty ? 0 : unit(taker.dip),
+        aimEase: piece.penalty ? 1 : FREE_KICK_AIM_EASE,
+      });
+      pending = { shot, keeperStartX: keeperSim.state.hands.x, dive: message.dive };
+      runUp = 0;
+      match = reduce(match, { type: 'TAKE_SHOT' });
+      return;
+    }
+
+    if (message.kind !== 'state') return;
+
+    // Not while something is in the air. The room is right about the score and
+    // this client is right about where the ball currently is, and replacing the
+    // match underneath a flight throws away the half somebody is watching.
+    if (flight && !flight.outcome) return;
+
+    const theirs = message.match as MatchState;
+    match = { ...theirs, dive: match.dive };
+    names = [message.teams[0].name || names[0], message.teams[1].name || names[1]];
+  }
+
+  /** Somebody on this device's squad, by id. */
+  const squadOf = (id: string): Player | undefined => squad.find((p) => p.id === id);
 
   /** Everything a shootout starts from. */
   const resetMatch = (mode: MatchMode): void => {
@@ -470,6 +561,22 @@ export async function startGame(options: GameOptions): Promise<Game> {
     // gets to it. Captured at release: wherever the shuffle had reached is
     // where the dive begins, and the flight records it or a replay would
     // differ from the shot it replays.
+    if (link) {
+      // Not this client's to decide. The room resolves it and sends the shot
+      // back to both sides, and *this* client animates it from that message
+      // like the other one does - so the two are watching the same thing
+      // rather than each watching their own version of it.
+      aiming = null;
+      if (!myShot()) return;
+      link.transport.send({
+        kind: 'shoot',
+        input,
+        taker: player.id,
+        outcome: 'goal',
+        idempotency: stamp('shoot'),
+      });
+      return;
+    }
     pending = { shot, keeperStartX: keeperSim.state.hands.x, dive: match.dive };
     runUp = 0;
     match = reduce(match, { type: 'TAKE_SHOT' });
@@ -493,6 +600,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
       computerShots = [];
       computerDelay = COMPUTER_THINKS;
     } else if (match.phase === 'resolved' && holdRemaining <= 0) {
+      if (link) {
+        // Either side may tap through; the room applies it once.
+        link.transport.send({ kind: 'next' });
+        return;
+      }
       match = reduce(match, { type: 'NEXT' });
       computerDelay = COMPUTER_THINKS;
       // Read across everything ever played on this device, not just these five
@@ -592,6 +704,14 @@ export async function startGame(options: GameOptions): Promise<Game> {
       y: clamp(spot.y, 0.1, GOAL_HEIGHT),
     };
     choosing = null;
+    if (link) {
+      // Sent, not applied. It goes to the room and stays there; this client
+      // learns only that it was accepted.
+      if (myGoal()) {
+        link.transport.send({ kind: 'dive', at: dive, idempotency: stamp('dive') });
+      }
+      return;
+    }
     match = reduce(match, { type: 'SET_DIVE', dive });
   }
 
@@ -837,6 +957,57 @@ export async function startGame(options: GameOptions): Promise<Game> {
     },
 
     currentDiscipline: () => discipline,
+
+    /**
+     * Hand the match over to a room.
+     *
+     * After this the client stops deciding anything: a dive, a shot and a tap
+     * are sent, and what comes back is what happened. The reducer, the physics
+     * and the animation are all unchanged - they are driven from the room's
+     * seed rather than from this device's.
+     */
+    connect(transport: Transport, side: Side, first: Side, teams: DuelNames): void {
+      link = { transport, side, first };
+      // Named `teams` rather than `names`: the parameter was called `names`
+      // and shadowed the closure variable of the same name, so assigning to it
+      // set the argument and both sides stayed Player 1 and Player 2.
+      names = cleanNames(teams);
+      resetMatch('remote');
+      transport.onMessage((message) => follow(message));
+    },
+
+    disconnect(): void {
+      link?.transport.close();
+      link = null;
+      resetMatch('solo');
+    },
+
+    /** Which seat this client is in, or null when playing locally. */
+    connectedAs: () => link?.side ?? null,
+
+    /**
+     * A read-only look at where the match is.
+     *
+     * For the console and for checking a two-device game from outside the
+     * page, which cannot be done by reading a canvas. Same justification as
+     * the log handle in `main.ts`, and the same shape: it hands back a copy
+     * and there is no way to change anything through it.
+     */
+    snapshot: () => ({
+      mode: match.mode,
+      phase: match.phase,
+      taker: match.taker,
+      shotIndex: match.shotIndex,
+      scores: [match.scores[0], match.scores[1]] as [number, number],
+      names: [names[0], names[1]] as [string, string],
+      connectedAs: link?.side ?? null,
+      // `match.taker` is a side of the *tie*, not a seat. Which seat it means
+      // depends on what the coin said, so a client cannot work out whether it
+      // is shooting without knowing that too - and the screen has to say so.
+      yourShot: myShot(),
+      yourGoal: myGoal(),
+      outcomes: [...match.outcomes],
+    }),
 
     /**
      * There is a shootout going on that starting a new one would end.

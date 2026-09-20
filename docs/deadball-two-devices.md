@@ -16,7 +16,13 @@ surface - a bill, an abuse story, someone else's data on a disk somewhere, and
 an outage. That is a different kind of thinking from how a crowd is drawn, and
 running the two together makes both harder to read.
 
-**Step 1 is built.** `net/Transport.ts` exists: the interface and every
+**A penalty has been taken across two tabs.** Steps 1 to 3 of the build order
+are done: the interface, the room, the same-browser transport, the lobby, and
+`Game.ts` following a room rather than owning the match. Both clients resolve
+to the same outcome and the same score independently. No infrastructure
+exists and nothing has been sent over a network.
+
+**Step 1 was built first.** `net/Transport.ts` exists: the interface and every
 message, and nothing about how any of it travels. `core/` gained a `remote`
 mode alongside it - see [One screen fewer](#one-screen-fewer). Nothing sends
 anything yet, and no infrastructure exists.
@@ -479,8 +485,9 @@ before any infrastructure exists**.
    enough that somebody who has put their phone down is not left looking at a
    board saying everything is fine. The right number is a feel question and the
    honest way to find it is to play it with the wire flapping.
-2. **`net/local.ts`** - an implementation over `BroadcastChannel`, so two tabs
-   of the same browser play each other. This is not a toy: it exercises the
+2. ~~**`net/local.ts`** - an implementation over `BroadcastChannel`.~~ **Built**,
+   along with `net/room.ts`, which is the half that becomes the Durable Object.
+   Two tabs play each other. This is not a toy: it exercises the
    whole protocol, the reconnect logic, the sealed dive and every failure in
    the table above, with no account, no deploy and no bill. Most of the bugs
    live here and can be found here.

@@ -29,5 +29,13 @@ export async function start(canvas: HTMLCanvasElement): Promise<Game> {
   // Nothing is sent anywhere; see telemetry/log.ts.
   Object.defineProperty(window, 'penaltyLog', { value: game.log, configurable: true });
 
+  // Where the match is, read-only. Same reason as the log handle above: a
+  // canvas cannot be read from outside the page, and a two-device game has to
+  // be checkable from outside it.
+  Object.defineProperty(window, 'deadball', {
+    value: { snapshot: () => game.snapshot() },
+    configurable: true,
+  });
+
   return game;
 }

@@ -1374,6 +1374,18 @@ The cause was one line. `launchVelocity` fixed the horizontal speed from the dis
 
 **The tuning fingerprint moved to `f0459d48`.** Deliberate: `LOFT_SHARE` is a new physics constant and the fingerprint exists to make exactly this kind of change impossible to slip in unnoticed.
 
+### The swerve, which was the gesture and not the physics
+
+Reported after dip shipped: *"the ball still goes nowhere near where you've aimed, there's far too much swerving."* Two causes, and the first one was mine.
+
+**Lofting was multiplying the swerve.** Sideways deflection grows with the square of the flight, and lofting doubles the time in the air - so the same hook that bent a penalty 24 cm bent a lofted free kick **1.69 m**, and a dead straight drag still finished a third of a metre off the aim. The distance part of that is wanted and is the entire argument for free kicks. The loft part is not: choosing to go over a wall is a decision about height and has no business multiplying a decision about direction. The spin is now scaled back by exactly the extra time the loft bought, which took that 1.69 m to **0.40 m**.
+
+**The rest was not physics at all.** The hook deadzone was **two pixels**, and maximum curl is about forty pixels of hook - so an ordinary twenty-pixel wander in the middle of a drag, which is simply what a hand does, was **half of maximum curl on every single shot**. On a penalty that is a quarter of a metre and passes for spice. On a free kick it was most of a metre, every time, and no amount of tuning the ball would ever have fixed it.
+
+The deadzone is now proportional to the drag - a long drag wanders further in absolute terms without being any less straight - and the hook ramps from its edge rather than stepping off it. Twenty pixels of wander now gives 0.01 of curl instead of 0.47, and a deliberate hook still reaches the full range.
+
+**Worth keeping as a lesson:** three separate measurements said the ball was not scattering, and all three were right. The complaint was about *swerve*, which is a different quantity, and it lived in the input layer rather than in `core/` at all.
+
 ### What playing it kept finding
 
 Bugs of the same shape, which is worth writing down because the next one is

@@ -163,13 +163,35 @@ export function resolveShot(
     (0.85 + 0.3 * unit(player.power)) *
     (1 - mistimed * TIMING_PACE_LOSS);
 
-  const velocity = launchVelocity(origin, targetX, targetY, speed, context.loft ?? 0);
+  const loft = clamp(context.loft ?? 0, 0, 1);
+  const velocity = launchVelocity(origin, targetX, targetY, speed, loft);
+
+  /**
+   * Lofting changes the arc, not the swerve.
+   *
+   * Sideways deflection grows with the square of the flight, and lofting a
+   * free kick doubles how long the ball is in the air - so the same hook that
+   * bent a penalty 24 cm bent a lofted free kick 1.69 m, and a dead straight
+   * drag still finished a third of a metre off the aim. Reported as "the ball
+   * goes nowhere near where you aimed", which it did.
+   *
+   * The distance part of that is wanted and is the whole argument for free
+   * kicks: a longer flight should bend more. The *loft* part is not. Choosing
+   * to go over a wall is a decision about height and has no business
+   * multiplying a decision about direction, so the spin is scaled back by
+   * exactly the extra time the loft bought.
+   */
+  const stretch = 1 - loft * LOFT_SHARE;
 
   // Spin about +y bends the flight along +x, so a positive curve input pushes
   // the ball to the taker's right. A left foot naturally opens the other way.
   const footBias = player.foot === 'left' ? -0.08 : 0.08;
   const sideSpin =
-    (clamp(input.curve, -1, 1) + footBias) * MAX_SIDE_SPIN * (0.6 + 0.4 * unit(player.curve));
+    (clamp(input.curve, -1, 1) + footBias) *
+    MAX_SIDE_SPIN *
+    (0.6 + 0.4 * unit(player.curve)) *
+    stretch *
+    stretch;
 
   // Spin about +x drives the ball down, so lift above 0.5 is topspin.
   const liftSpin = (clamp(input.lift, 0, 1) * 2 - 1) * MAX_LIFT_SPIN;

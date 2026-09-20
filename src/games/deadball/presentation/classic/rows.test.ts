@@ -42,13 +42,54 @@ describe('a row each', () => {
     );
   });
 
-  test('sudden death grows both rows a round at a time', () => {
+  test('the empty pair appears the moment it goes to sudden death', () => {
+    // Reported from play: the sixth pair only turned up once somebody had
+    // taken the eleventh penalty, so the instant a shootout went level after
+    // ten the scoreboard still showed a full five each and nothing to say what
+    // was coming. The empty pair is the announcement that there is another
+    // round, so it has to be there before the round is.
     const ten = Array.from({ length: 10 }, () => G);
-    const [first, second] = shotsBySide([...ten, G, S], 10, true);
+    const [first, second] = shotsBySide(ten, 10, true);
+    assert.equal(first.length, 6);
+    assert.equal(second.length, 6);
+    assert.equal(first[5], undefined);
+    assert.equal(second[5], undefined);
+  });
+
+  test('and again for the round after that', () => {
+    const twelve = Array.from({ length: 12 }, () => G);
+    const [first, second] = shotsBySide(twelve, 10, true);
+    assert.equal(first.length, 7);
+    assert.equal(second.length, 7);
+    assert.equal(first[5], G, 'the round just played is filled in');
+    assert.equal(first[6], undefined, 'and the next one is waiting');
+  });
+
+  test('a finished shootout shows no round nobody will take', () => {
+    // The flag is false at full time, or the panel would promise a seventh
+    // round after a shootout that ended in the sixth.
+    const [first, second] = shotsBySide([...Array.from({ length: 12 }, () => G)], 10, false);
     assert.equal(first.length, 6);
     assert.equal(second.length, 6);
     assert.equal(first[5], G);
-    assert.equal(second[5], S);
+  });
+
+  test('sudden death grows both rows a round at a time', () => {
+    const ten = Array.from({ length: 10 }, () => G);
+
+    // Round six settled it, so the match is over and nothing is awaited.
+    const [decidedA, decidedB] = shotsBySide([...ten, G, S], 10, false);
+    assert.equal(decidedA.length, 6);
+    assert.equal(decidedB.length, 6);
+    assert.equal(decidedA[5], G);
+    assert.equal(decidedB[5], S);
+
+    // Round six was level, so a seventh is coming and its pair is already up.
+    const [levelA, levelB] = shotsBySide([...ten, G, G], 10, true);
+    assert.equal(levelA.length, 7);
+    assert.equal(levelB.length, 7);
+    assert.equal(levelA[5], G);
+    assert.equal(levelA[6], undefined);
   });
 
   test('a sudden death round in progress shows the answer still to come', () => {
@@ -60,14 +101,18 @@ describe('a row each', () => {
     assert.equal(first.length, 6);
     assert.equal(second.length, 6);
     assert.equal(first[5], G);
-    assert.equal(second[5], undefined);
+    assert.equal(second[5], undefined, 'the answer is still to come');
   });
 
   test('several rounds of sudden death keep the rows equal', () => {
+    // Thirteen rounds all level, so a fourteenth is waiting. However long it
+    // runs, the two rows stay the same length as each other - a row that grew
+    // ahead of the other would read as somebody having an extra penalty.
     const many = Array.from({ length: 26 }, () => G);
     const [first, second] = shotsBySide(many, 10, true);
-    assert.equal(first.length, 13);
-    assert.equal(second.length, 13);
+    assert.equal(first.length, second.length);
+    assert.equal(first.length, 14);
+    assert.equal(first[13], undefined);
   });
 
   test('without sudden death the rows never grow past the regulation five', () => {

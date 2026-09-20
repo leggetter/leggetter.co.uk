@@ -114,6 +114,7 @@ src/games/deadball/
     tuning.ts                 # fingerprint of the constants, for replay
     names.ts                  # what the two people in a duel are called
     events.ts                 # discrete things worth hearing (Phase 3.5)
+    taker.ts                  # the computer deciding a penalty (Phase 3.75)
     wall.ts                   # free kick wall (Later, not built)
   presentation/               # how it looks AND how it sounds
     Presentation.ts           # what a presentation package implements
@@ -150,6 +151,8 @@ src/games/deadball/
     keepers.js
     sounds.js                 # frequencies and decay times (Phase 3.5)
     boards.js                 # what the hoardings say. No real people's names
+    takers.js                 # the computers you have to save from
+    teams.js                  # squads and kits, by rating (Phase 4.5)
   Game.ts                     # wiring: input -> match -> view, the frame loop
   main.ts                     # browser entry, imported by the Astro page
 ```
@@ -601,6 +604,20 @@ the moment somebody goes in front would end it while the other player still had
 theirs to take, which is not a shootout, it is a race. Nothing caps how long it
 runs, and nothing should.
 
+**And during the regulation five, it stops the moment one side cannot be
+caught.** Found by playing, and missing until then: a shootout was won 5-3 and
+the losing side was still sent up to take a tenth penalty that could not change
+anything. If somebody's score is higher than the other's *plus every penalty
+they have left*, the rest are dead rubbers and nobody takes them - which is why
+most real shootouts do not reach ten.
+
+Checked after every penalty rather than at the end of a round, because it falls
+either way round: scoring your fifth to go 5-3 up with one of theirs left ends
+it before they walk up, and a shootout can therefore finish on an odd number of
+kicks. There is an exhaustive test over all 1,024 ways ten penalties can go,
+asserting two properties - a completed match is never level, and no penalty is
+ever taken after the result was already settled.
+
 Nothing in the rules branches on being in sudden death - it is the same
 shootout continuing, which is exactly what sudden death *is* - so the flag the
 screens read is derived from the score rather than stored, and cannot fall out
@@ -671,6 +688,211 @@ and `anticipation` all fall away - a person is exactly as good as their guess.
 What stays is the physics: dive speed, reach, the two save volumes, and the same
 clamp on where a keeper can get to. Picking the top corner and being right still
 does not save a shot struck hard and low into it, which is as it should be.
+
+### One player against the computer
+
+Suggested by one of the people this is being built with, and it fills a gap
+nobody had named: **keeping was only available in two-player.** Solo has you
+taking all five and never standing in the goal, so half the game needed a
+second person in the room. This is a duel where one side is the computer, and
+the point of it is the half you could not otherwise play.
+
+Ten shots, five each, alternating, sudden death if it is level - the same rules
+as a duel, because it *is* a duel. The mode is a third value on `MatchMode`
+rather than a flag, and `alternates(mode)` replaced every `mode === 'duel'`
+test that was really asking whether there are two sides.
+
+**The handover disappears entirely.** That screen exists so one person can pass
+the device without the other seeing the reticle, and a computer cannot peek.
+`SET_DIVE` goes straight to `ready`, which is one of those simplifications that
+only looks obvious once the mode exists. There is a test that no handover ever
+appears in ten shots.
+
+#### The computer taking a penalty
+
+New code, in `core/taker.ts`, deliberately shaped like `keeper.ts`: pure,
+seeded, and producing a `ShotInput` - the same type a drag produces. Same seed,
+same shot, so one the computer took can be replayed and logged like any other.
+
+Three numbers describe a taker, and they live in `content/takers.js` where
+anyone can change them:
+
+- **`ambition`** - how far from the middle it likes to aim. Emphatically *not*
+  "how good it is". A taker pinned at 1 aims at a corner every time, which is
+  **easier** to keep against than one that mixes, because you only have to
+  cover the corners.
+- **`technique`** - the odds of a clean strike. The rest mistime.
+- **`variety`** - how willing it is to switch sides after the last one. Low is
+  readable on purpose; a keeper who spots the pattern has earned the save.
+
+**The thing it must never do is find the dominant strategy.** Both logged human
+sessions converged on aim ≈ 0.7 to one side and the game had to be retuned
+because of it. A computer that hunted for the best corner would rebuild that
+flaw and be unbeatable with it - a human keeper guessing against a machine that
+always picks the same spot is not a contest. So the aim is drawn from a spread
+rather than optimised, and it is weighted *against* repeating its last side.
+
+It reads nothing. Not where you dived, not what you did last time. A computer
+that learns your pattern is [a Later item](#phases) and a harder, different
+thing; this one just plays.
+
+#### Tuned against what a person actually does
+
+Not against a difficulty that sounded about right. The shot log knows what a
+human does against this keeper - **63% scored, 15% saved, 18% off target** - so
+that is the target, which makes "am I better than it" a fair question rather
+than a rigged one.
+
+Measured over 2,000 shots per profile against a keeper diving to a random
+corner, which is what a person in goal amounts to: they commit before the ball
+is struck, so they are guessing however hard they concentrate. The logged duel
+agrees - human keepers saved about 22%.
+
+The default taker lands at **71% scored, 15% saved, 14% off.** Saves match a
+person exactly; it misses a little less and scores about eight points more, so
+it is a slight favourite rather than a wall. That is one number in one content
+file away from being changed.
+
+**Two things the tuning found, both worth keeping written down.**
+
+`technique` was a dead parameter. Seventy-three to seventy-five percent scored
+whatever it was set to, because `resolveShot`'s timing scatter moves a shot
+sideways by centimeters and, against a keeper who has already committed to the
+wrong corner, a moved shot is no less likely to go in. The fix is that a
+mistimed penalty now goes **up**: leaning back and skying it is what a mishit
+penalty actually looks like, and it makes the computer miss by mishitting
+rather than by aiming at the corner flag - which was the only other lever and
+made it look like it was not trying.
+
+And aiming wide trades saves for misses at worse than one for one. Pushing
+`ambition` up from 0.5 to 0.82 moved scoring from 75% to 59%, but off-target
+went from 2% to 32% on the way. There is no setting where the computer is
+merely accurate; past a point it is just wild.
+
+#### What it does not do yet
+
+**Both sides still use the same footballer.** `resolveShot` is handed the one
+roster player for every shot, so the computer's power and accuracy are the
+player's. That is also true of a duel today, and [Phase 4](#phases) - picking a
+player before a shootout - is what fixes both at once.
+
+**And the computer is one profile for the whole shootout**, where a real side
+sends a different player up each round.
+[Teams](#teams-and-a-ladder-to-climb) is what fixes that, and it makes the
+computer harder to read as a side effect rather than as extra work. The computer's *name* on
+the scoreboard comes from its taker profile, so it reads correctly; only the
+attributes are borrowed.
+
+### Teams, and a ladder to climb
+
+Two ideas that turn out to be one idea, which is why they are written up
+together: **the computer opponent should be a team rather than a person**, and
+**a team is the right unit for a difficulty ladder.**
+
+#### Why a team, when the human keeps a name
+
+A shootout is won by a side, not by an individual, and the scoreboard shows it:
+`2 – 4, The Steady One wins` reads oddly because a person does not win a
+shootout. `You 2 – 4 Northgate United` reads correctly.
+
+But a hotseat duel is two people in a room, and their names are the best thing
+about it - the naming form exists so that they see themselves on screen rather
+than PLAYER 1. So this is not a replacement. **A team is what the computer is;
+a name is who you are**, and the two answer different questions:
+
+| Mode | One side | The other |
+| --- | --- | --- |
+| Solo | You | A keeper, from a team |
+| v computer | Your team, named | A team |
+| Two players | A name | A name |
+
+**Half of this is already built.** Starting a game against the computer asks
+you to name your team, in the same dialog a duel uses with one field instead of
+two and different copy. The two are stored apart - `teamName` against
+`duelNames` - because they answer different questions, and sharing one slot
+meant naming your team and then finding it standing in a person's place on the
+two-player scoreboard. What is left for this phase is the *opponent* being a
+team rather than a single taker profile.
+
+Later, a human side could *also* pick a team - which would mean a kit rather
+than a different name, since `Player.colors` already exists and a team is the
+natural owner of one.
+
+#### What a team is
+
+A composition of things this project already has, which is what makes it cheap:
+
+```js
+{
+  id: 'northgate',
+  name: 'Northgate United',
+  kit: { shirt: '#1d4ed8', trim: '#f8fafc' },
+  keeper: 'steady',                      // -> content/keepers.js
+  takers: ['placer', 'steady', 'hammer', 'unreadable', 'placer'],
+  rating: 2,                             // where it sits on the ladder
+}
+```
+
+`content/teams.js` referring to `keepers.js` and `takers.js` rather than
+restating them, so inventing a team is choosing a squad rather than inventing
+numbers, and a good keeper can appear in two teams without being copied.
+
+**The best part of this is the five takers, and it is not a cosmetic detail.**
+A real shootout sends a different player up each round, and a team whose
+takers are `[placer, hammer, placer, unreadable, hammer]` varies shot to shot
+in a way one profile never can. That directly serves the rule
+[the computer taker](#one-player-against-the-computer) is built around: it must
+not be readable. Five profiles in sequence is harder to read than one, and it
+is harder for free, because the mechanism already exists.
+
+It also makes the roster matter. The figure that runs up can be a named
+footballer from `players.js`, wearing the team's kit, and the HUD can say who
+is taking this one - which is a thing shootouts do and this game does not.
+
+#### The ladder
+
+Teams get a `rating`, and you work up through them. The shape worth building is
+a **cup run** rather than a menu of difficulties:
+
+- Eight teams, knockout. Beat one and you draw the next, harder one.
+- Lose and the run is over. Your furthest round is what is remembered.
+- The final is the best team in the file.
+
+A cup is better than a difficulty picker for three reasons. It gives a reason
+to play the next one, which a menu does not. It makes a loss *mean* something
+without punishing you for long, because a fresh run is one tap away. And it
+needs no unlocking logic: you are not granted access to harder teams, you
+simply meet them.
+
+**The same ladder covers solo.** Solo currently faces one keeper forever.
+Facing each team's keeper in turn, getting harder, is the identical structure
+with the sides swapped - and it costs nothing extra once teams own a keeper.
+
+#### What this needs that does not exist yet
+
+- **`content/teams.js`**, and the takers becoming a squad rather than a single
+  profile on the game.
+- **Persistence with a schema.** A cup run is state that has to survive a page
+  load, which is the first thing in this project that genuinely needs
+  `storage/schema.ts` - listed since Phase 1 and still not built. Furthest
+  round reached is a tiny record, but it is a record with a version.
+- **Something at the end of a round.** Winning a cup tie and getting the same
+  full-time panel as a friendly is an anticlimax. This does not need much - a
+  bracket, a next-opponent card - but it needs *something*, or the ladder is
+  invisible.
+
+#### What to be careful of
+
+**Difficulty has to be measured, not asserted.** Every other difficulty claim
+in this project was wrong until it was counted: the keeper was 85% before a
+retune and 63% after, and the computer taker's `technique` did nothing at all
+until it was measured. A ladder of eight teams is eight difficulty claims, and
+the harness that measured the takers should be pointed at each of them before
+any of it ships.
+
+**A team is another place a real name could reach the public web.** Invented
+clubs only, per [what not to commit](#what-not-to-commit) - the same rule the
+roster and the hoardings already follow, and for the same reason.
 
 ### Two devices, later
 
@@ -797,7 +1019,9 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **2** ✅ | `AngledBehindView` and `KeeperCamView`, view registry, `?view=` param, on-screen switcher | Same game, three cameras, compare and choose |
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
 | **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and sound - synthesised impacts, sampled crowd. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
+| **3.75** ✅ | One player against the computer, alternating. See [One player against the computer](#one-player-against-the-computer) | You get to be the keeper without needing a second person |
 | **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
+| **4.5** | Teams, and a cup run against progressively better ones. Solo climbs the same ladder against their keepers. See [Teams, and a ladder to climb](#teams-and-a-ladder-to-climb) | A reason to play the next one |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) | Play somebody who is not in the room |
 | **7** | A second presentation package, which is the only thing that proves the boundary. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |
@@ -1350,7 +1574,10 @@ Not worth testing: rendering. Compare views by playing them.
    in Phase 3 reads patterns without any code, and the first logged duel split 23
    left to 20 right against 66/90 in the solo sessions. That is one session and
    not a finding, but it points at the cheaper fix: the dominant strategy may be
-   a symptom of playing alone rather than of the keeper.
+   a symptom of playing alone rather than of the keeper. Phase 3.75 gives that
+   a way to be tested without needing two people: the computer taker is built
+   never to converge on a spot, so a player who finds one anyway is telling us
+   something about the keeper rather than about the format.
 6. **What should the route actually be?** `/deadball/` is the working assumption. A less guessable slug buys very little given the page is `noindex` and linked from nowhere.
 
 ## Licensing
@@ -1417,6 +1644,15 @@ This repo is public, and this file lives in it.
   a board is a short string in a content file that renders straight onto the
   pitch, which makes it the easiest place in the project to put a real name on
   the public web without meaning to.
+- **Nothing that requires attribution.** Settled after a CC-BY crowd recording
+  turned up that was better than what it would have replaced. CC-BY permits
+  everything this project needs and the obligation is small - credit the
+  author, note the change, link the licence - but it has to be discharged
+  somewhere a person *using* the work can find it, which means the game
+  acquiring a credits screen it does not have and every future contributor
+  remembering the rule. A standard nobody has to remember beats a small
+  obligation that compounds. In practice: **CC0, or a licence that explicitly
+  says attribution is not required.**
 - Custom players live in `localStorage`, not in the repo.
 - No names in the shot log. It is the one file here that leaves the device, and
   `takerSide` already says who did what. There is a test that fails if a field

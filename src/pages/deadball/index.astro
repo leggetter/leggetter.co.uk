@@ -24,9 +24,19 @@ const views = listCameras();
     */}
     <nav id="modes" aria-label="Players">
       <button type="button" data-mode="solo" aria-pressed="true">1 player</button>
+      <button type="button" data-mode="versus" aria-pressed="false">v computer</button>
       <button type="button" data-mode="duel" aria-pressed="false">2 players</button>
-      <button type="button" id="mute" aria-pressed="false" title="Sound">
-        <span id="mute-icon" aria-hidden="true">&#9834;</span>
+      <button type="button" id="mute" aria-pressed="false" title="Sound on">
+        <svg id="mute-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M3 9.5v5h3.5L11 18V6L6.5 9.5H3z" fill="currentColor" />
+          <g id="mute-waves" fill="none" stroke="currentColor" stroke-width="1.9"
+            stroke-linecap="round">
+            <path d="M14.2 9.2a4 4 0 0 1 0 5.6" />
+            <path d="M17 6.6a7.7 7.7 0 0 1 0 10.8" />
+          </g>
+          <path id="mute-cross" d="M14.5 9.5l6 5M20.5 9.5l-6 5" stroke="currentColor"
+            stroke-width="1.9" stroke-linecap="round" hidden />
+        </svg>
         <span class="visually-hidden">Sound</span>
       </button>
     </nav>
@@ -47,12 +57,12 @@ const views = listCameras();
     <dialog id="names" class="ph-no-capture" aria-labelledby="names-heading">
       <form id="names-form">
         <h2 id="names-heading">Who is playing?</h2>
-        <p>Whoever goes first shoots first. You can change these any time by
-          pressing <b>2 players</b> again.</p>
-        <label for="name-0">Shoots first</label>
+        <p id="names-blurb">Whoever goes first shoots first. You can change these any
+          time by pressing <b>2 players</b> again.</p>
+        <label for="name-0" id="label-0">Shoots first</label>
         <input id="name-0" name="name0" type="text" maxlength="12" autocomplete="off"
           spellcheck="false" placeholder="Player 1" />
-        <label for="name-1">Keeps first</label>
+        <label for="name-1" id="label-1">Keeps first</label>
         <input id="name-1" name="name1" type="text" maxlength="12" autocomplete="off"
           spellcheck="false" placeholder="Player 2" />
         <div id="names-actions">
@@ -78,7 +88,7 @@ const views = listCameras();
 
 <script>
   import { start } from '../../games/deadball/main';
-  import { DEFAULT_NAMES } from '../../games/deadball/core/names';
+  import { DEFAULT_NAMES, DEFAULT_TEAM } from '../../games/deadball/core/names';
 
   const canvas = document.getElementById('pitch');
 
@@ -128,6 +138,33 @@ const views = listCameras();
           document.getElementById('name-1'),
         ] as (HTMLInputElement | null)[];
         const cancel = document.getElementById('names-cancel');
+        const heading = document.getElementById('names-heading');
+        const blurb = document.getElementById('names-blurb');
+        const labels = [document.getElementById('label-0'), document.getElementById('label-1')];
+
+        /**
+         * The same dialog, asking a different question.
+         *
+         * A duel wants two people's names, because two people are in the room.
+         * Against the computer there is one side to name and it is a team, not
+         * a person - so the second field goes away rather than being filled in
+         * with something nobody typed.
+         */
+        const dressFor = (mode: 'duel' | 'versus', opponent: string) => {
+          const duel = mode === 'duel';
+          if (heading) heading.textContent = duel ? 'Who is playing?' : 'Name your team';
+          if (blurb) {
+            blurb.textContent = duel
+              ? 'Whoever goes first shoots first. You can change these any time by pressing 2 players again.'
+              : `Five penalties each against ${opponent}, and you go in goal for theirs.`;
+          }
+          if (labels[0]) labels[0].textContent = duel ? 'Shoots first' : 'Your team';
+          if (fields[0]) fields[0].placeholder = duel ? 'Player 1' : 'Your team';
+          // Hiding the label as well as the input, or the form keeps a heading
+          // for a field that is not there.
+          if (labels[1]) labels[1].hidden = !duel;
+          if (fields[1]) fields[1].hidden = !duel;
+        };
 
         const closeNames = () => {
           if (panel?.open) panel.close();
@@ -137,20 +174,32 @@ const views = listCameras();
         // and in one place.
         panel?.addEventListener('close', paintModes);
 
-        const openNames = () => {
+        let pendingMode: 'duel' | 'versus' = 'duel';
+
+        const openNames = (mode: 'duel' | 'versus' = 'duel') => {
+          pendingMode = mode;
           if (!panel || !fields[0] || !fields[1]) {
-            // No form in the page for some reason: start the duel anyway with
-            // whatever names are already stored, rather than stranding the
-            // button. A missing input should cost you the rename, not the game.
-            game.restart('duel');
+            // No form in the page for some reason: start anyway with whatever
+            // names are already stored, rather than stranding the button. A
+            // missing input should cost you the rename, not the game.
+            game.restart(mode);
             paintModes();
             return;
           }
           // Prefilled with the current names, unless they are the untouched
           // defaults - "Player 1" is what the placeholder already says, and
           // making it real text means it has to be cleared before typing.
+          dressFor(mode, game.opponentName());
           const current = game.currentNames();
-          fields[0].value = current[0] === DEFAULT_NAMES[0] ? '' : current[0];
+          const team = game.currentTeam();
+          fields[0].value =
+            mode === 'versus'
+              ? team === DEFAULT_TEAM
+                ? ''
+                : team
+              : current[0] === DEFAULT_NAMES[0]
+                ? ''
+                : current[0];
           fields[1].value = current[1] === DEFAULT_NAMES[1] ? '' : current[1];
           if (!panel.open) panel.showModal();
           fields[0].focus();
@@ -161,7 +210,7 @@ const views = listCameras();
           event.preventDefault();
           // Sent as typed. The game cleans and caps them, so the rules live in
           // one place rather than half here and half there.
-          game.restart('duel', [fields[0]?.value ?? '', fields[1]?.value ?? '']);
+          game.restart(pendingMode, [fields[0]?.value ?? '', fields[1]?.value ?? '']);
           closeNames();
         });
 
@@ -175,10 +224,12 @@ const views = listCameras();
             if (mode === 'solo') {
               closeNames();
               game.restart('solo');
+            } else if (mode === 'versus') {
+              openNames('versus');
             } else if (mode === 'duel') {
               // Ask before starting, and ask again if the button is pressed
               // during a duel, which is how you correct a typo mid-shootout.
-              openNames();
+              openNames('duel');
             }
             paintModes();
             button.blur();
@@ -188,11 +239,15 @@ const views = listCameras();
         paintModes();
 
         const mute = document.getElementById('mute');
-        const muteIcon = document.getElementById('mute-icon');
+        const waves = document.getElementById('mute-waves');
+        const cross = document.getElementById('mute-cross');
         const paintMute = () => {
           const muted = game.isMuted();
+          // aria-pressed still carries the state for a screen reader; it just
+          // no longer decides what the button looks like.
           mute?.setAttribute('aria-pressed', String(muted));
-          if (muteIcon) muteIcon.textContent = muted ? '\u2715' : '\u266A';
+          if (waves) waves.toggleAttribute('hidden', muted);
+          if (cross) cross.toggleAttribute('hidden', !muted);
           mute?.setAttribute('title', muted ? 'Sound off' : 'Sound on');
         };
         mute?.addEventListener('click', () => {
@@ -278,7 +333,7 @@ const views = listCameras();
   /* Unmistakable rather than merely tinted: filled, darker text, heavier, and
      carrying a dot no unselected button has. Colour alone is not a signal
      everybody can read. */
-  #modes button[aria-pressed='true'],
+  #modes button:not(#mute)[aria-pressed='true'],
   #views button[aria-pressed='true'] {
     background: #7dd3fc;
     border-color: #7dd3fc;
@@ -287,7 +342,13 @@ const views = listCameras();
     box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.25);
   }
 
-  #modes button[aria-pressed='true']::before,
+  /*
+     The dot marks which of a set of choices is current - one camera, one
+     number of players. Mute is not one of a set, it is a switch, and giving it
+     the dot made *muted* look like the selected state and sound-on look
+     inactive, which is backwards. The icon says which way it is set.
+  */
+  #modes button:not(#mute)[aria-pressed='true']::before,
   #views button[aria-pressed='true']::before {
     content: '';
     display: inline-block;
@@ -299,7 +360,7 @@ const views = listCameras();
     vertical-align: middle;
   }
 
-  #modes button[aria-pressed='true']:hover,
+  #modes button:not(#mute)[aria-pressed='true']:hover,
   #views button[aria-pressed='true']:hover {
     background: #a5e2fd;
     color: #05202e;
@@ -313,8 +374,31 @@ const views = listCameras();
 
   #mute {
     min-width: 34px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 9px;
+    padding-right: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #mute-icon {
+    width: 19px;
+    height: 19px;
+    display: block;
+  }
+
+  /* The `hidden` attribute is defined for HTML elements, and these are SVG
+     ones - so setting it read as hidden to a test and drew anyway, putting the
+     waves and the cross on top of each other. Spelled out here rather than
+     relying on a UA stylesheet that has no obligation to cover this. */
+  #mute-icon [hidden] {
+    display: none;
+  }
+
+  /* Muted is the state worth flagging, so it goes quiet rather than loud: the
+     icon dims instead of the button lighting up. */
+  #mute[aria-pressed='true'] #mute-icon {
+    opacity: 0.55;
   }
 
   .visually-hidden {

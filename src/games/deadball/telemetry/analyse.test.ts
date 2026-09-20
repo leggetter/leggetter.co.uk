@@ -217,6 +217,21 @@ describe('a duel, read as a contest', () => {
     assert.equal(sides[1].keeping.meanPick, null);
   });
 
+  test('a game against the computer is summarised too', () => {
+    // The mode filter used to name 'duel' specifically, which meant every
+    // versus shootout ended on a panel of zeroes with the data sitting right
+    // there in the log.
+    const { sides } = summariseDuel([
+      shot({ mode: 'versus', takerSide: 0, outcome: 'goal' }),
+      shot({ mode: 'versus', takerSide: 1, outcome: 'saved' }),
+      shot({ mode: 'versus', takerSide: 0, outcome: 'goal' }),
+    ]);
+    assert.equal(sides[0].taking.shots, 2);
+    assert.equal(sides[0].taking.goals, 2);
+    assert.equal(sides[1].taking.shots, 1);
+    assert.equal(sides[1].keeping.faced, 2);
+  });
+
   test('solo shots in the same log are ignored', () => {
     const { sides } = summariseDuel([shot({ outcome: 'goal' }), duelShot(0, 'goal')]);
     assert.equal(sides[0].taking.shots, 1);

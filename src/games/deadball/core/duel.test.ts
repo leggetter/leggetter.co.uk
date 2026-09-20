@@ -107,19 +107,22 @@ describe('a duel', () => {
     assert.deepEqual(state.scores, [2, 0]);
   });
 
-  test('runs ten shots and then completes, when somebody has won', () => {
-    // This used to score every third shot, which alternates to 2-2 and now
-    // goes to sudden death rather than ending. The old pattern was fine under
-    // the old rule and is a tie under the new one.
+  test('runs ten shots and then completes, when it stays close', () => {
+    // Rewritten twice, each time because the rules got more like a real
+    // shootout. It first scored every third shot, which alternates to 2-2 and
+    // goes to sudden death. It then scored every other one, which is 5-0 and
+    // is decided after six. This sequence ends 3-2, which genuinely needs all
+    // ten - the side behind can equalise right up to the last kick.
+    const results = [true, true, true, false, true, true, false, false, false, false];
     let state = duel();
-    for (let i = 0; i < 10; i++) {
+    for (const [i, scored] of results.entries()) {
       assert.notEqual(state.phase, 'complete', `finished early at shot ${i}`);
-      state = shot(state, i % 2 === 0 ? 'goal' : 'saved');
+      state = shot(state, scored ? 'goal' : 'saved');
     }
     assert.equal(state.phase, 'complete');
     assert.equal(state.outcomes.length, 10);
     assert.deepEqual(shotsTaken(state), [5, 5], 'five each');
-    assert.deepEqual(state.scores, [5, 0]);
+    assert.deepEqual(state.scores, [3, 2]);
     assert.equal(state.scores[0] + state.scores[1], state.outcomes.filter((o) => o === 'goal').length);
   });
 
@@ -232,11 +235,14 @@ describe('sudden death', () => {
   const play = (results: boolean[]): MatchState =>
     results.reduce<MatchState>((state, scored) => take(state, scored), initialMatch(3, 5, 'duel'));
 
-  test('a decided shootout still ends after ten', () => {
-    // Side 0 scores all five, side 1 none.
+  test('a decided shootout ends, and now it ends as soon as it is decided', () => {
+    // This used to assert 5-0 after ten, from the days when every shootout ran
+    // the full distance. Side 0 scoring three unanswered puts it beyond reach
+    // with two each left, so the last four penalties are never taken.
     const done = play([true, false, true, false, true, false, true, false, true, false]);
     assert.equal(done.phase, 'complete');
-    assert.deepEqual(done.scores, [5, 0]);
+    assert.deepEqual(done.scores, [3, 0]);
+    assert.equal(done.outcomes.length, 6);
   });
 
   test('a level shootout does not end', () => {
@@ -306,5 +312,107 @@ describe('sudden death', () => {
     }
     assert.equal(state.phase, 'complete');
     assert.equal(inSuddenDeath(state), false);
+  });
+});
+
+describe('a shootout that is already decided', () => {
+  /** Take one shot with a known result and move on. */
+  const take = (state: MatchState, scored: boolean): MatchState => {
+    let next = state;
+    if (next.phase === 'keeping') {
+      next = reduce(next, { type: 'SET_DIVE', dive: { x: 0, y: 1 } });
+    }
+    if (next.phase === 'handover') next = reduce(next, { type: 'HANDED_OVER' });
+    next = reduce(next, { type: 'TAKE_SHOT' });
+    next = reduce(next, { type: 'STRIKE' });
+    next = reduce(next, { type: 'RESOLVE', outcome: scored ? 'goal' : 'saved' });
+    return reduce(next, { type: 'NEXT' });
+  };
+
+  /** Play a list of results in order, stopping if the match finishes. */
+  const play = (results: boolean[]): MatchState => {
+    let state = initialMatch(3, 5, 'duel');
+    for (const scored of results) {
+      if (state.phase === 'complete') break;
+      state = take(state, scored);
+    }
+    return state;
+  };
+
+  test('the reported case: 5-3 with one still to take ends there', () => {
+    // Found by playing. One side scored all five; the other had taken four and
+    // scored three, so four was the most they could reach - and they were
+    // still sent up to take a tenth penalty that could not change anything.
+    const state = play([true, true, true, true, true, false, true, true, true]);
+    assert.equal(state.outcomes.length, 9, 'the tenth must never be taken');
+    assert.equal(state.phase, 'complete');
+    assert.deepEqual(state.scores, [5, 3]);
+  });
+
+  test('three from three against none from three is over', () => {
+    // Both have two left; the side on nothing can reach two at most.
+    const state = play([true, false, true, false, true, false, true, false]);
+    assert.equal(state.phase, 'complete');
+    assert.equal(state.outcomes.length, 6);
+    assert.deepEqual(state.scores, [3, 0]);
+  });
+
+  test('it can end mid-round, before the other side walks up', () => {
+    // The reported case is exactly this: it ended on the ninth, which is side
+    // 0's fifth, leaving side 1 with four taken and one they never took. An
+    // uneven count is the visible sign that a shootout stopped the moment it
+    // was decided rather than at the end of a round.
+    const state = play([true, true, true, true, true, false, true, true, true]);
+    const [a, b] = shotsTaken(state);
+    assert.deepEqual([a, b], [5, 4]);
+    assert.equal(state.phase, 'complete');
+  });
+
+  test('a shootout still alive is not stopped', () => {
+    // 3-2 after eight, with one each left. The side behind can still equalise,
+    // so both take their fifth.
+    const state = play([true, true, true, false, true, true, false, false, false, false]);
+    assert.equal(state.outcomes.length, 10);
+    assert.deepEqual(state.scores, [3, 2]);
+    assert.equal(state.phase, 'complete');
+  });
+
+  test('level after ten still goes to sudden death', () => {
+    const state = play(Array.from({ length: 10 }, () => true));
+    assert.equal(state.outcomes.length, 10);
+    assert.notEqual(state.phase, 'complete');
+    assert.equal(inSuddenDeath(state), true);
+  });
+
+  test('every finished shootout has a winner, and none runs on', () => {
+    // Exhaustive over all 1,024 ways ten penalties can go. Two properties:
+    // a completed match is never level, and no match ever takes a penalty
+    // after it was already decided.
+    for (let bits = 0; bits < 1024; bits++) {
+      const results = Array.from({ length: 10 }, (_, i) => Boolean(bits & (1 << i)));
+      const state = play(results);
+      if (state.phase !== 'complete') {
+        assert.equal(state.scores[0], state.scores[1], `unfinished but not level at ${bits}`);
+        continue;
+      }
+      assert.notEqual(state.scores[0], state.scores[1], `finished level at ${bits}`);
+
+      // Rebuild the score after every prefix; none but the last may be decided.
+      let a = 0;
+      let b = 0;
+      for (let i = 0; i < state.outcomes.length; i++) {
+        if (state.outcomes[i] === 'goal') {
+          if (i % 2 === 0) a += 1;
+          else b += 1;
+        }
+        const taken = i + 1;
+        const leftA = 5 - Math.ceil(taken / 2);
+        const leftB = 5 - Math.floor(taken / 2);
+        const over = a > b + leftB || b > a + leftA;
+        if (over) {
+          assert.equal(taken, state.outcomes.length, `played on after ${taken} at ${bits}`);
+        }
+      }
+    }
   });
 });

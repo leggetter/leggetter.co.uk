@@ -285,6 +285,18 @@ const NARROW = 560;
  * everything down, so it needs to reach further there, not less far. A row of
  * small outlined circles over a crowd is invisible without it.
  */
+/**
+ * Two sides, whoever is playing them.
+ *
+ * `duel` is two people on one device and `versus` is one person against the
+ * computer, and every screen below treats them the same: a row of footballs
+ * each, a name on each, a keeper's turn, a caption saying whose shot it is.
+ * The only thing that differs is who decides, which is the simulation's
+ * business rather than this file's.
+ */
+const twoSided = (frame: FrameState): boolean =>
+  frame.mode === 'duel' || frame.mode === 'versus';
+
 const scrimHeight = (width: number): number => (width < NARROW ? 176 : 130);
 
 const FACE = 'ui-sans-serif, system-ui, -apple-system, sans-serif';
@@ -935,7 +947,7 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
   const narrow = width < NARROW;
   let y = Math.max(46, height * 0.08);
 
-  if (frame.mode === 'duel') {
+  if (twoSided(frame)) {
     const [a, b] = frame.scores;
     ctx.font = `700 ${narrow ? 38 : 50}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
@@ -955,7 +967,7 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
   }
 
   // This shootout, shot by shot.
-  const duel = frame.mode === 'duel';
+  const duel = twoSided(frame);
   if (duel) {
     /**
      * A row each, one football per shot.
@@ -965,7 +977,11 @@ function drawFullTime(ctx: Ctx, frame: FrameState, width: number, height: number
      * about who took it - but it still meant reading your own five off every
      * other position. Two rows is the thing that was actually wanted.
      */
-    const rows = shotsBySide(frame.outcomes, frame.shotsTotal, frame.suddenDeath);
+    const rows = shotsBySide(
+      frame.outcomes,
+      frame.shotsTotal,
+      frame.suddenDeath && frame.phase !== 'complete'
+    );
     const count = rows[0].length;
     const gap = Math.min(narrow ? 26 : 34, (width - (narrow ? 90 : 150)) / Math.max(1, count));
     const radius = Math.max(5, Math.min(narrow ? 9 : 11, gap * 0.38));
@@ -1258,7 +1274,14 @@ export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, wi
   ctx.font = `500 ${narrow ? 12 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
   ctx.fillText(
-    spot ? 'let go to commit' : 'pick your corner  ·  the taker cannot see this',
+    spot
+      ? 'let go to commit'
+      : frame.mode === 'versus'
+        ? // Worth saying, because it is the question anybody asks of a
+          // computer opponent. It decides its shot after the pick and never
+          // reads it, which is a promise the code keeps rather than a claim.
+          'pick your corner  ·  it will not see where you went'
+        : 'pick your corner  ·  the taker cannot see this',
     width / 2,
     headY + (narrow ? 42 : 46)
   );
@@ -1401,12 +1424,27 @@ function drawBallRow(
 export function shotsBySide(
   outcomes: Outcome[],
   shotsTotal: number,
-  suddenDeath: boolean
+  /**
+   * True when another round is coming and its empty slots should already be
+   * on screen.
+   *
+   * Counting the rounds that had *started* meant the sixth pair only appeared
+   * once somebody had taken the eleventh penalty - so the moment a shootout
+   * went to sudden death, the scoreboard still showed a full five each and
+   * nothing to say what happens next. The empty pair is the announcement.
+   *
+   * False once the match is over, or a finished shootout would show a round
+   * nobody is going to take.
+   */
+  awaitingRound: boolean
 ): [(Outcome | undefined)[], (Outcome | undefined)[]] {
-  // Enough slots for the regulation five each, plus however many rounds of
-  // sudden death have started. A round in progress shows the taken shot and an
+  // The regulation five each, plus every round sudden death has reached, plus
+  // the one being waited for. A round in progress shows the taken shot and an
   // empty slot for the answer, which is the state the whole format turns on.
-  const rounds = Math.max(shotsTotal / 2, suddenDeath ? Math.ceil(outcomes.length / 2) : 0);
+  const rounds = Math.max(
+    shotsTotal / 2,
+    awaitingRound ? Math.floor(outcomes.length / 2) + 1 : Math.ceil(outcomes.length / 2)
+  );
   const rows: [(Outcome | undefined)[], (Outcome | undefined)[]] = [[], []];
   for (let round = 0; round < rounds; round++) {
     rows[0].push(outcomes[round * 2]);
@@ -1442,7 +1480,7 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   // page's own breakpoint. See the max-width: 559px block in index.astro.
   const top = width < NARROW ? 48 : 16;
 
-  if (frame.mode === 'duel') {
+  if (twoSided(frame)) {
     for (const side of [0, 1] as const) {
       const taking = frame.taker === side;
       const line = `${frame.names[side].toUpperCase()}  ${frame.scores[side]}${taking ? '   \u2190 taking' : ''}`;
@@ -1461,8 +1499,12 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   // interleaved line: a flat row alternates between the two players, so
   // reading your own record off it means counting every other position.
   const tight = width < NARROW;
-  if (frame.mode === 'duel') {
-    const rows = shotsBySide(frame.outcomes, frame.shotsTotal, frame.suddenDeath);
+  if (twoSided(frame)) {
+    const rows = shotsBySide(
+      frame.outcomes,
+      frame.shotsTotal,
+      frame.suddenDeath && frame.phase !== 'complete'
+    );
     // Two rows and two score lines have to fit above the keeper's banner, and
     // on a phone the mode buttons have already pushed everything down. At the
     // desktop size these overlapped "X IN GOAL" by about fifteen pixels.
@@ -1513,7 +1555,7 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   // Who is taking this one, held on screen for the whole shot. The arrow in
   // the score is easy to miss, and missing it is what makes the winner of a
   // duel look wrong: "they were the keeper, how did they win?"
-  if (frame.mode === 'duel' && (frame.phase === 'ready' || frame.phase === 'runup')) {
+  if (twoSided(frame) && (frame.phase === 'ready' || frame.phase === 'runup')) {
     ctx.save();
     ctx.textAlign = 'center';
     const shooting = frame.suddenDeath

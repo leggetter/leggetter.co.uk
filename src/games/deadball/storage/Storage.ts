@@ -48,6 +48,14 @@ export interface Settings {
    * is the file that leaves the device - see core/names.ts.
    */
   duelNames?: [string, string];
+  /**
+   * What your side is called against the computer.
+   *
+   * Stored apart from `duelNames` on purpose. A duel asks for two people in a
+   * room; this asks for a team. Sharing one slot meant naming your team and
+   * then finding it in a person's place on the two-player scoreboard.
+   */
+  teamName?: string;
   /** Which presentation package was last used. */
   packageId?: string;
   /** Sound off. Stored, because having to mute it every visit is worse than

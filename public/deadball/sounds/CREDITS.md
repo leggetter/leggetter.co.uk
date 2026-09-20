@@ -9,11 +9,25 @@ why every licence here was read before the file went in. This document is the
 record of that, and what lets anyone else check the same thing without taking
 it on trust.
 
-**The set is not all under one licence.** Five files are CC0 1.0, which imposes
-no obligation at all. `goal.mp3` is under the **Pixabay Content License**,
-which is more restrictive, and the entry below says so plainly along with the
-clause that matters. That was a deliberate choice by the repository owner after
-hearing the alternatives, not an oversight.
+**The set is not all under one licence, but none of it requires attribution.**
+Five files are CC0 1.0, which imposes no obligation at all. `goal.mp3` is under
+the **Pixabay Content License**, which does not require attribution either but
+is more restrictive in another way; the entry below says so plainly along with
+the clause that matters. That was a deliberate choice after hearing the
+alternatives, not an oversight.
+
+**Attribution-required licences are not used here, and that is a rule rather
+than a coincidence.** CC-BY would permit everything this project needs, and the
+obligation is small - credit the author, note the change, link the licence. But
+it has to be discharged where a person *using* the work can find it, not only
+in a repository file like this one, which would mean the game growing a credits
+screen and every future contributor remembering why. A standard nobody has to
+remember beats a small obligation that compounds. So: CC0, or a licence that
+explicitly says attribution is not required.
+
+Which makes this file evidence rather than compliance. Nothing here is legally
+required to be credited; it is written down so that the check is auditable and
+so the next person does not have to take it on trust.
 
 All were retrieved on **2026-09-19**.
 
@@ -28,20 +42,29 @@ file in this directory, not the original.
 
 ## crowd.mp3 — the crowd bed, looped
 
-- Source: https://freesound.org/s/494360/
-- Author: `Sandermotions` (Freesound.org user)
+- Source: https://freesound.org/people/OleSouWester/sounds/437675/
+- Author: `OleSouWester` (Freesound.org user)
 - Licence: CC0 1.0 Universal (public domain dedication)
-- Retrieved: 2026-09-19
-- This copy: 9.5 s, mono, 24 kHz, 64 kbps
-- Taken from: the first 11 seconds of the source, which measured as the
-  liveliest stretch of the opening — around -24 dB and pulsing, against -28 dB
-  and flat from about seven seconds in.
-- Changes: high-passed at 70 Hz, level-flattened, loudness-normalised,
-  downmixed to mono, and cross-faded head-over-tail so it loops without a seam
-  (head and tail measure within 0.3 dB of each other).
-- Note: these bytes were cut from Pixabay's mirror of this upload rather than
-  from Freesound, which is why the sample rate is 24 kHz. Same recording, same
-  CC0 dedication; the Freesound page above is the canonical source of the work.
+- Retrieved: 2026-09-20
+- This copy: 10.0 s, mono, 24 kHz, 64 kbps
+- Taken from: 12–25 s of the source, which measured as its steadiest stretch.
+  The recording decays across its length, from about -33 dB to -41 dB, so the
+  cut is where that drift is smallest.
+- Changes: high-passed at 70 Hz, level-flattened, the remaining drift cancelled
+  with a gain ramp, loudness-normalised, downmixed to mono, and cross-faded
+  head-over-tail over three seconds so it loops.
+- Note: these bytes came from Pixabay's mirror of this upload
+  (`people-football-crowd-3-69245`, re-hosted by their `freesound_community`
+  account), which is why the sample rate is 24 kHz. Same recording, and the
+  Freesound page above is the canonical source and the CC0 dedication.
+
+**On the loop.** Head and tail measure 1.6 dB apart, where the bed this
+replaced managed 0.3. That is not a step: the cross-fade means the tail *is*
+the material preceding the head, so there is no discontinuity. It is level
+wander, and the recording's own variation across the same window is 4.1 dB —
+so the seam is smaller than what the crowd does anyway. Worth saying rather
+than calling it seamless, because "seamless" is an ear judgement and nobody
+has made it yet.
 
 ## goal.mp3 — the crowd cheering a goal
 

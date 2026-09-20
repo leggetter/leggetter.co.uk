@@ -5,6 +5,8 @@
  * storage serializes these, and the two-player transport will send these.
  */
 
+import type { SetPiece } from './setpiece.ts';
+import type { Wall } from './wall.ts';
 import type { Vec3 } from './vec3.ts';
 
 /**
@@ -204,8 +206,12 @@ export interface FrameState {
   player: Player;
   /** Seconds since the ball was struck, 0 while aiming. */
   elapsed: number;
-  /** Where this penalty is being taken from. Varies once free kicks land. */
+  /** Where this kick is being taken from. */
   spot: Vec3;
+  /** Which kick this is: the spot, the wall size, the post being covered. */
+  piece: SetPiece;
+  /** Who is standing in the way. Empty for a penalty. */
+  wall: Wall;
   /**
    * Recent ball positions, oldest first. Drawn as a trail.
    *

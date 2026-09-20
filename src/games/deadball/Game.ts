@@ -16,6 +16,13 @@ import { createRng, shotSeed } from './core/rng.ts';
 import { tuningFingerprint } from './core/tuning.ts';
 import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts';
 import { advance, createFlight, type Flight } from './core/flight.ts';
+import {
+  cleanDiscipline,
+  setPieceFor,
+  type Discipline,
+  type SetPiece,
+} from './core/setpiece.ts';
+import { buildWall, type Wall } from './core/wall.ts';
 import { idleDrift, planKeeper } from './core/keeper.ts';
 import {
   inSuddenDeath,
@@ -170,6 +177,8 @@ export interface Game {
   /** Day, dusk or night. Remembered, like the camera. */
   useSky(id: string): void;
   currentSkyId(): string;
+  useDiscipline(id: string): void;
+  currentDiscipline(): string;
 }
 
 export async function startGame(options: GameOptions): Promise<Game> {
@@ -327,7 +336,40 @@ export async function startGame(options: GameOptions): Promise<Game> {
     );
   let keeperSim = idleKeeper();
 
-  let ballPosition = spotBall(PENALTY_DISTANCE);
+  let discipline: Discipline = cleanDiscipline(settings.discipline);
+  let piece: SetPiece = setPieceFor(match.seed, match.shotIndex, discipline);
+  let wall: Wall = buildWall(piece);
+  let ballPosition = piece.origin;
+
+  /** Everything a shootout starts from. */
+  const resetMatch = (mode: MatchMode): void => {
+    match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND, mode, discipline);
+    flight = null;
+    trail = [];
+    pending = null;
+    struckAt = null;
+    choosing = null;
+    summary = null;
+    runUp = 0;
+    settling = 0;
+    keeperSim = idleKeeper();
+    setUpKick();
+    computerShots = [];
+    computerDelay = COMPUTER_THINKS;
+  };
+
+  /**
+   * A new kick: where the ball is and who is standing in front of it.
+   *
+   * One place, called wherever the ball used to be put back on the penalty
+   * spot. Four copies of `spotBall(PENALTY_DISTANCE)` were fine while there
+   * was one place to put it; with three spots and a wall they would drift.
+   */
+  const setUpKick = (): void => {
+    piece = setPieceFor(match.seed, match.shotIndex, discipline);
+    wall = buildWall(piece);
+    ballPosition = piece.origin;
+  };
 
   const frameState = (): FrameState => ({
     phase: match.phase,
@@ -338,7 +380,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
     keeperProfile: keeper,
     player,
     elapsed: flight?.elapsed ?? 0,
-    spot: spotBall(PENALTY_DISTANCE),
+    spot: piece.origin,
+    piece,
+    wall,
     trail,
     runUp: match.phase === 'ready' ? 0 : match.phase === 'runup' ? runUp / RUN_UP_SECONDS : 1,
     clock,
@@ -379,7 +423,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     // Pressure rises on the last penalty, which is what composure reads.
     const pressure = match.shotIndex >= match.shotsTotal - 1 ? 1 : 0;
     const shot = resolveShot(input, player, rng, {
-      origin: spotBall(PENALTY_DISTANCE),
+      origin: piece.origin,
       pressure,
     });
 
@@ -399,7 +443,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // initialMatch directly meant relying on remembering to pass it, and the
       // argument was missing: playing again after a duel dropped you into a
       // solo game while the 2 players button still read as selected.
-      match = reduce(match, { type: 'START', seed: Date.now() & 0x7fffffff, shots: SHOTS_PER_ROUND });
+      match = reduce(match, {
+        type: 'START',
+        seed: Date.now() & 0x7fffffff,
+        shots: SHOTS_PER_ROUND,
+        discipline,
+      });
       summary = null;
       choosing = null;
       computerShots = [];
@@ -433,7 +482,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     struckAt = null;
     runUp = 0;
     settling = 0;
-    ballPosition = spotBall(PENALTY_DISTANCE);
+    setUpKick();
     keeperSim = idleKeeper();
   }
 
@@ -590,7 +639,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
           rng,
           pending.keeperStartX,
           pending.dive,
-          events
+          events,
+          // Captured when the flight is built rather than read from the closure
+          // as it runs: the kick is set up again the moment this one resolves,
+          // and a ball still in the air must be judged against the wall it was
+          // actually struck past.
+          wall
         );
         struckDive = pending.dive;
         pending = null;
@@ -689,19 +743,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
         names = cleanNames(typed);
         remember({ duelNames: names });
       }
-      match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND, mode);
-      flight = null;
-      trail = [];
-      pending = null;
-      struckAt = null;
-      choosing = null;
-      summary = null;
-      runUp = 0;
-      settling = 0;
-      keeperSim = idleKeeper();
-      ballPosition = spotBall(PENALTY_DISTANCE);
-      computerShots = [];
-      computerDelay = COMPUTER_THINKS;
+      resetMatch(mode);
     },
 
     currentMode: () => match.mode,
@@ -739,6 +781,24 @@ export async function startGame(options: GameOptions): Promise<Game> {
     },
 
     currentSkyId: () => skyId,
+
+    /**
+     * Penalties, free kicks, or both.
+     *
+     * Restarts the shootout rather than changing it underneath somebody: half
+     * a round of penalties followed by half a round of free kicks is not a
+     * result anybody asked for, and the scoreboard would not say which was
+     * which.
+     */
+    useDiscipline(id: string): void {
+      const next = cleanDiscipline(id);
+      if (next === discipline) return;
+      discipline = next;
+      remember({ discipline: next });
+      resetMatch(match.mode);
+    },
+
+    currentDiscipline: () => discipline,
 
     roster: () => roster.map((entry) => ({ ...entry })),
 

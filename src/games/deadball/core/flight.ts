@@ -21,8 +21,12 @@ import {
 import { step } from './physics.ts';
 import { planKeeper, stepKeeper, type KeeperRng, type KeeperSim } from './keeper.ts';
 import { classifyCrossing, frameHit, type FrameHit } from './rules.ts';
+import { wallHit, type Wall } from './wall.ts';
 import type { BallState, KeeperProfile, Outcome, Shot } from './types.ts';
-import { addScaled, dot, length, lerp, scale, vec, type Vec3 } from './vec3.ts';
+import { addScaled, dot, length, lerp, scale, vec, ZERO, type Vec3 } from './vec3.ts';
+
+/** No wall, which is what a penalty has. Frozen so it can be shared. */
+const EMPTY_WALL: Wall = Object.freeze({ people: [], height: 0, radius: 0 }) as Wall;
 
 export interface Flight {
   ball: BallState;
@@ -42,6 +46,8 @@ export interface Flight {
   caught: boolean;
   /** Seconds of aftermath run so far, once the outcome is settled. */
   sinceOutcome: number;
+  /** Who is standing in the way. Empty for a penalty. */
+  wall: Wall;
 }
 
 /**
@@ -120,7 +126,12 @@ export function createFlight(
    * error rather than a quiet nothing. Callers that genuinely want silence say
    * `NO_EVENTS` and mean it.
    */
-  events: EventSink
+  events: EventSink,
+  /**
+   * The wall, for a free kick. A penalty has none, and an empty wall costs a
+   * single length check per step rather than a branch everywhere.
+   */
+  wall: Wall = EMPTY_WALL
 ): Flight {
   events.emit({ kind: 'boot', at: 0, force: forceOf(length(shot.velocity)) });
   return {
@@ -133,6 +144,7 @@ export function createFlight(
     outcome: null,
     caught: false,
     sinceOutcome: 0,
+    wall,
   };
 }
 
@@ -149,6 +161,24 @@ export function advance(flight: Flight, dt: number, events: EventSink): Flight {
   const ball = step(before, dt);
   const elapsed = flight.elapsed + dt;
   const keeper = stepKeeper(flight.keeper, flight.profile, ball, elapsed, dt);
+
+  // The wall first, because it is the nearest thing there is. A ball that hits
+  // it never reaches the woodwork or the line, so testing those first would
+  // occasionally judge a shot that had already been charged down.
+  if (wallHit(before.position, ball.position, flight.wall)) {
+    events.emit({ kind: 'boot', at: elapsed, force: forceOf(length(before.velocity)) * 0.5 });
+    events.emit({ kind: 'resolved', at: elapsed, outcome: 'blocked' });
+    return {
+      ...flight,
+      // Stopped where it struck, near enough. A charge-down does not rebound
+      // anywhere interesting and pretending otherwise would need a wall that
+      // has a shape rather than a radius.
+      ball: { ...ball, velocity: scale(ball.velocity, -0.18), spin: ZERO },
+      keeper,
+      elapsed,
+      outcome: 'blocked',
+    };
+  }
 
   // Off the woodwork, and still live. The shot carries on from the frame, so a
   // post can put it in as easily as it can keep it out.

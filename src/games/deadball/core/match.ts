@@ -9,6 +9,7 @@
 
 import type { Dive, MatchPhase, Outcome } from './types.ts';
 import { isGoal } from './rules.ts';
+import type { Discipline } from './setpiece.ts';
 
 /** Penalties per side in a shootout, before sudden death. */
 export const SHOTS_PER_ROUND = 5;
@@ -32,6 +33,15 @@ export type Side = 0 | 1;
 
 export interface MatchState {
   mode: MatchMode;
+  /**
+   * Penalties, free kicks, or both.
+   *
+   * On the match rather than beside it, so a shootout describes itself: a
+   * record in the log knows what it was, and a replay does not have to be told
+   * separately. It composes with `mode` rather than multiplying it - all three
+   * of solo, versus and duel play any of the three.
+   */
+  discipline: Discipline;
   phase: MatchPhase;
   seed: number;
   /** Index of the shot being taken, 0-based, counting both sides in a duel. */
@@ -56,7 +66,7 @@ export interface MatchState {
 }
 
 export type MatchMessage =
-  | { type: 'START'; seed: number; mode?: MatchMode; shots?: number }
+  | { type: 'START'; seed: number; mode?: MatchMode; shots?: number; discipline?: Discipline }
   /** The keeper has picked a corner. Duel only, and before anything else. */
   | { type: 'SET_DIVE'; dive: Dive }
   /** The device has changed hands and the keeper's pick is off the screen. */
@@ -88,10 +98,12 @@ const alternates = (mode: MatchMode): boolean => mode !== 'solo';
 export function initialMatch(
   seed: number,
   shots: number = SHOTS_PER_ROUND,
-  mode: MatchMode = 'solo'
+  mode: MatchMode = 'solo',
+  discipline: Discipline = 'penalties'
 ): MatchState {
   return {
     mode,
+    discipline,
     phase: openingPhase(mode, 0),
     seed,
     shotIndex: 0,
@@ -108,7 +120,12 @@ export function initialMatch(
 export function reduce(state: MatchState, message: MatchMessage): MatchState {
   switch (message.type) {
     case 'START':
-      return initialMatch(message.seed, message.shots ?? SHOTS_PER_ROUND, message.mode ?? state.mode);
+      return initialMatch(
+        message.seed,
+        message.shots ?? SHOTS_PER_ROUND,
+        message.mode ?? state.mode,
+        message.discipline ?? state.discipline
+      );
 
     case 'SET_DIVE':
       // Only while the keeper is on the clock. A dive chosen at any other point

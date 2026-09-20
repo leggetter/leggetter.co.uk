@@ -5,6 +5,7 @@
 import Fullscreen from '../../layouts/Fullscreen.astro';
 import { DEFAULT_CAMERA, listCameras } from '../../games/deadball/presentation/registry.ts';
 import { DEFAULT_SKY_ID, SKIES } from '../../games/deadball/content/skies.js';
+import { DISCIPLINES } from '../../games/deadball/core/setpiece.ts';
 
 // Rendered here rather than built in the browser. Astro scopes component CSS
 // by stamping an attribute on the elements in the template, so buttons created
@@ -23,6 +24,19 @@ const views = listCameras();
       and tap targets for nothing. The game only has to be told which one was
       pressed.
     */}
+    {/*
+      Bottom left, on its own, away from the bar.
+
+      It is not a mode and not a setting: it is a decision you make between one
+      shot and the next, so it sits where your thumb already is rather than two
+      taps into a dialog. The bar is also full, and this project has learned
+      what happens when something else goes in it.
+    */}
+    <button type="button" id="style" aria-live="polite">
+      <span id="style-label">Finesse</span>
+      <span id="style-hint"></span>
+    </button>
+
     {/*
       One flex row rather than two absolutely positioned corners.
 
@@ -106,12 +120,37 @@ const views = listCameras();
     {/*
       ph-no-capture: this site loads PostHog on every page, this one included.
       Autocapture does not send input values and session replay masks them by
-      default, so names were almost certainly never leaving the device - but
-      "almost certainly, depending on a setting in a dashboard" is not what the
-      note at the bottom of this form promises. The class is PostHog's own
-      opt-out and it holds for both, so the promise is kept by the page rather
-      than by a remote config nobody here can see.
+      default, so names were almost certainly never leaving the device - and
+      "almost certainly, depending on a setting in a dashboard" is not a good
+      enough answer for a box a child types their name into. The class is
+      PostHog's own opt-out and it holds for both, so it is the page that keeps
+      names off the wire rather than a remote config nobody here can see.
+
+      This used to be justified by a line of small print under the form saying
+      names never leave the device. The small print has gone; the reason for
+      the class has not, and it is the code rather than the sentence that was
+      ever doing the work.
     */}
+    {/*
+      Asked before the dialog that starts a game, not inside it.
+
+      It was a line of amber text in the form first. That is a warning, and a
+      warning can be read past - the button beside it still said "Start the
+      shootout" and still did. Ending a game somebody is in the middle of is a
+      decision, so it gets asked as one, and the two dialogs are sequential
+      rather than stacked: this one closes before the other opens.
+    */}
+    <dialog id="confirm" aria-labelledby="confirm-heading">
+      <div id="confirm-body" class="panel">
+        <h2 id="confirm-heading">End this shootout?</h2>
+        <p id="confirm-blurb">You are in the middle of one.</p>
+        <div id="confirm-actions">
+          <button type="button" id="confirm-yes">End it and start again</button>
+          <button type="button" id="confirm-no">Keep playing</button>
+        </div>
+      </div>
+    </dialog>
+
     <dialog id="names" class="ph-no-capture" aria-labelledby="names-heading">
       <form id="names-form">
         <h2 id="names-heading">Who is playing?</h2>
@@ -137,12 +176,29 @@ const views = listCameras();
         <label for="name-opponent" id="label-opponent" hidden>Their team</label>
         <input id="name-opponent" name="nameOpponent" type="text" maxlength="12"
           autocomplete="off" spellcheck="false" hidden />
+
+        {/*
+          Which kick, asked where the game starts rather than in Settings.
+          It decides what you are about to play, and a thing you choose once
+          per shootout belongs with the other things you choose once per
+          shootout - not two taps away beside the sound.
+        */}
+        <h3 id="kick-heading">Kick</h3>
+        <div class="choices" id="kick-choices">
+          {
+            DISCIPLINES.map(({ id, label }) => (
+              <button type="button" data-kick={id} aria-pressed={String(id === 'penalties')}>
+                {label}
+              </button>
+            ))
+          }
+        </div>
+        <p id="kick-note">Free kick positions and the wall are different every kick.</p>
+
         <div id="names-actions">
           <button type="submit">Start the shootout</button>
           <button type="button" id="names-cancel">Cancel</button>
         </div>
-        <p id="names-note">Names stay on this device. They are never sent
-          anywhere and never go into the shot log.</p>
       </form>
     </dialog>
     {/*
@@ -209,6 +265,10 @@ const views = listCameras();
             <label for="skill-composure">Composure</label>
             <input id="skill-composure" type="range" min="0" max="100" value="75" />
             <output for="skill-composure">75</output>
+
+            <label for="skill-dip">Dip</label>
+            <input id="skill-dip" type="range" min="0" max="100" value="75" />
+            <output for="skill-dip">75</output>
           </div>
 
           <h3>Foot</h3>
@@ -320,9 +380,6 @@ const views = listCameras();
           */}
           <button type="button" id="log-clear" data-armed="false">Clear the log</button>
         </div>
-        <p id="log-note">The log stays on this device. Nothing in it is sent
-          anywhere, and it holds no names.</p>
-
         <div id="settings-actions">
           <button type="button" id="settings-close">Done</button>
         </div>
@@ -391,6 +448,8 @@ const views = listCameras();
         const opponentField = document.getElementById('name-opponent') as HTMLInputElement | null;
         const opponentLabel = document.getElementById('label-opponent');
         const cancel = document.getElementById('names-cancel');
+        const confirmPanel = document.getElementById('confirm') as HTMLDialogElement | null;
+        const confirmBlurb = document.getElementById('confirm-blurb');
         const heading = document.getElementById('names-heading');
         const blurb = document.getElementById('names-blurb');
         const labels = [document.getElementById('label-0'), document.getElementById('label-1')];
@@ -403,13 +462,32 @@ const views = listCameras();
          * so the duel's second field goes away and the opponent's takes its
          * place, rather than either being filled in with something nobody typed.
          */
-        const dressFor = (mode: 'duel' | 'versus', opponent: string) => {
+        const dressFor = (mode: 'solo' | 'duel' | 'versus', opponent: string) => {
           const duel = mode === 'duel';
-          if (heading) heading.textContent = duel ? 'Who is playing?' : 'Name the teams';
+          const solo = mode === 'solo';
+          if (heading) {
+            heading.textContent = solo
+              ? 'On your own'
+              : duel
+                ? 'Who is playing?'
+                : 'Name the teams';
+          }
           if (blurb) {
-            blurb.textContent = duel
-              ? 'Whoever goes first shoots first. You can change these any time by pressing 2 players again.'
-              : `Five penalties each against ${opponent}, and you go in goal for theirs.`;
+            blurb.textContent = solo
+              ? 'Five of them, against a keeper. Nobody to hand the phone to.'
+              : duel
+                ? 'Whoever goes first shoots first. You can change these any time by pressing 2 players again.'
+                : `Five each against ${opponent}, and you go in goal for theirs.`;
+          }
+          // Solo has one player and no opponent worth naming, so the whole
+          // naming half of this form goes away and the kick choice is the
+          // reason the dialog still opens.
+          for (const label of labels) if (label) label.hidden = solo;
+          for (const field of fields) if (field) field.hidden = solo;
+          if (solo) {
+            if (opponentLabel) opponentLabel.hidden = true;
+            if (opponentField) opponentField.hidden = true;
+            return;
           }
           if (labels[0]) labels[0].textContent = duel ? 'Shoots first' : 'Your team';
           if (fields[0]) fields[0].placeholder = duel ? 'Player 1' : 'Your team';
@@ -433,10 +511,32 @@ const views = listCameras();
         // and in one place.
         panel?.addEventListener('close', paintModes);
 
-        let pendingMode: 'duel' | 'versus' = 'duel';
+        let pendingMode: 'solo' | 'duel' | 'versus' = 'solo';
 
-        const openNames = (mode: 'duel' | 'versus' = 'duel') => {
+        const kickChoices = [
+          ...document.querySelectorAll<HTMLButtonElement>('#kick-choices button'),
+        ];
+        let pendingKick = game.currentDiscipline();
+
+        const paintKick = () => {
+          for (const button of kickChoices) {
+            button.setAttribute('aria-pressed', String(button.dataset.kick === pendingKick));
+          }
+        };
+        for (const button of kickChoices) {
+          button.addEventListener('click', () => {
+            // Held until Start, so backing out of this dialog leaves the game
+            // you were already playing exactly as it was - including what it
+            // was being played with.
+            if (button.dataset.kick) pendingKick = button.dataset.kick;
+            paintKick();
+          });
+        }
+
+        const openNames = (mode: 'solo' | 'duel' | 'versus' = 'solo') => {
           pendingMode = mode;
+          pendingKick = game.currentDiscipline();
+          paintKick();
           if (!panel || !fields[0] || !fields[1]) {
             // No form in the page for some reason: start anyway with whatever
             // names are already stored, rather than stranding the button. A
@@ -468,8 +568,10 @@ const views = listCameras();
             opponentField.value = opponent === game.defaultOpponentName() ? '' : opponent;
           }
           if (!panel.open) panel.showModal();
-          fields[0].focus();
-          fields[0].select();
+          if (mode !== 'solo') {
+            fields[0].focus();
+            fields[0].select();
+          }
         };
 
         form?.addEventListener('submit', (event) => {
@@ -482,27 +584,67 @@ const views = listCameras();
           // opponent's team against the computer.
           const second =
             pendingMode === 'versus' ? (opponentField?.value ?? '') : (fields[1]?.value ?? '');
-          game.restart(pendingMode, [fields[0]?.value ?? '', second]);
+          // The kick first, so the shootout that starts a line later is the one
+          // that was asked for rather than the one before it.
+          game.useDiscipline(pendingKick);
+          if (pendingMode === 'solo') game.restart('solo');
+          else game.restart(pendingMode, [fields[0]?.value ?? '', second]);
           closeNames();
         });
 
         cancel?.addEventListener('click', closeNames);
+
+        /**
+         * Ask before ending a shootout somebody is in the middle of.
+         *
+         * Sequential rather than stacked - this closes before the other opens -
+         * because a dialog on top of a dialog is a back button nobody can
+         * predict, which is written down a few sections up in the spec.
+         */
+        const startGame = (mode: 'solo' | 'duel' | 'versus') => {
+          if (!game.inProgress() || !confirmPanel) {
+            openNames(mode);
+            return;
+          }
+          pendingMode = mode;
+          if (confirmBlurb) {
+            // Zero is reachable: a shootout counts as started the moment the
+            // ball is struck, and the first kick has no outcome until it lands.
+            const kicks = game.kicksTaken();
+            confirmBlurb.textContent =
+              kicks === 0
+                ? 'This one is still in the air. Starting a new shootout ends it.'
+                : kicks === 1
+                  ? 'One kick has been taken. Starting a new shootout loses it.'
+                  : `${kicks} kicks have been taken. Starting a new shootout loses them.`;
+          }
+          if (!confirmPanel.open) confirmPanel.showModal();
+          // Focus the way out rather than the way through, so a stray Enter
+          // keeps the game rather than ending it.
+          document.getElementById('confirm-no')?.focus();
+        };
+
+        document.getElementById('confirm-yes')?.addEventListener('click', () => {
+          confirmPanel?.close();
+          openNames(pendingMode);
+        });
+        document.getElementById('confirm-no')?.addEventListener('click', () => {
+          confirmPanel?.close();
+        });
+        // However it closed, Escape included: the buttons go back to showing
+        // the mode that is actually being played.
+        confirmPanel?.addEventListener('close', paintModes);
 
         for (const button of modes) {
           button.addEventListener('click', () => {
             const mode = button.dataset.mode;
             // Restarts the shootout, which is the honest thing to do: half a
             // solo round cannot be continued as a duel.
-            if (mode === 'solo') {
-              closeNames();
-              game.restart('solo');
-            } else if (mode === 'versus') {
-              openNames('versus');
-            } else if (mode === 'duel') {
-              // Ask before starting, and ask again if the button is pressed
-              // during a duel, which is how you correct a typo mid-shootout.
-              openNames('duel');
-            }
+            // Every mode asks now, solo included. It used to start on the
+            // press, which was fine while there was nothing to choose and
+            // nothing to lose - and is not, now that the kick is chosen here
+            // and a press can end a shootout somebody is halfway through.
+            if (mode === 'solo' || mode === 'versus' || mode === 'duel') startGame(mode);
             paintModes();
             button.blur();
           });
@@ -518,7 +660,7 @@ const views = listCameras();
         const playerForm = document.getElementById('player-form') as HTMLFormElement | null;
         const inventButton = document.getElementById('player-invent');
         const deleteButton = document.getElementById('player-delete') as HTMLButtonElement | null;
-        const skills = ['power', 'accuracy', 'curve', 'composure'] as const;
+        const skills = ['power', 'accuracy', 'curve', 'composure', 'dip'] as const;
         let foot: 'left' | 'right' = 'right';
 
         const field = (id: string) => document.getElementById(id) as HTMLInputElement | null;
@@ -550,7 +692,7 @@ const views = listCameras();
 
           const chosen = game.roster().find((p) => p.id === current);
           if (playerStats && chosen) {
-            playerStats.textContent = `POW ${chosen.power} · ACC ${chosen.accuracy} · CUR ${chosen.curve} · COM ${chosen.composure} · ${chosen.foot} foot`;
+            playerStats.textContent = `POW ${chosen.power} · ACC ${chosen.accuracy} · CUR ${chosen.curve} · COM ${chosen.composure} · DIP ${chosen.dip} · ${chosen.foot} foot`;
           }
           if (deleteButton) deleteButton.hidden = !chosen?.custom;
           // Your side's default is whoever is taking them, so picking somebody
@@ -624,6 +766,7 @@ const views = listCameras();
             accuracy: Number(field('skill-accuracy')?.value),
             curve: Number(field('skill-curve')?.value),
             composure: Number(field('skill-composure')?.value),
+            dip: Number(field('skill-dip')?.value),
             foot,
             colors: { kit: field('kit-colour')?.value, trim: field('trim-colour')?.value },
           });
@@ -719,8 +862,27 @@ const views = listCameras();
         const soundChoices = [
           ...document.querySelectorAll<HTMLButtonElement>('#sound-choices button'),
         ];
-        const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
+        const styleButton = document.getElementById('style');
+        const styleLabel = document.getElementById('style-label');
+        const styleHint = document.getElementById('style-hint');
 
+        const paintStyle = (): void => {
+          const style = game.currentStyle();
+          if (styleLabel) styleLabel.textContent = style.label;
+          if (styleHint) styleHint.textContent = style.hint;
+          styleButton?.setAttribute('aria-label', `Shot: ${style.label}. ${style.hint}`);
+        };
+
+        styleButton?.addEventListener('click', (event) => {
+          game.cycleStyle();
+          paintStyle();
+          // Or it keeps the focus ring and the next Enter cycles it again when
+          // somebody meant to take the penalty.
+          (event.currentTarget as HTMLButtonElement).blur();
+        });
+        paintStyle();
+
+        const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
         const logDownload = document.getElementById('log-download') as HTMLButtonElement | null;
         const logClear = document.getElementById('log-clear') as HTMLButtonElement | null;
 
@@ -871,6 +1033,50 @@ const views = listCameras();
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
 
+  #style {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    min-height: 40px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background: rgba(8, 20, 34, 0.72);
+    color: #e6eef8;
+    font: inherit;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    cursor: pointer;
+    text-align: left;
+    /* Over the pitch, so it must not swallow a drag that starts near it. */
+    touch-action: manipulation;
+  }
+
+  #style:hover {
+    background: rgba(12, 30, 50, 0.85);
+  }
+
+  #style:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  #style-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  #style-hint {
+    font-size: 11px;
+    line-height: 1.3;
+    color: rgba(230, 238, 248, 0.55);
+    max-width: 200px;
+  }
+
   #right {
     display: flex;
     justify-content: flex-end;
@@ -1002,7 +1208,8 @@ const views = listCameras();
   /* Shares the naming dialog's chrome rather than inventing a second look for
      the same kind of thing. Both are a panel over the pitch asking a question. */
   #settings,
-  #squad {
+  #squad,
+  #confirm {
     padding: 0;
     border: 0;
     background: none;
@@ -1389,13 +1596,6 @@ const views = listCameras();
 
   /* Same size and weight as the note under the naming form, which makes the
      same promise about the same data. */
-  #log-note {
-    margin: 10px 0 18px;
-    font-size: 11.5px;
-    line-height: 1.45;
-    color: rgba(230, 238, 248, 0.45);
-  }
-
   /* Muted is the state worth flagging, so it goes quiet rather than loud: the
      icon dims instead of the button lighting up. */
   #mute[aria-pressed='true'] #mute-icon {
@@ -1535,11 +1735,85 @@ const views = listCameras();
     outline-offset: 2px;
   }
 
-  #names-note {
-    margin: 12px 0 0;
+  #confirm::backdrop {
+    background: rgba(2, 8, 20, 0.88);
+  }
+
+  #confirm-body {
+    width: min(360px, 100vw - 32px);
+  }
+
+  #confirm-blurb {
+    margin: 0 0 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: rgba(230, 238, 248, 0.7);
+  }
+
+  #confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #confirm-actions button {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    background: rgba(125, 211, 252, 0.16);
+    color: #e6eef8;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* The one that loses something is the quieter of the two, and the one that
+     keeps the game is the one under your thumb. */
+  #confirm-actions #confirm-yes {
+    background: rgba(240, 180, 60, 0.14);
+    border-color: rgba(240, 180, 60, 0.4);
+    color: #f3c969;
+  }
+
+  #confirm-actions button:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  /* A field label, not a section heading: it sits among the other labels in
+     this form and should not shout over them. */
+  #kick-heading {
+    margin: 4px 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(230, 238, 248, 0.6);
+  }
+
+  #kick-note {
+    margin: 8px 0 4px;
     font-size: 11.5px;
     line-height: 1.45;
     color: rgba(230, 238, 248, 0.45);
+  }
+
+  /* Amber rather than red: this is worth reading before you press the button,
+     and it is not an error - you may well mean it. */
+  #names-form #names-warning {
+    margin: 12px 0 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(240, 180, 60, 0.32);
+    background: rgba(240, 180, 60, 0.1);
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #f3c969;
+  }
+
+  #names-form #names-warning[hidden] {
+    display: none;
   }
 
   /* On a phone the labels do not fit beside each other at the top of a shot

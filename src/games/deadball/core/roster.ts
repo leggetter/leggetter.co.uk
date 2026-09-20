@@ -34,11 +34,16 @@ export const MAX_CUSTOM = 12;
  * and inventing one means inventing a better one than anybody shipped - which
  * makes the picker a formality rather than a choice.
  *
- * 300 of a possible 400, so the average player is 75 in everything and any
+ * 375 of a possible 500, so the average player is 75 in everything and any
  * strength has to be paid for out of something else. The shipped roster was
  * rebalanced onto it; a test holds them there.
+ *
+ * It was 300 of 400 until `dip` arrived with free kicks. A fifth skill on the
+ * old budget would have quietly made everybody worse at the four they already
+ * had, so the budget moved with it - same average, same share of the maximum,
+ * and the same feeling of having to give something up.
  */
-export const SKILL_BUDGET = 300;
+export const SKILL_BUDGET = 375;
 
 /** What a player has spent. */
 export const spentOn = (player: {
@@ -46,7 +51,9 @@ export const spentOn = (player: {
   accuracy: number;
   curve: number;
   composure: number;
-}): number => player.power + player.accuracy + player.curve + player.composure;
+  dip: number;
+}): number =>
+  player.power + player.accuracy + player.curve + player.composure + player.dip;
 
 /**
  * Four skills, scaled down together until they fit the budget.
@@ -159,12 +166,14 @@ export function makeId(name: string, taken: readonly string[]): string {
 export function cleanPlayer(raw: unknown, id: string, custom: boolean): RosterEntry {
   const source = (raw ?? {}) as Record<string, unknown>;
   const colours = (source.colors ?? {}) as Record<string, unknown>;
-  const skills = [source.power, source.accuracy, source.curve, source.composure].map(clampSkill);
+  const skills = [source.power, source.accuracy, source.curve, source.composure, source.dip].map(
+    clampSkill
+  );
   // The budget is enforced here only for invented players, whose numbers come
   // off a disk that a browser console can write to. A shipped player over the
   // budget is a mistake in a file somebody is editing on purpose, and gets a
   // failing test rather than a silent nerf.
-  const [power, accuracy, curve, composure] = custom ? fitBudget(skills) : skills;
+  const [power, accuracy, curve, composure, dip] = custom ? fitBudget(skills) : skills;
   return {
     id,
     name: cleanPlayerName(source.name),
@@ -172,6 +181,7 @@ export function cleanPlayer(raw: unknown, id: string, custom: boolean): RosterEn
     accuracy: accuracy as number,
     curve: curve as number,
     composure: composure as number,
+    dip: dip as number,
     foot: source.foot === 'left' ? 'left' : 'right',
     colors: {
       kit: cleanColour(colours.kit, '#2f6fd0'),

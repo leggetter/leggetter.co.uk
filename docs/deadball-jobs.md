@@ -42,12 +42,21 @@ Press on the ball and drag. Let go to shoot.
   the green and you strike it cleanly. Let go early and the shot pulls left;
   late and it pushes right.
 
-Five penalties, then a screen telling you how you did.
+- **The button in the bottom left** picks how you strike it: finesse bends it,
+  driven keeps it low and hard, a knuckleball goes wherever it fancies.
+
+Five kicks each, then a screen telling you how you did.
+
+**Pressing any of the mode buttons asks what you want before it starts** -
+penalties, free kicks, or both - and asks first if it is about to end a shootout you
+are in the middle of. A free kick
+is taken from the left, the middle or the right - it moves every time - with
+two to four of the other lot standing in a wall ten yards away. The wall lines
+up to block the near post, so you go over it, round it, or you pick the other
+corner. Finesse is the one that goes over.
 
 **Settings has a button that saves a file of every shot you have taken**, and
-it tells you how many are in there before you press it. `L` still does the same
-thing from anywhere, for anyone who already has it in their fingers - but a key
-nobody has been told about is not a feature, and this is the half you can find.
+it tells you how many are in there before you press it.
 The file goes to your downloads and nowhere else - nothing is sent anywhere. It
 is genuinely useful: most of the tuning in this game came from reading those
 files rather than from anybody's opinion.
@@ -118,12 +127,35 @@ top if you need to turn it off.
 even at the same `gain`, so if something goes silent, try a bigger number before
 assuming you broke it.
 
-### 3. Add a footballer
+### 3. Change how a shot is struck
+
+**File:** `src/games/deadball/content/shots.js`
+
+Three ways to hit a dead ball - finesse, driven, knuckle - and the button in
+the bottom left cycles them. Every number in this file is a **multiplier** on
+what your drag already said, so `1` means "leave it alone" and you cannot break
+anything by changing one.
+
+| | what it does |
+|---|---|
+| `curve` | how much of your hook actually goes on the ball |
+| `power` | how hard it leaves the boot |
+| `loft` | how much of the player's `dip` is spent arcing it over a wall |
+| `height` | scales where in the goal the aim lands, so a driven shot stays low however far up you drag |
+| `wobble` | unpredictable spin. This is the knuckleball: nobody knows where it goes, including you |
+
+**Done when:** you can feel the difference between two of them from the same
+spot.
+
+**Try this:** set `wobble` to 0 on the knuckleball and take five. It becomes an
+ordinary shot, and you will see what that one number was doing.
+
+### 4. Add a footballer
 
 **File:** `src/games/deadball/content/players.js`
 
 Copy one of the blocks and change it. Every skill runs from 0 to 100, and you
-get **300 points to spread across the four of them** - not 400:
+get **375 points to spread across the five of them** - not 500:
 
 | Skill | What it does |
 |---|---|
@@ -131,10 +163,11 @@ get **300 points to spread across the four of them** - not 400:
 | `accuracy` | How close it goes to where you aimed. Below about 60 the ball starts wandering off on its own. |
 | `curve` | How much bend they get when you hook the drag. |
 | `composure` | Only matters on the last penalty, when it is all on them. Low composure players get worse when it counts. |
+| `dip` | Free kicks only. How much they can loft it over a wall and still bring it down under the bar. Below about 40 a four-man wall cannot be cleared at all; above about 60 it can. |
 | `foot` | `'left'` or `'right'`. Changes which way the ball naturally drifts. |
 | `colors` | `kit` is the shirt, `trim` is the shorts and socks. Any web colour. |
 
-Everybody on the list spends exactly 300, so a strength has to come out of
+Everybody on the list spends exactly 375, so a strength has to come out of
 something else. `npm run test:game` will tell you if yours does not add up, and
 by how much.
 
@@ -148,7 +181,7 @@ top-left corner.
 take five penalties with each. The difference is bigger than it sounds. Then
 try spending all 300 on power and see how far that gets you.
 
-### 4. Invent a keeper
+### 5. Invent a keeper
 
 **File:** `src/games/deadball/content/keepers.js`
 
@@ -173,7 +206,7 @@ travelling on, and the spin takes it somewhere else. That is why bending it
 works, and it is not written down anywhere as a rule - it falls out of how the
 keeper is built.
 
-### 5. Break the physics, then put it back
+### 6. Break the physics, then put it back
 
 **File:** `src/games/deadball/core/units.ts`
 

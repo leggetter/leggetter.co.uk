@@ -16,6 +16,27 @@ import { createRng, shotSeed } from './core/rng.ts';
 import { tuningFingerprint } from './core/tuning.ts';
 import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts';
 import { advance, createFlight, type Flight } from './core/flight.ts';
+import {
+  cleanDiscipline,
+  setPieceFor,
+  type Discipline,
+  type SetPiece,
+} from './core/setpiece.ts';
+import { buildWall, type Wall } from './core/wall.ts';
+import { defaultStyleId, nextStyle, styleFor, STYLES } from './core/styles.ts';
+
+/** 0..1 from a 0..100 attribute. */
+const unit = (v: number): number => Math.max(0, Math.min(1, v / 100));
+
+/**
+ * How much less the aim strays on a free kick.
+ *
+ * The aim sigmas were tuned against a penalty: eleven metres, an open goal and
+ * nothing in the way. The same numbers from twenty metres, with four people
+ * across the half of the goal you want, read as a ball that goes wherever it
+ * likes - which is exactly how it was reported.
+ */
+const FREE_KICK_AIM_EASE = 0.62;
 import { idleDrift, planKeeper } from './core/keeper.ts';
 import {
   inSuddenDeath,
@@ -170,6 +191,14 @@ export interface Game {
   /** Day, dusk or night. Remembered, like the camera. */
   useSky(id: string): void;
   currentSkyId(): string;
+  useDiscipline(id: string): void;
+  currentDiscipline(): string;
+  /** A kick has been taken and the shootout is not over. */
+  inProgress(): boolean;
+  kicksTaken(): number;
+  /** Cycle to the next way of striking it, and what that is now. */
+  cycleStyle(): string;
+  currentStyle(): { id: string; label: string; hint: string };
 }
 
 export async function startGame(options: GameOptions): Promise<Game> {
@@ -327,7 +356,50 @@ export async function startGame(options: GameOptions): Promise<Game> {
     );
   let keeperSim = idleKeeper();
 
-  let ballPosition = spotBall(PENALTY_DISTANCE);
+  let discipline: Discipline = cleanDiscipline(settings.discipline);
+  let styleId: string = STYLES.some((s) => s.id === settings.styleId)
+    ? (settings.styleId as string)
+    : defaultStyleId();
+  let piece: SetPiece = setPieceFor(
+    match.seed,
+    match.shotIndex,
+    discipline,
+    match.mode !== 'solo'
+  );
+  let wall: Wall = buildWall(piece);
+  let ballPosition = piece.origin;
+
+  /** Everything a shootout starts from. */
+  const resetMatch = (mode: MatchMode): void => {
+    match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND, mode, discipline);
+    flight = null;
+    trail = [];
+    pending = null;
+    struckAt = null;
+    choosing = null;
+    summary = null;
+    runUp = 0;
+    settling = 0;
+    keeperSim = idleKeeper();
+    setUpKick();
+    computerShots = [];
+    computerDelay = COMPUTER_THINKS;
+  };
+
+  /**
+   * A new kick: where the ball is and who is standing in front of it.
+   *
+   * One place, called wherever the ball used to be put back on the penalty
+   * spot. Four copies of `spotBall(PENALTY_DISTANCE)` were fine while there
+   * was one place to put it; with three spots and a wall they would drift.
+   */
+  const setUpKick = (): void => {
+    // Two sides means kicks come in pairs, and both halves of a pair face the
+    // same one. See `setPieceFor`.
+    piece = setPieceFor(match.seed, match.shotIndex, discipline, match.mode !== 'solo');
+    wall = buildWall(piece);
+    ballPosition = piece.origin;
+  };
 
   const frameState = (): FrameState => ({
     phase: match.phase,
@@ -338,7 +410,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
     keeperProfile: keeper,
     player,
     elapsed: flight?.elapsed ?? 0,
-    spot: spotBall(PENALTY_DISTANCE),
+    spot: piece.origin,
+    piece,
+    wall,
     trail,
     runUp: match.phase === 'ready' ? 0 : match.phase === 'runup' ? runUp / RUN_UP_SECONDS : 1,
     clock,
@@ -368,8 +442,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
   const computerIsTaking = (): boolean =>
     match.mode === 'versus' && match.taker === 1 && match.phase === 'ready';
 
-  function take(input: ShotInput): void {
+  function take(shape: ShotInput): void {
     if (match.phase !== 'ready') return;
+    // Stamped here rather than in the view, for the same reason `timing` is:
+    // the gesture says where and how hard, the game owns which ball was hit.
+    const input: ShotInput = { ...shape, style: styleId };
     lastInput = input;
 
     // One stream per shot, drawn from the match seed, so a shot can be
@@ -379,7 +456,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
     // Pressure rises on the last penalty, which is what composure reads.
     const pressure = match.shotIndex >= match.shotsTotal - 1 ? 1 : 0;
     const shot = resolveShot(input, player, rng, {
-      origin: spotBall(PENALTY_DISTANCE),
+      origin: piece.origin,
+      // Free kicks only. `dip` decides whether this player can go over a wall
+      // at all, and the aim is eased because the sigmas were tuned against a
+      // penalty with a clear sight of an open goal from eleven metres.
+      loft: piece.penalty ? 0 : unit(player.dip),
+      aimEase: piece.penalty ? 1 : FREE_KICK_AIM_EASE,
       pressure,
     });
 
@@ -399,7 +481,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // initialMatch directly meant relying on remembering to pass it, and the
       // argument was missing: playing again after a duel dropped you into a
       // solo game while the 2 players button still read as selected.
-      match = reduce(match, { type: 'START', seed: Date.now() & 0x7fffffff, shots: SHOTS_PER_ROUND });
+      match = reduce(match, {
+        type: 'START',
+        seed: Date.now() & 0x7fffffff,
+        shots: SHOTS_PER_ROUND,
+        discipline,
+      });
       summary = null;
       choosing = null;
       computerShots = [];
@@ -433,7 +520,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     struckAt = null;
     runUp = 0;
     settling = 0;
-    ballPosition = spotBall(PENALTY_DISTANCE);
+    setUpKick();
     keeperSim = idleKeeper();
   }
 
@@ -590,7 +677,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
           rng,
           pending.keeperStartX,
           pending.dive,
-          events
+          events,
+          // Captured when the flight is built rather than read from the closure
+          // as it runs: the kick is set up again the moment this one resolves,
+          // and a ball still in the air must be judged against the wall it was
+          // actually struck past.
+          wall
         );
         struckDive = pending.dive;
         pending = null;
@@ -689,19 +781,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
         names = cleanNames(typed);
         remember({ duelNames: names });
       }
-      match = initialMatch(Date.now() & 0x7fffffff, SHOTS_PER_ROUND, mode);
-      flight = null;
-      trail = [];
-      pending = null;
-      struckAt = null;
-      choosing = null;
-      summary = null;
-      runUp = 0;
-      settling = 0;
-      keeperSim = idleKeeper();
-      ballPosition = spotBall(PENALTY_DISTANCE);
-      computerShots = [];
-      computerDelay = COMPUTER_THINKS;
+      resetMatch(mode);
     },
 
     currentMode: () => match.mode,
@@ -739,6 +819,59 @@ export async function startGame(options: GameOptions): Promise<Game> {
     },
 
     currentSkyId: () => skyId,
+
+    /**
+     * Penalties, free kicks, or both.
+     *
+     * Stores the choice and stops there. It used to restart, because changing
+     * it mid-shootout leaves a scoreboard that cannot say what it counted -
+     * but the only way in is now the dialog that starts a game, and that
+     * restarts a line later. Two restarts is one too many.
+     */
+    useDiscipline(id: string): void {
+      const next = cleanDiscipline(id);
+      if (next === discipline) return;
+      discipline = next;
+      remember({ discipline: next });
+    },
+
+    currentDiscipline: () => discipline,
+
+    /**
+     * There is a shootout going on that starting a new one would end.
+     *
+     * Not `shotIndex > 0`. That only moves on `NEXT`, which is the tap after a
+     * kick has finished - so from the moment the ball was struck until the
+     * moment somebody tapped through, a shootout that had visibly been played
+     * reported itself as untouched, and switching mode threw it away without
+     * asking. Reported from play, and the window is every kick.
+     *
+     * A shootout has started once the ball has been struck, whether or not
+     * anybody has read the result yet. Before that there is nothing to lose;
+     * after `complete` the thing on screen is a result rather than a game.
+     */
+    inProgress: () =>
+      match.phase !== 'complete' &&
+      (match.outcomes.length > 0 || match.phase === 'runup' || match.phase === 'flight' || match.phase === 'resolved'),
+
+    /**
+     * How many kicks have been taken, for saying what is about to be lost.
+     *
+     * Outcomes rather than `shotIndex`, for the same reason: a kick has been
+     * taken once it has an outcome, not once somebody has tapped past it.
+     */
+    kicksTaken: () => match.outcomes.length,
+
+    cycleStyle(): string {
+      styleId = nextStyle(styleId);
+      remember({ styleId });
+      return styleId;
+    },
+
+    currentStyle() {
+      const style = styleFor(styleId);
+      return { id: style.id, label: style.label, hint: style.hint };
+    },
 
     roster: () => roster.map((entry) => ({ ...entry })),
 

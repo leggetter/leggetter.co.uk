@@ -162,3 +162,13 @@ export const GROUND_FRICTION = 0.82;
 
 /** A shot is abandoned after this long, so nothing can hang the match. */
 export const FLIGHT_TIMEOUT = 4.0;
+
+/**
+ * How much of a lofted shot's speed is spent going up rather than forward.
+ *
+ * At 1 a fully lofted free kick keeps 62% of its pace toward goal and puts the
+ * rest into the arc. Enough to clear four people nine metres away and still be
+ * dropping by the time it reaches the line; more than this and the ball hangs
+ * long enough for a keeper to walk under it.
+ */
+export const LOFT_SHARE = 0.6;

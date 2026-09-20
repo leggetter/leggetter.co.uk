@@ -5,6 +5,8 @@
  * storage serializes these, and the two-player transport will send these.
  */
 
+import type { SetPiece } from './setpiece.ts';
+import type { Wall } from './wall.ts';
 import type { Vec3 } from './vec3.ts';
 
 /**
@@ -18,6 +20,8 @@ export interface ShotInput {
   aim: { x: number; y: number };
   /** 0..1, mapped onto the strike speed range. */
   power: number;
+  /** How it is being struck. See core/styles.ts. Absent means the default. */
+  style?: string;
   /** -1..1. Negative bends left as the taker sees it. */
   curve: number;
   /** 0..1. Below 0.5 is backspin and floats, above is topspin and dips. */
@@ -75,6 +79,16 @@ export interface Player {
   accuracy: number;
   curve: number;
   composure: number;
+  /**
+   * How much they can loft a dead ball and still bring it down.
+   *
+   * Free kicks only - a penalty is struck flat from eleven metres and there is
+   * nothing to go over. Below about 40 a four-man wall cannot be cleared at
+   * all; above about 60 it can, and reliably. That is the whole difference
+   * between a player who has to shoot around a wall and one who can go over
+   * it, which is the difference a dead-ball specialist actually has.
+   */
+  dip: number;
   foot: 'left' | 'right';
   colors: { kit: string; trim: string };
 }
@@ -204,8 +218,12 @@ export interface FrameState {
   player: Player;
   /** Seconds since the ball was struck, 0 while aiming. */
   elapsed: number;
-  /** Where this penalty is being taken from. Varies once free kicks land. */
+  /** Where this kick is being taken from. */
   spot: Vec3;
+  /** Which kick this is: the spot, the wall size, the post being covered. */
+  piece: SetPiece;
+  /** Who is standing in the way. Empty for a penalty. */
+  wall: Wall;
   /**
    * Recent ball positions, oldest first. Drawn as a trail.
    *

@@ -25,13 +25,6 @@ export async function start(canvas: HTMLCanvasElement): Promise<Game> {
     storage: createLocalStorage(),
   });
 
-  // Press L to save the shot log. The discoverable way is the button in the
-  // settings dialog; this stays because it costs nothing and it is already in
-  // the fingers of the people who have been reading the files.
-  window.addEventListener('keydown', (event) => {
-    if (event.key === 'l' || event.key === 'L') game.log.download();
-  });
-
   // A console handle, for poking at the log without saving a file.
   // Nothing is sent anywhere; see telemetry/log.ts.
   Object.defineProperty(window, 'penaltyLog', { value: game.log, configurable: true });

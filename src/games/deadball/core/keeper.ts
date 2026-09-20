@@ -22,7 +22,7 @@
 import { GOAL_HEIGHT, GOAL_WIDTH } from './units.ts';
 import { flyToLine } from './predict.ts';
 import type { BallState, KeeperProfile, KeeperState, KeeperStyle } from './types.ts';
-import { vec, type Vec3 } from './vec3.ts';
+import { distance as apart, vec, type Vec3 } from './vec3.ts';
 
 /** Hands at rest: on the line, centered, about waist height. */
 const STANDING: Vec3 = vec(0, 0.95, 0);
@@ -281,11 +281,62 @@ export function stepKeeper(
 
   // The feet stay where they were planted; only the hands travel.
   const { stance } = sim.state;
-  const hands = moveToward(sim.state.hands, target, profile.diveSpeed * dt);
+  const hands = moveToward(
+    sim.state.hands,
+    target,
+    profile.diveSpeed * dt * (landing ? 1 : urgency(sim.state.hands, target, profile, ball))
+  );
   return {
     plan: sim.plan,
     state: { stance, hands, body: bodyFor(hands, stance), target, committed, landed },
   };
+}
+
+/**
+ * How long a keeper wants to be at full stretch before the ball arrives.
+ *
+ * Not zero: arriving exactly with it means a hand that is still travelling
+ * when the ball passes, which reads as a late dive even when the arithmetic
+ * says it was in time.
+ */
+const DIVE_LEAD = 0.08;
+
+/**
+ * Whether to go now, or stay set a moment longer.
+ *
+ * The dive used to run at `diveSpeed` from the instant of commitment, which is
+ * right for a penalty and wrong for everything slower. A penalty is in the air
+ * for 0.41 s and the hands take about that long to reach a corner, so the two
+ * finished together by luck rather than by design. A lofted free kick is in
+ * the air for 1.67 s: the keeper reached full stretch after 0.4 s and then
+ * **hung there for over a second**, which is exactly how it was reported.
+ *
+ * So the dive is *paced* to the ball rather than run flat out and parked. The
+ * commitment is untouched - a keeper decides where to go at the same moment,
+ * off the same information, with the same error - and so is the top speed,
+ * which no keeper exceeds. What changes is that one with a second to spare
+ * spends it, instead of spending 0.4 s and waiting out the rest.
+ *
+ * **It keeps moving the whole way.** An earlier attempt held the keeper still
+ * and then went flat out, which reads better in prose and broke a property
+ * this project protects on purpose: an anticipating keeper is *moving at
+ * contact*, because that is the only way to reach a corner in 450 ms, and a
+ * test says so. Pacing satisfies both.
+ *
+ * Returns 1 whenever the ball arrives as fast as the keeper can travel, so
+ * nothing about a penalty changes: there, the answer is always "flat out".
+ */
+function urgency(hands: Vec3, target: Vec3, profile: KeeperProfile, ball: BallState): number {
+  const arrival = flyToLine(ball.position, ball.velocity);
+  // No read, or the ball is going nowhere near: no reason to hold anything
+  // back, and this is also the ball settling after the outcome.
+  if (!arrival) return 1;
+
+  const left = arrival.time - DIVE_LEAD;
+  if (left <= 0) return 1;
+
+  const needed = apart(hands, target) / left;
+  return Math.min(1, needed / Math.max(profile.diveSpeed, 1e-3));
 }
 
 /**

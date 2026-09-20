@@ -161,3 +161,44 @@ describe('the package list', () => {
     assert.equal(createPackage('hand-drawn').id, DEFAULT_PACKAGE);
   });
 });
+
+describe('a drag that was meant to be straight', () => {
+  /** A drag down the screen that bows sideways by `wobble` pixels at its middle. */
+  const drag = (wobble: number) => {
+    const path = [];
+    for (let i = 0; i <= 12; i++) {
+      const t = i / 12;
+      path.push({ x: 640 + Math.sin(t * Math.PI) * wobble, y: 700 - t * 260 });
+    }
+    return {
+      start: { x: 640, y: 700 },
+      current: path[path.length - 1] as { x: number; y: number },
+      path,
+      heldSeconds: 0.4,
+    };
+  };
+  const curl = (wobble: number) =>
+    Math.abs(dragToShot(drag(wobble) as never, 1280, 900, { mirrored: false }).curve);
+
+  test('an ordinary wander down the screen is not a hook', () => {
+    // The bug: the deadzone was two pixels and maximum curl is about forty
+    // pixels of hook, so a twenty-pixel wander - which is what a hand does -
+    // was half of maximum curl on every shot. On a lofted free kick that was
+    // most of a metre of bend nobody asked for.
+    for (const wobble of [0, 5, 10, 20]) {
+      assert.ok(curl(wobble) < 0.05, `${wobble} px of wander gave ${curl(wobble).toFixed(2)} curl`);
+    }
+  });
+
+  test('but a deliberate hook still bends it', () => {
+    assert.ok(curl(40) > 0.3, 'a real hook stopped working');
+    assert.ok(curl(70) > 0.9, 'full curl is no longer reachable');
+  });
+
+  test('and it comes on gradually rather than all at once', () => {
+    // Ramped from the edge of the deadzone, so the first curl anybody gets is
+    // a small one instead of a sudden quarter turn.
+    assert.ok(curl(30) < curl(40), 'curl is not monotonic');
+    assert.ok(curl(40) < curl(55), 'curl is not monotonic');
+  });
+});

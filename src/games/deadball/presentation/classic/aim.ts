@@ -35,6 +35,22 @@ const REFERENCE_HOOK = 0.14;
  */
 const HOOK_DEADZONE = 2;
 
+/**
+ * And neither is a hook this small a fraction of the drag.
+ *
+ * Two pixels was the whole deadzone, and maximum curl is about forty pixels of
+ * hook - so an ordinary twenty-pixel wander in the middle of a drag was half
+ * of maximum curl, every time, without anybody asking for it. On a penalty
+ * that is a quarter of a metre and passes for spice. On a lofted free kick it
+ * was most of a metre, and it was reported, accurately, as the ball going
+ * nowhere near where it was aimed.
+ *
+ * Proportional rather than another fixed number, because a longer drag wanders
+ * further in absolute terms without being any less straight - and the hook is
+ * measured against the chord, so a long drag has more room to drift off it.
+ */
+const HOOK_SLOP = 0.075;
+
 export interface AimMapping {
   /**
    * Screen right is the taker's left.
@@ -100,7 +116,13 @@ function hook(gesture: DragGesture): number {
     const deviation = (point.x - start.x) * nx + (point.y - start.y) * ny;
     if (Math.abs(deviation) > Math.abs(peak)) peak = deviation;
   }
-  return Math.abs(peak) < HOOK_DEADZONE ? 0 : peak;
+
+  const slop = Math.max(HOOK_DEADZONE, length * HOOK_SLOP);
+  const size = Math.abs(peak);
+  if (size < slop) return 0;
+  // Ramped from the edge of the deadzone rather than stepping off it, so the
+  // first curl anybody gets is a small one instead of a sudden quarter turn.
+  return Math.sign(peak) * (size - slop);
 }
 
 const clamp = (v: number, lo: number, hi: number): number => (v < lo ? lo : v > hi ? hi : v);

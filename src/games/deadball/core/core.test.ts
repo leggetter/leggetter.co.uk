@@ -48,6 +48,7 @@ const striker: Player = {
   accuracy: 100, // perfect, so aim tests measure the model and not the wobble
   curve: 80,
   composure: 70,
+  dip: 70,
   foot: 'right',
   colors: { kit: '#fff', trim: '#000' },
 };

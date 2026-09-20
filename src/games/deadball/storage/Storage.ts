@@ -92,4 +92,14 @@ export interface Settings {
   skyId?: string;
   /** Who is taking the penalties. */
   playerId?: string;
+  /**
+   * Penalties, free kicks, or both.
+   *
+   * Cleaned on the way out rather than trusted: anything unrecognised is the
+   * game people already know, so a value from an older build or a console
+   * cannot leave somebody staring at a pitch with no ball on it.
+   */
+  discipline?: string;
+  /** How you are striking it: finesse, driven or knuckle. See core/styles.ts. */
+  styleId?: string;
 }

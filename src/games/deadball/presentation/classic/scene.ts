@@ -30,6 +30,7 @@ import {
   drawShotDial,
   drawSky,
   drawTaker,
+  drawWall,
   keeperColours,
 } from './draw.ts';
 
@@ -105,6 +106,8 @@ export function drawScene(
     // Furthest first: the taker is away down the pitch, the ball is coming
     // toward us, and the goal we are standing in is the nearest thing there is.
     drawTaker(ctx, proj, frame);
+    // From behind the goal the wall has the taker behind it, not in front.
+    drawWall(ctx, proj, frame);
     drawAim(ctx, proj, frame);
     drawBallTrail(ctx, proj, frame.trail);
     drawBall(ctx, proj, frame.ball.position);
@@ -135,6 +138,8 @@ export function drawScene(
       keeperColours(frame)
     );
     drawAim(ctx, proj, frame);
+    // Ten yards out: nearer than the goal, further than the person kicking it.
+    drawWall(ctx, proj, frame);
     drawTaker(ctx, proj, frame);
     drawBallTrail(ctx, proj, frame.trail);
     drawBall(ctx, proj, frame.ball.position);

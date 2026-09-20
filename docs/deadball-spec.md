@@ -124,7 +124,8 @@ src/games/deadball/
     events.ts                 # discrete things worth hearing (Phase 3.5)
     taker.ts                  # the computer deciding a penalty (Phase 3.75)
     roster.ts                 # who takes it, and inventing somebody (Phase 4)
-    wall.ts                   # free kick wall (Later, not built)
+    setpiece.ts               # where the ball is: three spots and a wall
+    wall.ts                   # the wall, and whether the ball got past it
   presentation/               # how it looks AND how it sounds
     Presentation.ts           # what a presentation package implements
     cameras.ts                # where you may stand. Data, shared by all of them
@@ -1311,7 +1312,8 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) and [deadball-two-devices.md](deadball-two-devices.md) | Play somebody who is not in the room |
 | **7** | A second presentation package, which is the only thing that proves the boundary. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |
-| **Later** | A keeper that reads your pattern, earning points to improve your player (see [Earning points, later](#earning-points-later)), free kicks and the wall, a realistic 3D package, side-on view, a leaderboard | |
+| **8** ✅ | Free kicks: three spots, a two-to-four man wall, and the `blocked` outcome that has been reserved since Phase 1. See [Free kicks](#free-kicks) | The curve mechanic finally matters |
+| **Later** | A keeper that reads your pattern, earning points to improve your player (see [Earning points, later](#earning-points-later)), corners, a league season, a realistic 3D package, side-on view, a leaderboard | |
 
 **Free kicks moved to Later.** They were Phase 3 on the grounds that they
 complete the shot model, which is still true and is not the same as being the
@@ -1331,6 +1333,24 @@ for directly, with a list of eight specific sounds attached, which is a good dea
 more thought than "sound" had been given here. A half-phase rather than Phase 4
 because it changes how the existing game feels rather than adding anything to
 play, which is what 1.5 and 1.75 were both for.
+
+### Free kicks
+
+**Not scope creep - collecting on physics that was already paid for.**
+
+[What playing it kept finding](#what-playing-it-kept-finding) records "physics that is right and useless": sideways deflection grows with the *square* of the flight, so a realistic Magnus gives about 20 cm over a penalty, less than the width of a keeper's gloves. The curve mechanic has been in the code, tested, and effectively absent from the game since Phase 1. From seventeen to twenty metres it is most of a metre. **Free kicks are where the drag-to-curve gesture finally means something**, which is the argument for building them and would still be the argument if nothing else here were true.
+
+The decision table at the top of this document already said the rest: penalties were chosen first because a free kick is the same game with the wall, the angle and the distance all fixed, "so they are strictly a subset". This turns the three constants back into variables.
+
+**A discipline, not a mode.** `penalties | freekicks | mixed` sits on `MatchState` beside `mode` rather than inside it, so it composes with solo, versus and duel rather than multiplying them, and a shootout describes itself - a record in the log knows what it was without being told separately. Changing it restarts the shootout, because half a round of each is not a result and the scoreboard could not say what it counted.
+
+**Three spots, from a shuffled bag.** Left, middle and right, all three inside every three kicks and never twice running, including across the seam between one bag and the next - which is the one thing a bag gets wrong on its own. An independent roll per kick gives three of the same often enough to feel broken, and the point of moving the ball is that you read a different picture each time.
+
+**The wall lines up on the near post, not on the middle of the goal.** That is the whole geometry of a free kick and the reason an angled one is a different problem from a central one: the wall takes the post you would most like to shoot at and the keeper takes the rest. From the middle there is no near post, so the wall picks an end - and a taker who works out which has learned something real about that kick.
+
+**The camera follows the ball.** Every `CameraSpec` was written against the penalty spot, so each is now read as *an offset from the ball in the frame of the shot* - so far behind, so far across, so far up - and rebuilt around wherever the ball actually is, including the framing distance. For the penalty spot this returns the spec unchanged, and a test asserts exactly that: five phases of camera work are not up for renegotiation because free kicks arrived.
+
+**A comment I had to take back.** The wall is tested against the segment the ball travelled rather than its position at the end of the step, and I wrote that a point test would let the hardest shots through. It would not: at 120 Hz the ball moves 27 cm a step and a person is 74 cm across, so end-of-step sampling already catches it. The planted-bug check found it - the test passed with the swept maths removed. The swept test stays because it costs one dot product and stops being belt-and-braces the moment somebody changes the tick rate, and the comment now says that instead of the thing that was not true.
 
 ### What playing it kept finding
 

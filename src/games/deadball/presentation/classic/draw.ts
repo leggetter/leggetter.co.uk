@@ -1818,3 +1818,66 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
 }
 
 export { COLORS };
+
+/**
+ * The wall.
+ *
+ * Whoever is *not* taking the kick stands in it, which is the only arrangement
+ * that makes sense and also the one that makes the picture readable: the
+ * figures between you and the goal are wearing the shirt of the side trying to
+ * stop you, the same shirt as the keeper's outfield team on the halfway line.
+ *
+ * Drawn back to front so a nearer one overlaps the one behind rather than the
+ * other way round, which is the same rule the rest of the scene follows.
+ */
+export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
+  const people = frame.wall.people;
+  if (people.length === 0) return;
+
+  const colours = wallColours(frame);
+
+  // Furthest from the goal first. They stand on an arc, so depth is distance
+  // from the ball rather than z.
+  const order = [...people.keys()].sort((a, b) => {
+    const da = Math.hypot(people[a]!.at.x - frame.spot.x, people[a]!.at.z - frame.spot.z);
+    const db = Math.hypot(people[b]!.at.x - frame.spot.x, people[b]!.at.z - frame.spot.z);
+    return db - da;
+  });
+
+  for (const index of order) {
+    const person = people[index]!;
+    const { x, z } = person.at;
+
+    // Braced rather than idling. A wall is a row of people who have been told
+    // where to stand and are about to be hit by a ball, and a gentle sway
+    // reads as a queue. What little movement there is, is a flinch.
+    const brace = Math.sin(frame.clock * 0.7 + index * 1.9) * 0.012;
+    const height = 1.78 + ((index * 37) % 11) / 100;
+    const shoulderY = height * 0.82 + brace;
+
+    drawFigure(ctx, proj, {
+      feet: vec(x, 0, z),
+      shoulder: vec(x, shoulderY, z),
+      head: vec(x, shoulderY + 0.24, z),
+      // Arms down and crossed in front, which is what a wall does and what
+      // makes it read as a wall rather than as ten-yards-away spectators.
+      hands: [
+        vec(x - 0.1, shoulderY - 0.52, z - 0.14),
+        vec(x + 0.1, shoulderY - 0.52, z - 0.14),
+      ],
+      toes: [vec(x - 0.16, 0.03, z - 0.05), vec(x + 0.16, 0.03, z + 0.05)],
+      kit: colours.kit,
+      trim: colours.trim,
+    });
+  }
+}
+
+/**
+ * What the wall is wearing: the side that is not taking it.
+ *
+ * The same strip as the keeper's outfield team, because that is who they are.
+ */
+function wallColours(frame: FrameState): { kit: string; trim: string } {
+  const kits = teamKits(frame.player.colors.kit, frame.player.colors.trim, frame.kits);
+  return awayTaking(frame) ? kits.own : kits.other;
+}

@@ -5,6 +5,7 @@
 import Fullscreen from '../../layouts/Fullscreen.astro';
 import { DEFAULT_CAMERA, listCameras } from '../../games/deadball/presentation/registry.ts';
 import { DEFAULT_SKY_ID, SKIES } from '../../games/deadball/content/skies.js';
+import { DISCIPLINES } from '../../games/deadball/core/setpiece.ts';
 
 // Rendered here rather than built in the browser. Astro scopes component CSS
 // by stamping an attribute on the elements in the template, so buttons created
@@ -284,6 +285,18 @@ const views = listCameras();
     <dialog id="settings" aria-labelledby="settings-heading">
       <div id="settings-body" class="panel">
         <h2 id="settings-heading">Settings</h2>
+
+        <h3>Kick</h3>
+        <div class="choices" id="kick-choices">
+          {
+            DISCIPLINES.map(({ id, label }) => (
+              <button type="button" data-kick={id} aria-pressed={String(id === 'penalties')}>
+                {label}
+              </button>
+            ))
+          }
+        </div>
+        <p id="kick-note">Free kick positions and the wall are different every kick.</p>
 
         <h3>Sound</h3>
         <div class="choices" id="sound-choices">
@@ -720,6 +733,9 @@ const views = listCameras();
           ...document.querySelectorAll<HTMLButtonElement>('#sound-choices button'),
         ];
         const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
+        const kickChoices = [
+          ...document.querySelectorAll<HTMLButtonElement>('#kick-choices button'),
+        ];
 
         const logDownload = document.getElementById('log-download') as HTMLButtonElement | null;
         const logClear = document.getElementById('log-clear') as HTMLButtonElement | null;
@@ -760,6 +776,12 @@ const views = listCameras();
           for (const button of skyChoices) {
             button.setAttribute('aria-pressed', String(button.dataset.sky === game.currentSkyId()));
           }
+          for (const button of kickChoices) {
+            button.setAttribute(
+              'aria-pressed',
+              String(button.dataset.kick === game.currentDiscipline())
+            );
+          }
           paintLog();
         };
 
@@ -795,6 +817,15 @@ const views = listCameras();
           button.addEventListener('click', () => {
             if (button.dataset.sky) game.useSky(button.dataset.sky);
             paintSettings();
+          });
+        }
+        for (const button of kickChoices) {
+          button.addEventListener('click', () => {
+            // Starts the shootout again, because changing halfway through
+            // would leave a scoreboard that cannot say what it counted.
+            if (button.dataset.kick) game.useDiscipline(button.dataset.kick);
+            paintSettings();
+            paintModes();
           });
         }
 
@@ -1389,6 +1420,7 @@ const views = listCameras();
 
   /* Same size and weight as the note under the naming form, which makes the
      same promise about the same data. */
+  #kick-note,
   #log-note {
     margin: 10px 0 18px;
     font-size: 11.5px;

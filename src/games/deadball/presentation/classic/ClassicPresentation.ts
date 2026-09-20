@@ -39,6 +39,9 @@ import { createOverrides } from './sounds.ts';
 import { buildLineup, drawLineup } from './lineup.ts';
 import { awayTaking, drawRestingKeeper, kitsFor, restingKeeperColours } from './draw.ts';
 import { createProjector, type Projector } from './project.ts';
+import { standBehind } from '../cameras.ts';
+import { penaltySpot } from '../../core/setpiece.ts';
+import type { Vec3 } from '../../core/vec3.ts';
 import { drawScene } from './scene.ts';
 
 export class ClassicPresentation implements Presentation {
@@ -67,6 +70,8 @@ export class ClassicPresentation implements Presentation {
   private sky: SkyPalette = skyFor(DEFAULT_SKY_ID);
   private reaction: Reaction = { elapsed: null, from: 0, strength: 0, celebrating: 'home' };
   private readonly lineup = buildLineup();
+  /** Where the ball is being kicked from, so the camera can follow it. */
+  private spot: Vec3 = penaltySpot().origin;
   private lastClock = 0;
   /**
    * Asked for no animation. Read once at construction rather than per frame,
@@ -88,7 +93,7 @@ export class ClassicPresentation implements Presentation {
     this.camera = camera;
     this.width = width;
     this.height = height;
-    this.projector = createProjector(camera, width, height);
+    this.projector = createProjector(standBehind(camera, this.spot), width, height);
 
     // All three are expensive and none changes between frames, so they are
     // built here - on a resize or a camera change - and reused after that.
@@ -112,6 +117,15 @@ export class ClassicPresentation implements Presentation {
 
   render(frame: FrameState, events: readonly GameEvent[]): void {
     if (!this.projector || !this.camera) return;
+
+    // The ball has been put somewhere else, so the camera goes with it. Only
+    // when it actually moves: rebuilding the projector also rebuilds the
+    // backdrop and the crowd order, which is the expensive part of a resize
+    // and has no business happening every frame.
+    if (frame.spot.x !== this.spot.x || frame.spot.z !== this.spot.z) {
+      this.spot = frame.spot;
+      this.configure(this.camera, this.width, this.height);
+    }
     for (const event of events) {
       this.sound.play(event);
       // A cheer and a stand rising are one event with two responses, which is

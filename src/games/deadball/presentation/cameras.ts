@@ -14,6 +14,7 @@
 
 import { GOAL_HEIGHT, GOAL_WIDTH, NET_DEPTH, PENALTY_DISTANCE } from '../core/units.ts';
 import { vec, type Vec3 } from '../core/vec3.ts';
+import type { Camera } from './classic/project.ts';
 
 export interface CameraSpec {
   readonly id: string;
@@ -226,3 +227,61 @@ export function resolveCameraId(search: string, stored: string | null): string {
 }
 
 export const cameraFor = (id: string): CameraSpec => CAMERAS[id] ?? CAMERAS[DEFAULT_CAMERA]!;
+
+/**
+ * A camera, swung round to stand behind wherever the ball actually is.
+ *
+ * Named for what it does rather than `cameraFor`, which is already the lookup
+ * by id a few lines up and means something else entirely.
+ *
+ * Every `CameraSpec` above is written against the penalty spot: a position, and
+ * a yaw that points it at the goal from there. A free kick moves the ball up to
+ * eight metres across and nine metres further out, and a camera that stayed put
+ * would be standing beside the taker looking at a post.
+ *
+ * So the spec is read as *an offset from the ball, in the frame of the shot* -
+ * so far behind, so far to the side, so far up - and rebuilt around the new
+ * spot. For the penalty spot this returns the spec unchanged, which is the
+ * property worth having: the game that already existed is not re-aimed by any
+ * of this, and a test says so.
+ *
+ * Cameras behind the goal are left alone. They are looking at the goal from the
+ * other side and the ball being somewhere else does not move them.
+ */
+export function standBehind(spec: CameraSpec, spot: Vec3): Camera {
+  if (spec.fromBehindTheGoal) return spec;
+
+  // Where the shot is going, flat. The goal's centre rather than the aim: the
+  // camera frames the goal, and the aim is what the player is deciding.
+  const toGoal = { x: -spot.x, z: -spot.z };
+  const flat = Math.hypot(toGoal.x, toGoal.z);
+  if (flat < 0.001) return spec;
+  const ahead = { x: toGoal.x / flat, z: toGoal.z / flat };
+  // The other axis on the ground: the taker's right.
+  const right = { x: ahead.z, z: -ahead.x };
+
+  // The spec, decomposed against the penalty it was written for.
+  const back = spec.position.z - -PENALTY_DISTANCE;
+  const across = spec.position.x;
+
+  const position = vec(
+    spot.x + ahead.x * back + right.x * across,
+    spec.position.y,
+    spot.z + ahead.z * back + right.z * across
+  );
+
+  // How far the goal now is along the view axis. Without this a kick from
+  // twenty metres frames the goal at the size it is from eleven, and the whole
+  // picture is wrong by the amount the ball moved.
+  const depth = -position.x * ahead.x + -position.z * ahead.z;
+
+  return {
+    position,
+    // yaw 0 looks along +z, so turning the camera onto the new line is the
+    // angle between that line and +z, added to whatever the spec already had.
+    yaw: spec.yaw + Math.atan2(ahead.x, ahead.z),
+    pitch: spec.pitch,
+    fov: spec.fov,
+    frame: { ...spec.frame, depth: Math.max(1, depth) },
+  };
+}

@@ -26,8 +26,17 @@ const views = listCameras();
       <button type="button" data-mode="solo" aria-pressed="true">1 player</button>
       <button type="button" data-mode="versus" aria-pressed="false">v computer</button>
       <button type="button" data-mode="duel" aria-pressed="false">2 players</button>
-      <button type="button" id="mute" aria-pressed="false" title="Sound">
-        <span id="mute-icon" aria-hidden="true">&#9834;</span>
+      <button type="button" id="mute" aria-pressed="false" title="Sound on">
+        <svg id="mute-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M3 9.5v5h3.5L11 18V6L6.5 9.5H3z" fill="currentColor" />
+          <g id="mute-waves" fill="none" stroke="currentColor" stroke-width="1.9"
+            stroke-linecap="round">
+            <path d="M14.2 9.2a4 4 0 0 1 0 5.6" />
+            <path d="M17 6.6a7.7 7.7 0 0 1 0 10.8" />
+          </g>
+          <path id="mute-cross" d="M14.5 9.5l6 5M20.5 9.5l-6 5" stroke="currentColor"
+            stroke-width="1.9" stroke-linecap="round" hidden />
+        </svg>
         <span class="visually-hidden">Sound</span>
       </button>
     </nav>
@@ -230,11 +239,15 @@ const views = listCameras();
         paintModes();
 
         const mute = document.getElementById('mute');
-        const muteIcon = document.getElementById('mute-icon');
+        const waves = document.getElementById('mute-waves');
+        const cross = document.getElementById('mute-cross');
         const paintMute = () => {
           const muted = game.isMuted();
+          // aria-pressed still carries the state for a screen reader; it just
+          // no longer decides what the button looks like.
           mute?.setAttribute('aria-pressed', String(muted));
-          if (muteIcon) muteIcon.textContent = muted ? '\u2715' : '\u266A';
+          if (waves) waves.toggleAttribute('hidden', muted);
+          if (cross) cross.toggleAttribute('hidden', !muted);
           mute?.setAttribute('title', muted ? 'Sound off' : 'Sound on');
         };
         mute?.addEventListener('click', () => {
@@ -320,7 +333,7 @@ const views = listCameras();
   /* Unmistakable rather than merely tinted: filled, darker text, heavier, and
      carrying a dot no unselected button has. Colour alone is not a signal
      everybody can read. */
-  #modes button[aria-pressed='true'],
+  #modes button:not(#mute)[aria-pressed='true'],
   #views button[aria-pressed='true'] {
     background: #7dd3fc;
     border-color: #7dd3fc;
@@ -329,7 +342,13 @@ const views = listCameras();
     box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.25);
   }
 
-  #modes button[aria-pressed='true']::before,
+  /*
+     The dot marks which of a set of choices is current - one camera, one
+     number of players. Mute is not one of a set, it is a switch, and giving it
+     the dot made *muted* look like the selected state and sound-on look
+     inactive, which is backwards. The icon says which way it is set.
+  */
+  #modes button:not(#mute)[aria-pressed='true']::before,
   #views button[aria-pressed='true']::before {
     content: '';
     display: inline-block;
@@ -341,7 +360,7 @@ const views = listCameras();
     vertical-align: middle;
   }
 
-  #modes button[aria-pressed='true']:hover,
+  #modes button:not(#mute)[aria-pressed='true']:hover,
   #views button[aria-pressed='true']:hover {
     background: #a5e2fd;
     color: #05202e;
@@ -355,8 +374,31 @@ const views = listCameras();
 
   #mute {
     min-width: 34px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 9px;
+    padding-right: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #mute-icon {
+    width: 19px;
+    height: 19px;
+    display: block;
+  }
+
+  /* The `hidden` attribute is defined for HTML elements, and these are SVG
+     ones - so setting it read as hidden to a test and drew anyway, putting the
+     waves and the cross on top of each other. Spelled out here rather than
+     relying on a UA stylesheet that has no obligation to cover this. */
+  #mute-icon [hidden] {
+    display: none;
+  }
+
+  /* Muted is the state worth flagging, so it goes quiet rather than loud: the
+     icon dims instead of the button lighting up. */
+  #mute[aria-pressed='true'] #mute-icon {
+    opacity: 0.55;
   }
 
   .visually-hidden {

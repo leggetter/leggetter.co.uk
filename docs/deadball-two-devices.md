@@ -16,8 +16,10 @@ surface - a bill, an abuse story, someone else's data on a disk somewhere, and
 an outage. That is a different kind of thinking from how a crowd is drawn, and
 running the two together makes both harder to read.
 
-**Nothing here is built.** `net/Transport.ts` is a name in the module layout
-and nothing else.
+**Step 1 is built.** `net/Transport.ts` exists: the interface and every
+message, and nothing about how any of it travels. `core/` gained a `remote`
+mode alongside it - see [One screen fewer](#one-screen-fewer). Nothing sends
+anything yet, and no infrastructure exists.
 
 ## Summary
 
@@ -351,6 +353,34 @@ repository that can be *down* rather than merely wrong. That is the real change
 to the architecture, and it is the reason this document exists separately from
 the spec.
 
+## One screen fewer
+
+A duel and a remote duel are the same rules. The reducer needed to know about
+exactly one difference, and it is a screen.
+
+The **handover** exists for one situation: two people, one screen, and a choice
+one of them must not see. `SET_DIVE` used to route to it with
+`mode !== 'versus'`, which was the same thing as "is a device changing hands"
+for as long as a duel was the only way two people played - and became wrong the
+moment they could be in different rooms.
+
+It now asks the question it means:
+
+```ts
+const passesTheDevice = (mode: MatchMode): boolean => mode === 'duel';
+```
+
+`versus` skips the screen because there is nobody to hide *from* - a computer
+cannot peek. `remote` skips it because there is nobody to hide *behind*: the
+keeper's pick never leaves the server, so the taker cannot see it however long
+they stare at their own phone. Same screen skipped, two different arguments,
+and it is worth keeping both written down because the next mode will have a
+third.
+
+`core/remote.test.ts` covers it, including the thing that would actually hurt:
+**skipping the screen must not skip the commitment.** A keeper who has not
+chosen is a keeper the taker is shooting at for free.
+
 ## Cost and abuse
 
 This would be the first thing on a twenty-one-year-old personal site that a
@@ -375,8 +405,21 @@ stranger can write to. That deserves a paragraph rather than an assumption.
 The point of this ordering is that **the protocol gets designed and tested
 before any infrastructure exists**.
 
-1. **`net/Transport.ts`** - the interface. Send a message, receive messages,
-   know whether you are connected. Nothing about HTTP or Cloudflare in it.
+1. ~~**`net/Transport.ts`** - the interface.~~ **Built.** Send a message,
+   receive messages, know whether you are connected, plus `Outbound` and
+   `Inbound` in full and a `TransportFactory` with `host`, `guest` and `peek` -
+   `peek` because a guest has to be shown what they are accepting before they
+   accept it. Nothing about HTTP or Cloudflare in any of it.
+
+   Two things in there are decisions rather than plumbing. A team's **squad**
+   crosses at `join` rather than a player crossing per kick, because the
+   intention is that every penalty is taken by a different member of it and a
+   shot naming a taker is only cheap if the list has already arrived. And
+   `OFFLINE_AFTER_MS` is **ten seconds**, marked in the file as a first guess:
+   long enough to ride out a tunnel or a lock screen without flickering, short
+   enough that somebody who has put their phone down is not left looking at a
+   board saying everything is fine. The right number is a feel question and the
+   honest way to find it is to play it with the wire flapping.
 2. **`net/local.ts`** - an implementation over `BroadcastChannel`, so two tabs
    of the same browser play each other. This is not a toy: it exercises the
    whole protocol, the reconnect logic, the sealed dive and every failure in

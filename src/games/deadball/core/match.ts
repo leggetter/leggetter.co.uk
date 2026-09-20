@@ -27,7 +27,15 @@ export type MatchMode =
    * never standing in the goal, and until this existed the keeper's half of
    * the game needed a second person in the room.
    */
-  | 'versus';
+  | 'versus'
+  /**
+   * Two players on two devices, alternating like a duel does.
+   *
+   * The rules are a duel's. The difference this makes to the reducer is one
+   * screen: a duel hands a phone over and this does not, so there is nothing
+   * to hide behind and nothing to pass. See docs/deadball-two-devices.md.
+   */
+  | 'remote';
 
 export type Side = 0 | 1;
 
@@ -87,13 +95,23 @@ export type MatchMessage =
  * plans invisibly and there is nothing to wait for, exactly as in solo.
  */
 function openingPhase(mode: MatchMode, taker: Side): MatchPhase {
-  if (mode === 'duel') return 'keeping';
+  if (mode === 'duel' || mode === 'remote') return 'keeping';
   if (mode === 'versus' && taker === 1) return 'keeping';
   return 'ready';
 }
 
 /** Both sides alternate unless there is only one of them. */
 const alternates = (mode: MatchMode): boolean => mode !== 'solo';
+
+/**
+ * Two people, one screen, and a phone that has to change hands.
+ *
+ * The question the handover screen is really asking. It used to be written as
+ * `mode !== 'versus'`, which was the same thing while a duel was the only way
+ * two people played - and became wrong the moment they could be in different
+ * rooms.
+ */
+const passesTheDevice = (mode: MatchMode): boolean => mode === 'duel';
 
 export function initialMatch(
   seed: number,
@@ -131,12 +149,16 @@ export function reduce(state: MatchState, message: MatchMessage): MatchState {
       // Only while the keeper is on the clock. A dive chosen at any other point
       // is a dive chosen with something visible that should not have been.
       if (state.phase !== 'keeping') return state;
-      // Straight past the handover in `versus`. That screen exists to hide a
-      // choice from the other person while the device changes hands, and there
-      // is no other person: the computer cannot peek and nothing is passed.
+      // Straight past the handover unless a device is actually changing
+      // hands. That screen exists for exactly one situation - two people, one
+      // screen, and a choice one of them must not see - and it is in the way
+      // everywhere else. In `versus` there is nobody to hide from, because the
+      // computer cannot peek. On two devices there is nobody to hide *behind*:
+      // the keeper's pick never leaves the server, so the taker cannot see it
+      // however long they stare at their own phone.
       return {
         ...state,
-        phase: state.mode === 'versus' ? 'ready' : 'handover',
+        phase: passesTheDevice(state.mode) ? 'handover' : 'ready',
         dive: message.dive,
       };
 

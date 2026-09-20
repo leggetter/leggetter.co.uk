@@ -157,7 +157,8 @@ src/games/deadball/
     log.ts                    # one record per shot, on this device only
     analyse.ts                # what the log says, for full time and offline
   net/
-    Transport.ts              # two devices (Phase 6, not built)
+    Transport.ts              # two devices: the interface and the messages
+    local.ts                  # over BroadcastChannel, two tabs (not built)
   content/                    # plain JS and JSON. The low-barrier zone.
     players.js
     keepers.js

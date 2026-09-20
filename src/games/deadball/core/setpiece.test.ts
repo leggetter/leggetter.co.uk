@@ -283,3 +283,55 @@ describe('a free kick, start to finish', () => {
     assert.notEqual(flight.outcome, 'blocked');
   });
 });
+
+describe('both sides get the same kick', () => {
+  /** Two sides alternate, so kick 0 and 1 are one round, 2 and 3 the next. */
+  const round = (seed: number, i: number, d: Discipline = 'mixed') =>
+    setPieceFor(seed, i, d, true);
+
+  test('a pair is the same discipline, so nobody plays a different game', () => {
+    // The bug: each kick rolled on its own, and because the sides alternate the
+    // roll landed on one side's parity. Ten kicks gave one team 40% penalties
+    // and the other 80% - two competitions scored against each other.
+    for (const seed of [11, 22, 33, 44, 55, 31337, 424242]) {
+      for (let i = 0; i < 12; i += 2) {
+        assert.equal(
+          round(seed, i).penalty,
+          round(seed, i + 1).penalty,
+          `seed ${seed}: kick ${i} and ${i + 1} are different kinds`
+        );
+      }
+    }
+  });
+
+  test('and the same spot, and the same wall', () => {
+    // Fairness is not only which kind. One side taking a twenty-metre central
+    // free kick while the other takes an angled one past four men is the same
+    // unfairness in a different coat.
+    for (const seed of [11, 33, 31337]) {
+      for (let i = 0; i < 12; i += 2) {
+        assert.deepEqual(round(seed, i), round(seed, i + 1), `seed ${seed}, round ${i / 2}`);
+      }
+    }
+  });
+
+  test('neither side is handed more penalties than the other', () => {
+    for (const seed of [11, 22, 33, 44, 55]) {
+      const kinds = Array.from({ length: 20 }, (_, i) => round(seed, i).penalty);
+      const a = kinds.filter((_, i) => i % 2 === 0).filter(Boolean).length;
+      const b = kinds.filter((_, i) => i % 2 === 1).filter(Boolean).length;
+      assert.equal(a, b, `seed ${seed} split ${a} to ${b}`);
+    }
+  });
+
+  test('solo still gets a fresh kick every time', () => {
+    // There is nobody to be fair to, so pairing would just halve the variety.
+    const ids = Array.from({ length: 9 }, (_, i) => setPieceFor(31337, i, 'freekicks', false).id);
+    for (let i = 1; i < ids.length; i++) assert.notEqual(ids[i], ids[i - 1]);
+  });
+
+  test('the rounds still vary, rather than being one kick repeated', () => {
+    const rounds = Array.from({ length: 8 }, (_, i) => round(31337, i * 2, 'freekicks').id);
+    assert.ok(new Set(rounds).size > 1, 'every round was the same spot');
+  });
+});

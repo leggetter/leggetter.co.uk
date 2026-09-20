@@ -134,20 +134,36 @@ export function spotOrder(seed: number, cycle: number): SpotId[] {
 export function setPieceFor(
   seed: number,
   shotIndex: number,
-  discipline: Discipline = 'penalties'
+  discipline: Discipline = 'penalties',
+  /**
+   * Two sides taking turns, so kicks come in pairs.
+   *
+   * Both halves of a pair get the *same* kick - same discipline, same spot,
+   * same wall. Without it each shot rolled on its own, and because the sides
+   * alternate the roll landed on one side's parity: a ten-kick round gave one
+   * team 40% penalties and the other 80%, which is not a shootout, it is two
+   * different competitions scored against each other.
+   */
+  alternates = false
 ): SetPiece {
   if (discipline === 'penalties') return penaltySpot();
-  // Mixed decides per kick, off the same seed as everything else, so a mixed
+
+  // The pair number rather than the kick number, so the answer is the same for
+  // both takers in a round. In solo there is nobody to be fair to and every
+  // kick is its own pair.
+  const round = alternates ? Math.floor(shotIndex / 2) : shotIndex;
+
+  // Mixed decides per round, off the same seed as everything else, so a mixed
   // shootout replays exactly like a fixed one.
-  if (discipline === 'mixed' && createRng(shotSeed(seed, shotIndex * 31 + 5)).next() < 0.5) {
+  if (discipline === 'mixed' && createRng(shotSeed(seed, round * 31 + 5)).next() < 0.5) {
     return penaltySpot();
   }
 
-  const cycle = Math.floor(shotIndex / SPOT_IDS.length);
-  const id = spotOrder(seed, cycle)[shotIndex % SPOT_IDS.length] as SpotId;
+  const cycle = Math.floor(round / SPOT_IDS.length);
+  const id = spotOrder(seed, cycle)[round % SPOT_IDS.length] as SpotId;
   const place = PLACES[id];
 
-  const rng = createRng(shotSeed(seed, shotIndex));
+  const rng = createRng(shotSeed(seed, round));
   const wallCount = MIN_WALL + Math.floor(rng.next() * (MAX_WALL - MIN_WALL + 1));
 
   // From the side, the near post is the one on your side of the pitch. From

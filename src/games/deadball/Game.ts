@@ -337,7 +337,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
   let keeperSim = idleKeeper();
 
   let discipline: Discipline = cleanDiscipline(settings.discipline);
-  let piece: SetPiece = setPieceFor(match.seed, match.shotIndex, discipline);
+  let piece: SetPiece = setPieceFor(
+    match.seed,
+    match.shotIndex,
+    discipline,
+    match.mode !== 'solo'
+  );
   let wall: Wall = buildWall(piece);
   let ballPosition = piece.origin;
 
@@ -366,7 +371,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
    * was one place to put it; with three spots and a wall they would drift.
    */
   const setUpKick = (): void => {
-    piece = setPieceFor(match.seed, match.shotIndex, discipline);
+    // Two sides means kicks come in pairs, and both halves of a pair face the
+    // same one. See `setPieceFor`.
+    piece = setPieceFor(match.seed, match.shotIndex, discipline, match.mode !== 'solo');
     wall = buildWall(piece);
     ballPosition = piece.origin;
   };

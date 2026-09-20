@@ -12,11 +12,13 @@
  */
 
 import type { FrameState } from '../../core/types.ts';
+import { PITCH_LENGTH } from './stand.ts';
 import type { Projector } from './project.ts';
 import {
   drawAim,
   drawBall,
   drawBallTrail,
+  drawFarGoal,
   drawGoalFrame,
   drawHud,
   drawKeeper,
@@ -61,6 +63,13 @@ export function drawScene(
   // something standing on the ground does.
   if (options.backdrop) ctx.drawImage(options.backdrop, 0, 0);
   options.crowd?.();
+
+  // The goal at the other end, after the stand rather than before it. Drawn
+  // with the pitch it was invisible: the far hoardings are six metres further
+  // away but painted later, and they covered it. It sits here because that is
+  // where it sits in depth - nearer than the stand behind it, further than
+  // everything at this end.
+  drawFarGoal(ctx, proj, -PITCH_LENGTH);
 
   if (options.fromBehindTheGoal) {
     // Furthest first: the taker is away down the pitch, the ball is coming

@@ -24,6 +24,7 @@ import {
 import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
 import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
+import { PITCH_LENGTH } from './stand.ts';
 import type { Projector } from './project.ts';
 import { ARM_SPAN } from '../../core/keeper.ts';
 
@@ -123,9 +124,58 @@ export function drawSky(ctx: Ctx, proj: Projector): void {
 }
 
 /** Mown stripes, running across the pitch so they read as depth. */
+/**
+ * A circle lying flat on the grass.
+ *
+ * Drawn as a ring of segments rather than an ellipse, because an ellipse is
+ * only right when the camera is square to the pitch - from the angled camera
+ * the centre circle is a skewed oval and `ctx.ellipse` cannot express that.
+ * Sixteen points through the projector is correct from anywhere.
+ */
+function circleOnGrass(
+  ctx: Ctx,
+  proj: Projector,
+  cx: number,
+  cz: number,
+  radius: number,
+  fill = false
+): void {
+  const points: Vec3[] = [];
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
+    points.push(vec(cx + Math.cos(a) * radius, 0.01, cz + Math.sin(a) * radius));
+  }
+  if (fill) {
+    fillWorld(ctx, proj, points, COLORS.line);
+    return;
+  }
+  strokeWorld(ctx, proj, [...points, points[0]!], COLORS.line, 2);
+}
+
+/** The same markings as `box`, at the other end of the pitch. */
+function farBox(ctx: Ctx, proj: Projector, halfWidth: number, depth: number): void {
+  const z = -PITCH_LENGTH;
+  strokeWorld(
+    ctx,
+    proj,
+    [
+      vec(-halfWidth, 0, z),
+      vec(-halfWidth, 0, z + depth),
+      vec(halfWidth, 0, z + depth),
+      vec(halfWidth, 0, z),
+    ],
+    COLORS.line,
+    2
+  );
+}
+
 export function drawPitch(ctx: Ctx, proj: Projector): void {
   const STRIPE = 3.5;
-  for (let i = -8; i < 12; i++) {
+  // The whole pitch, not the twenty meters the game is played in. Looking out
+  // from the goal, the grass used to stop short and the world ended in a line;
+  // a full 105 metres puts the far goal where a far goal belongs.
+  const first = Math.ceil(-PITCH_LENGTH / STRIPE) - 3;
+  for (let i = first; i < 5; i++) {
     const z0 = i * STRIPE;
     const z1 = z0 + STRIPE;
     fillWorld(
@@ -136,11 +186,46 @@ export function drawPitch(ctx: Ctx, proj: Projector): void {
     );
   }
 
+  // Touchlines down both sides, which is what makes it read as a pitch rather
+  // than as mown grass once the far end is in shot.
+  strokeWorld(
+    ctx,
+    proj,
+    [vec(-PITCH_HALF, 0, 0), vec(-PITCH_HALF, 0, -PITCH_LENGTH)],
+    COLORS.line,
+    2
+  );
+  strokeWorld(
+    ctx,
+    proj,
+    [vec(PITCH_HALF, 0, 0), vec(PITCH_HALF, 0, -PITCH_LENGTH)],
+    COLORS.line,
+    2
+  );
+
   // Goal line, six-yard box, eighteen-yard box, penalty spot.
   strokeWorld(ctx, proj, [vec(-PITCH_HALF, 0, 0), vec(PITCH_HALF, 0, 0)], COLORS.line, 2);
 
   box(ctx, proj, 9.16, 5.5);
   box(ctx, proj, 20.16, 16.5);
+
+  // The halfway line and the centre circle.
+  const half = -PITCH_LENGTH / 2;
+  strokeWorld(ctx, proj, [vec(-PITCH_HALF, 0, half), vec(PITCH_HALF, 0, half)], COLORS.line, 2);
+  circleOnGrass(ctx, proj, 0, half, 9.15);
+  circleOnGrass(ctx, proj, 0, half, 0.25, true);
+
+  // The far end: goal line, both boxes, and its penalty spot.
+  strokeWorld(
+    ctx,
+    proj,
+    [vec(-PITCH_HALF, 0, -PITCH_LENGTH), vec(PITCH_HALF, 0, -PITCH_LENGTH)],
+    COLORS.line,
+    2
+  );
+  farBox(ctx, proj, 9.16, 5.5);
+  farBox(ctx, proj, 20.16, 16.5);
+  circleOnGrass(ctx, proj, 0, -PITCH_LENGTH + PENALTY_DISTANCE, 0.25, true);
 
   // The spot lies flat on the grass, so it projects to a squashed ellipse, not
   // a circle. Drawn as a circle it reads as a second ball sitting on the pitch.
@@ -208,13 +293,40 @@ export function drawNet(ctx: Ctx, proj: Projector): void {
   }
 }
 
-export function drawGoalFrame(ctx: Ctx, proj: Projector): void {
+/**
+ * The goal at the other end, a hundred and five metres away.
+ *
+ * Stroked rather than filled, which is the opposite of the near goal and for
+ * a reason: a post is 12 cm across, and at this distance that is a third of a
+ * pixel. Filling the quad honestly meant it disappeared into the antialiasing
+ * and the far end of the pitch had no goal in it at all. A stroke with a
+ * floor on its width keeps it there.
+ *
+ * The same lie the ball already tells with its outline, and the same defence:
+ * it changes how wide something looks by a fraction of a pixel and nothing
+ * can be aimed at it, hit it, or be judged against it.
+ */
+export function drawFarGoal(ctx: Ctx, proj: Projector, z: number): void {
+  const w = Math.max(1.4, (FRAME_RADIUS * 2 * (proj.project(vec(0, 0, z))?.scale ?? 0)) || 0);
+  for (const x of [-HALF_GOAL, HALF_GOAL]) {
+    strokeWorld(ctx, proj, [vec(x, 0, z), vec(x, GOAL_HEIGHT, z)], COLORS.frame, w);
+  }
+  strokeWorld(
+    ctx,
+    proj,
+    [vec(-HALF_GOAL, GOAL_HEIGHT, z), vec(HALF_GOAL, GOAL_HEIGHT, z)],
+    COLORS.frame,
+    w
+  );
+}
+
+export function drawGoalFrame(ctx: Ctx, proj: Projector, z = 0): void {
   const r = FRAME_RADIUS;
   for (const x of [-HALF_GOAL, HALF_GOAL]) {
     fillWorld(
       ctx,
       proj,
-      [vec(x - r, 0, 0), vec(x + r, 0, 0), vec(x + r, GOAL_HEIGHT + r, 0), vec(x - r, GOAL_HEIGHT + r, 0)],
+      [vec(x - r, 0, z), vec(x + r, 0, z), vec(x + r, GOAL_HEIGHT + r, z), vec(x - r, GOAL_HEIGHT + r, z)],
       COLORS.frame
     );
   }
@@ -222,10 +334,10 @@ export function drawGoalFrame(ctx: Ctx, proj: Projector): void {
     ctx,
     proj,
     [
-      vec(-HALF_GOAL - r, GOAL_HEIGHT - r, 0),
-      vec(HALF_GOAL + r, GOAL_HEIGHT - r, 0),
-      vec(HALF_GOAL + r, GOAL_HEIGHT + r, 0),
-      vec(-HALF_GOAL - r, GOAL_HEIGHT + r, 0),
+      vec(-HALF_GOAL - r, GOAL_HEIGHT - r, z),
+      vec(HALF_GOAL + r, GOAL_HEIGHT - r, z),
+      vec(HALF_GOAL + r, GOAL_HEIGHT + r, z),
+      vec(-HALF_GOAL - r, GOAL_HEIGHT + r, z),
     ],
     COLORS.frame
   );

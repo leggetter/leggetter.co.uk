@@ -28,6 +28,7 @@ import {
   crowdPixelHeight,
   drawCrowd,
   renderBackdrop,
+  standsByDepth,
   type CrowdAtlas,
   type Person,
   type Reaction,
@@ -57,6 +58,8 @@ export class ClassicPresentation implements Presentation {
   private atlas: CrowdAtlas | null = null;
   /** The stand and hoardings, rendered once per size and camera. */
   private backdrop: HTMLCanvasElement | null = null;
+  /** Stand indices furthest first, recomputed only when the camera moves. */
+  private order: number[] = [];
   private reaction: Reaction = { elapsed: null, from: 0, strength: 0 };
   private lastClock = 0;
   /**
@@ -81,16 +84,17 @@ export class ClassicPresentation implements Presentation {
     this.height = height;
     this.projector = createProjector(camera, width, height);
 
-    // Both are expensive and neither changes between frames, so they are built
-    // here - on a resize or a camera change - and blitted after that.
-    // A camera looking away from the stand gets neither.
-    if (camera.fromBehindTheGoal) {
-      this.backdrop = null;
-      this.atlas = null;
-      return;
-    }
-    this.backdrop = renderBackdrop(this.projector, width, height);
+    // All three are expensive and none changes between frames, so they are
+    // built here - on a resize or a camera change - and reused after that.
+    //
+    // Every camera gets them now. This used to skip the lot when looking out
+    // from the goal, because the only stand was behind that camera and there
+    // was nothing to draw; with a stand at each end and down each side there
+    // always is.
+    this.order = standsByDepth(this.projector);
+    // The atlas first: the backdrop paints the distant crowd with it.
     this.atlas = buildAtlas(crowdPixelHeight(this.projector));
+    this.backdrop = renderBackdrop(this.projector, width, height, this.people, this.atlas);
   }
 
   render(frame: FrameState, events: readonly GameEvent[]): void {
@@ -139,7 +143,8 @@ export class ClassicPresentation implements Presentation {
               atlas,
               frame.clock,
               this.reaction,
-              this.still
+              this.still,
+              this.order
             )
         : null,
     });

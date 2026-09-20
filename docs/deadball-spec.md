@@ -1304,10 +1304,10 @@ is not. Two techniques, both of which keep the individual animation:
   Individual offsets survive, because the offset is in the path, not in the call.
 
 **Measured, once built.** The atlas won and the count turned out not to be the
-binding constraint at all. 3,576 people hold 60 fps at 1280 px and at 390 px
-with the CPU throttled six times over. 2,451 of them survive culling and become
-one `drawImage` each; the other 31% are rejected on a comparison, before the
-second projection is even computed.
+binding constraint at all. 15,364 people across four stands hold 60 fps at
+1280 px and at 390 px with the CPU throttled six times over. Roughly 2,450
+survive culling in any given view and become one `drawImage` each; 84% are
+rejected on a comparison, before the second projection is even computed.
 
 Worth recording that the first attempt was nowhere near this. It put the front
 row five meters behind the net, which made every person eighty pixels tall -
@@ -1326,16 +1326,59 @@ because nothing downstream of it can be wrong.
 `prefers-reduced-motion` gets a still crowd: no bob, no rise. The stand and the
 boards are unaffected, being furniture.
 
-**It is a per-camera feature, not a scene feature, and that is worth knowing
-before it is built.** `behind-taker` looks straight at it and gets the most.
-`angled-behind` sees it obliquely, and is the view a raked stand will flatter
-most. `keeper-cam` looks out from the goal, so all three of these are behind the
-camera and that view gets none of them.
+**It was a per-camera feature, and that is why it became four stands.** One
+stand behind the goal serves `behind-taker`, which stares at it, and
+`angled-behind`, which is the view a rake flatters most. `keeper-cam` looks the
+other way and got nothing at all: sky and grass. That consequence was recorded
+here rather than discovered later, and then it was fixed.
 
-Modelling a second stand behind the taker is the same code and would fix it, but
-it is not what was asked for, so: one stand now, the keeper-cam consequence
-recorded here rather than discovered later, and a second stand if that view
-starts to look empty next to the other two.
+#### A whole stadium
+
+Four stands - behind each goal, down each side - plus hoardings all the way
+round, floodlights at the corners, and a full-size pitch with the far goal and
+the halfway line on it.
+
+**It costs almost nothing extra in the two views that already had a stand**,
+which is the part worth knowing before assuming otherwise. A camera can only
+look one way: the stand behind it is culled on a comparison and the two beside
+it are seen edge-on with most of each off the frame. Measured, `behind-taker`
+draws 2,408 people where one stand drew 2,451 - unchanged inside the noise.
+
+The cost lands entirely on `keeper-cam`, which looks down the length of the
+pitch and sees three stands at once. That view went from drawing zero people to
+6,987, which is not a regression but is a bill: 27 fps at four times CPU
+throttling, where every view had held 60 at six.
+
+**Fixed by measuring rather than by trimming.** Profiling the view found nobody
+under 6 px tall - every camera here is telephoto, because it has to frame a
+7.32 m goal, so even the far stand at 110 m projects people 6 to 10 px. There
+were 4,940 in that band and 2,047 above it. So the threshold for "animate this
+person every frame" went to 9.5 px, and everybody below it is painted once into
+the same offscreen canvas as the terracing. They are still there; they just
+stop moving, at a size where a two-centimetre idle bob is a sixth of a pixel.
+`keeper-cam` came back to 2,449 live and 60 fps everywhere.
+
+What is genuinely lost: the far end no longer joins a celebration. At a hundred
+metres, in a view facing away from the goal being scored in.
+
+**The floodlights are the cheapest thing here and do the most.** Height is what
+makes a place read as a stadium, not seat count, and they are static geometry
+in the pre-rendered backdrop, so they cost nothing per frame. They stand 17 m
+where a real pylon is thirty or more, because every camera here eats vertical
+frame and a true-height mast put its head off the top of the screen - leaving a
+bare pole, which is a pole and not a floodlight.
+
+**The far goal is stroked, not filled, and that is a deliberate lie.** A post is
+12 cm across, which at 105 m is a third of a pixel; filled honestly it vanished
+into the antialiasing and the far end had no goal in it. A stroke with a floor
+on its width keeps it visible. Same defence as the ball's outline: it changes an
+apparent width by a fraction of a pixel, and nothing can be aimed at it, hit it,
+or be judged against it.
+
+It also had to move in the draw order. Drawn with the pitch it was invisible for
+a second reason - the far hoardings are six metres further away but painted
+later, so they covered it. It belongs after the stand and before everything at
+this end, which is where it sits in depth.
 
 #### The sounds, and where they come from
 

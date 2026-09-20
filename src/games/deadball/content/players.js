@@ -66,5 +66,10 @@ export const ROSTER = [
   },
 ];
 
-/** Who you play as until there is a way to choose. That arrives in Phase 4. */
+/**
+ * Who you play as on a first visit, before anybody has picked.
+ *
+ * You do not need to change this to play as somebody you added - open the cog
+ * and choose them. This is only the one the game starts on.
+ */
 export const DEFAULT_PLAYER_ID = 'marchetti';

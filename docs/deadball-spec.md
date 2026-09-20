@@ -7,7 +7,7 @@ _Status: Phases 0, 1 and 1.5 built and playable at `/deadball/`. Around 75 tests
 | | |
 | --- | --- |
 | **Decision** | Build a drag-to-shoot penalty and free kick game on a hidden page at `/deadball/`, as a vanilla TypeScript engine with swappable view renderers, sized so that a second and third contributor can add features without touching the physics. |
-| **Next steps** | - Hand over: roster and keeper files for a first contribution, a feature for a second<br>- Phase 2: second and third cameras plus the switcher<br>- Then a keeper that reads your pattern, because both testers found the one shot that always works |
+| **Next steps** | - Phase 4.5: teams, and a cup run against progressively better ones<br>- Phase 7: a second presentation package, which is the only thing that proves the boundary between `core/` and how it looks<br>- Then a keeper that reads your pattern, because every tester so far has found the one shot that always works |
 | **Risk** | The repo is public. See [What not to commit](#what-not-to-commit).<br>The repo's Creative Commons license is wrong for code. See [Licensing](#licensing). |
 
 ## Purpose
@@ -115,6 +115,7 @@ src/games/deadball/
     names.ts                  # what the two people in a duel are called
     events.ts                 # discrete things worth hearing (Phase 3.5)
     taker.ts                  # the computer deciding a penalty (Phase 3.75)
+    roster.ts                 # who takes it, and inventing somebody (Phase 4)
     wall.ts                   # free kick wall (Later, not built)
   presentation/               # how it looks AND how it sounds
     Presentation.ts           # what a presentation package implements
@@ -578,7 +579,7 @@ Three implementations, in order: `memory` (tests), `local` (`localStorage`), and
 
 Keys namespaced `deadball:v1:*`. A `ps:schema` record holds the version, and `schema.ts` owns the migration functions. The migration path exists from the first release, because the first schema change happens the first time someone adds a field to a player.
 
-Stored: settings (view id, difficulty, sound), profile (display name), custom roster, stats (best scores, longest streak, per-keeper record), and a capped match history.
+Stored: settings (view id, difficulty, sound, time of day, chosen player), profile (display name), custom roster, stats (best scores, longest streak, per-keeper record), and a capped match history.
 
 ## Two players
 
@@ -1008,7 +1009,19 @@ Two devices is an implementation of this and a room to point it at.
 
 Attributes are `0..100` because that is the convention anyone who has played a football game already knows, and it means a new player can be written without reading any code.
 
-The custom player editor is a form that writes to `deadball:v1:roster:custom`. It ships in Phase 4 and is deliberately a separate, self-contained feature.
+### Players, and inventing one
+
+The custom player editor is a form that writes to `deadball:v1:roster:custom`. Shipped in Phase 4, with the picker, in the settings dialog.
+
+**The phase was chosen off this document rather than off a feature list.** `deadball-jobs.md` invites a first contribution by adding a footballer to `content/players.js` - and then required editing `DEFAULT_PLAYER_ID` in the same file to see them. A code change standing between somebody's first contribution and looking at it, in the one job written to need no code change. That is what Phase 4 removes.
+
+Three decisions worth keeping:
+
+- **`core/roster.ts` treats both inputs as untrusted.** The shipped roster is a file people are invited to edit by hand, and the custom list is a browser console away from holding anything at all. Skills clamp, colours are checked against what a canvas can actually parse - `ctx.fillStyle` ignores what it cannot read, silently, so a bad colour draws the figure in somebody else's kit rather than throwing - and names go through the same stripping as a duel name, because they are drawn on the same canvas and a right-to-left override moves text that is not its own.
+- **Shipped ids are claimed before custom ones are read**, so nothing in storage can shadow a real player and replace somebody's footballer with a forgery.
+- **Only custom players can be deleted.** The shipped roster is not editable from the game; it is editable from the file, which is the point of it.
+
+**The settings dialog is now doing two jobs.** It holds sound and time of day, which are preferences, and the player picker, which is a choice about the game. That is one dialog too many things, and the next thing added to it should probably split it rather than make it longer. Noting it here rather than pre-emptively rebuilding it: it is legible at this size, and the third item is when it stops being.
 
 ## The hidden page
 
@@ -1039,7 +1052,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **3** ✅ | Two players on one device: one shoots, one saves, with both named. See [Two players](#two-players) | A contest rather than a practice |
 | **3.5** ✅ | `presentation/` packages with the cameras lifted out as data, an event stream out of `core/`, a raked stand with hoardings and an animated crowd, and sound - synthesised impacts, sampled crowd. See [Render packages](#render-packages) and [A crowd, and something to hear](#a-crowd-and-something-to-hear) | It feels like a penalty rather than a diagram |
 | **3.75** ✅ | One player against the computer, alternating. See [One player against the computer](#one-player-against-the-computer) | You get to be the keeper without needing a second person |
-| **4** | Pick your player before a shootout, and add your own | The roster is worth editing |
+| **4** ✅ | `core/roster.ts`, a player picker and a custom player editor in the settings dialog, stored per device. See [Players, and inventing one](#players-and-inventing-one) | The roster is worth editing |
 | **4.5** | Teams, and a cup run against progressively better ones. Solo climbs the same ladder against their keepers. See [Teams, and a ladder to climb](#teams-and-a-ladder-to-climb) | A reason to play the next one |
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) and [deadball-two-devices.md](deadball-two-devices.md) | Play somebody who is not in the room |

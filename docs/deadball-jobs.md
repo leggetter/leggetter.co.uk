@@ -130,8 +130,8 @@ Copy one of the blocks and change it. Every skill runs from 0 to 100:
 | `foot` | `'left'` or `'right'`. Changes which way the ball naturally drifts. |
 | `colors` | `kit` is the shirt, `trim` is the shorts and socks. Any web colour. |
 
-To play as them, change `DEFAULT_PLAYER_ID` at the bottom of the file to their
-`id`.
+To play as them, open the game, press the cog, and pick them under **Your
+player**. No code change - if the file is right, they are in the list.
 
 **Done when:** you can see their kit colours on the pitch and the name in the
 top-left corner.
@@ -187,18 +187,22 @@ are and that something is watching them.
 These are real features. Each one is self-contained - you should not need to
 touch the physics for any of them.
 
-### Pick your player before the shootout
+### A record that follows the player
 
-Right now the game plays as whoever `DEFAULT_PLAYER_ID` says. There should be a
-screen where you choose.
+Picking a player is built - cog, **Your player**, and you can invent one there
+too. What that left behind is a question nobody can answer yet: **is anyone
+actually better with one than another?**
 
-Everything needed is there: the roster is a list, and the game already takes a
-player as an argument. It needs somewhere to show them and something to
-remember the choice, and there is already a place for remembering things
-(`storage/`).
+Every shot in the log already records `playerId`. Nothing reads it back. So the
+job is to total those up per player and show it - scored out of taken, next to
+their name in the picker, or on the full-time screen.
 
-**Start at:** `src/games/deadball/main.ts`, which is where the player is
-currently picked.
+The interesting part is how little is enough. A ratio over four penalties is
+noise, and showing it as though it meant something is worse than showing
+nothing, so decide what you do until there is enough of it.
+
+**Start at:** `telemetry/analyse.ts`, which already groups shots, and
+`core/roster.ts` for what a player is.
 
 ### Celebrations
 

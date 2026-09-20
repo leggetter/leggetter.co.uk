@@ -90,6 +90,60 @@ const views = listCameras();
       <div id="settings-body">
         <h2 id="settings-heading">Settings</h2>
 
+        <h3>Your player</h3>
+        <div id="player-list" class="stack"></div>
+        <p id="player-stats"></p>
+        <div id="player-actions">
+          <button type="button" id="player-invent">Invent one</button>
+          <button type="button" id="player-delete" hidden>Delete</button>
+        </div>
+
+        {/*
+          Inline rather than a second dialog. A dialog on top of a dialog is a
+          back button nobody can predict, and this form is four numbers.
+        */}
+        <form id="player-form" hidden>
+          <label for="player-name">Name</label>
+          <input id="player-name" type="text" maxlength="18" autocomplete="off"
+            spellcheck="false" placeholder="New Player" />
+
+          <div class="skills">
+            <label for="skill-power">Power</label>
+            <input id="skill-power" type="range" min="0" max="100" value="70" />
+            <output for="skill-power">70</output>
+
+            <label for="skill-accuracy">Accuracy</label>
+            <input id="skill-accuracy" type="range" min="0" max="100" value="70" />
+            <output for="skill-accuracy">70</output>
+
+            <label for="skill-curve">Curve</label>
+            <input id="skill-curve" type="range" min="0" max="100" value="70" />
+            <output for="skill-curve">70</output>
+
+            <label for="skill-composure">Composure</label>
+            <input id="skill-composure" type="range" min="0" max="100" value="70" />
+            <output for="skill-composure">70</output>
+          </div>
+
+          <h3>Foot</h3>
+          <div class="choices" id="foot-choices">
+            <button type="button" data-foot="left" aria-pressed="false">Left</button>
+            <button type="button" data-foot="right" aria-pressed="true">Right</button>
+          </div>
+
+          <div class="kit">
+            <label for="kit-colour">Shirt</label>
+            <input id="kit-colour" type="color" value="#2f6fd0" />
+            <label for="trim-colour">Trim</label>
+            <input id="trim-colour" type="color" value="#f4f6f8" />
+          </div>
+
+          <div id="player-form-actions">
+            <button type="submit">Add</button>
+            <button type="button" id="player-cancel">Cancel</button>
+          </div>
+        </form>
+
         <h3>Sound</h3>
         <div class="choices" id="sound-choices">
           <button type="button" data-sound="on" aria-pressed="true">On</button>
@@ -279,6 +333,100 @@ const views = listCameras();
         paintModes();
 
         const settings = document.getElementById('settings') as HTMLDialogElement | null;
+
+        const playerList = document.getElementById('player-list');
+        const playerStats = document.getElementById('player-stats');
+        const playerForm = document.getElementById('player-form') as HTMLFormElement | null;
+        const inventButton = document.getElementById('player-invent');
+        const deleteButton = document.getElementById('player-delete') as HTMLButtonElement | null;
+        const skills = ['power', 'accuracy', 'curve', 'composure'] as const;
+        let foot: 'left' | 'right' = 'right';
+
+        const field = (id: string) => document.getElementById(id) as HTMLInputElement | null;
+
+        const paintPlayers = () => {
+          if (!playerList) return;
+          const current = game.currentPlayerId();
+          playerList.replaceChildren(
+            ...game.roster().map((entry) => {
+              const button = document.createElement('button');
+              button.type = 'button';
+              button.className = 'player';
+              button.setAttribute('aria-pressed', String(entry.id === current));
+              const swatch = document.createElement('span');
+              swatch.className = 'swatch';
+              swatch.style.background = entry.colors.kit;
+              swatch.style.borderColor = entry.colors.trim;
+              const label = document.createElement('span');
+              // textContent, not innerHTML: this name was typed into a box.
+              label.textContent = entry.name;
+              button.append(swatch, label);
+              button.addEventListener('click', () => {
+                game.usePlayer(entry.id);
+                paintPlayers();
+              });
+              return button;
+            })
+          );
+
+          const chosen = game.roster().find((p) => p.id === current);
+          if (playerStats && chosen) {
+            playerStats.textContent = `POW ${chosen.power} · ACC ${chosen.accuracy} · CUR ${chosen.curve} · COM ${chosen.composure} · ${chosen.foot} foot`;
+          }
+          if (deleteButton) deleteButton.hidden = !chosen?.custom;
+        };
+
+        const showForm = (show: boolean) => {
+          if (playerForm) playerForm.hidden = !show;
+          if (inventButton) inventButton.hidden = show;
+          if (show) field('player-name')?.focus();
+        };
+
+        for (const skill of skills) {
+          const input = field(`skill-${skill}`);
+          input?.addEventListener('input', () => {
+            const out = document.querySelector(`output[for="skill-${skill}"]`);
+            if (out) out.textContent = input.value;
+          });
+        }
+
+        for (const button of document.querySelectorAll<HTMLButtonElement>('#foot-choices button')) {
+          button.addEventListener('click', () => {
+            foot = button.dataset.foot === 'left' ? 'left' : 'right';
+            for (const other of document.querySelectorAll('#foot-choices button')) {
+              other.setAttribute('aria-pressed', String(other === button));
+            }
+          });
+        }
+
+        inventButton?.addEventListener('click', () => showForm(true));
+        document.getElementById('player-cancel')?.addEventListener('click', () => showForm(false));
+
+        playerForm?.addEventListener('submit', (event) => {
+          event.preventDefault();
+          // Sent raw. The game cleans and caps it, so the rules live in one
+          // place rather than half here and half in core/roster.ts.
+          const id = game.addPlayer({
+            name: field('player-name')?.value,
+            power: Number(field('skill-power')?.value),
+            accuracy: Number(field('skill-accuracy')?.value),
+            curve: Number(field('skill-curve')?.value),
+            composure: Number(field('skill-composure')?.value),
+            foot,
+            colors: { kit: field('kit-colour')?.value, trim: field('trim-colour')?.value },
+          });
+          // Straight to being them, because looking at your footballer is the
+          // whole reason for the form.
+          if (id) game.usePlayer(id);
+          if (playerForm) playerForm.reset();
+          showForm(false);
+          paintPlayers();
+        });
+
+        deleteButton?.addEventListener('click', () => {
+          game.removePlayer(game.currentPlayerId());
+          paintPlayers();
+        });
         const soundChoices = [
           ...document.querySelectorAll<HTMLButtonElement>('#sound-choices button'),
         ];
@@ -312,6 +460,8 @@ const views = listCameras();
 
         document.getElementById('settings-open')?.addEventListener('click', (event) => {
           paintSettings();
+          paintPlayers();
+          showForm(false);
           if (!settings?.open) settings?.showModal();
           (event.currentTarget as HTMLButtonElement).blur();
         });
@@ -319,6 +469,7 @@ const views = listCameras();
           .getElementById('settings-close')
           ?.addEventListener('click', () => settings?.close());
         paintSettings();
+        paintPlayers();
       })
       .catch((error) => console.error('[deadball] failed to start', error));
   }
@@ -471,7 +622,11 @@ const views = listCameras();
   }
 
   #settings-body {
-    width: min(320px, calc(100vw - 32px));
+    width: min(340px, calc(100vw - 32px));
+    /* The dialog has grown a roster. Scroll it rather than let it run off a
+       phone, and leave room so it never touches the edges. */
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
     padding: 22px;
     border-radius: 14px;
     border: 1px solid rgba(125, 211, 252, 0.28);
@@ -528,6 +683,164 @@ const views = listCameras();
   #settings-actions button:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 2px;
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+
+  :global(.player) {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 10px;
+    border-radius: 9px;
+    border: 1px solid rgba(125, 211, 252, 0.22);
+    background: rgba(125, 211, 252, 0.06);
+    color: #e6eef8;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  :global(.player[aria-pressed='true']) {
+    border-color: #7dd3fc;
+    background: rgba(125, 211, 252, 0.2);
+    font-weight: 600;
+  }
+
+  :global(.swatch) {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 2px solid;
+    flex: none;
+  }
+
+  #player-stats {
+    margin: 0 0 10px;
+    font-size: 11.5px;
+    letter-spacing: 0.02em;
+    color: rgba(230, 238, 248, 0.6);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  #player-actions {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  #player-actions button,
+  #player-form-actions button {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background: rgba(125, 211, 252, 0.08);
+    color: #e6eef8;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  #player-delete {
+    border-color: rgba(248, 113, 113, 0.4);
+    background: rgba(248, 113, 113, 0.12);
+  }
+
+  #player-form[hidden],
+  #player-delete[hidden],
+  #player-invent[hidden] {
+    display: none;
+  }
+
+  #player-form {
+    margin-bottom: 18px;
+  }
+
+  #player-form label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: rgba(230, 238, 248, 0.55);
+    margin-bottom: 3px;
+  }
+
+  #player-name {
+    width: 100%;
+    font: inherit;
+    font-size: 16px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    border-radius: 9px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background: #061426;
+    color: inherit;
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: auto 1fr 2.2em;
+    align-items: center;
+    gap: 4px 8px;
+    margin-bottom: 12px;
+  }
+
+  .skills label {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .skills output {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    text-align: right;
+    color: rgba(230, 238, 248, 0.8);
+  }
+
+  .skills input[type='range'] {
+    width: 100%;
+    accent-color: #7dd3fc;
+  }
+
+  .kit {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .kit label {
+    margin: 0;
+  }
+
+  .kit input[type='color'] {
+    width: 100%;
+    height: 30px;
+    padding: 0;
+    border-radius: 7px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background: #061426;
+    cursor: pointer;
+  }
+
+  #player-form-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  #player-form-actions button[type='submit'] {
+    background: #7dd3fc;
+    border-color: #7dd3fc;
+    color: #06263a;
   }
 
   #settings-actions button {

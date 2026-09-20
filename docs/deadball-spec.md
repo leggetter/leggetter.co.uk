@@ -62,10 +62,10 @@ A game to build with the kids. The first version gets built solo so there is som
 | Decision | Choice | Why |
 | --- | --- | --- |
 | Shot mechanic | Drag from the ball: direction, power, and curve in one gesture | Highest skill ceiling of the options considered, and the only one that makes a free kick around a wall interesting |
-| Shot types | Penalties first, free kicks second | Free kicks add a wall, variable distance, and variable angle. Penalties are the same game with all three fixed, so they are strictly a subset |
+| Shot types | Penalties first, free kicks second. **Both built.** | Free kicks add a wall, variable distance, and variable angle. Penalties are the same game with all three fixed, so they are strictly a subset - which is what made Phase 8 an afternoon of geometry rather than a second game |
 | Views in v1 | `behind-taker` and `angled-behind`, swappable at runtime. `keeper-cam` joined them in Phase 2 | Undecided which feels better, and the swap costs little once the projection boundary exists |
 | Art | 2D canvas primitives now, a second package later - see [What else a package could be](#what-else-a-package-could-be) | Pixel art needs assets, which is the slow part. The renderer interface is what makes it a later decision instead of a rewrite |
-| Roster | Invented players shipped as data, plus a custom player editor. Everybody spends the same 300 points - see [Everybody gets 300 points](#everybody-gets-300-points) | No likeness or trademark exposure on a public site, and inventing players is a good first contribution. The budget is what stops the editor making the roster pointless |
+| Roster | Invented players shipped as data, plus a custom player editor. Everybody spends the same 375 points - see [Everybody gets 375 points](#everybody-gets-375-points) | No likeness or trademark exposure on a public site, and inventing players is a good first contribution. The budget is what stops the editor making the roster pointless |
 | Language | TypeScript for the engine, JS or JSON for content | Types document the renderer and storage interfaces. The content files stay approachable |
 | Persistence | Interface from day one, `localStorage` implementation | Two-player later needs a remote store. An async interface now avoids a rewrite then |
 | Page | Hidden: `noindex`, out of the sitemap, no nav link | Matches how `draft: true` posts already work in this repo |
@@ -164,6 +164,7 @@ src/games/deadball/
     sounds.js                 # frequencies and decay times (Phase 3.5)
     boards.js                 # what the hoardings say. No real people's names
     takers.js                 # the computers you have to save from
+    shots.js                  # finesse, driven, knuckle, as multipliers
     teams.js                  # squads and kits, by rating (Phase 4.5)
   Game.ts                     # wiring: input -> match -> view, the frame loop
   main.ts                     # browser entry, imported by the Astro page
@@ -1046,7 +1047,7 @@ Three decisions worth keeping:
 - **Shipped ids are claimed before custom ones are read**, so nothing in storage can shadow a real player and replace somebody's footballer with a forgery.
 - **Only custom players can be deleted.** The shipped roster is not editable from the game; it is editable from the file, which is the point of it.
 
-### Everybody gets 300 points
+### Everybody gets 375 points
 
 `SKILL_BUDGET = 375`, of a possible 500, spread across power, accuracy, curve, composure and dip. It applies to the shipped roster and to anybody invented.
 
@@ -1057,7 +1058,7 @@ Three decisions worth keeping:
 - **The form clamps live.** A slider stops where the points run out, which says what the rule is while you are breaking it - nothing to read, nothing to undo, and no way to submit something invalid.
 - **Underspending is allowed.** It is only self-harm, and refusing to accept a deliberately weak player would be a rule with nothing behind it.
 
-A second test asserts **nobody on the roster is at least as good as anybody else at everything**. The budget makes that likely; it does not make it true, since 300 points can still be spent strictly worse.
+A second test asserts **nobody on the roster is at least as good as anybody else at everything**. The budget makes that likely; it does not make it true, since 375 points can still be spent strictly worse.
 
 Attributes are gentle on purpose - `power` scales strike speed by 0.85 to 1.15 - so rebalancing the roster onto the budget changed how the four compare without changing how the game feels.
 
@@ -1313,7 +1314,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
 | **6** | Two devices, a game per URL, no login. See [Two devices, later](#two-devices-later) and [deadball-two-devices.md](deadball-two-devices.md) | Play somebody who is not in the room |
 | **7** | A second presentation package, which is the only thing that proves the boundary. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |
-| **8** ✅ | Free kicks: three spots, a two-to-four man wall, and the `blocked` outcome that has been reserved since Phase 1. See [Free kicks](#free-kicks) | The curve mechanic finally matters |
+| **8** ✅ | Free kicks: three spots, a two-to-four man wall, and the `blocked` outcome reserved since Phase 1. `dip` as a fifth attribute and `loft` to go with it, three shot styles, and a camera that stands behind the ball wherever it is. See [Free kicks](#free-kicks), [Dip](#dip-and-why-the-wall-was-unbeatable) and [Three ways to hit it](#three-ways-to-hit-it) | The curve mechanic finally matters |
 | **Later** | A keeper that reads your pattern, earning points to improve your player (see [Earning points, later](#earning-points-later)), corners, a league season, a realistic 3D package, side-on view, a leaderboard | |
 
 **Free kicks moved to Later.** They were Phase 3 on the grounds that they
@@ -1352,6 +1353,24 @@ The decision table at the top of this document already said the rest: penalties 
 **The camera follows the ball.** Every `CameraSpec` was written against the penalty spot, so each is now read as *an offset from the ball in the frame of the shot* - so far behind, so far across, so far up - and rebuilt around wherever the ball actually is, including the framing distance. For the penalty spot this returns the spec unchanged, and a test asserts exactly that: five phases of camera work are not up for renegotiation because free kicks arrived.
 
 **A comment I had to take back.** The wall is tested against the segment the ball travelled rather than its position at the end of the step, and I wrote that a point test would let the hardest shots through. It would not: at 120 Hz the ball moves 27 cm a step and a person is 74 cm across, so end-of-step sampling already catches it. The planted-bug check found it - the test passed with the swept maths removed. The swept test stays because it costs one dot product and stops being belt-and-braces the moment somebody changes the tick rate, and the comment now says that instead of the thing that was not true.
+
+### Both sides take the same kick
+
+Reported from play: in **Both**, one team was getting the free kicks and the other the penalties.
+
+True, and worse than it sounded. Each kick rolled its own discipline, and because the two sides alternate, **the roll landed on one side's parity.** Measured over ten kicks, one seed gave one team 40% penalties and the other 80%. That is not a shootout, it is two different competitions scored against each other.
+
+Kicks now come in **pairs**, and both halves of a pair face the same kick - same discipline, same spot, same wall, same post covered. Fairness is not only which *kind*: one side taking a twenty-metre central free kick while the other takes an angled one past four men is the same unfairness in a different coat. Solo keeps a fresh kick every time, because there is nobody to be fair to and pairing would only halve the variety.
+
+### The keeper was hanging in the air
+
+Reported from play, and the third member of a family (see below): the keeper reached full stretch and stayed there until the ball hit the net.
+
+The dive ran at a fixed `diveSpeed` from the moment of commitment. A penalty is in the air 0.41 s and the hands take about that long to reach a corner, **so the two finished together by luck rather than by design.** A lofted free kick is in the air 1.67 s: full stretch after 0.4 s, then **1.46 s of a man frozen mid-air**.
+
+The dive is now *paced* to the ball. The commitment is untouched - same moment, same information, same read error - and so is the top speed, which no keeper exceeds; what changes is that a keeper with a second to spare spends it. Hanging went to 0.08 s, which is the lead a keeper wants so the hand is already there rather than still travelling as the ball passes. **Save rates are identical**: 31% and 25% before, 31% and 25% after.
+
+Holding the keeper still and then going flat out was tried first. It reads better in prose and is closer to what a real keeper does, and it broke a test inside a minute: *an anticipating keeper is moving at contact*, because that is the only way to reach a corner in 450 ms, and that property is the entire trade separating anticipation from reaction. Pacing satisfies both; delaying did not.
 
 ### Dip, and why the wall was unbeatable
 
@@ -1429,8 +1448,8 @@ making.
 ### What playing it kept finding
 
 Bugs of the same shape, which is worth writing down because the next one is
-probably in here somewhere. Make that six, and the last two are not bugs in the
-simulation at all.
+probably in here somewhere. Make that seven, and the last three are not bugs in
+the simulation at all.
 
 **A number that is not the unit it looks like.** `Rng.nextBell` has a standard
 deviation of 0.29, not 1. Three separate constants were written as though
@@ -1485,7 +1504,15 @@ construction, and the check is a width sweep across fifteen widths - which
 exists because the third overflow was invisible at 1280 and twenty pixels deep
 at 860.
 
-The common thread: all six were found by playing, by measuring, or by looking,
+**A number tuned for one flight time, reused for another.** Three of these in one phase, which is what makes it a class rather than three bugs. Everything in the game was tuned against a penalty: **0.41 seconds in the air**. A free kick is 0.82, and a lofted one 1.67.
+
+- The **keeper's dive** ran at a fixed speed that happened to finish as a penalty arrived. At four times the flight it finished a second and a half early and hung there.
+- **Magnus deflection grows with the square of the flight**, so the hook that bent a penalty 24 cm bent a lofted free kick 1.69 m. Lofting - a decision about *height* - was silently multiplying a decision about *direction*.
+- The **aim sigmas** were set for eleven metres and an open goal, and read as a ball going anywhere from twenty with four people in the way.
+
+None of the three was wrong when it was written. Each was a constant that quietly encoded an assumption about how long the ball is in the air, and none of them said so. **The lesson is not "check the constants" - it is that a constant tuned against one scenario should say which scenario**, because the next phase will be the one that breaks it and the comment is the only thing that will warn anybody.
+
+The common thread: all seven were found by playing, by measuring, or by looking,
 and none by reading the code. The shot log exists because of the first four.
 The fifth is the one that argues hardest for the log - it was a question about
 a screenshot, and the log could not answer it, because it recorded no side. It
@@ -2042,7 +2069,8 @@ is.
 
 **Tier 1 - data only, no build knowledge, immediate visual feedback.** Every one of these is a single file edit and a page refresh. What exists today:
 
-- Add players to `content/players.js`, spending 300 points. Since Phase 4 they
+- Add players to `content/players.js`, spending 375 points across five skills.
+  Since Phase 4 they
   appear in the picker with no second edit anywhere.
 - Write keeper personalities in `content/keepers.js` (names, reaction times, how much they guess).
 - How the computer takes a penalty, in `content/takers.js`.
@@ -2050,6 +2078,8 @@ is.
 - What the advertising hoardings say, in `content/boards.js`. No real people's
   names, per [What not to commit](#what-not-to-commit).
 - Times of day, in `content/skies.js`.
+- How a shot is struck, in `content/shots.js` - every field is a multiplier, so
+  1 means "leave it alone" and the file is safe to argue with.
 - Tune difficulty numbers and see the game get harder.
 
 Named here before they existed, and still not built: `content/celebrations.js`
@@ -2112,7 +2142,7 @@ finding](#what-playing-it-kept-finding).
 
 ## Open questions
 
-1. **Does the drag gesture read as natural?** Still the riskiest thing here, and now it can be answered by playing it rather than by reasoning. Phase 1 shipped the coupled version: the drag vector sets direction *and* power together, so aiming at the top corner and hitting it softly is not a thing you can do. Lift is not wired to the gesture at all yet, and is pinned at 0.5. That is the axis to design once the rest feels right.
+1. **Does the drag gesture read as natural?** Still the riskiest thing here, and now it can be answered by playing it rather than by reasoning. Phase 1 shipped the coupled version: the drag vector sets direction *and* power together, so aiming at the top corner and hitting it softly is not a thing you can do. **Lift is half answered now, and by something other than the gesture.** Free kicks needed a trajectory the flat solve could not produce, so `loft` arrived: it spends part of the speed budget going up, and it is driven by the taker's `dip` rather than by anything the player does with their hand. That was the right first move - it made over-the-wall possible without inventing a second gesture, and it gave the fifth attribute a job. It is not the whole answer. **Choosing the arc is still not something the player does**, and a free kick where you pick how much to float it is a better game than one where your footballer picks for you. The axis is still there to design; it is now the difference between a specialist and a decision rather than between a mechanic and nothing.
 2. **Which view wins?** Still open, and now open with evidence rather than without it. All three shipped in Phase 2 and `behind-taker` has stayed the default through every session since, which is weak evidence at best: it is also the one the game opens on. Phase 3.5 puts a thumb on the scale, because a raked stand behind the goal is worth most to the two views that can see it, and nothing at all to `keeper-cam`.
 3. **Does cross-client determinism hold?** Untested until two browsers run the same seed. Mitigated by sending the outcome alongside the input, so a divergence degrades to a logged warning rather than a desync.
 4. **How hard should the keeper be by default?** Measured rather than open now. Two logged sessions put it at 85% scored before the retune with zero saves, and 63% after with 15% saved and 18% off the post. That is about right, and the numbers came from the log rather than from anyone's opinion.

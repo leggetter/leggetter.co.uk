@@ -251,10 +251,13 @@ which a Durable Object is not.
 
 ## Open questions
 
-1. **Does the reducer really run unmodified on a Worker?** It should - `core/`
-   has no DOM, no browser API, and Node 25 strips its types natively - but
-   "should" is not "does", and this is the assumption the whole shape rests on.
-   Worth ten minutes of proving before anything else.
+1. ~~Does the reducer really run unmodified on a Worker?~~ **Answered.**
+   `core/` imports nothing but itself and `content/`, touches no browser or
+   Node global, and reads no clock - and a whole shootout runs start to finish
+   using only those imports. `core/portable.test.ts` now asserts all four, and
+   was checked against planted violations rather than trusted: a `Date.now()`
+   and a `performance.now()` added to `rng.ts` both fail it. So this is a
+   standing guarantee rather than a fact that was true once.
 2. **What is the id?** The match seed is elegant and makes the URL mean
    something. It also fixes the id's length at whatever the seed is. Worth a
    look at whether forty bits of seed is both enough entropy and a sensible

@@ -1947,10 +1947,16 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
 
   // Hidden once a drag is live: the dial is at the ball and says more, and in
   // the angled view the two were drawn on top of each other.
-  // Not on the keeper's device in a two-device game: telling somebody to drag
-  // to aim while their pointer does nothing is the same mistake as the corner
-  // hint above, in the other phase.
-  if (frame.phase === 'ready' && !frame.aiming && (!frame.remote || frame.yourShot)) {
+  // Only when the person reading this can actually take the kick.
+  //
+  // Not the keeper's device in a two-device game, and not while the computer
+  // is on the ball either - the same mistake in a mode nobody had checked.
+  // Telling somebody to drag to aim while their pointer does nothing is how
+  // they find out it does something: this instruction is most of why it was
+  // possible to take the computer's penalty for it.
+  const theirsToTake =
+    (frame.remote && !frame.yourShot) || (frame.mode === 'versus' && frame.taker === 1);
+  if (frame.phase === 'ready' && !frame.aiming && !theirsToTake) {
     // Short form on a phone. The long one is four clauses and does not fit.
     const lines =
       width < NARROW

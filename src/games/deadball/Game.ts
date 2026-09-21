@@ -459,6 +459,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
    * of them saying they have seen the result.
    */
   const myTurn = (): boolean => {
+    // The computer's kick is not yours to take. You pick a corner, and then
+    // the run-up belongs to it - but nothing said so, so releasing a drag
+    // during its turn took the penalty on its behalf. Pick a corner the
+    // keeper's way, shoot it there yourself, and the computer never missed a
+    // kick it was never allowed to take.
+    if (computerIsTaking()) return false;
     if (!link) return true;
     if (match.phase === 'keeping') return myGoal();
     if (match.phase === 'ready') return myShot();

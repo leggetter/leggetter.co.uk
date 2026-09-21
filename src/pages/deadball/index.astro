@@ -1632,6 +1632,14 @@ const views = listCameras();
     margin-bottom: 18px;
   }
 
+  /* `hidden` is a browser default of `display: none`, and any author rule that
+     sets `display` beats it. `.choices` sets flex, so the Where buttons stayed
+     on screen however many times the script marked them hidden - which is why
+     picking "1 player" offered to play it across two devices. */
+  .choices[hidden] {
+    display: none;
+  }
+
   .choices button {
     flex: 1;
     padding: 9px 4px;

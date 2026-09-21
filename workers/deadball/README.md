@@ -68,6 +68,33 @@ following in the dashboard once. There is no `wrangler builds`.
 
 6. **Production branch:** `main`, which is what the site already deploys from.
 
+### The dashboard will then tell you this file is wrong. It is not.
+
+After connecting, Builds shows a warning like:
+
+> Update `wrangler.jsonc` in your repo to keep settings consistent.
+> `"name": "deadball-rooms",`
+
+Ignore it, and **close the pull request it offers to raise.**
+
+The dashboard looks for a config at the build's *root directory* and does not
+read the `--config` flag in the deploy command. So it finds the **site's**
+`wrangler.jsonc` at the repository root, reads `"name": "leggetter-co-uk"`,
+compares that to the Worker it is attached to, and reports a mismatch that does
+not exist. The config that actually deploys this Worker is the one beside this
+README, and it has said `deadball-rooms` all along.
+
+Taking the suggestion would rename the **website's** Worker to
+`deadball-rooms`. The next push would then deploy 220 pages of blog over the
+game server - an assets-only Worker with no Durable Object binding and no
+migration - and take multiplayer down until somebody worked out why. It is
+recoverable in one `wrangler deploy`, and it would be a confusing hour first.
+
+There is no way to silence it while one repository holds two Workers. Pointing
+the root directory at `workers/deadball` would match the names and break the
+build instead, because the Worker imports `src/games/deadball/core/` and could
+no longer see it.
+
 Nothing else, and no plan change - this account is already on **Workers
 Paid**, so Durable Objects are included rather than something to qualify for.
 

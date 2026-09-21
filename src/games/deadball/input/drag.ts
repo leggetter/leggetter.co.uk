@@ -22,6 +22,18 @@ export interface DragHandlers {
   onRelease?(gesture: DragGesture): void;
   /** Fired on release when the pointer barely moved. */
   onClick?(point: DragPoint): void;
+  /**
+   * The pointer moved with nothing held down, or left the canvas.
+   *
+   * `null` means gone. A mouse has a position before it has a decision, and
+   * the keeper's pick is the one place in this game where that is worth
+   * drawing: picking a corner used to be a click into the dark, with the
+   * crosshair appearing only once the button was already down.
+   *
+   * Nothing fires this on a touchscreen, which has no hover and needs none -
+   * a finger shows you where it is by being there.
+   */
+  onHover?(point: DragPoint | null): void;
 }
 
 export interface DragInput {
@@ -56,7 +68,11 @@ export function attachDragInput(
   };
 
   const onPointerMove = (event: PointerEvent): void => {
-    if (!gesture || event.pointerId !== pointerId) return;
+    if (!gesture) {
+      handlers.onHover?.(pointFrom(event));
+      return;
+    }
+    if (event.pointerId !== pointerId) return;
     const point = pointFrom(event);
     const path = gesture.path.length < MAX_PATH ? [...gesture.path, point] : gesture.path;
     gesture = { ...gesture, current: point, path };
@@ -76,10 +92,13 @@ export function attachDragInput(
     else handlers.onRelease?.(final);
   };
 
+  const onPointerLeave = (): void => handlers.onHover?.(null);
+
   canvas.addEventListener('pointerdown', onPointerDown);
   canvas.addEventListener('pointermove', onPointerMove);
   canvas.addEventListener('pointerup', finish);
   canvas.addEventListener('pointercancel', finish);
+  canvas.addEventListener('pointerleave', onPointerLeave);
 
   return {
     destroy(): void {
@@ -87,6 +106,7 @@ export function attachDragInput(
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerup', finish);
       canvas.removeEventListener('pointercancel', finish);
+      canvas.removeEventListener('pointerleave', onPointerLeave);
     },
   };
 }

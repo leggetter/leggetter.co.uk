@@ -392,6 +392,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
    */
   let committed: { at: Dive; forShot: number } | null = null;
 
+  /** Whether a pointer is currently held down on the pitch. */
+  let pressing = false;
+
   /** Computed once at full time, not every frame. */
   let summary: FullTime | null = null;
 
@@ -611,8 +614,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
     ballPosition = piece.origin;
   };
 
+  /** This device's pick for the kick in front of it, or null. */
+  const mineThisShot = (): { at: Dive; forShot: number } | null =>
+    committed?.forShot === match.shotIndex ? committed : null;
+
   const frameState = (): FrameState => {
-  const mine = committed?.forShot === match.shotIndex ? committed : null;
+  const mine = mineThisShot();
   return ({
     phase: match.phase,
     ball: flight
@@ -671,6 +678,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
           ? (mine?.at ?? null)
           : null,
     choosing: match.phase === 'keeping' ? choosing : null,
+    pressing,
     /** This device has picked and is waiting. Drives the wording, not the mark. */
     locked: match.phase === 'keeping' && mine !== null,
     aiming,
@@ -802,6 +810,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // the sound for their whole first turn because they were not the one
       // kicking would be a worse bug than the one this guard fixes.
       if (!myTurn()) return;
+      pressing = true;
       if (match.phase === 'keeping') {
         choosing = presentation.diveFromPointer(gesture.current);
         return;
@@ -822,6 +831,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     },
 
     onRelease: (gesture: DragGesture) => {
+      pressing = false;
       if (!myTurn()) return;
       if (match.phase === 'keeping') {
         commitDive(gesture.current);
@@ -831,7 +841,29 @@ export async function startGame(options: GameOptions): Promise<Game> {
       else aiming = null;
     },
 
+    /**
+     * Follow the mouse while the keeper is deciding.
+     *
+     * The crosshair used to appear only once the button was down, so picking a
+     * corner was a click into the dark - you found out where you had aimed by
+     * having already aimed there. A mark that follows the pointer makes it an
+     * aim rather than a guess.
+     *
+     * Stops the moment the pick is in: the committed mark is drawn from
+     * `dive`, and a second crosshair wandering around beside it would suggest
+     * the choice was still open.
+     */
+    onHover: (point) => {
+      if (!point || match.phase !== 'keeping' || !myTurn() || mineThisShot() !== null) {
+        choosing = null;
+        return;
+      }
+      const spot = presentation.diveFromPointer(point);
+      choosing = spot && plausibleDive(spot) ? spot : null;
+    },
+
     onClick: (point) => {
+      pressing = false;
       // A tap is enough to pick a dive, and is the only thing that moves the
       // handover on. Everywhere else it is "next".
       if (match.phase === 'keeping') {
@@ -853,6 +885,19 @@ export async function startGame(options: GameOptions): Promise<Game> {
    * Clamped to somewhere inside the goal, because a pointer can be anywhere on
    * the pitch and "I dive at the corner flag" is not a choice worth offering.
    */
+  /**
+   * Somewhere a keeper would plausibly go.
+   *
+   * A metre and a half of slack either side and a metre over the bar: far
+   * enough that aiming at a corner and missing it still reads as that corner,
+   * close enough that the crowd is not a dive. Shared by the hover mark and
+   * the commit, so the crosshair appears in exactly the places a click counts
+   * - which is the honest way to teach the rule, rather than explaining it.
+   */
+  const SLACK = 1.5;
+  const plausibleDive = (spot: Dive): boolean =>
+    Math.abs(spot.x) <= GOAL_WIDTH / 2 + SLACK && spot.y <= GOAL_HEIGHT + 1 && spot.y >= -0.5;
+
   function commitDive(point: DragPoint): void {
     const spot = presentation.diveFromPointer(point) ?? { x: 0, y: 1 };
     /*
@@ -870,12 +915,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
       enough that aiming at a corner and missing it still reads as that corner,
       close enough that the crowd is not a dive.
     */
-    const SLACK = 1.5;
-    if (
-      Math.abs(spot.x) > GOAL_WIDTH / 2 + SLACK ||
-      spot.y > GOAL_HEIGHT + 1 ||
-      spot.y < -0.5
-    ) {
+    if (!plausibleDive(spot)) {
       choosing = null;
       return;
     }

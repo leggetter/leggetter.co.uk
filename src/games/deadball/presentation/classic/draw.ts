@@ -1621,7 +1621,12 @@ export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, wi
         frame.locked
         ? `corner locked in  ·  waiting for ${frame.names[frame.taker]}`
         : spot
-        ? 'let go to commit'
+          ? // The mark follows a hovering mouse now, not only a held one, so
+            // this has to say which of the two commits it. Touch never hovers,
+            // so a finger still only ever sees "let go".
+            frame.pressing
+            ? 'let go to commit'
+            : 'click to commit'
         : frame.mode === 'versus'
           ? // Worth saying, because it is the question anybody asks of a
             // computer opponent. It decides its shot after the pick and never

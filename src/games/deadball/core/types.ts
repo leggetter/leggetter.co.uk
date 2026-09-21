@@ -292,6 +292,15 @@ export interface FrameState {
   /** Duel: where the keeper is pointing while they choose. */
   choosing: Dive | null;
   /**
+   * The pointer is down.
+   *
+   * Only meaningful while the keeper is choosing, and only because the mark
+   * now follows a hovering mouse as well as a held one: "let go to commit" is
+   * the right thing to say to somebody holding the button and nonsense to
+   * somebody who has merely moved the mouse over the goal.
+   */
+  pressing: boolean;
+  /**
    * This device has committed its dive and is waiting for the taker.
    *
    * Only ever true on the keeper's own device in a two-device game. It says

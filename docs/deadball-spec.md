@@ -2229,7 +2229,27 @@ finding](#what-playing-it-kept-finding).
 
 1. **Does the drag gesture read as natural?** Still the riskiest thing here, and now it can be answered by playing it rather than by reasoning. Phase 1 shipped the coupled version: the drag vector sets direction *and* power together, so aiming at the top corner and hitting it softly is not a thing you can do. **Lift is half answered now, and by something other than the gesture.** Free kicks needed a trajectory the flat solve could not produce, so `loft` arrived: it spends part of the speed budget going up, and it is driven by the taker's `dip` rather than by anything the player does with their hand. That was the right first move - it made over-the-wall possible without inventing a second gesture, and it gave the fifth attribute a job. It is not the whole answer. **Choosing the arc is still not something the player does**, and a free kick where you pick how much to float it is a better game than one where your footballer picks for you. The axis is still there to design; it is now the difference between a specialist and a decision rather than between a mechanic and nothing.
 2. **Which view wins?** Still open, and now open with evidence rather than without it. All three shipped in Phase 2 and `behind-taker` has stayed the default through every session since, which is weak evidence at best: it is also the one the game opens on. Phase 3.5 puts a thumb on the scale, because a raked stand behind the goal is worth most to the two views that can see it, and nothing at all to `keeper-cam`.
-3. **Does cross-client determinism hold?** **Now answerable, and not yet answered.** Phase 6 shipped the mitigation as designed - a client sends its own outcome alongside the input, the room's answer wins, and the disagreement is counted rather than argued about - and that count goes into every result row as `diverged`. So the question stops being a worry and becomes a query: `scripts/deadball-stats.mjs` asks it. Nobody has played enough two-device games yet for the answer to mean anything. The expectation is zero, and anything else means somebody is on a stale bundle rather than that the physics drifted.
+3. **Does cross-client determinism hold?** **Still unanswered, and the thing that was supposed to answer it never worked.**
+
+   The mitigation was that a client sends its own outcome alongside the input,
+   so a disagreement is counted rather than discovered. It cannot work at that
+   moment, by construction: the keeper's dive is sealed and the taker has not
+   been told it, so there is no outcome for them to compute. The page sent a
+   hard-coded `goal` regardless, and the counter it fed was measuring *shots
+   that were not goals*.
+
+   The dataset said so the first time anybody looked: 25 kicks, 18 goals, 7
+   divergences - the same seven. Nothing sends an outcome now, so the number
+   reads an honest zero instead of a dishonest seven.
+
+   **Where the real check belongs:** a client only learns the dive when the
+   room sends the shot back for it to replay, and that is the first moment it
+   could resolve the kick itself and compare. Doing it needs somewhere to
+   report the answer - the `next` message is the obvious carrier - and is not
+   built. Until it is, the honest position is that cross-client determinism is
+   untested rather than confirmed.
+
+   Previously recorded here as: Phase 6 shipped the mitigation as designed - a client sends its own outcome alongside the input, the room's answer wins, and the disagreement is counted rather than argued about - and that count goes into every result row as `diverged`. So the question stops being a worry and becomes a query: `scripts/deadball-stats.mjs` asks it. Nobody has played enough two-device games yet for the answer to mean anything. The expectation is zero, and anything else means somebody is on a stale bundle rather than that the physics drifted.
 4. **How hard should the keeper be by default?** Measured rather than open now. Two logged sessions put it at 85% scored before the retune with zero saves, and 63% after with 15% saved and 18% off the post. That is about right, and the numbers came from the log rather than from anyone's opinion.
 
 5. **The game has one correct answer, and both testers found it.** Aim about

@@ -286,7 +286,10 @@ function shoot(
     ...room,
     match: reduce(after, { type: 'RESOLVE', outcome }),
     applied: [...room.applied, message.idempotency],
-    diverged: room.diverged + (outcome === message.outcome ? 0 : 1),
+    // Only when a client actually offered an answer. Counting a missing one as
+    // a disagreement is how this came to report seven divergences in five
+    // games that had never disagreed about anything.
+    diverged: room.diverged + (message.outcome && outcome !== message.outcome ? 1 : 0),
     // Unsealed only now, with the shot it belonged to, and cleared for the next.
     dive: null,
   };

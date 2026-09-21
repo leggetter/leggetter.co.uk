@@ -743,11 +743,14 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // rather than each watching their own version of it.
       aiming = null;
       if (!myShot()) return;
+      // No outcome: this client does not have one and never did. It has not
+      // been told where the keeper went, so it cannot resolve the shot - see
+      // `Outbound.shoot`. It used to send 'goal' regardless, which turned the
+      // divergence counter into a count of shots that were not goals.
       link.transport.send({
         kind: 'shoot',
         input,
         taker: player.id,
-        outcome: 'goal',
         idempotency: stamp('shoot'),
       });
       return;

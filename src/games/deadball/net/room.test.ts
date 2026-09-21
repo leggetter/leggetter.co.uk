@@ -168,6 +168,28 @@ describe('taking one', () => {
     if (truth !== 'saved') assert.equal(crooked.room.diverged, 1);
   });
 
+  test('a client that offers no outcome is not counted as disagreeing', () => {
+    /*
+      The page cannot have an outcome at this moment and never could: it has
+      not been told where the keeper went, which is the entire format. It sent
+      a hard-coded 'goal' anyway, so every shot that was not a goal was filed
+      as a divergence.
+
+      Nothing failed. The existing test above passes an outcome in every case,
+      so the missing one had no cover at all, and the number was only ever read
+      months later off a dataset - where it said seven divergences across five
+      games that had never disagreed about anything. 25 kicks, 18 goals, and
+      the difference is exactly the seven.
+    */
+    const room = ready();
+    const who = takerSide(room) === 0 ? 'host' : 'guest';
+    const { outcome: _claimed, ...silent } = shoot() as Extract<Outbound, { kind: 'shoot' }>;
+    const out = handle(room, who, silent as Outbound, 0);
+    assert.equal(out.room.diverged, 0, 'silence was counted as a disagreement');
+    // And it still resolved the kick, rather than refusing it for being quiet.
+    assert.equal(out.room.match.outcomes.length, 1);
+  });
+
   test('the dive travels with the shot it belonged to, and not before', () => {
     const room = ready();
     const who = takerSide(room) === 0 ? 'host' : 'guest';

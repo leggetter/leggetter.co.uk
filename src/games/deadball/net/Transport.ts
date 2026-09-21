@@ -79,12 +79,25 @@ export type Outbound =
       /** Which member of the squad is taking this one. */
       taker: string;
       /**
-       * What this client's own simulation made of it.
+       * What this client's own simulation made of it, when it has one.
        *
-       * Sent so a disagreement can be noticed rather than discovered. The
-       * server's answer wins; this one gets logged.
+       * **Optional, because the taker cannot have one.** The idea was that a
+       * client sends its own answer so a disagreement is noticed rather than
+       * discovered, and it cannot work at this moment by construction: the
+       * keeper's dive is sealed, the taker has not been told it, and an
+       * outcome cannot be computed without it. That is the whole format.
+       *
+       * The page sent a hard-coded `'goal'` here for every shot, so the
+       * counter it fed was measuring "shots that were not goals" and calling
+       * them divergences. The dataset said so the first time anybody looked at
+       * it: 25 kicks, 18 goals, 7 divergences - the same 7.
+       *
+       * So nothing sends it now, and the count stays honestly at zero rather
+       * than dishonestly at seven. The real check has to happen when a client
+       * *replays* the shot, which is the first moment it knows the dive; see
+       * the open question in the spec.
        */
-      outcome: Outcome;
+      outcome?: Outcome;
       idempotency: string;
     }
   | { kind: 'next' }

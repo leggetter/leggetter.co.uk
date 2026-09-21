@@ -50,6 +50,10 @@ const COLORS = {
   keeperKit: KEEPER_KIT,
   keeperTrim: '#1d1d1d',
   keeperGlove: '#f4f6f8',
+  /** Boots. Dark, so a foot ends somewhere rather than fading into the grass. */
+  boot: '#1b2430',
+  /** The outline that stops a glove reading as a ball. */
+  bootLine: 'rgba(12, 18, 28, 0.55)',
   ball: '#fbfbfb',
   ballShade: '#c8ccd0',
   shadow: 'rgba(0, 0, 0, 0.3)',
@@ -481,6 +485,22 @@ const wave = (clock: number, period: number, phase = 0): number =>
  */
 const isIdle = (phase: string): boolean => phase === 'ready';
 
+/**
+ * A footballer, out of six points and a handful of strokes.
+ *
+ * Every limb used to be one round-capped line in one colour, hip to toe and
+ * shoulder to hand, with a circle on top for a head. That is a stick figure
+ * with thick lines, and it looked like one: no neck, no boots, legs in a
+ * single colour from the waist down, and a keeper whose gloves were white
+ * discs the size of the ball.
+ *
+ * Still six points - there is no elbow or knee in `Figure` and adding them
+ * would mean posing them, for a diving keeper, in three dimensions. The joints
+ * here are **midpoints of the limbs that already exist**, which lie exactly on
+ * the line they split. So nothing moves. What changes is that each half can be
+ * a different colour, and two colours is the whole difference between a
+ * sausage and a leg wearing a sock.
+ */
 export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   const f = proj.project(figure.feet);
   const s = proj.project(figure.shoulder);
@@ -501,44 +521,109 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
     y: s.y + (f.y - s.y) * 0.48,
   };
 
+  const mid = (a: { x: number; y: number }, b: { x: number; y: number }, t = 0.5) => ({
+    x: a.x + (b.x - a.x) * t,
+    y: a.y + (b.y - a.y) * t,
+  });
+
+  const line = (
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+    colour: string,
+    width: number
+  ): void => {
+    ctx.strokeStyle = colour;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  };
+
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.globalAlpha = figure.alpha ?? 1;
 
-  ctx.strokeStyle = figure.trim;
-  ctx.lineWidth = Math.max(2, LIMB.leg * s.scale);
+  const legW = Math.max(2, LIMB.leg * s.scale);
+  const armW = Math.max(2, LIMB.arm * s.scale);
+
+  // Shorts to the knee, socks below it, boot on the end. A kit, in other
+  // words, rather than one line in the shorts colour all the way to the grass.
   for (const toe of figure.toes) {
     const t = proj.project(toe);
     if (!t) continue;
-    ctx.beginPath();
-    ctx.moveTo(hip.x, hip.y);
-    ctx.lineTo(t.x, t.y);
-    ctx.stroke();
+    const knee = mid(hip, t);
+    const ankle = mid(hip, t, 0.86);
+    line(hip, knee, figure.trim, legW);
+    line(knee, ankle, figure.kit, legW * 0.82);
+    line(ankle, t, COLORS.boot, legW * 0.95);
   }
 
-  ctx.strokeStyle = figure.kit;
-  ctx.lineWidth = Math.max(4, LIMB.torso * s.scale);
-  ctx.beginPath();
-  ctx.moveTo(hip.x, hip.y);
-  ctx.lineTo(s.x, s.y);
-  ctx.stroke();
+  // Torso.
+  line(hip, s, figure.kit, Math.max(4, LIMB.torso * s.scale));
 
-  ctx.lineWidth = Math.max(2, LIMB.arm * s.scale);
+  /**
+   * Shoulders, as a bar across the top of the torso.
+   *
+   * `Figure` has one shoulder point, so both arms used to leave the body from
+   * the same pixel - which is what made the head look enormous and the arms
+   * look stuck on. Nothing in the pose changes: the bar is derived here, square
+   * to the torso, and each arm starts from whichever end is nearer its own
+   * hand. On a diving keeper it rotates with the body for free.
+   */
+  const spineX = s.x - hip.x;
+  const spineY = s.y - hip.y;
+  const spine = Math.hypot(spineX, spineY) || 1;
+  const halfSpan = LIMB.torso * 0.66 * s.scale;
+  const across = { x: (-spineY / spine) * halfSpan, y: (spineX / spine) * halfSpan };
+  const ends = [
+    { x: s.x + across.x, y: s.y + across.y },
+    { x: s.x - across.x, y: s.y - across.y },
+  ];
+  line(ends[0]!, ends[1]!, figure.kit, Math.max(3, LIMB.arm * s.scale * 1.15));
+
+  // A neck. Short, and the reason the head stopped looking like it was
+  // hovering half an inch above the shirt.
+  line(s, hd, COLORS.skin, Math.max(2, LIMB.head * s.scale * 0.62));
+
   for (const hand of figure.hands) {
     const h = proj.project(hand);
     if (!h) continue;
-    ctx.strokeStyle = figure.kit;
-    ctx.beginPath();
-    ctx.moveTo(s.x, s.y);
-    ctx.lineTo(h.x, h.y);
-    ctx.stroke();
+    // Out of the nearer shoulder rather than out of the middle of the chest.
+    const from =
+      Math.hypot(h.x - ends[0]!.x, h.y - ends[0]!.y) <=
+      Math.hypot(h.x - ends[1]!.x, h.y - ends[1]!.y)
+        ? ends[0]!
+        : ends[1]!;
+    const elbow = mid(from, h);
+    // Sleeve to the elbow, then forearm. Short sleeves, like a football shirt.
+    line(from, elbow, figure.kit, armW);
+    line(elbow, h, COLORS.skin, armW * 0.86);
 
     if (figure.gloves) {
+      /**
+       * An oval along the arm, not a disc.
+       *
+       * The old one was a circle in `#f4f6f8` at up to 0.42 m across - wider
+       * than the keeper's own head and the same white as the ball - so at any
+       * distance it read as a football stuck to the hoarding. Two of them.
+       *
+       * The size is not the mistake: it is the save radius, drawn, and
+       * shrinking it would quietly stop telling the taker what they are aiming
+       * past. So it keeps its width, turns along the arm, and gets an outline.
+       * A circle reads as a ball; an oval on the end of an arm reads as a
+       * hand.
+       */
+      const along = Math.atan2(h.y - elbow.y, h.x - elbow.x);
+      const r = Math.max(3, figure.gloves * h.scale);
       ctx.fillStyle = COLORS.keeperGlove;
+      ctx.strokeStyle = COLORS.bootLine;
+      ctx.lineWidth = Math.max(1, r * 0.14);
       ctx.beginPath();
-      ctx.arc(h.x, h.y, Math.max(3, figure.gloves * h.scale), 0, Math.PI * 2);
+      ctx.ellipse(h.x, h.y, r, r * 0.66, along, 0, Math.PI * 2);
       ctx.fill();
+      ctx.stroke();
     }
   }
 

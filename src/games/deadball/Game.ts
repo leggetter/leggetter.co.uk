@@ -390,7 +390,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
    * taker's client never calls `commitDive`, and `adopt` keeps the room's
    * redaction intact for everybody else.
    */
-  let committed: Dive | null = null;
+  let committed: { at: Dive; forShot: number } | null = null;
 
   /** Computed once at full time, not every frame. */
   let summary: FullTime | null = null;
@@ -539,10 +539,40 @@ export async function startGame(options: GameOptions): Promise<Game> {
    * where they pointed because they pointed there.
    */
   function adopt(theirs: MatchState): void {
-    // The pick belongs to one turn. Once the room has moved off `keeping` it
-    // is spent, and holding it would draw last turn's corner over this one.
-    if (theirs.phase !== 'keeping') committed = null;
+    /*
+      A new kick means putting the pitch back to the start of one.
+
+      The local NEXT path has always done this - clear the flight, the trail,
+      the run-up, and stand the keeper back up - and the room-driven path did
+      none of it. It swapped the match state and left every bit of animation
+      where the last kick had finished.
+
+      So the second kick of a two-device game was set up over the wreckage of
+      the first: a keeper lying flat on the grass where they had dived, a taker
+      fading out, no ball on the spot, and "pick your corner" written across
+      the top of it. Reported as "a strange state", which is putting it kindly
+      - it asks somebody to choose a dive while showing them a dive they have
+      already made.
+
+      Only on a change of kick. `adopt` runs for every state the room sends,
+      several times per kick, and resetting on all of them would wipe the
+      flight mid-ball.
+    */
+    const newKick = theirs.shotIndex !== match.shotIndex;
+    // Adopted BEFORE the reset, because `setUpKick` reads `match.shotIndex` to
+    // work out which free-kick spot this is. Resetting first set the pitch up
+    // for the kick that had just finished.
     match = { ...theirs, dive: match.dive };
+    if (newKick) {
+      flight = null;
+      trail = [];
+      struckAt = null;
+      runUp = 0;
+      settling = 0;
+      choosing = null;
+      keeperSim = idleKeeper();
+      setUpKick();
+    }
   }
 
   /** Somebody on this device's squad, by id. */
@@ -581,7 +611,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
     ballPosition = piece.origin;
   };
 
-  const frameState = (): FrameState => ({
+  const frameState = (): FrameState => {
+  const mine = committed?.forShot === match.shotIndex ? committed : null;
+  return ({
     phase: match.phase,
     ball: flight
       ? flight.ball
@@ -615,17 +647,37 @@ export async function startGame(options: GameOptions): Promise<Game> {
     suddenDeath: inSuddenDeath(match),
     // Hidden from the taker on purpose: the dive is only ever drawn while its
     // owner is choosing it, never once the device has changed hands.
-    // `committed` is this device's own pick in a room, which the reducer
-    // cannot hold - see its declaration. Still nulled outside `keeping`, so it
-    // cannot survive into a phase where the other side can see the screen.
-    dive: match.phase === 'keeping' ? (match.dive ?? committed) : null,
+    /**
+     * The mark stays up for the rest of the kick, in a room.
+     *
+     * Reported exactly: "I clicked, saw a crosshair appear briefly, and then
+     * it said Waiting for TP1. I didn't really realise I'd made my selection."
+     * Committing moves the phase on within a frame, and the mark was nulled
+     * the instant it did, so the only feedback for the single most important
+     * decision in the game was a crosshair that flashed and vanished.
+     *
+     * Holding it does not leak anything. The rule it looks like it breaks -
+     * "never once the device has changed hands" - is about a hotseat duel,
+     * where the *taker* is about to pick up this same phone. Across two
+     * devices nobody else is ever going to look at this screen, and the room
+     * redacts the dive from the taker's copy regardless.
+     *
+     * Tied to a shot index so last kick's corner cannot bleed into this one.
+     */
+    dive:
+      match.phase === 'keeping'
+        ? (match.dive ?? mine?.at ?? null)
+        : link
+          ? (mine?.at ?? null)
+          : null,
     choosing: match.phase === 'keeping' ? choosing : null,
     /** This device has picked and is waiting. Drives the wording, not the mark. */
-    locked: match.phase === 'keeping' && committed !== null,
+    locked: match.phase === 'keeping' && mine !== null,
     aiming,
     summary,
     timingMarker: aiming ? sweepMarker : null,
   });
+  };
 
   /** True when this shot belongs to the computer and it has not gone yet. */
   const computerIsTaking = (): boolean =>
@@ -803,6 +855,30 @@ export async function startGame(options: GameOptions): Promise<Game> {
    */
   function commitDive(point: DragPoint): void {
     const spot = presentation.diveFromPointer(point) ?? { x: 0, y: 1 };
+    /*
+      A pick has to be somewhere a keeper would plausibly go.
+
+      It used to clamp anything, anywhere, to the nearest legal corner - so a
+      click on the crowd, the grass or the hoardings silently became a dive.
+      That matters more than it sounds, because of how a person arrives at this
+      screen: they alt-tab to the browser, and their first click is the one
+      that focuses the window. Chrome delivers it to the page anyway. So the
+      single most important decision of the kick was routinely made by a click
+      that was only ever meant to say "this window, please".
+
+      A metre and a half of slack either side, and a metre over the bar: far
+      enough that aiming at a corner and missing it still reads as that corner,
+      close enough that the crowd is not a dive.
+    */
+    const SLACK = 1.5;
+    if (
+      Math.abs(spot.x) > GOAL_WIDTH / 2 + SLACK ||
+      spot.y > GOAL_HEIGHT + 1 ||
+      spot.y < -0.5
+    ) {
+      choosing = null;
+      return;
+    }
     const dive = {
       x: clamp(spot.x, -GOAL_WIDTH / 2, GOAL_WIDTH / 2),
       y: clamp(spot.y, 0.1, GOAL_HEIGHT),
@@ -812,7 +888,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // Sent, not applied. It goes to the room and stays there; this client
       // learns only that it was accepted.
       if (myGoal()) {
-        committed = dive;
+        committed = { at: dive, forShot: match.shotIndex };
         link.transport.send({ kind: 'dive', at: dive, idempotency: stamp('dive') });
       }
       return;

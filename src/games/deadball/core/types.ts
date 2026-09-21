@@ -291,6 +291,14 @@ export interface FrameState {
   dive: Dive | null;
   /** Duel: where the keeper is pointing while they choose. */
   choosing: Dive | null;
+  /**
+   * This device has committed its dive and is waiting for the taker.
+   *
+   * Only ever true on the keeper's own device in a two-device game. It says
+   * *that* a corner was picked, never which - the mark itself rides on `dive`,
+   * which the room redacts from everybody else.
+   */
+  locked: boolean;
   lastOutcome: Outcome | null;
   /** Live aim while a drag is in progress, for the preview. */
   aiming: ShotInput | null;

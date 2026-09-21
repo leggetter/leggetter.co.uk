@@ -228,6 +228,19 @@ export interface Game {
     yourGoal: boolean;
     outcomes: string[];
   };
+  /**
+   * Tell me when this device's turn starts or ends.
+   *
+   * The page draws HTML *over* the canvas - the shot-style button, the camera
+   * switcher - and none of it had any idea whose turn it was, because the page
+   * has no tick of its own and nothing to subscribe to. Gating the drag made
+   * the pitch inert and left a live shot-style control sitting on top of it,
+   * on the screen of somebody who could not take a shot.
+   *
+   * One callback rather than a second animation loop in the page: this one is
+   * already running, and the listener fires only when the answer changes.
+   */
+  onTurn(listener: (yours: boolean) => void): () => void;
   /** A kick has been taken and the shootout is not over. */
   inProgress(): boolean;
   kicksTaken(): number;
@@ -358,6 +371,26 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   /** Where the keeper is pointing while choosing. Not their commitment. */
   let choosing: Dive | null = null;
+
+  /**
+   * Where this device committed to diving, in a game it does not own.
+   *
+   * On one device the reducer remembers this: `SET_DIVE` puts it on the match
+   * and the reticle keeps being drawn from there. In a room it cannot, because
+   * `SET_DIVE` also moves the phase on, and a client that moves its own phase
+   * is a client that has stopped taking the room's word for anything.
+   *
+   * So the pick was sent and then forgotten, which is what the keeper saw:
+   * tap a corner, watch the crosshair vanish, and read "pick your corner" on a
+   * screen that had already taken your answer. The natural response is to tap
+   * again, and the room - correctly - keeps the first one. People were
+   * defending corners they did not think they had chosen.
+   *
+   * Safe to hold here and nowhere else: this is the keeper's own device, the
+   * taker's client never calls `commitDive`, and `adopt` keeps the room's
+   * redaction intact for everybody else.
+   */
+  let committed: Dive | null = null;
 
   /** Computed once at full time, not every frame. */
   let summary: FullTime | null = null;
@@ -506,6 +539,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
    * where they pointed because they pointed there.
    */
   function adopt(theirs: MatchState): void {
+    // The pick belongs to one turn. Once the room has moved off `keeping` it
+    // is spent, and holding it would draw last turn's corner over this one.
+    if (theirs.phase !== 'keeping') committed = null;
     match = { ...theirs, dive: match.dive };
   }
 
@@ -520,6 +556,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     pending = null;
     struckAt = null;
     choosing = null;
+    committed = null;
     summary = null;
     runUp = 0;
     settling = 0;
@@ -578,8 +615,13 @@ export async function startGame(options: GameOptions): Promise<Game> {
     suddenDeath: inSuddenDeath(match),
     // Hidden from the taker on purpose: the dive is only ever drawn while its
     // owner is choosing it, never once the device has changed hands.
-    dive: match.phase === 'keeping' ? match.dive : null,
+    // `committed` is this device's own pick in a room, which the reducer
+    // cannot hold - see its declaration. Still nulled outside `keeping`, so it
+    // cannot survive into a phase where the other side can see the screen.
+    dive: match.phase === 'keeping' ? (match.dive ?? committed) : null,
     choosing: match.phase === 'keeping' ? choosing : null,
+    /** This device has picked and is waiting. Drives the wording, not the mark. */
+    locked: match.phase === 'keeping' && committed !== null,
     aiming,
     summary,
     timingMarker: aiming ? sweepMarker : null,
@@ -770,6 +812,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // Sent, not applied. It goes to the room and stays there; this client
       // learns only that it was accepted.
       if (myGoal()) {
+        committed = dive;
         link.transport.send({ kind: 'dive', at: dive, idempotency: stamp('dive') });
       }
       return;
@@ -802,6 +845,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   let running = true;
   let frameId = 0;
+
+  /** Whose turn the page was last told about. Starts unset, so the first
+   *  frame always announces. */
+  let announcedTurn: boolean | null = null;
+  let turnListeners: ((yours: boolean) => void)[] = [];
   let last = performance.now();
   let accumulator = 0;
 
@@ -944,6 +992,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
     // Drained here and handed on, rather than fetched by whatever happens to
     // be looking: one list, one owner, and nothing left in it between frames.
     presentation.render(frameState(), events.drain());
+
+    const yours = myTurn();
+    if (yours !== announcedTurn) {
+      announcedTurn = yours;
+      for (const listener of turnListeners) listener(yours);
+    }
     frameId = requestAnimationFrame(frame);
   }
 
@@ -1061,6 +1115,16 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     /** Which seat this client is in, or null when playing locally. */
     connectedAs: () => link?.side ?? null,
+
+    onTurn(listener) {
+      turnListeners.push(listener);
+      // Answer straight away rather than leaving the caller to guess until
+      // something changes - the first turn is the one being got wrong.
+      listener(myTurn());
+      return () => {
+        turnListeners = turnListeners.filter((l) => l !== listener);
+      };
+    },
 
     /**
      * A read-only look at where the match is.

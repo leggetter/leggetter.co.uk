@@ -1531,7 +1531,11 @@ export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, wi
   ctx.fillText(
     waiting
       ? `waiting for ${frame.names[frame.keeperSide]} to pick a corner`
-      : spot
+      : // Picked, and still on this screen. Without this the line kept saying
+        // "pick your corner" to somebody who just had, so they picked again.
+        frame.locked
+        ? `corner locked in  ·  waiting for ${frame.names[frame.taker]}`
+        : spot
         ? 'let go to commit'
         : frame.mode === 'versus'
           ? // Worth saying, because it is the question anybody asks of a
@@ -1589,6 +1593,17 @@ export function drawHandover(ctx: Ctx, frame: FrameState, width: number, height:
  * green is simply wrong.
  */
 export const SIDE_COLOURS: readonly [string, string] = ['#4ade80', '#7dd3fc'];
+
+/**
+ * Nothing for you to do here.
+ *
+ * The amber the "waiting for them to come back" screen already uses, promoted
+ * to a name so the two places that mean the same thing say it the same way.
+ * Both sides' colours read as go - one is literally green - so a waiting
+ * banner drawn in the *taker's* colour told the waiting player, in green, that
+ * something was happening for them.
+ */
+export const WAITING = '#f3c969';
 
 /**
  * One shot, drawn as a football.
@@ -1740,7 +1755,13 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   if (twoSided(frame)) {
     for (const side of [0, 1] as const) {
       const taking = frame.taker === side;
-      const line = `${frame.names[side].toUpperCase()}  ${frame.scores[side]}${taking ? '   \u2190 taking' : ''}`;
+      // Two names and no way to tell which is yours was the single biggest
+      // gap: every other pixel on the two devices is identical, so "WAITING
+      // FOR TP1" only helps somebody who already remembers they are not TP1.
+      const mine = frame.remote && (taking ? frame.yourShot : !frame.yourShot);
+      const line =
+        `${frame.names[side].toUpperCase()}${mine ? ' (you)' : ''}` +
+        `  ${frame.scores[side]}${taking ? '   \u2190 taking' : ''}`;
       // Half the width: the camera switcher owns the other half.
       fitFont(ctx, line, 600, 15, width * 0.5 - 24, 10);
       ctx.fillStyle = taking ? SIDE_COLOURS[side] : 'rgba(255, 255, 255, 0.55)';
@@ -1817,6 +1838,7 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
     ctx.textAlign = 'center';
     // On two devices, "you" beats a name every time: the question being asked
     // each turn is "is this mine", and a name is the slowest way to answer it.
+    const idle = frame.remote && !frame.yourShot;
     const who = frame.remote
       ? frame.yourShot
         ? 'YOU ARE SHOOTING'
@@ -1824,7 +1846,11 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
       : `${frame.names[frame.taker].toUpperCase()} SHOOTING`;
     const shooting = frame.suddenDeath ? `SUDDEN DEATH  ·  ${who}` : who;
     fitFont(ctx, shooting, 700, width < NARROW ? 15 : 18, width - 32);
-    ctx.fillStyle = SIDE_COLOURS[frame.taker];
+    // Waiting is amber, acting is your side's colour. They were the same green
+    // in the same place, and green means go: the one line carrying the whole
+    // signal looked identical in both states. Amber is already this file's
+    // "nothing for you to do here" colour - see the away end.
+    ctx.fillStyle = idle ? WAITING : SIDE_COLOURS[frame.taker];
     ctx.fillText(shooting, width / 2, width < NARROW ? 108 : 120);
     ctx.restore();
   }
@@ -1952,7 +1978,7 @@ export function drawAway(ctx: Ctx, frame: FrameState, width: number, height: num
 
   const heading = `WAITING FOR ${them.toUpperCase()}`;
   fitFont(ctx, heading, 700, narrow ? 19 : 24, width - (narrow ? 40 : 32));
-  ctx.fillStyle = '#f3c969';
+  ctx.fillStyle = WAITING;
   ctx.fillText(heading, width / 2, height / 2 - (narrow ? 2 : 4));
 
   ctx.font = `500 ${narrow ? 12 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;

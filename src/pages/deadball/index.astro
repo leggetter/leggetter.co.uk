@@ -985,6 +985,20 @@ const views = listCameras();
           styleButton?.setAttribute('aria-label', `Shot: ${style.label}. ${style.hint}`);
         };
 
+        // Off when it is not your kick. The canvas stopped accepting drags on
+        // somebody else's turn, and this button sat on top of it still live,
+        // reading "Finesse - placed and bent" on the screen of a person who
+        // could not strike anything. Worse than useless: it parses as a
+        // description of the shot about to be taken, which is the opponent's.
+        game.onTurn((yours) => {
+          const apart = game.connectedAs() !== null;
+          const off = apart && !yours;
+          if (styleButton) {
+            styleButton.disabled = off;
+            styleButton.setAttribute('aria-hidden', off ? 'true' : 'false');
+          }
+        });
+
         styleButton?.addEventListener('click', (event) => {
           game.cycleStyle();
           paintStyle();
@@ -1362,6 +1376,15 @@ const views = listCameras();
     text-align: left;
     /* Over the pitch, so it must not swallow a drag that starts near it. */
     touch-action: manipulation;
+  }
+
+  /* Dimmed rather than removed: a control that vanishes and comes back moves
+     everything around it, and this one sits at the bottom of the screen where
+     a thumb rests. */
+  #style:disabled {
+    opacity: 0.32;
+    cursor: default;
+    pointer-events: none;
   }
 
   #style:hover {

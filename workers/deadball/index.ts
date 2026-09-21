@@ -98,6 +98,25 @@ export class RoomObject extends DurableObject<Env> {
   private key = '';
 
   /**
+   * Why this game exists, when the answer is not "somebody wanted to play".
+   *
+   * Empty for every real game, because nothing in the browser ever sets it -
+   * it can only be asked for by whoever mints the room over HTTP. A smoke test
+   * against production sets it to `smoke`, and the numbers can then be read
+   * with `WHERE blob3 = ''` and mean what they say.
+   *
+   * The alternative was filtering by timestamp, which works exactly once and
+   * then silently stops being true the next time somebody tests a deploy
+   * against the real server - which is a thing that has to keep happening,
+   * because a deploy is the one thing `wrangler dev` cannot rehearse.
+   *
+   * Deliberately not tamper-proof. Anybody can tag their own games and the
+   * worst they achieve is hiding themselves from a graph nobody is being
+   * judged by. It is a label for honest noise, not a permission.
+   */
+  private tag = '';
+
+  /**
    * Read the room back after an eviction.
    *
    * Only the room, not the queues: a message nobody collected is a message
@@ -123,11 +142,13 @@ export class RoomObject extends DurableObject<Env> {
       recorded: boolean;
       opened: number;
       key: string;
+      tag?: string;
     }>('meta');
     if (meta) {
       this.recorded = meta.recorded;
       this.opened = meta.opened;
       this.key = meta.key;
+      this.tag = meta.tag ?? '';
     }
   }
 
@@ -146,16 +167,18 @@ export class RoomObject extends DurableObject<Env> {
       recorded: this.recorded,
       opened: this.opened,
       key: this.key,
+      tag: this.tag,
     });
   }
 
   /** Open the room. Called once, by whoever minted the id. */
-  async create(settings: RoomSettings, seed: number): Promise<void> {
+  async create(settings: RoomSettings, seed: number, tag: string): Promise<void> {
     await this.wake();
     if (this.room) return;
     this.room = openRoom(settings, seed);
     this.opened = Date.now();
     this.recorded = false;
+    this.tag = tag;
     this.key = crypto.randomUUID();
     await this.remember();
     // Nothing accumulates: an abandoned room deletes itself rather than
@@ -281,6 +304,7 @@ export class RoomObject extends DurableObject<Env> {
       blobs: [
         this.key,
         'kick',
+        this.tag,
         shot.outcome,
         piece.penalty ? 'penalty' : piece.id,
         shot.input.style ?? 'plain',
@@ -312,7 +336,7 @@ export class RoomObject extends DurableObject<Env> {
     const first = this.room.first;
     this.env.RESULTS?.writeDataPoint({
       indexes: [settings.discipline],
-      blobs: [this.key, 'result', winner, settings.discipline],
+      blobs: [this.key, 'result', this.tag, winner, settings.discipline],
       doubles: [
         match.outcomes.length,
         // Derived rather than stored: sudden death is a question you ask of a
@@ -358,6 +382,10 @@ export class RoomObject extends DurableObject<Env> {
 /** Anything else is not a room id, and never becomes one. */
 const ID = /^[0-9A-HJKMNP-TV-Z]{8}$/;
 
+/** What a tag may look like. Short, lowercase, and nothing that needs quoting
+ *  in the SQL somebody will eventually write against it. */
+const TAG = /^[a-z0-9-]{1,16}$/;
+
 /**
  * The page is on the site and this is not, so everything needs these.
  *
@@ -399,11 +427,15 @@ export default {
         id?: string;
         settings?: RoomSettings;
         seed?: number;
+        tag?: string;
       } | null;
       const id = body?.id ?? '';
       if (!ID.test(id) || !body?.settings) return json({ error: 'Bad room.' }, 400);
       const stub = env.ROOMS.get(env.ROOMS.idFromName(id));
-      await stub.create(body.settings, (body.seed ?? 1) | 0);
+      // Anything unrecognisable becomes no tag at all rather than an error: a
+      // label on a row is not worth refusing somebody a game over.
+      const tag = typeof body.tag === 'string' && TAG.test(body.tag) ? body.tag : '';
+      await stub.create(body.settings, (body.seed ?? 1) | 0, tag);
       return json({ id });
     }
 

@@ -121,10 +121,32 @@ Two kinds of row go to a Workers Analytics Engine dataset called
 API](https://developers.cloudflare.com/analytics/analytics-engine/sql-api/):
 
 ```sql
-SELECT blob2 AS winner, count() AS games
+SELECT blob4 AS winner, count() AS games
 FROM deadball_matches
-WHERE blob2 = 'result' AND timestamp > NOW() - INTERVAL '30' DAY
+WHERE blob2 = 'result' AND blob3 = ''
+  AND timestamp > NOW() - INTERVAL '30' DAY
 GROUP BY winner
+```
+
+**`blob3 = ''` is not optional.** It is the tag, and it is empty for every real
+game, because nothing in the browser can set it - only whoever mints a room
+over HTTP can ask for one. A smoke test against production passes
+`"tag": "smoke"` and drops out of every query that includes that clause.
+
+The alternative was filtering by date, which works exactly once and then
+quietly stops being true the next time somebody verifies a deploy against the
+real server. Which has to keep happening: a deploy is the one thing
+`wrangler dev` cannot rehearse.
+
+Rows written before the tag existed have a winner or an outcome sitting in
+`blob3`, so the same clause discards those too - which is correct, because all
+of them are mine.
+
+```sh
+# what a smoke test against production should look like
+curl -X POST https://deadball-rooms.phil-4a3.workers.dev/room \
+  -H 'content-type: application/json' \
+  -d '{"id":"ABCD2345","settings":{"discipline":"both","shots":5},"tag":"smoke"}'
 ```
 
 which answers the question the coin flip was built for. There is also a row per

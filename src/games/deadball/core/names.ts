@@ -17,8 +17,28 @@
  */
 export type DuelNames = [string, string];
 
-/** Longer than this and the score line stops fitting on a phone. */
-export const MAX_NAME = 12;
+/**
+ * How long a side's name may be.
+ *
+ * Twenty-four, which is "Brighton and Hove Albion" exactly - the longest name
+ * in the English top flight, and a fair ceiling for the invented ones this is
+ * really for.
+ *
+ * **It was twelve**, on the grounds that the score line stops fitting on a
+ * phone. That was the wrong lever. Twelve characters cannot spell Manchester
+ * United, and a game whose whole premise is naming your team should not refuse
+ * the name of a team. Fitting text on a canvas is the presentation's job, and
+ * it already does it - `fitFont` shrinks the score line and the summary
+ * measures its own columns - so the cap goes back to being what a cap should
+ * be: a sanity limit on what is stored, not a layout tool.
+ *
+ * One cap for people and teams together, deliberately. The field means "what
+ * this side is called"; whether that reads as a person or a club is the mode's
+ * business, which is why the label changes from "Shoots first" to "Your team".
+ * Two caps would make the same stored name legal in one mode and quietly
+ * truncated in another, and these names persist across modes.
+ */
+export const MAX_NAME = 24;
 
 export const DEFAULT_NAMES: DuelNames = ['Player 1', 'Player 2'];
 

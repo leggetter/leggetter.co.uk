@@ -406,6 +406,29 @@ export async function startGame(options: GameOptions): Promise<Game> {
   /** It is this client's turn in goal. */
   const myGoal = (): boolean => !link || takingSide() !== link.side;
 
+  /**
+   * Whether this device may touch the pitch at all right now.
+   *
+   * On one device the answer is always yes: whoever is holding it is whoever
+   * is playing, and that is the whole premise of a hotseat duel.
+   *
+   * On two it is not, and until now nothing said so. Both clients accepted a
+   * drag through every phase, so the waiting player could place a reticle,
+   * wind up a power dial and release it into nothing - the room refuses the
+   * message, correctly, but only after the screen has spent several seconds
+   * behaving exactly like it was their turn. Reported as "quite confusing
+   * across the two players", which is generous.
+   *
+   * Between shots both may tap, because "next" is not a turn - it is either
+   * of them saying they have seen the result.
+   */
+  const myTurn = (): boolean => {
+    if (!link) return true;
+    if (match.phase === 'keeping') return myGoal();
+    if (match.phase === 'ready') return myShot();
+    return true;
+  };
+
   /** Something to hang an idempotency key off, so a retry is not a second one. */
   let stamped = 0;
   const stamp = (what: string): string => `${what}:${match.shotIndex}:${stamped++}`;
@@ -680,6 +703,11 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // The first press is the only moment a browser will let audio start.
       // Cheap and idempotent after that, so it is not worth a flag.
       presentation.unlock();
+      // Unlocking audio first, deliberately: a browser only allows it on a
+      // press, and the player who is waiting presses the screen too. Losing
+      // the sound for their whole first turn because they were not the one
+      // kicking would be a worse bug than the one this guard fixes.
+      if (!myTurn()) return;
       if (match.phase === 'keeping') {
         choosing = presentation.diveFromPointer(gesture.current);
         return;
@@ -691,6 +719,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     },
 
     onMove: (gesture: DragGesture) => {
+      if (!myTurn()) return;
       if (match.phase === 'keeping') {
         choosing = presentation.diveFromPointer(gesture.current);
         return;
@@ -699,6 +728,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     },
 
     onRelease: (gesture: DragGesture) => {
+      if (!myTurn()) return;
       if (match.phase === 'keeping') {
         commitDive(gesture.current);
         return;
@@ -711,7 +741,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
       // A tap is enough to pick a dive, and is the only thing that moves the
       // handover on. Everywhere else it is "next".
       if (match.phase === 'keeping') {
-        commitDive(point);
+        if (myTurn()) commitDive(point);
         return;
       }
       if (match.phase === 'handover') {

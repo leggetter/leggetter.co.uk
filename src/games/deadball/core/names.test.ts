@@ -29,15 +29,21 @@ test('nothing typed falls back to the side it belongs to', () => {
 });
 
 test('a long name is capped, and the cap does not leave a trailing space', () => {
+  // Written against MAX_NAME rather than against its value. The previous
+  // version spelled out twelve characters in three places, so raising the cap
+  // failed three assertions that were not about the behaviour being tested.
+  //
   // Trimmed after slicing as well as before: cutting at the cap can land mid
   // gap, and a name ending in a space draws with a hole before the score.
   // Cutting mid-word keeps the full cap.
-  assert.equal(cleanName('Abcdefghijklmnop', 0), 'Abcdefghijkl');
+  const oneLongWord = 'A'.repeat(MAX_NAME + 6);
+  assert.equal(cleanName(oneLongWord, 0), 'A'.repeat(MAX_NAME));
 
   // Cutting on a gap leaves it one short, which is the point: a name ending in
   // a space draws with a hole between it and the score.
-  const capped = cleanName('Abcdefghijk Lmnop', 0);
-  assert.equal(capped, 'Abcdefghijk');
+  const gapAtTheCap = `${'A'.repeat(MAX_NAME - 1)} Reserves`;
+  const capped = cleanName(gapAtTheCap, 0);
+  assert.equal(capped, 'A'.repeat(MAX_NAME - 1));
   assert.ok(capped.length <= MAX_NAME);
   assert.equal(capped, capped.trim());
 });
@@ -75,8 +81,13 @@ test('an unnamed opponent is the taker profile, not a blank and not a placeholde
   // Strippable characters only is the same as saying nothing.
   assert.equal(cleanTeam('\u200b\u202e', profile), profile);
   // And the profile's own name is passed through rather than capped: it comes
-  // from content/, not from a text field, and MAX_NAME would shorten this one.
-  assert.ok(profile.length > MAX_NAME);
+  // from content/, not from a text field. Checked with one longer than the cap
+  // rather than with a shipped profile, because every shipped profile is now
+  // comfortably shorter than MAX_NAME and the assertion would be testing the
+  // content file instead of the rule.
+  const longProfile = 'The Unreadable One From Далеко';
+  assert.ok(longProfile.length > MAX_NAME);
+  assert.equal(cleanTeam('', longProfile), longProfile);
 });
 
 test('an opponent name is cleaned as hard as a person is', () => {
@@ -85,11 +96,13 @@ test('an opponent name is cleaned as hard as a person is', () => {
   const profile = 'The Steady One';
   assert.equal(cleanTeam('North\ngate', profile), 'Northgate');
   assert.equal(cleanTeam('A\u202eB\u200bC', profile), 'ABC');
-  // Cut at the cap mid-word, like a person's name is: twelve characters of
-  // anybody's team is already as wide as the score line can take.
-  const long = cleanTeam('Northgate Athletic Reserves', profile);
-  assert.equal(long, 'Northgate At');
+  // Cut at the cap mid-word, like a person's name is.
+  const long = cleanTeam('Northgate Athletic Reserves and Colts', profile);
+  assert.equal(long, 'Northgate Athletic Reser');
   assert.ok(long.length <= MAX_NAME);
+  // The names this was raised for now survive intact, which is the point.
+  assert.equal(cleanTeam('Manchester United', profile), 'Manchester United');
+  assert.equal(cleanTeam('Brighton and Hove Albion', profile), 'Brighton and Hove Albion');
   assert.equal(long, long.trim());
 });
 

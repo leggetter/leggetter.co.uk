@@ -65,12 +65,37 @@ const dataset = args.includes('--dev') ? 'deadball_matches_dev' : 'deadball_matc
 /**
  * Real games only, unless asked otherwise.
  *
- * `blob3` is the tag: empty for anything played by a person, `smoke` for a
- * test against production. Rows written before the tag existed have a winner
- * or an outcome sitting in that column, so this discards those too - which is
- * correct, because all of them came from a robot taking the same three shots.
+ * `blob3` is the tag, and a game has to *claim* to be real: the page sends
+ * `play` when somebody opens a game, a smoke test sends `smoke`, and anything
+ * that sends nothing is noise.
+ *
+ * That is the inverse of the first version, which treated an empty tag as
+ * real. It read well and was wrong, because a room minted by a bare curl is
+ * untagged too - so sixty-one abandoned rooms left over from a rate-limit test
+ * sat in the results looking exactly like sixty-one people who gave up. The
+ * data said so within a minute of there being a way to look.
  */
-const REAL = args.includes('--all') ? '1 = 1' : "blob3 = ''";
+const TAGGED = args.includes('--all') ? "blob3 != ''" : "blob3 = 'play'";
+
+/**
+ * Rows from before the tag column existed are never readable, tag or no tag.
+ *
+ * They were written with one fewer blob, so every string column after the
+ * second is shifted: `blob4` is the winner on a row written today and the
+ * discipline on one written last week. Asked for "who won" across both, the
+ * dataset cheerfully answers "both" and "mixed", which are disciplines. That
+ * is what the first run of this script did.
+ *
+ * The filter is not a version number, because none was written. It is that an
+ * old row never filled its last blob: a result row now ends in the discipline
+ * and a kick row in the shot style, and neither is ever empty. So a blank
+ * there means a layout that predates this column layout, and it is dropped.
+ *
+ * Nothing is lost. Every one of those rows is a robot taking the same three
+ * shots to prove a deploy worked.
+ */
+const NEW_RESULT = `blob2 = 'result' AND blob5 != '' AND ${TAGGED}`;
+const NEW_KICK = `blob2 = 'kick' AND blob6 != '' AND ${TAGGED}`;
 
 async function sql(query) {
   const response = await fetch(
@@ -120,7 +145,7 @@ const QUERIES = [
                  round(avg(double1)) AS avg_kicks,
                  round(avg(double6)) AS avg_seconds
           FROM ${dataset}
-          WHERE blob2 = 'result' AND ${REAL}
+          WHERE ${NEW_RESULT}
           GROUP BY winner ORDER BY games DESC`,
   },
   {
@@ -128,22 +153,22 @@ const QUERIES = [
     note: 'An abandoned row means the room hit its hour. Seats says whether anybody ever joined.',
     sql: `SELECT blob4 AS ending, double7 AS seats, ${N} AS games
           FROM ${dataset}
-          WHERE blob2 = 'result' AND ${REAL}
+          WHERE ${NEW_RESULT}
           GROUP BY ending, seats ORDER BY games DESC`,
   },
   {
     title: 'Where people actually shoot',
     note: "Open question 5, unanswered since Phase 1: both early testers found one spot and stayed there.",
-    sql: `SELECT CASE
-                   WHEN double2 < -0.55 THEN 'far left'
-                   WHEN double2 < -0.2  THEN 'left'
-                   WHEN double2 <= 0.2  THEN 'middle'
-                   WHEN double2 <= 0.55 THEN 'right'
-                   ELSE 'far right' END AS aimed,
+    // Nested if() rather than CASE, which Analytics Engine rejects outright:
+    // "unsupported expression type".
+    sql: `SELECT if(double2 < -0.55, 'far left',
+                 if(double2 < -0.2, 'left',
+                 if(double2 <= 0.2, 'middle',
+                 if(double2 <= 0.55, 'right', 'far right')))) AS aimed,
                  ${N} AS kicks,
                  round(100 * sum(if(blob4 = 'goal', _sample_interval, 0)) / ${N}) AS scored_pct
           FROM ${dataset}
-          WHERE blob2 = 'kick' AND ${REAL}
+          WHERE ${NEW_KICK}
           GROUP BY aimed ORDER BY kicks DESC`,
   },
   {
@@ -152,7 +177,7 @@ const QUERIES = [
     sql: `SELECT blob6 AS style, ${N} AS kicks,
                  round(100 * sum(if(blob4 = 'goal', _sample_interval, 0)) / ${N}) AS scored_pct
           FROM ${dataset}
-          WHERE blob2 = 'kick' AND ${REAL}
+          WHERE ${NEW_KICK}
           GROUP BY style ORDER BY kicks DESC`,
   },
   {
@@ -162,7 +187,7 @@ const QUERIES = [
                  round(100 * sum(if(blob4 = 'goal', _sample_interval, 0)) / ${N}) AS scored_pct,
                  round(100 * sum(if(blob4 = 'blocked', _sample_interval, 0)) / ${N}) AS blocked_pct
           FROM ${dataset}
-          WHERE blob2 = 'kick' AND ${REAL}
+          WHERE ${NEW_KICK}
           GROUP BY spot, wall ORDER BY spot, wall`,
   },
   {
@@ -170,7 +195,7 @@ const QUERIES = [
     note: null,
     sql: `SELECT blob4 AS outcome, ${N} AS kicks
           FROM ${dataset}
-          WHERE blob2 = 'kick' AND ${REAL}
+          WHERE ${NEW_KICK}
           GROUP BY outcome ORDER BY kicks DESC`,
   },
   {
@@ -178,7 +203,7 @@ const QUERIES = [
     note: 'Open question 3: cross-client determinism. Anything but zero means a stale bundle.',
     sql: `SELECT ${N} AS games, sum(double5) AS total_divergences, max(double5) AS worst_game
           FROM ${dataset}
-          WHERE blob2 = 'result' AND ${REAL}`,
+          WHERE ${NEW_RESULT}`,
   },
 ];
 
@@ -194,7 +219,9 @@ if (custom !== -1) {
 }
 
 console.log(
-  `\x1b[2mdataset ${dataset}, ${args.includes('--all') ? 'every row' : 'real games only'}\x1b[0m`
+  `\x1b[2mdataset ${dataset}, ${
+    args.includes('--all') ? 'real games and smoke tests' : 'real games only'
+  }, rows from before the tag column always excluded\x1b[0m`
 );
 
 let failed = 0;

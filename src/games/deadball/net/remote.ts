@@ -157,7 +157,17 @@ export function createRemoteTransport(
       const made = await fetch(`${base}/room`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ id, settings, seed: freshSeed() }),
+        // `play` says a person opened this, and it is the only thing that
+        // does. The first version left real games untagged and treated an
+        // empty tag as real - which quietly counted every room a script ever
+        // minted, because a bare curl sends no tag either. Sixty-one abandoned
+        // rooms from a rate-limit test turned up in the numbers looking
+        // exactly like sixty-one people who never finished a shootout.
+        //
+        // Inverted, so the game has to declare itself and silence means noise.
+        // Not tamper-proof and not meant to be: anybody can send `play`, and
+        // the worst they achieve is adding themselves to a graph.
+        body: JSON.stringify({ id, settings, seed: freshSeed(), tag: 'play' }),
       });
       if (!made.ok) throw new Error('Could not open a game.');
       return {

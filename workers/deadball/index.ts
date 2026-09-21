@@ -100,19 +100,25 @@ export class RoomObject extends DurableObject<Env> {
   /**
    * Why this game exists, when the answer is not "somebody wanted to play".
    *
-   * Empty for every real game, because nothing in the browser ever sets it -
-   * it can only be asked for by whoever mints the room over HTTP. A smoke test
-   * against production sets it to `smoke`, and the numbers can then be read
-   * with `WHERE blob3 = ''` and mean what they say.
+   * `play` when the page opened it, `smoke` for a test against production, and
+   * nothing at all for a room somebody minted with curl. The numbers are then
+   * read with `WHERE blob3 = 'play'`.
+   *
+   * **A game has to claim to be real, rather than noise having to claim to be
+   * noise.** The first version was the other way round - real meant untagged -
+   * which reads well and is wrong, because a bare HTTP request sends no tag
+   * either. Sixty-one abandoned rooms left over from testing the rate limit
+   * turned up in the results looking exactly like sixty-one people who never
+   * finished a shootout. Silence means noise now.
    *
    * The alternative was filtering by timestamp, which works exactly once and
    * then silently stops being true the next time somebody tests a deploy
    * against the real server - which is a thing that has to keep happening,
    * because a deploy is the one thing `wrangler dev` cannot rehearse.
    *
-   * Deliberately not tamper-proof. Anybody can tag their own games and the
-   * worst they achieve is hiding themselves from a graph nobody is being
-   * judged by. It is a label for honest noise, not a permission.
+   * Deliberately not tamper-proof. Anybody can send `play` and the worst they
+   * achieve is adding themselves to a graph nobody is being judged by. It is a
+   * label for honest noise, not a permission.
    */
   private tag = '';
 

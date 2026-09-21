@@ -476,7 +476,7 @@ One row per finished shootout, written by the room, queryable with SQL.
 | **One row per game** | discipline, kicks taken, whether it reached sudden death, both scores, how long it took, how many seats were ever filled, and how often a client's answer differed from the room's |
 | **One row per kick** | which spot, how many in the wall, which shot style, where it was aimed, power, curl, timing, the outcome, and which *seat* took it |
 | **Never** | team names, tokens, room ids, kit colours, or anything identifying a person |
-| **A tag on both** | empty for a real game; `smoke` for a test against production, so the numbers can be read without it |
+| **A tag on both** | `play` when a person opened the game, `smoke` for a test against production, nothing for a room minted by a script - so the numbers can be read as `blob3 = 'play'` |
 
 ### Why the kicks too
 

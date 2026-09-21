@@ -123,7 +123,7 @@ API](https://developers.cloudflare.com/analytics/analytics-engine/sql-api/):
 ```sql
 SELECT blob4 AS winner, count() AS games
 FROM deadball_matches
-WHERE blob2 = 'result' AND blob3 = ''
+WHERE blob2 = 'result' AND blob3 = 'play'
   AND timestamp > NOW() - INTERVAL '30' DAY
 GROUP BY winner
 ```
@@ -140,19 +140,21 @@ It needs an API token with **Account → Account Analytics → Read**, kept in
 `~/.config/deadball/analytics-token` - outside this repository, which is
 public.
 
-**`blob3 = ''` is not optional.** It is the tag, and it is empty for every real
-game, because nothing in the browser can set it - only whoever mints a room
-over HTTP can ask for one. A smoke test against production passes
-`"tag": "smoke"` and drops out of every query that includes that clause.
+**`blob3 = 'play'` is not optional.** It is the tag, and **a game has to claim
+to be real**: the page sends `play` when somebody opens a game, a smoke test
+sends `smoke`, and a room minted with curl sends nothing.
+
+That is the inverse of how this started. Real meant *untagged*, on the grounds
+that nothing in the browser set a tag - which reads well and is wrong, because
+a bare HTTP request sets no tag either. Sixty-one abandoned rooms left over
+from testing the rate limit sat in the results looking exactly like sixty-one
+people who gave up on a shootout. The data said so within a minute of there
+being any way to look at it, which is the entire argument for having kept it.
 
 The alternative was filtering by date, which works exactly once and then
 quietly stops being true the next time somebody verifies a deploy against the
 real server. Which has to keep happening: a deploy is the one thing
 `wrangler dev` cannot rehearse.
-
-Rows written before the tag existed have a winner or an outcome sitting in
-`blob3`, so the same clause discards those too - which is correct, because all
-of them are mine.
 
 ```sh
 # what a smoke test against production should look like

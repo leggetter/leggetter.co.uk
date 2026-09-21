@@ -181,7 +181,7 @@ const views = listCameras();
         <h2 id="accept-heading">You have been invited</h2>
         <p id="accept-blurb"></p>
         <label for="accept-name">Your team</label>
-        <input id="accept-name" name="acceptName" type="text" maxlength="12"
+        <input id="accept-name" name="acceptName" type="text" maxlength="24"
           autocomplete="off" spellcheck="false" placeholder="Your team" />
         <div id="accept-actions">
           <button type="submit">Join the game</button>
@@ -207,10 +207,10 @@ const views = listCameras();
         <p id="names-blurb">Whoever goes first shoots first. You can change these any
           time by pressing <b>2 players</b> again.</p>
         <label for="name-0" id="label-0">Shoots first</label>
-        <input id="name-0" name="name0" type="text" maxlength="12" autocomplete="off"
+        <input id="name-0" name="name0" type="text" maxlength="24" autocomplete="off"
           spellcheck="false" placeholder="Player 1" />
         <label for="name-1" id="label-1">Keeps first</label>
-        <input id="name-1" name="name1" type="text" maxlength="12" autocomplete="off"
+        <input id="name-1" name="name1" type="text" maxlength="24" autocomplete="off"
           spellcheck="false" placeholder="Player 2" />
         {/*
           The computer's side, named by you. In the template and hidden rather
@@ -224,7 +224,7 @@ const views = listCameras();
           second copy to keep in step. The script fills it in.
         */}
         <label for="name-opponent" id="label-opponent" hidden>Their team</label>
-        <input id="name-opponent" name="nameOpponent" type="text" maxlength="12"
+        <input id="name-opponent" name="nameOpponent" type="text" maxlength="24"
           autocomplete="off" spellcheck="false" hidden />
 
         {/*
@@ -1943,12 +1943,45 @@ const views = listCameras();
 
   #accept-form {
     box-sizing: border-box;
+    /* A column, like the naming form. Without it the label sat on the same
+       line as the box it labels, which is what an unstyled form does and what
+       this one was doing. */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: min(360px, calc(100vw - 32px));
     padding: 22px;
     border-radius: 14px;
     border: 1px solid rgba(125, 211, 252, 0.28);
     background: #0b1a2d;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
     color: #e6eef8;
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  /* The heading and blurb, matched to the naming form's. They were inheriting
+     the browser's h2 margins inside a flex column that already spaces itself. */
+  #accept-form h2 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  #accept-blurb {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(230, 238, 248, 0.72);
+  }
+
+  /* The invited side is always seat 1, and the scoreboard draws seat 1 in
+     this blue. Naming yourself in the colour you are about to play in. */
+  #accept-form label[for='accept-name'] {
+    color: #7dd3fc;
+  }
+
+  #accept-form input {
+    margin-bottom: 10px;
   }
 
   #names-form {
@@ -1986,7 +2019,14 @@ const views = listCameras();
     color: rgba(230, 238, 248, 0.68);
   }
 
-  #names-form label {
+  /* Both name forms, because they are the same control asked twice. The
+     accept dialog had none of this and rendered as a bare browser text box on
+     a dark panel - the sixth time this page has shipped an element that
+     matched no rule. The previous five were createElement missing Astro's
+     scoping attribute; this one is plainer and worse, a second form that
+     nobody added to the selector. */
+  #names-form label,
+  #accept-form label {
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -2004,7 +2044,8 @@ const views = listCameras();
     color: #7dd3fc;
   }
 
-  #names-form input {
+  #names-form input,
+  #accept-form input {
     /* 16px or larger, or iOS zooms the whole page in on focus and the pitch
        is left scrolled somewhere off screen when the keyboard closes. */
     font: inherit;
@@ -2017,7 +2058,8 @@ const views = listCameras();
     color: inherit;
   }
 
-  #names-form input:focus-visible {
+  #names-form input:focus-visible,
+  #accept-form input:focus-visible {
     outline: 2px solid #7dd3fc;
     outline-offset: 1px;
   }

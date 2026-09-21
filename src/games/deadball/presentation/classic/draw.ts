@@ -408,8 +408,21 @@ const NARROW = 560;
  * The only thing that differs is who decides, which is the simulation's
  * business rather than this file's.
  */
-const twoSided = (frame: FrameState): boolean =>
-  frame.mode === 'duel' || frame.mode === 'versus';
+/**
+ * Two names and two scores, rather than one of each.
+ *
+ * **Written as "not solo", not as a list.** It was a list - duel or versus -
+ * and `remote` was added to `MatchMode` without being added here, so every
+ * two-device game drew the *solo* score line: one player's name and `1/10`,
+ * with the opponent and both scores missing from the only place they are
+ * shown. It also silently disabled the "X SHOOTING" banner, which exists
+ * precisely so nobody has to wonder whose turn it is.
+ *
+ * `core/match.ts` had it right all along - `alternates` there is `mode !==
+ * 'solo'` - so this now matches, and a fourth mode cannot reintroduce the
+ * same bug by being forgotten.
+ */
+export const twoSided = (frame: FrameState): boolean => frame.mode !== 'solo';
 
 const scrimHeight = (width: number): number => (width < NARROW ? 176 : 130);
 
@@ -1510,15 +1523,22 @@ export function drawKeepersTurn(ctx: Ctx, proj: Projector, frame: FrameState, wi
 
   ctx.font = `500 ${narrow ? 12 : 14}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  // On two devices this line is read by somebody who is *not* in goal as well,
+  // and it used to tell them to pick a corner. Both players then believed they
+  // were keeping, which is exactly what got reported. A waiting player is told
+  // they are waiting, and told what for.
+  const waiting = frame.remote && !frame.yourGoal;
   ctx.fillText(
-    spot
-      ? 'let go to commit'
-      : frame.mode === 'versus'
-        ? // Worth saying, because it is the question anybody asks of a
-          // computer opponent. It decides its shot after the pick and never
-          // reads it, which is a promise the code keeps rather than a claim.
-          'pick your corner  ·  it will not see where you went'
-        : 'pick your corner  ·  the taker cannot see this',
+    waiting
+      ? `waiting for ${frame.names[frame.keeperSide]} to pick a corner`
+      : spot
+        ? 'let go to commit'
+        : frame.mode === 'versus'
+          ? // Worth saying, because it is the question anybody asks of a
+            // computer opponent. It decides its shot after the pick and never
+            // reads it, which is a promise the code keeps rather than a claim.
+            'pick your corner  ·  it will not see where you went'
+          : 'pick your corner  ·  the taker cannot see this',
     width / 2,
     headY + (narrow ? 42 : 46)
   );
@@ -1795,9 +1815,14 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
   if (twoSided(frame) && (frame.phase === 'ready' || frame.phase === 'runup')) {
     ctx.save();
     ctx.textAlign = 'center';
-    const shooting = frame.suddenDeath
-      ? `SUDDEN DEATH  ·  ${frame.names[frame.taker].toUpperCase()}`
+    // On two devices, "you" beats a name every time: the question being asked
+    // each turn is "is this mine", and a name is the slowest way to answer it.
+    const who = frame.remote
+      ? frame.yourShot
+        ? 'YOU ARE SHOOTING'
+        : `WAITING FOR ${frame.names[frame.taker].toUpperCase()}`
       : `${frame.names[frame.taker].toUpperCase()} SHOOTING`;
+    const shooting = frame.suddenDeath ? `SUDDEN DEATH  ·  ${who}` : who;
     fitFont(ctx, shooting, 700, width < NARROW ? 15 : 18, width - 32);
     ctx.fillStyle = SIDE_COLOURS[frame.taker];
     ctx.fillText(shooting, width / 2, width < NARROW ? 108 : 120);
@@ -1806,7 +1831,10 @@ export function drawHud(ctx: Ctx, frame: FrameState, width: number, height: numb
 
   // Hidden once a drag is live: the dial is at the ball and says more, and in
   // the angled view the two were drawn on top of each other.
-  if (frame.phase === 'ready' && !frame.aiming) {
+  // Not on the keeper's device in a two-device game: telling somebody to drag
+  // to aim while their pointer does nothing is the same mistake as the corner
+  // hint above, in the other phase.
+  if (frame.phase === 'ready' && !frame.aiming && (!frame.remote || frame.yourShot)) {
     // Short form on a phone. The long one is four clauses and does not fit.
     const lines =
       width < NARROW

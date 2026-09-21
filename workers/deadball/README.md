@@ -128,6 +128,18 @@ WHERE blob2 = 'result' AND blob3 = ''
 GROUP BY winner
 ```
 
+There is a script that asks all of this and a few more:
+
+```sh
+node scripts/deadball-stats.mjs          # real games, production
+node scripts/deadball-stats.mjs --dev    # the dev dataset
+node scripts/deadball-stats.mjs --all    # smoke tests included
+```
+
+It needs an API token with **Account → Account Analytics → Read**, kept in
+`~/.config/deadball/analytics-token` - outside this repository, which is
+public.
+
 **`blob3 = ''` is not optional.** It is the tag, and it is empty for every real
 game, because nothing in the browser can set it - only whoever mints a room
 over HTTP can ask for one. A smoke test against production passes

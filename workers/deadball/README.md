@@ -22,13 +22,42 @@ following in the dashboard once. There is no `wrangler builds`.
    this repository. (Connecting an existing Worker, not creating one - the
    Worker, its Durable Object and its migration already exist, and *Create →
    Connect to Git* would make a second one beside it.)
-2. **Root directory:** leave it at the repository root. Not `workers/deadball`,
-   even though that is where the Worker is: the Worker imports
-   `src/games/deadball/core/` directly, because the whole design rests on the
-   server and the browser running the *same* reducer, and a root inside
+
+2. **Change both commands away from the defaults.** The dialog offers `npm run
+   build` and `npx wrangler deploy`, and *both are wrong here* - they are the
+   site's, because the site is what this repository looks like from the
+   outside.
+
+   | Field | Default offered | What it must be |
+   | --- | --- | --- |
+   | Build command | `npm run build` | **empty** |
+   | Deploy command | `npx wrangler deploy` | `npx wrangler deploy --config workers/deadball/wrangler.jsonc` |
+
+   There is nothing to build: wrangler bundles the TypeScript itself, and
+   `npm run build` would spend a minute rendering 220 pages of blog that this
+   Worker never reads.
+
+   The deploy command matters more. Left as `npx wrangler deploy`, it picks up
+   the **root** `wrangler.jsonc`, whose `name` is `leggetter-co-uk` - so the
+   game server's build would deploy *the website*, to the website's Worker,
+   and `deadball-rooms` would never change no matter how many times it ran.
+   Quiet, wrong, and hard to spot afterwards, because both builds would be
+   green.
+
+3. **Turn off Preview builds.** Preview builds publish a *version* of this
+   Worker, and a version shares the Worker's bindings - the same Durable
+   Object namespace and the same analytics dataset as the game people are
+   playing on. A branch could then seat players in live rooms and write test
+   shootouts into the real numbers. Use the `dev` environment below instead,
+   which is a genuinely separate Worker.
+
+4. **Root directory** (Advanced settings): leave it at the repository root. Not
+   `workers/deadball`, even though that is where the Worker is: the Worker
+   imports `src/games/deadball/core/` directly, because the whole design rests
+   on the server and the browser running the *same* reducer, and a root inside
    `workers/` cannot see it.
-3. **Deploy command:** `npx wrangler deploy --config workers/deadball/wrangler.jsonc`
-4. **Build watch paths** (Settings → Builds), so a blog post does not redeploy
+
+5. **Build watch paths** (Advanced settings), so a blog post does not redeploy
    the game server:
    ```
    workers/deadball/**
@@ -36,18 +65,27 @@ following in the dashboard once. There is no `wrangler builds`.
    src/games/deadball/net/**
    src/games/deadball/content/**
    ```
-5. **Production branch:** `main`, which is what the site already deploys from.
 
-Nothing else. No plan change: Durable Objects are available on the Workers
-**Free** plan as long as they use the SQLite storage backend, which is what
-`new_sqlite_classes` in `wrangler.jsonc` selects. Free limits are 5 million row
-reads and 100,000 row writes a day, which two people taking penalties will not
-trouble.
+6. **Production branch:** `main`, which is what the site already deploys from.
 
-That limit did shape one thing: **the room is not written to storage on every
-poll.** A `put` is billed as a row written, and two clients polling every two
-seconds would spend eight thousand writes an hour doing nothing at all. It is
-saved when something actually changes, which is a handful of times per kick.
+Nothing else, and no plan change - this account is already on **Workers
+Paid**, so Durable Objects are included rather than something to qualify for.
+
+Worth recording how that was established, because the repository said Free for
+weeks on my say-so and nobody had checked. The OAuth token wrangler holds has
+no billing scope, so the account cannot be asked directly. What settles it is
+CPU: the Free plan stops an invocation at 10ms, and a throwaway Worker here
+burned **1567ms in a single request** and returned normally. Free cannot do
+that.
+
+The SQLite backend stays anyway. It is the recommended one, and it is the only
+one that would still work if this ever moved to Free.
+
+**The room is still not written to storage on every poll**, and that predates
+knowing the plan. A `put` is billed as a row written, and two clients polling
+every two seconds would spend eight thousand writes an hour doing nothing at
+all. Paid makes that affordable rather than sensible. It is saved when
+something actually changes, which is a handful of times per kick.
 
 ## Results
 
@@ -83,6 +121,67 @@ Only `astro build` reads it. `npm run dev` deliberately does not, so a local
 checkout keeps falling back to the same-browser transport where two tabs play
 each other - which is what every local checkout does, how the protocol was
 debugged before any of this existed, and worth keeping working.
+
+## A second one to break
+
+`deadball-rooms-dev`, from the same file:
+
+```sh
+npx wrangler deploy --config workers/deadball/wrangler.jsonc --env dev
+```
+
+Its own Durable Object namespace and its own dataset (`deadball_matches_dev`),
+so a room made while testing cannot collide with a game somebody is playing,
+and a test shootout cannot land in the numbers that are supposed to answer
+whether anybody ever beats the wall. That second point is the one that matters:
+the per-kick rows only exist to be read later, and a few hundred rows of a
+robot taking the same three shots would quietly ruin them.
+
+`wrangler dev` is still the first thing to reach for - it is faster, free and
+offline. This is for the half `wrangler dev` cannot tell you about: real
+Durable Object placement, real cold starts, a real rate limiter, and a real
+network between the two players.
+
+Bindings are written out again under `env.dev` rather than inherited, because
+wrangler does not inherit them. An environment that omits a binding does not
+fall back to the top-level one - it simply does not have it, and the failure
+turns up at runtime as an undefined.
+
+## Nothing stops anyone minting rooms, so this slows them down
+
+There is no account here and no key: the room id *is* the key. So `POST /room`
+counts by address, five a minute, and answers 429 beyond that.
+
+**The nominal number is not what you get, so it was measured rather than
+chosen.** Cloudflare's limiter is per-location and per-isolate with
+eventually-consistent counters, and says so itself - "permissive...
+intentionally designed to not be used as an accurate accounting system".
+
+| Sent to `deadball-rooms-dev` | Allowed |
+| --- | --- |
+| 300 at 25 at a time, limit 20 | 187 |
+| 300 at 25 at a time, limit 5 | 107 |
+| a person starting 6 games over 70s, limit 5 | all 6 |
+
+Thirty requests sent *one at a time* never tripped a limit of 20 at all - they
+spread across enough isolates that no single counter noticed. That is why the
+number ended up at five: it costs a real player nothing, and going tighter
+would not buy much, because sequential requests slip through regardless.
+
+So read the limit as a speed bump with a number on it, not a wall. It stops one
+machine in a loop, which is the realistic version of this. It does nothing to
+anybody spread across addresses, and a limit tight enough to matter there would
+be tight enough to refuse a family.
+
+Two deliberate omissions:
+
+- **The message endpoint is not limited.** A client polls every two seconds, so
+  two players in one house are sixty requests a minute from one address before
+  anybody has done anything wrong. A limit loose enough for a few households at
+  once is too loose to be worth having.
+- **A missing binding means no limit**, not no game. Same bargain the analytics
+  binding makes: configuration that has gone wrong should cost the speed bump,
+  not the shootout.
 
 ## Running it locally
 

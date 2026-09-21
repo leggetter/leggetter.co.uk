@@ -31,6 +31,23 @@ interface Env {
    * would be a poor trade.
    */
   RESULTS?: AnalyticsEngineDataset;
+  /**
+   * How fast one address may mint rooms.
+   *
+   * There is no account and no key here - the room id *is* the key - so an
+   * address is the only thing to count by, and Cloudflare's own advice is to
+   * prefer a stable identifier over an IP. There isn't one. What this catches
+   * is the realistic case, which is one machine in a loop; anybody spread
+   * across addresses walks past it, and so does anybody in a different
+   * Cloudflare location, because the counters are per-location rather than
+   * global. A speed bump, named as one.
+   *
+   * Optional, and absent means no limit, which is the same bargain `RESULTS`
+   * makes and for the same reason: a binding that has gone missing should cost
+   * the speed bump, not the game. Two brothers should not be unable to play
+   * because a piece of configuration is wrong.
+   */
+  MINTING?: RateLimit;
 }
 
 /** An hour. Generous for a shootout and short enough that nothing piles up. */
@@ -369,6 +386,15 @@ export default {
 
     // POST /room  -> mint one
     if (request.method === 'POST' && parts.length === 1 && parts[0] === 'room') {
+      // Only minting is limited. Not the message endpoint below it: a client
+      // polls every two seconds, so two players in one house are sixty
+      // requests a minute from a single address before anybody has done
+      // anything wrong, and a limit loose enough to allow a few households is
+      // too loose to be worth having. A room, by contrast, is one per game.
+      const from = request.headers.get('cf-connecting-ip') ?? 'unknown';
+      const { success } = (await env.MINTING?.limit({ key: from })) ?? { success: true };
+      if (!success) return json({ error: 'Too many new games at once. Try again in a minute.' }, 429);
+
       const body = (await request.json().catch(() => null)) as {
         id?: string;
         settings?: RoomSettings;

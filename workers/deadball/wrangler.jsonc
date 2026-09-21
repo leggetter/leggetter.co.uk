@@ -20,9 +20,9 @@
   "migrations": [
     {
       "tag": "v1",
-      // SQLite-backed, which is the recommended backend and the only one
-      // available on the Workers Free plan. Key-value backed objects need a
-      // paid plan and buy nothing here.
+      // SQLite-backed, which is the recommended backend, and the only one
+      // that would work if this account were ever moved to the Free plan.
+      // Key-value backed objects buy nothing here either way.
       "new_sqlite_classes": ["RoomObject"]
     }
   ],
@@ -31,5 +31,52 @@
   // binding does not exist in local development, which the code allows for.
   "analytics_engine_datasets": [{ "binding": "RESULTS", "dataset": "deadball_matches" }],
 
-  "observability": { "enabled": true }
+  // How fast one address may mint rooms.
+  //
+  // Five a minute nominal, which is not what you actually get - the limiter is
+  // per-isolate with eventually-consistent counters and documented as
+  // permissive. Both numbers below were measured against deadball-rooms-dev
+  // rather than reasoned about:
+  //
+  //   limit 20   burst of 300 -> 187 allowed
+  //   limit 5    burst of 300 -> 107 allowed
+  //   limit 5    a person starting 6 games over 70s -> all 6 allowed
+  //
+  // So five costs a real player nothing and cuts a script nearly twice as hard
+  // as twenty did. A tighter number would not buy much more: sequential
+  // requests spread across isolates and mostly slip through whatever this says.
+  //
+  // It does not make the endpoint safe, and is not meant to. Counters are also
+  // per Cloudflare location, so the same script run from two places gets two
+  // allowances, and anybody spread across addresses is not counted at all.
+  // What it buys is that the cheapest version of the attack stops working.
+  "ratelimits": [{ "name": "MINTING", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }],
+
+  "observability": { "enabled": true },
+
+  // A second Worker to break, so the one people are playing on stays up.
+  //
+  // `wrangler deploy --env dev` puts this at `deadball-rooms-dev`, with its
+  // own Durable Object namespace and its own dataset: rooms made while testing
+  // cannot collide with a real game, and a test shootout cannot land in the
+  // numbers that are supposed to answer whether anybody beats the wall.
+  //
+  // Bindings are deliberately repeated rather than inherited, because wrangler
+  // does not inherit them - a named environment that omits a binding does not
+  // fall back to the top-level one, it simply does not have it. The migration
+  // stays top-level, where it applies to both.
+  "env": {
+    "dev": {
+      "durable_objects": {
+        "bindings": [{ "name": "ROOMS", "class_name": "RoomObject" }]
+      },
+      "analytics_engine_datasets": [
+        { "binding": "RESULTS", "dataset": "deadball_matches_dev" }
+      ],
+      "ratelimits": [
+        { "name": "MINTING", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } }
+      ],
+      "observability": { "enabled": true }
+    }
+  }
 }

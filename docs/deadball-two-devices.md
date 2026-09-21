@@ -527,12 +527,17 @@ knowing before it is reported as "the game cheated".
 
 ## What the server cost, in practice
 
-**No plan change.** Durable Objects are on the Workers Free plan as long as
-they use the SQLite storage backend, which is what `new_sqlite_classes`
-selects. Free limits are five million row reads and a hundred thousand row
-writes a day.
+**No plan change.** This account is on **Workers Paid**, so Durable Objects
+are included. The SQLite backend is used anyway: it is the recommended one, and
+the only one that would still work on Free.
 
-That last number changed the design. **A `put` is billed as a row written**, so
+An earlier version of this section said Free, confidently and without checking.
+It was measured in the end rather than assumed - the Free plan stops an
+invocation at 10ms of CPU, and a throwaway Worker on this account burned 1567ms
+in one request and returned normally.
+
+The design did not change when the plan turned out to be different, because it
+was never really about the free tier. **A `put` is billed as a row written**, so
 persisting the room on every poll would spend eight thousand writes an hour on
 two people doing nothing. The room lives in memory - a Durable Object keeps it
 between requests for as long as it is alive, and two clients polling every two

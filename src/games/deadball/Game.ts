@@ -509,7 +509,25 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     if (message.kind !== 'state') return;
     together = message.together;
-    names = [message.teams[0].name || names[0], message.teams[1].name || names[1]];
+    /*
+      Match-side order, not seat order. Again.
+
+      `connect` already converts these correctly and explains why at length -
+      side 0 is whichever *seat* the coin gave the first kick to - and then
+      this line quietly undid it on the very first state message, and every one
+      after. Seat 0 is the host; side 0 is not, half the time.
+
+      So whenever the coin came down on the guest, the host's own name landed
+      in the opponent's slot and stayed there. Reported as "for some reason I
+      adopted their identity. We were on the wrong teams", which is exactly
+      what it looks like from the inside.
+
+      Fixed at the source of truth rather than at the call site this time:
+      `link.first` is the same number `connect` was handed.
+    */
+    const bySeat = [message.teams[0].name, message.teams[1].name] as const;
+    const first = link.first;
+    names = [bySeat[first] || names[0], bySeat[1 - first] || names[1]] as DuelNames;
 
     /*
       Not while the ball is on its way.

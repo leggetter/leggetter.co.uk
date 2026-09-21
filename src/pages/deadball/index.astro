@@ -538,21 +538,34 @@ const views = listCameras();
          * place, rather than either being filled in with something nobody typed.
          */
         const dressFor = (mode: 'solo' | 'duel' | 'versus', opponent: string) => {
-          const duel = mode === 'duel';
+          // Sending an invite is its own shape, and it had none: it borrowed
+          // the hotseat duel's, which asks for two people by the role they are
+          // about to play. So the person sending the link was asked to name
+          // "Shoots first" and "Keeps first" - two strangers, neither of them
+          // obviously themselves - and the answer to the second was thrown
+          // away, because whoever opens the link says who they are.
+          const invite = mode === 'duel' && pendingWhere === 'apart';
+          const duel = mode === 'duel' && !invite;
           const solo = mode === 'solo';
           if (heading) {
             heading.textContent = solo
               ? 'On your own'
-              : duel
-                ? 'Who is playing?'
-                : 'Name the teams';
+              : invite
+                ? 'Send an invite'
+                : duel
+                  ? 'Who is playing?'
+                  : 'Name the teams';
           }
           if (blurb) {
             blurb.textContent = solo
               ? 'Five of them, against a keeper. Nobody to hand the phone to.'
-              : duel
-                ? 'Whoever goes first shoots first. You can change these any time by pressing 2 players again.'
-                : `Five each against ${opponent}, and you go in goal for theirs.`;
+              : invite
+                ? // Said out loud, because the form no longer asks for it and
+                  // somebody will wonder where the other name went.
+                  'Whoever opens your link says who they are. A coin decides who shoots first.'
+                : duel
+                  ? 'Whoever goes first shoots first. You can change these any time by pressing 2 players again.'
+                  : `Five each against ${opponent}, and you go in goal for theirs.`;
           }
           // Solo has one player and no opponent worth naming, so the whole
           // naming half of this form goes away and the kick choice is the
@@ -564,15 +577,20 @@ const views = listCameras();
             if (opponentField) opponentField.hidden = true;
             return;
           }
-          if (labels[0]) labels[0].textContent = duel ? 'Shoots first' : 'Your team';
+          if (labels[0]) {
+            labels[0].textContent = invite ? 'Who are you?' : duel ? 'Shoots first' : 'Your team';
+          }
           if (fields[0]) fields[0].placeholder = duel ? 'Player 1' : 'Your team';
           // Hiding the label as well as the input, or the form keeps a heading
           // for a field that is not there.
           if (labels[1]) labels[1].hidden = !duel;
           if (fields[1]) fields[1].hidden = !duel;
-          if (opponentLabel) opponentLabel.hidden = duel;
+          if (opponentLabel) opponentLabel.hidden = duel || invite;
           if (opponentField) {
-            opponentField.hidden = duel;
+            // Hidden for an invite too. The label was, and the input was not,
+            // so the form showed a nameless box with the computer opponent's
+            // name sitting in it underneath "Who are you?".
+            opponentField.hidden = duel || invite;
             // Their real name, so leaving the field alone visibly keeps it.
             opponentField.placeholder = game.defaultOpponentName();
           }
@@ -608,6 +626,10 @@ const views = listCameras();
           button.addEventListener('click', () => {
             pendingWhere = button.dataset.where === 'apart' ? 'apart' : 'here';
             paintWhere();
+            // Re-dressed, because this toggle sits *inside* the dialog: the
+            // form was dressed once on opening and then kept asking for two
+            // players after you had said the other one was on another device.
+            dressFor(pendingMode, game.opponentName());
           });
         }
 
@@ -686,6 +708,18 @@ const views = listCameras();
           // The kick first, so the shootout that starts a line later is the one
           // that was asked for rather than the one before it.
           game.useDiscipline(pendingKick);
+          /*
+            Leave the room before starting anything, including another room.
+
+            There was exactly one `disconnect()` in this page and it was on the
+            lobby's cancel button, so picking a mode while still connected left
+            the transport running. The room went on polling and pushing the
+            finished match back, `adopt` went on applying it, and the full-time
+            screen reappeared on top of whatever had just been started -
+            reported as being stuck on the end screen of a two-device game
+            while trying to play on your own.
+          */
+          if (game.connectedAs() !== null) game.disconnect();
           if (pendingMode === 'duel' && pendingWhere === 'apart') {
             const name = fields[0]?.value ?? '';
             closeNames();

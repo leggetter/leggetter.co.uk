@@ -1559,8 +1559,27 @@ in both directions:
 | 0.85 | 3.03 m | 81% | 0% blocked |
 | 1.00 | 3.77 m | 81% | 0% blocked |
 
-At 0.85 and above the wall stops blocking anything at all and the exploit is
-back. Below 0.70 the style is barely better than a scuff.
+At 0.85 and above the wall stopped blocking anything at all and the exploit was
+back. Below 0.70 the style was barely better than a scuff.
+
+**Those numbers are from before the drag bought the loft**, and the table is
+kept because the shape of the trade still holds rather than because the figures
+do. Once the player picks the arc, `style.loft` is a multiplier on a multiplier
+and the same 0.70 behaves differently depending on how far up somebody dragged:
+
+| drag height | finesse apex | goal%, clean | mistimed |
+| --- | --- | --- | --- |
+| 0.2 | 1.16 m | 44% | 41% |
+| 0.45 | 1.73 m | 46% | 42% |
+| 0.7 | 2.41 m | 59% | 45% |
+| 1.0 | 3.45 m | 80% | 72% |
+
+Which is a better game than the one measured above: the balloon is still
+available, but you have to ask for it, and asking costs you the whole lower
+half of the goal. **Worth noting that the timing gradient is weakest exactly
+where the shot is strongest** - at a full-height drag it is 80% against 72%,
+where at 0.7 it is 59% against 45%. If a single correct answer comes back, that
+row is where it will be.
 
 **What this did not fix: penalties.** Timing still does not move the goal rate
 there - 76%, 79%, 76% across clean to badly mistimed - because `loft` is

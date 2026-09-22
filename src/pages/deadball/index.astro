@@ -6,6 +6,14 @@ import Fullscreen from '../../layouts/Fullscreen.astro';
 import { DEFAULT_CAMERA, listCameras } from '../../games/deadball/presentation/registry.ts';
 import { DEFAULT_SKY_ID, SKIES } from '../../games/deadball/content/skies.js';
 import { DISCIPLINES } from '../../games/deadball/core/setpiece.ts';
+import { SWEEP_SWEET_ZONE } from '../../games/deadball/core/units.ts';
+import { STYLES } from '../../games/deadball/core/styles.ts';
+
+// The green band is drawn at the width the game actually uses, rather than at
+// whatever looked about right in a drawing. A help page that lies about the
+// size of the target is worse than no help page, and this one cannot: retune
+// the constant and the picture moves with it.
+const sweetPercent = Math.round(SWEEP_SWEET_ZONE * 100);
 
 // Rendered here rather than built in the browser. Astro scopes component CSS
 // by stamping an attribute on the elements in the template, so buttons created
@@ -42,6 +50,15 @@ const views = listCameras();
       <span id="style-label">Finesse</span>
       <span id="style-hint"></span>
     </button>
+
+    {/*
+      Beside the shot button rather than in the bar.
+
+      The bar has overflowed three times, once per feature that added a button,
+      and the comment above it says as much. This is also the right place on
+      merit: what it explains is the gesture, and the gesture happens down here.
+    */}
+    <button type="button" id="howto-open" aria-label="How to take a shot">?</button>
 
     {/*
       One flex row rather than two absolutely positioned corners.
@@ -393,6 +410,153 @@ const views = listCameras();
 
         <div id="squad-actions">
           <button type="button" id="squad-close">Done</button>
+        </div>
+      </div>
+    </dialog>
+
+    {/*
+      How to take a shot.
+
+      Ordered the way somebody learns it rather than the way the code is
+      arranged: one shot, then the bar that decides whether it was a good one,
+      then the three things the same gesture can also say, then the styles, then
+      the footballer. Nobody needs paragraph six to take their first penalty.
+
+      The diagrams are inline SVG rather than screenshots. A screenshot of a
+      canvas goes stale the first time anything moves and nobody notices,
+      because it is a picture of a thing rather than the thing.
+    */}
+    <dialog id="howto" aria-labelledby="howto-heading">
+      <div id="howto-body" class="panel">
+        <h2 id="howto-heading">How to take a shot</h2>
+
+        <h3>1 &middot; Drag where you want it</h3>
+        <p>
+          Drag anywhere on the pitch, <b>toward where you want the ball to
+          go</b> &mdash; it is not a slingshot, so drag right to go right. <b>How
+          far you drag is how hard you hit it</b>, and direction and power are
+          the same gesture, so you cannot pick the top corner and stroke it
+          gently.
+        </p>
+        <svg class="howto-svg" viewBox="0 0 320 130" role="img"
+          aria-label="Three drags from the ball: a short one is soft and central, a long one to the left is hard and wide, a long one upward is high.">
+          <g class="ink">
+            <line x1="20" y1="112" x2="300" y2="112" class="turf" />
+            <circle cx="160" cy="104" r="7" class="ball" />
+            <path d="M160 104 L118 74" class="arrow" marker-end="url(#hd)" />
+            <text x="98" y="68" class="lbl">soft, left</text>
+            <path d="M160 104 L262 54" class="arrow" marker-end="url(#hd)" />
+            <text x="236" y="46" class="lbl">hard, right</text>
+            <path d="M160 104 L160 30" class="arrow" marker-end="url(#hd)" />
+            <text x="168" y="26" class="lbl">hard, high</text>
+          </g>
+          <defs>
+            <marker id="hd" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+              <path d="M0 0 L7 3.5 L0 7 z" class="head" />
+            </marker>
+          </defs>
+        </svg>
+
+        <h3>2 &middot; Release in the green</h3>
+        <p>
+          While you hold the drag, a marker sweeps left and right. Let go while
+          it is in the green and the strike is clean. <b>Anywhere in the green
+          is equally perfect</b> &mdash; it is a target, not a gradient, so there
+          is a real reward for hitting it rather than a score that never quite
+          lets you off.
+        </p>
+        <svg class="howto-svg short" viewBox="0 0 320 44" role="img"
+          aria-label={`The timing bar. The green band covers the middle ${sweetPercent}% of its width.`}>
+          <rect x="20" y="16" width="280" height="12" rx="6" class="bar-bg" />
+          <rect x={160 - 140 * (sweetPercent / 100)} y="16"
+            width={280 * (sweetPercent / 100)} height="12" rx="6" class="bar-green" />
+          <line x1="160" y1="8" x2="160" y2="36" class="marker" />
+          <text x="20" y="42" class="lbl">early</text>
+          <text x="300" y="42" class="lbl end">late</text>
+        </svg>
+        <p class="aside">
+          Miss it and the shot sprays, loses pace, and drifts back toward the
+          middle of the goal where the keeper is. It also costs you the shot
+          type you picked &mdash; see 5.
+        </p>
+
+        <h3>3 &middot; Bend it</h3>
+        <p>
+          <b>Curl the drag sideways on the way out.</b> The game measures how far
+          your path bowed away from a straight line between where you started
+          and where you finished &mdash; so a banana shape bends, and a straight
+          drag to the same place does not.
+        </p>
+        <svg class="howto-svg" viewBox="0 0 320 110" role="img"
+          aria-label="Two drags ending in the same place: a straight one goes straight, a bowed one bends.">
+          <g class="ink">
+            <circle cx="80" cy="92" r="6" class="ball" />
+            <path d="M80 92 L140 26" class="arrow" marker-end="url(#hd2)" />
+            <text x="86" y="20" class="lbl">straight &rarr; no bend</text>
+            <circle cx="210" cy="92" r="6" class="ball" />
+            <path d="M210 92 C 190 60, 220 44, 270 26" class="arrow curl" marker-end="url(#hd2)" />
+            <text x="216" y="20" class="lbl">bowed &rarr; bends</text>
+          </g>
+          <defs>
+            <marker id="hd2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+              <path d="M0 0 L7 3.5 L0 7 z" class="head" />
+            </marker>
+          </defs>
+        </svg>
+
+        <h3>4 &middot; Float it over a wall</h3>
+        <p>
+          On a free kick, <b>how far up you drag is how much the ball floats</b>.
+          Drag flat and it stays low whoever is taking it; drag high and it
+          climbs over the wall and drops behind it.
+        </p>
+        <p class="aside">
+          Your footballer&rsquo;s <b>dip</b> is the ceiling on that, not the
+          amount. A specialist can go over a wall; a power player drives it into
+          the second man however far up you drag. Penalties have no wall and
+          ignore all of this.
+        </p>
+
+        <h3>5 &middot; Three ways to hit it</h3>
+        <p>
+          The button in the bottom-left corner, cycling. It is a decision between
+          one kick and the next, not a setting.
+        </p>
+        <table class="howto-table">
+          <thead>
+            <tr><th>Shot</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            {STYLES.map((style) => (
+              <tr><th scope="row">{style.label}</th><td>{style.hint}</td></tr>
+            ))}
+          </tbody>
+        </table>
+        <p class="aside">
+          <b>You only get the shot you picked if you strike it properly.</b> The
+          further outside the green you release, the more the style slides back
+          toward an ordinary strike &mdash; a scuffed finesse is not a worse
+          finesse, it is just a shot.
+        </p>
+
+        <h3>6 &middot; Your footballer</h3>
+        <table class="howto-table">
+          <tbody>
+            <tr><th scope="row">Power</th><td>how hard it leaves the boot</td></tr>
+            <tr><th scope="row">Accuracy</th><td>how close it lands to where you aimed, and how much hitting it hard costs you</td></tr>
+            <tr><th scope="row">Curve</th><td>how much bend you get for the same hooked drag</td></tr>
+            <tr><th scope="row">Composure</th><td>only the last penalty and sudden death. Low composure gets worse when it counts</td></tr>
+            <tr><th scope="row">Dip</th><td>free kicks only. The ceiling on how much you can float it</td></tr>
+          </tbody>
+        </table>
+        <p class="aside">
+          Five attributes and 375 points between them, so a squad is four
+          choices rather than one best player. Change yours under
+          <b>Players</b>.
+        </p>
+
+        <div id="howto-actions">
+          <button type="button" id="howto-close">Got it</button>
         </div>
       </div>
     </dialog>
@@ -1327,6 +1491,15 @@ const views = listCameras();
         });
         document.getElementById('squad-close')?.addEventListener('click', () => squad?.close());
 
+        const howto = document.getElementById('howto') as HTMLDialogElement | null;
+        document.getElementById('howto-open')?.addEventListener('click', (event) => {
+          if (!howto?.open) howto?.showModal();
+          // Or the ring stays on the button and the next Enter reopens it when
+          // somebody meant to take the penalty. Same reason as the shot button.
+          (event.currentTarget as HTMLButtonElement).blur();
+        });
+        document.getElementById('howto-close')?.addEventListener('click', () => howto?.close());
+
         document.getElementById('settings-open')?.addEventListener('click', (event) => {
           // A dialog opening is a fresh start, so nothing is left armed from
           // the last time it was open.
@@ -1390,10 +1563,40 @@ const views = listCameras();
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
 
-  #style {
+  /* Beside the shot button, sharing its corner. Small and round, because it is
+     a thing you press once and then never again. */
+  #howto-open {
     position: absolute;
     left: 12px;
     bottom: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background: rgba(8, 20, 34, 0.72);
+    color: rgba(230, 238, 248, 0.82);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  #howto-open:hover {
+    background: rgba(125, 211, 252, 0.18);
+  }
+
+  #howto-open:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  /* The shot button moves up to sit above it, so the two share one corner
+     rather than fighting over it. */
+  #style {
+    position: absolute;
+    left: 12px;
+    bottom: 50px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -1584,6 +1787,156 @@ const views = listCameras();
     color: inherit;
     max-width: none;
     max-height: none;
+  }
+
+  #howto {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    max-width: none;
+    max-height: none;
+  }
+
+  #howto::backdrop {
+    background: rgba(2, 8, 20, 0.88);
+  }
+
+  #howto-body {
+    /* Wider than the other panels: this one has diagrams and tables in it, and
+       at 340px the shot table wrapped onto three lines a row. */
+    width: min(460px, calc(100vw - 24px));
+    max-height: min(84vh, 760px);
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  #howto-body h3 {
+    margin: 22px 0 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #7dd3fc;
+  }
+
+  #howto-body h3:first-of-type {
+    margin-top: 14px;
+  }
+
+  #howto-body p {
+    margin: 0 0 8px;
+    color: rgba(230, 238, 248, 0.86);
+  }
+
+  #howto-body .aside {
+    font-size: 13px;
+    color: rgba(230, 238, 248, 0.6);
+  }
+
+  .howto-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 10px 0 14px;
+    background: rgba(2, 8, 20, 0.45);
+    border: 1px solid rgba(125, 211, 252, 0.16);
+    border-radius: 10px;
+  }
+
+  .howto-svg .turf {
+    stroke: rgba(255, 255, 255, 0.14);
+    stroke-width: 1;
+  }
+
+  .howto-svg .ball {
+    fill: #f4f6f8;
+  }
+
+  .howto-svg .arrow {
+    stroke: #7dd3fc;
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .howto-svg .curl {
+    stroke: #4ade80;
+  }
+
+  .howto-svg .head {
+    fill: #7dd3fc;
+  }
+
+  .howto-svg .lbl {
+    fill: rgba(230, 238, 248, 0.66);
+    font: 500 10px ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  .howto-svg .lbl.end {
+    text-anchor: end;
+  }
+
+  .howto-svg .bar-bg {
+    fill: rgba(255, 255, 255, 0.14);
+  }
+
+  .howto-svg .bar-green {
+    fill: rgba(74, 222, 128, 0.85);
+  }
+
+  .howto-svg .marker {
+    stroke: #f4f6f8;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  .howto-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 10px;
+    font-size: 13px;
+  }
+
+  .howto-table th,
+  .howto-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: 5px 8px 5px 0;
+    border-bottom: 1px solid rgba(125, 211, 252, 0.12);
+  }
+
+  .howto-table thead th {
+    color: rgba(125, 211, 252, 0.85);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .howto-table tbody th {
+    width: 96px;
+    color: #e6eef8;
+    font-weight: 600;
+  }
+
+  .howto-table td {
+    color: rgba(230, 238, 248, 0.72);
+  }
+
+  #howto-actions {
+    margin-top: 18px;
+  }
+
+  #howto-actions button {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid #7dd3fc;
+    background: #7dd3fc;
+    color: #06263a;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
   }
 
   #settings::backdrop,

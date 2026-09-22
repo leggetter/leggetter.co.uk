@@ -23,7 +23,7 @@ const player = SQUAD[0] as Player;
 const spot = vec(0, 0.11, -20.5);
 const strike = (style: string | undefined) =>
   resolveShot(
-    { aim: { x: 0.3, y: 0.5 }, power: 0.8, curve: 0.5, lift: 0.5, timing: 0, style },
+    { aim: { x: 0.3, y: 1 }, power: 0.8, curve: 0.5, lift: 0.5, timing: 0, style },
     player,
     createRng(7),
     { origin: spot, loft: 0.8 }
@@ -150,5 +150,53 @@ describe('what the styles actually do to a shot', () => {
         { origin: spot }
       ).spin.y;
     assert.equal(one(), one());
+  });
+});
+
+describe('how far up the drag went is the float', () => {
+  const alongTheGround = {
+    aim: { x: 0.3, y: 0 },
+    power: 0.8,
+    curve: 0,
+    lift: 0.5,
+    timing: 0,
+  };
+  const atTheBar = {
+    aim: { x: 0.3, y: 1 },
+    power: 0.8,
+    curve: 0,
+    lift: 0.5,
+    timing: 0,
+  };
+
+  test('aimed along the ground stays the flat solve, specialist or not', () => {
+    const cap = resolveShot(alongTheGround, player, createRng(7), { origin: spot, loft: 0.85 });
+    const flat = resolveShot(alongTheGround, player, createRng(7), { origin: spot, loft: 0 });
+    assert.deepEqual(cap.velocity, flat.velocity);
+  });
+
+  test('aimed higher spends more of the cap going up', () => {
+    const floated = resolveShot(atTheBar, player, createRng(7), { origin: spot, loft: 0.85 });
+    const flat = resolveShot(atTheBar, player, createRng(7), { origin: spot, loft: 0 });
+    const share = (shot: ReturnType<typeof resolveShot>) => {
+      const speed = Math.hypot(shot.velocity.x, shot.velocity.y, shot.velocity.z);
+      return shot.velocity.y / speed;
+    };
+    assert.ok(
+      share(floated) > share(flat),
+      `high aim with a cap went ${share(floated).toFixed(3)} up, flat ${share(flat).toFixed(3)}`
+    );
+  });
+
+  test('a penalty with a high aim still has zero loft', () => {
+    const fromTheSpot = vec(0, 0.11, -11);
+    const asPenalty = resolveShot(atTheBar, player, createRng(7), { origin: fromTheSpot, loft: 0 });
+    const ifItFloated = resolveShot(atTheBar, player, createRng(7), {
+      origin: fromTheSpot,
+      loft: 0.85,
+    });
+    assert.notDeepEqual(asPenalty.velocity, ifItFloated.velocity);
+    const unset = resolveShot(atTheBar, player, createRng(7), { origin: fromTheSpot });
+    assert.deepEqual(asPenalty.velocity, unset.velocity);
   });
 });

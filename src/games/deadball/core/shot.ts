@@ -85,11 +85,12 @@ export interface ShotContext {
   /** 0..1. Sudden death and match point push this up. Phase 1 passes 0. */
   pressure?: number;
   /**
-   * How much of the shot goes up rather than forward, 0 to 1.
+   * How much loft this footballer can buy, 0 to 1.
    *
    * A penalty passes 0 and is unchanged by any of this. A free kick passes the
-   * taker's `dip`, which is what lets one player go over a wall and another
-   * drive it into the second man.
+   * taker's `dip`, which is the cap: how far up the drag went then decides how
+   * much of that cap is spent. A specialist can go over a wall; a power player
+   * still drives it into the second man. Neither of them picks the arc for you.
    */
   loft?: number;
   /**
@@ -181,10 +182,11 @@ export function resolveShot(
     (1 - mistimed * TIMING_PACE_LOSS) *
     style.power;
 
-  // A driven shot spends almost none of its pace going up, whatever the
-  // taker's `dip` is: that is what makes it the shot you take under a wall
-  // rather than over one.
-  const loft = clamp((context.loft ?? 0) * style.loft, 0, 1);
+  // How far up the drag went is how much of the cap is spent. Zero height is
+  // the flat solve, even for a specialist; a driven shot then spends almost
+  // none of what remains going up, which is what makes it the shot you take
+  // under a wall rather than over one.
+  const loft = clamp((context.loft ?? 0) * clamp(input.aim.y, 0, 1) * style.loft, 0, 1);
   const velocity = launchVelocity(origin, targetX, targetY, speed, loft);
 
   /**

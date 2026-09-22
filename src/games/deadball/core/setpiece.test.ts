@@ -335,3 +335,43 @@ describe('both sides get the same kick', () => {
     assert.ok(new Set(rounds).size > 1, 'every round was the same spot');
   });
 });
+
+describe('who can go over it, and who chooses to', () => {
+  const origin = vec(-8.5, 0.11, -17);
+  const piece = { ...setPieceFor(31337, 0, 'freekicks'), wallCount: 4, covering: -1 as const, origin };
+  const wall = buildWall(piece);
+  const keeper = KEEPERS[0] as KeeperProfile;
+  const specialist: Player = { ...(SQUAD[0] as Player), accuracy: 100, dip: 85 };
+  const lowDip: Player = { ...specialist, dip: 35 };
+
+  const fly = (taker: Player, height: number) => {
+    const shot = resolveShot(
+      {
+        aim: { x: piece.covering * 0.8, y: height },
+        power: 0.95,
+        curve: 0,
+        lift: 0.5,
+        timing: 0,
+        style: 'finesse',
+      },
+      taker,
+      createRng(1),
+      { origin: piece.origin, loft: Math.max(0, Math.min(1, taker.dip / 100)) }
+    );
+    let flight = createFlight(shot, keeper, createRng(2), 0, null, NO_EVENTS, wall);
+    for (let i = 0; i < 900 && !flight.outcome; i++) flight = advance(flight, 1 / 120, NO_EVENTS);
+    return flight.outcome;
+  };
+
+  test('a low-dip footballer cannot clear a four-man wall even with a full-height drag', () => {
+    assert.equal(fly(lowDip, 1), 'blocked');
+  });
+
+  test('a specialist can when the drag is high and the contact is clean', () => {
+    assert.notEqual(fly(specialist, 1), 'blocked');
+  });
+
+  test('a high-dip footballer aimed low stays under the wall', () => {
+    assert.equal(fly(specialist, 0), 'blocked');
+  });
+});

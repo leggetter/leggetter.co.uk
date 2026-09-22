@@ -1523,6 +1523,52 @@ a two-device game**, and nobody has used `knuckle` at all. Two of Phase 8's
 features have no evidence either way, which makes this hard to tune against
 anything but opinion.
 
+### Shape, and paying for it with the timing bar
+
+**Finesse ballooned.** `loft` was 1 - spend all of the taker's `dip` going up -
+with nothing pulling the ball back down, so it apexed at **4.84 m over a
+2.44 m crossbar** and hung for 1.76 seconds. And it scored 82% against driven's
+46%, so the clearance was also the correct answer, which is the worse half.
+
+Two changes, both measured rather than argued.
+
+**`dip` is now a field on a style**, separate from `loft`. Together they are a
+*shape* rather than a height: loft is how much pace is spent going up, dip is
+how hard topspin drags it back down. Loft without dip is a balloon; dip without
+loft is flat and falling. So finesse loops and dips, knuckle barely rises and
+drops late, and driven stays flat.
+
+**A style is only worth what the contact was worth.** `asStruck` slides every
+multiplier back toward a plain strike as the timing worsens, so a scuffed
+finesse is not a worse finesse - it is an ordinary shot. Before it, the same
+free kick struck perfectly and mistimed by 0.35 scored 82% and 80%: the bar
+cost pace and nothing else. It is 83% and 48% now.
+
+`loft` is the exception and scales toward zero rather than toward plain,
+because `PLAIN.loft` is 1 - the maximum, not a neutral. The first version slid
+toward it and rewarded a scuff: 71% mistimed against 46% clean, because the bad
+contact ballooned it over the wall. Caught by measuring, not by reading.
+
+Finesse's loft was chosen off a sweep, 500 kicks per row from all three spots
+in both directions:
+
+| loft | apex | goal%, clean | mistimed 0.5 |
+| --- | --- | --- | --- |
+| 0.44 | 1.98 m | 43% | 40% |
+| **0.70** | **2.53 m** | **60%** | **40%** |
+| 0.85 | 3.03 m | 81% | 0% blocked |
+| 1.00 | 3.77 m | 81% | 0% blocked |
+
+At 0.85 and above the wall stops blocking anything at all and the exploit is
+back. Below 0.70 the style is barely better than a scuff.
+
+**What this did not fix: penalties.** Timing still does not move the goal rate
+there - 76%, 79%, 76% across clean to badly mistimed - because `loft` is
+switched off on a penalty by design, and the rest of the timing model converts
+saves into misses rather than into goals conceded. The bar is honest on a free
+kick and close to decorative on a penalty. That is a balance question of its
+own and is not answered here.
+
 ### Three ways to hit it
 
 Finesse, driven, knuckle - one button, bottom left, cycling. Not a mode and not

@@ -25,7 +25,7 @@ import {
 } from './units.ts';
 import type { Player, Shot, ShotInput } from './types.ts';
 import type { Rng } from './rng.ts';
-import { styleFor } from './styles.ts';
+import { asStruck, styleFor } from './styles.ts';
 import { flyToLine } from './predict.ts';
 import { vec, type Vec3 } from './vec3.ts';
 
@@ -115,14 +115,8 @@ export function resolveShot(
 ): Shot {
   const origin = context.origin;
   const pressure = clamp(context.pressure ?? 0, 0, 1);
-  const style = styleFor(input.style);
+  const chosen = styleFor(input.style);
   const power = clamp(input.power, 0, 1);
-
-  // Where the player meant to put it, on the plane of the goal.
-  const intendedX = clamp(input.aim.x, -1, 1) * AIM_HALF_WIDTH;
-  // A driven shot stays low however far up the screen the drag went. It is a
-  // decision about how to hit it, not a worse version of aiming.
-  const intendedY = clamp(input.aim.y, 0, 1) * AIM_HEIGHT * style.height;
 
   // How badly this one was struck. Independent of the footballer's attributes
   // on purpose: this is the person holding the mouse, not the player on the
@@ -130,6 +124,25 @@ export function resolveShot(
   // with their shin.
   const timing = clamp(input.timing, -1, 1);
   const mistimed = Math.abs(timing);
+
+  /*
+    What the chosen style actually delivered.
+
+    Every multiplier slides back toward a plain strike as the contact worsens,
+    so the timing bar decides whether the choice in the bottom-left meant
+    anything. Before this, a perfectly struck and a badly mistimed finesse free
+    kick scored 82% and 80% - the bar cost you pace and nothing else.
+
+    Resolved here, above the aim, because `style.height` shapes where the ball
+    was even aimed and the contact has to be known first.
+  */
+  const style = asStruck(chosen, mistimed);
+
+  // Where the player meant to put it, on the plane of the goal.
+  const intendedX = clamp(input.aim.x, -1, 1) * AIM_HALF_WIDTH;
+  // A driven shot stays low however far up the screen the drag went. It is a
+  // decision about how to hit it, not a worse version of aiming.
+  const intendedY = clamp(input.aim.y, 0, 1) * AIM_HEIGHT * style.height;
 
   // How far it may stray. Accuracy sets the floor, power and pressure add to
   // it, and composure only offsets the pressure part - a composed player is
@@ -210,8 +223,11 @@ export function resolveShot(
     stretch *
     stretch;
 
-  // Spin about +x drives the ball down, so lift above 0.5 is topspin.
-  const liftSpin = (clamp(input.lift, 0, 1) * 2 - 1) * MAX_LIFT_SPIN;
+  // Spin about +x drives the ball down, so lift above 0.5 is topspin. The
+  // style adds its own on top of the gesture: `loft` puts the ball up and
+  // `dip` is what brings it back down, and a style with one and not the other
+  // is a balloon or a daisy-cutter rather than a shape.
+  const liftSpin = (clamp(input.lift + style.dip, 0, 1) * 2 - 1) * MAX_LIFT_SPIN;
 
   return {
     origin,

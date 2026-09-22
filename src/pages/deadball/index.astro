@@ -7,6 +7,7 @@ import { DEFAULT_CAMERA, listCameras } from '../../games/deadball/presentation/r
 import { DEFAULT_SKY_ID, SKIES } from '../../games/deadball/content/skies.js';
 import { DISCIPLINES } from '../../games/deadball/core/setpiece.ts';
 import { SWEEP_SWEET_ZONE } from '../../games/deadball/core/units.ts';
+import { tuningFingerprint } from '../../games/deadball/core/tuning.ts';
 import { STYLES } from '../../games/deadball/core/styles.ts';
 
 // The green band is drawn at the width the game actually uses, rather than at
@@ -14,6 +15,24 @@ import { STYLES } from '../../games/deadball/core/styles.ts';
 // size of the target is worse than no help page, and this one cannot: retune
 // the constant and the picture moves with it.
 const sweetPercent = Math.round(SWEEP_SWEET_ZONE * 100);
+
+/*
+  What is running, for when somebody says "it is doing the thing" and the
+  answer depends on whether they reloaded.
+
+  Three parts, and the third is the one that earns its place. Cloudflare
+  injects WORKERS_CI_COMMIT_SHA on a real build; a local `npm run build` has
+  no such thing and says so rather than inventing a number. The tuning
+  fingerprint is what a room checks when two clients join - a mismatch is
+  refused with "one of you needs to refresh" - so when that happens this is
+  the line that says which of you is stale.
+
+  Nothing here is fetched or computed in the browser: it is stamped into the
+  HTML at build time, which is the only moment any of it is knowable.
+*/
+const commit = (process.env.WORKERS_CI_COMMIT_SHA ?? '').slice(0, 7);
+const built = new Date().toISOString().slice(0, 16).replace('T', ' ');
+const physics = tuningFingerprint();
 
 // Rendered here rather than built in the browser. Astro scopes component CSS
 // by stamping an attribute on the elements in the template, so buttons created
@@ -603,6 +622,16 @@ const views = listCameras();
         <div id="settings-actions">
           <button type="button" id="settings-close">Done</button>
         </div>
+        {/*
+          Small, last, and selectable: the whole point is that somebody can read
+          it back or paste it into a message.
+        */}
+        <p id="build-stamp">
+          <span>{built} UTC</span>
+          {commit && <span> &middot; {commit}</span>}
+          {!commit && <span> &middot; local</span>}
+          <span> &middot; physics {physics}</span>
+        </p>
       </div>
     </dialog>
   </div>
@@ -1937,6 +1966,18 @@ const views = listCameras();
     font: inherit;
     font-weight: 600;
     cursor: pointer;
+  }
+
+  #build-stamp {
+    margin: 12px 0 0;
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: rgba(230, 238, 248, 0.38);
+    /* Everything else on this page blocks selection so a drag is a shot rather
+       than a highlight. This is the one thing meant to be copied. */
+    user-select: text;
+    -webkit-user-select: text;
   }
 
   #settings::backdrop,

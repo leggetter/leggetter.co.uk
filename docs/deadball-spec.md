@@ -1330,6 +1330,15 @@ One thing to decide rather than assume: `Fullscreen.astro` renders `Analytics.as
 
 ## Phases
 
+> **What is left to do lives in GitHub issues now**, labelled
+> [`deadball`](https://github.com/leggetter/leggetter.co.uk/issues?q=is%3Aissue+label%3Adeadball),
+> and marked `enhancement` or `bug`. This document keeps the *reasoning* - why
+> a thing is worth building, what was measured, what was tried and dropped -
+> because that does not fit in an issue and is the half that gets lost.
+>
+> So: an issue says what and when. This says why. When they disagree, the
+> issue is wrong about scope and this is wrong about status.
+
 Each phase ends with something playable. That is the constraint, not a nicety, because the point of building v1 solo is having something to hand over.
 
 | Phase | Contents | Playable at the end |
@@ -1348,7 +1357,7 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **6** ✅ | Two devices, a game per URL, no login. A separate Worker in this repository, because this site has no server at all today - now deployed, with a second one to break, a rate limit on minting rooms, and a row per game and per kick. See [Two devices, later](#two-devices-later) and [deadball-two-devices.md](deadball-two-devices.md) | Play somebody who is not in the room |
 | **7** | A second presentation package, which is the only thing that proves the boundary. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |
 | **8** ✅ | Free kicks: three spots, a two-to-four man wall, and the `blocked` outcome reserved since Phase 1. `dip` as a fifth attribute and `loft` to go with it, three shot styles, and a camera that stands behind the ball wherever it is. See [Free kicks](#free-kicks), [Dip](#dip-and-why-the-wall-was-unbeatable) and [Three ways to hit it](#three-ways-to-hit-it) | The curve mechanic finally matters |
-| **Later** | A keeper that reads your pattern, earning points to improve your player (see [Earning points, later](#earning-points-later)), corners, a league season, a realistic 3D package, side-on view, a leaderboard | |
+| **Later** | A keeper that reads your pattern, earning points to improve your player (see [Earning points, later](#earning-points-later)), a wall that jumps (see [A wall that jumps](#a-wall-that-jumps)), OG previews on an invite link, corners, a league season, a realistic 3D package, side-on view, a leaderboard | |
 
 **Free kicks moved to Later.** They were Phase 3 on the grounds that they
 complete the shot model, which is still true and is not the same as being the
@@ -1483,6 +1492,36 @@ Reported after dip shipped: *"the ball still goes nowhere near where you've aime
 The deadzone is now proportional to the drag - a long drag wanders further in absolute terms without being any less straight - and the hook ramps from its edge rather than stepping off it. Twenty pixels of wander now gives 0.01 of curl instead of 0.47, and a deliberate hook still reaches the full range.
 
 **Worth keeping as a lesson:** three separate measurements said the ball was not scattering, and all three were right. The complaint was about *swerve*, which is a different quantity, and it lived in the input layer rather than in `core/` at all.
+
+### A wall that jumps
+
+**Proposed, not built.** The idea is that the wall has a chance to jump, so
+`driven` - low and hard, under the wall rather than over it - becomes a real
+choice rather than a label.
+
+The argument for it is good. `HEIGHT` in `core/wall.ts` is already a *jumping*
+player rather than a standing one, on the grounds that a wall jumps and a free
+kick that clears a standing wall but not a jumping one should not count. So
+the wall is permanently at its maximum height and going under it is never on.
+Three shot styles exist and one of them is built for a gap that does not open.
+
+The argument against is that it is a coin flip the taker cannot read, in a
+game whose one rule is that the keeper commits before the taker and cannot
+revise. A wall that jumps at random punishes a correct decision at random,
+which is the opposite of the dive: you can be wrong about where a keeper goes,
+but they went there before you struck it and you could have guessed.
+
+**The lean is to build it, and to make it readable rather than random.** A
+wall that always jumps is a wall you shoot under every time; a wall that jumps
+on a coin is a tax on the only style that needs the gap. Somewhere between -
+tied to the spot, or to how many are in it, or to something the taker can see
+before they decide - makes `driven` a read rather than a gamble. Which of
+those is a design question and is not answered here.
+
+Worth knowing before anybody builds it: **no free kick has ever been taken in
+a two-device game**, and nobody has used `knuckle` at all. Two of Phase 8's
+features have no evidence either way, which makes this hard to tune against
+anything but opinion.
 
 ### Three ways to hit it
 
@@ -2268,6 +2307,18 @@ finding](#what-playing-it-kept-finding).
    a way to be tested without needing two people: the computer taker is built
    never to converge on a spot, so a player who finds one anyway is telling us
    something about the keeper rather than about the format.
+
+   **First evidence from two devices, and it points the other way.** 25 kicks
+   across five games between two people: far right 7, far left 6, middle 5,
+   left 4, right 3. That is a spread, not a spot. 72% scored, 18 goals, 6
+   saved, 1 wide.
+
+   One session and two people, so not a finding - but it is the first data
+   that supports the cheaper explanation over the expensive one. The dominant
+   strategy may be a symptom of playing alone against a keeper that cannot
+   read you, rather than of the keeper being wrong. A pattern-reading keeper
+   is still the answer if this does not hold up; it is no longer obviously the
+   next thing to build.
 6. **What should the route actually be?** `/deadball/` is the working assumption. A less guessable slug buys very little given the page is `noindex` and linked from nowhere.
 
 ## Licensing

@@ -90,6 +90,7 @@ const expected = [
   '/about-phil-leggetter/',
   '/contact-me/',
   '/mygoffice/',
+  '/iss/',
   '/leggetter-family-tree/',
   '/leggetter-family-tree/view/',
   '/leggetter-family-tree/0001tree.gen',

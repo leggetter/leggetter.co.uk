@@ -2353,6 +2353,18 @@ finding](#what-playing-it-kept-finding).
    built. Until it is, the honest position is that cross-client determinism is
    untested rather than confirmed.
 
+   **A two-person playtest then found the clients disagreeing, and not because
+   of floating point.** The shot message carried the input and a seed, and each
+   client filled in the rest from its own state: its own keeper, its own
+   discipline setting, a kick number that lags a NEXT, its own squad (which
+   does not contain the other side's taker) and wherever its keeper had
+   shuffled to. One player saw a goal while the other saw it blocked. The
+   message now carries the whole `Kick` (`core/kick.ts`), the room and the
+   client build the flight with the same `kickFlight`, the label is always the
+   room's verdict, and `net/replay.test.ts` replays every kick of several
+   matches under a client that is wrong about all of those things and requires
+   the same flight. The reporting channel above is still not built.
+
    Previously recorded here as: Phase 6 shipped the mitigation as designed - a client sends its own outcome alongside the input, the room's answer wins, and the disagreement is counted rather than argued about - and that count goes into every result row as `diverged`. So the question stops being a worry and becomes a query: `scripts/deadball-stats.mjs` asks it. Nobody has played enough two-device games yet for the answer to mean anything. The expectation is zero, and anything else means somebody is on a stale bundle rather than that the physics drifted.
 4. **How hard should the keeper be by default?** Measured rather than open now. Two logged sessions put it at 85% scored before the retune with zero saves, and 63% after with 15% saved and 18% off the post. That is about right, and the numbers came from the log rather than from anyone's opinion.
 

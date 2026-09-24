@@ -19,9 +19,8 @@
  * message as "I am still here", which is why `ping` exists at all.
  */
 
-import { tuningFingerprint } from '../core/tuning.ts';
 import { mintId, tokenFor } from './local.ts';
-import { OFFLINE_AFTER_MS, PING_EVERY_MS } from './Transport.ts';
+import { wireVersion, OFFLINE_AFTER_MS, PING_EVERY_MS } from './Transport.ts';
 import type {
   Connection,
   Inbound,
@@ -175,7 +174,7 @@ export function createRemoteTransport(
         transport: connect(base, id, token, {
           kind: 'join',
           token,
-          tuning: tuningFingerprint(),
+          tuning: wireVersion(),
           team,
         }),
       };
@@ -185,7 +184,7 @@ export function createRemoteTransport(
       return connect(base, id, token, {
         kind: 'join',
         token,
-        tuning: tuningFingerprint(),
+        tuning: wireVersion(),
         team,
       });
     },

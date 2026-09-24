@@ -27,14 +27,11 @@
 
 import { KEEPERS } from '../content/keepers.js';
 import { NO_EVENTS } from '../core/events.ts';
-import { advance, createFlight } from '../core/flight.ts';
+import type { Flight } from '../core/flight.ts';
+import { kickFlight, playOut, type Kick } from '../core/kick.ts';
 import { initialMatch, reduce, type MatchState } from '../core/match.ts';
 import { createRng, shotSeed } from '../core/rng.ts';
-import { setPieceFor } from '../core/setpiece.ts';
-import { resolveShot } from '../core/shot.ts';
 import type { Dive, KeeperProfile, Outcome, Player } from '../core/types.ts';
-import { buildWall } from '../core/wall.ts';
-import { STEP } from '../core/units.ts';
 import type { Inbound, Outbound, RoomSettings, Side, TeamOnTheWire } from './Transport.ts';
 import { OFFLINE_AFTER_MS } from './Transport.ts';
 
@@ -275,8 +272,8 @@ function shoot(
   if (side !== takerSide(room)) return refuse(room, 'It is not your turn to shoot.', false);
   if (room.match.phase !== 'ready') return refuse(room, 'Not ready for a shot.', false);
 
-  const taker = takerFrom(room, side, message.taker);
-  const { outcome, seed } = resolve(room, taker, message.input);
+  const kick = kickFor(room, side, message);
+  const outcome = (playOut(kickFlight(kick, NO_EVENTS)).outcome ?? 'short') as Outcome;
 
   const after = ['TAKE_SHOT', 'STRIKE'].reduce(
     (state, type) => reduce(state, { type } as never),
@@ -294,15 +291,11 @@ function shoot(
     dive: null,
   };
 
-  const shot: Inbound = {
-    kind: 'shot',
-    input: message.input,
-    taker: message.taker,
-    seed,
-    keeperStartX: 0,
-    dive: room.dive,
-    outcome,
-  };
+  // The kick whole, not the input and a seed. Every field a replay reads is
+  // here, as the room used it, so a client has nothing of its own to fill in -
+  // which is what it used to do, and why two screens disagreed. See
+  // core/kick.ts.
+  const shot: Inbound = { kind: 'shot', ...kick, taker: message.taker, outcome };
   return {
     room: settled,
     out: [{ to: null, message: shot }, ...broadcast(settled, now)],
@@ -316,40 +309,44 @@ function takerFrom(room: Room, side: Side, id: string): Player {
 }
 
 /**
- * Work the shot out again, here.
+ * The kick, as this room will resolve it.
  *
- * The same functions the client ran, from the same seed. This is the thing
- * that makes the room an authority rather than a scoreboard, and it is only
- * possible because nothing in `core/` needs a browser.
+ * Everything comes from the room's own record: its seed and kick number, the
+ * discipline it was opened with, the taker out of the squad that side joined
+ * with, the one keeper, and a keeper standing still in the middle - the room
+ * has no idle shuffle to sample. Built once and used twice, to resolve the
+ * shot here and to tell both clients what to replay.
  */
-function resolve(
+export function kickFor(
   room: Room,
-  taker: Player,
-  input: Extract<Outbound, { kind: 'shoot' }>['input']
-): { outcome: Outcome; seed: number } {
-  const { seed, shotIndex } = room.match;
-  const piece = setPieceFor(seed, shotIndex, room.settings.discipline, true);
-  const shot = resolveShot(input, taker, createRng(shotSeed(seed, shotIndex)), {
-    origin: piece.origin,
-    loft: piece.penalty ? 0 : Math.max(0, Math.min(1, taker.dip / 100)),
-    aimEase: piece.penalty ? 1 : 0.62,
-  });
-
-  let flight = createFlight(
-    shot,
-    KEEPER,
-    createRng(shotSeed(seed, shotIndex) ^ 0x5f3759df),
-    0,
-    room.dive,
-    NO_EVENTS,
-    buildWall(piece)
-  );
-  // Bounded: a shot that never resolves must not hang the room.
-  for (let step = 0; step < 1200 && !flight.outcome; step++) {
-    flight = advance(flight, STEP, NO_EVENTS);
-  }
-  return { outcome: (flight.outcome ?? 'short') as Outcome, seed };
+  side: Side,
+  message: Extract<Outbound, { kind: 'shoot' }>
+): Kick {
+  return {
+    seed: room.match.seed,
+    shotIndex: room.match.shotIndex,
+    discipline: room.settings.discipline,
+    input: message.input,
+    player: takerFrom(room, side, message.taker),
+    keeper: KEEPER,
+    keeperStartX: 0,
+    dive: room.dive,
+  };
 }
+
+/**
+ * Work the shot out again, here, run to its verdict.
+ *
+ * The same function the clients call, from the same kick. This is the thing
+ * that makes the room an authority rather than a scoreboard, and it is only
+ * possible because nothing in `core/` needs a browser. Exported for the test
+ * that holds a client's replay to it.
+ */
+export const refereeFlight = (
+  room: Room,
+  side: Side,
+  message: Extract<Outbound, { kind: 'shoot' }>
+): Flight => playOut(kickFlight(kickFor(room, side, message), NO_EVENTS));
 
 function leave(room: Room, side: Side, now: number): Handled {
   // The seat is kept, not cleared. Their token still owns it, so reopening the
@@ -369,5 +366,5 @@ function leave(room: Room, side: Side, now: number): Handled {
  * process is running, and reading it per message would invite somebody to make
  * it configurable.
  */
-import { tuningFingerprint } from '../core/tuning.ts';
-const TUNING = tuningFingerprint();
+import { wireVersion } from './Transport.ts';
+const TUNING = wireVersion();

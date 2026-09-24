@@ -26,6 +26,33 @@ import type { Dive, Outcome, Player, ShotInput } from '../core/types.ts';
 import type { Discipline } from '../core/setpiece.ts';
 import type { Kick } from '../core/kick.ts';
 
+import { tuningFingerprint } from '../core/tuning.ts';
+
+/**
+ * The shape of the messages. Bump it whenever a message changes shape.
+ *
+ * 2: the \`shot\` message carries the whole kick - seed, shot number,
+ * discipline, the taker and keeper themselves - so both devices fly the room's
+ * version of it rather than their own.
+ */
+export const PROTOCOL = 2;
+
+/**
+ * What a client and a room must agree on before they can play: the physics,
+ * and the message shapes.
+ *
+ * The join check used to compare the physics fingerprint alone, which covers a
+ * stale bundle whose numbers differ but not one whose *messages* differ. The
+ * shot message changed shape without the physics changing, so an old page
+ * would have joined a new room and quietly gone back to disagreeing with it,
+ * and a new page would have joined an old room and read fields that did not
+ * exist. Folding the protocol into the same string refuses both, in both
+ * directions, with the existing "one of you needs to refresh" - including an
+ * old room, which knows nothing about protocols but will not match a string it
+ * has never seen.
+ */
+export const wireVersion = (): string => `${tuningFingerprint()}/p${PROTOCOL}`;
+
 /** Which side of the tie somebody is. The host is always 0. */
 export type Side = 0 | 1;
 

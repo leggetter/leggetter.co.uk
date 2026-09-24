@@ -30,7 +30,7 @@ import { setPieceFor, type Discipline } from '../core/setpiece.ts';
 import { resolveShot } from '../core/shot.ts';
 import { buildWall } from '../core/wall.ts';
 import { STYLES } from '../core/styles.ts';
-import { tuningFingerprint } from '../core/tuning.ts';
+import { wireVersion } from './Transport.ts';
 import type { Dive, KeeperProfile, Player, ShotInput } from '../core/types.ts';
 import { GOAL_HEIGHT, GOAL_WIDTH, STEP } from '../core/units.ts';
 import { handle, keeperSide, openRoom, refereeFlight, takerSide, type Room } from './room.ts';
@@ -54,7 +54,7 @@ function seated(seed: number, discipline: Discipline): Room {
     const join: Outbound = {
       kind: 'join',
       token: TOKENS[side],
-      tuning: tuningFingerprint(),
+      tuning: wireVersion(),
       team: TEAMS[side],
     };
     room = handle(room, TOKENS[side], join, 0).room;

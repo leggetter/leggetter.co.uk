@@ -12,6 +12,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
+import { wireVersion } from './Transport.ts';
 import { tuningFingerprint } from '../core/tuning.ts';
 import type { Player } from '../core/types.ts';
 import { SQUAD } from '../content/players.js';
@@ -27,7 +28,7 @@ const team = (name: string): TeamOnTheWire => ({
 const joinMessage = (token: string, name: string): Outbound => ({
   kind: 'join',
   token,
-  tuning: tuningFingerprint(),
+  tuning: wireVersion(),
   team: team(name),
 });
 
@@ -64,6 +65,19 @@ describe('getting in', () => {
     assert.equal(out.room.seats.filter(Boolean).length, 0);
   });
 
+
+  test('a page from before the shot message changed is refused, and says why', () => {
+    // Same physics, older messages. Comparing the physics alone let this
+    // through: the old page would have played on, flying its own version of
+    // every kick. The protocol is part of what has to match now.
+    const room = openRoom({ discipline: 'penalties', shots: 5 }, 1);
+    const old = { ...joinMessage('a', 'Rovers'), tuning: tuningFingerprint() } as Outbound;
+    const out = handle(room, 'a', old, 0);
+    const reply = out.out[0]?.message;
+    assert.equal(reply?.kind, 'error');
+    assert.match((reply as { reason: string }).reason, /refresh/);
+    assert.equal(out.room.seats[0], null, 'an old page was seated');
+  });
   test('rejoining with the same token gets the same seat back', () => {
     // A reload mid-shootout must not cost somebody their seat to themselves.
     const room = seated();

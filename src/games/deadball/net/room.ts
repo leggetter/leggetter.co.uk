@@ -366,5 +366,5 @@ function leave(room: Room, side: Side, now: number): Handled {
  * process is running, and reading it per message would invite somebody to make
  * it configurable.
  */
-import { tuningFingerprint } from '../core/tuning.ts';
-const TUNING = tuningFingerprint();
+import { wireVersion } from './Transport.ts';
+const TUNING = wireVersion();

@@ -1754,11 +1754,10 @@ export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
 /**
  * The wall's figures, back to front, in the pose the simulation says.
  *
- * **A wall that is going to jump is set to spring while you aim** - a deep
- * squat, knees out, arms swung back - and one that is not stands up straight.
- * That is the cue the whole jumping wall rests on (#65): you can read it
- * before you shoot, so hitting it low and hard under a jumping wall is a
- * decision rather than a gamble. Once the ball is struck they go up and come
+ * **While you aim, a wall that is going to jump looks exactly like one that
+ * is not.** The only tell is a quick load at the knees in the last part of the
+ * run-up, so going low under the wall is a bet, as it is in a real match, and
+ * the hands stay crossed low throughout. Once the ball is struck they go up and come
  * back down, from the same `wallPoseAt` the hit test reads, so the gap you see
  * is the gap the ball meets. The poses are pose/wall.ts's.
  *

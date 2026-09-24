@@ -1602,20 +1602,29 @@ anything but opinion.
 
 #### How the jumping wall reads
 
-**Decided with the kick, and shown before the strike.** `setPieceFor` sets
+**Decided with the kick, and hidden until the run-up.** `setPieceFor` sets
 `wallJumps` from its own stream off the seed and the round, so both halves of a
 round face the same wall, the room and both devices work it out without
-sending anything, and no kick that had already been played changed. A wall
-that is going to jump is **set to spring while you aim** - squatting deep,
-knees out, chest over the knees and arms swung back - and one that is not
-stands up straight. Nothing about it is random at the moment of the strike.
+sending anything, and no kick that had already been played changed. Nothing
+about it is random at the moment of the strike.
 
-The set is drawn much deeper than the physical crouch (`CROUCH`, 14% of the
-height), because 14 cm on one wall with nothing to compare it to read as
-slightly shorter people. That is drawing only: the crouch only exists while
-the ball is still on the spot, and once they leave the ground the drawn
-shoulders and feet follow `wallPoseAt` exactly (`wall.test.ts`). The poses
-are in `content/poses.js` under `JUMPING_WALL`.
+While you aim, a wall that is going to jump **looks exactly like one that is
+not**. It used to squat deep with its arms swung back from the moment the kick
+was set up, and in play that made the jump a certainty to read rather than a
+risk to take: "It's too obvious that the wall is going to jump as their
+starting position is different." The only tell now is the load for the jump,
+a quick dip at the knees over the last half of the run-up - about a fifth of
+a second, there for anybody watching closely and too late to change the shot.
+Going under the wall is a bet, which is what it is in a real match.
+
+**Hands stay down.** Crossed low in front of the hips from start to finish,
+in the air as well. A wall that throws its arms up is giving away a handball,
+and drawn that way the ball looked as if it hit their hands going over.
+
+That is drawing only. core/'s `CROUCH` (14% of the height) is untouched, and
+once they leave the ground the drawn shoulders and feet follow `wallPoseAt`
+exactly (`wall.test.ts`). The poses are in `content/poses.js` under
+`JUMPING_WALL`.
 
 **A different shape at different moments.** `wallHit` now takes the time since
 the strike. A jumping wall leaves the ground just after the ball does, and at

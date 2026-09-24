@@ -615,21 +615,22 @@ const looks = listPackages();
         </div>
 
         {/*
-          How it is drawn, as opposed to where you stand. A preview is labelled
-          as one on its button, because it is not finished and says so, and it
-          is only downloaded once somebody presses it.
+          How it is drawn, as opposed to where you stand. A dropdown rather
+          than a row of buttons like the cameras, because there will be more
+          looks than fit across a phone - three buttons already squeezed
+          "Stylised 3D preview" onto two lines. A preview says so in its name,
+          because it is not finished, and it is only downloaded once chosen.
         */}
-        <h3>Look</h3>
-        <div class="choices" id="look-choices">
+        <h3><label for="look-choice">Look</label></h3>
+        <select id="look-choice" class="look-select">
           {
             looks.map(({ id, label, preview }) => (
-              <button type="button" data-look={id} aria-pressed={String(id === DEFAULT_PACKAGE)}>
-                {label}
-                {preview && <span class="preview">preview</span>}
-              </button>
+              <option value={id} selected={id === DEFAULT_PACKAGE}>
+                {preview ? `${label} (preview)` : label}
+              </option>
             ))
           }
-        </div>
+        </select>
 
         {/*
           The log only ever came out by pressing L, which nobody who had not
@@ -1463,7 +1464,7 @@ const looks = listPackages();
         });
 
         const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
-        const lookChoices = [...document.querySelectorAll<HTMLButtonElement>('#look-choices button')];
+        const lookChoice = document.getElementById('look-choice') as HTMLSelectElement | null;
         const logDownload = document.getElementById('log-download') as HTMLButtonElement | null;
         const logClear = document.getElementById('log-clear') as HTMLButtonElement | null;
 
@@ -1503,9 +1504,7 @@ const looks = listPackages();
           for (const button of skyChoices) {
             button.setAttribute('aria-pressed', String(button.dataset.sky === game.currentSkyId()));
           }
-          for (const button of lookChoices) {
-            button.setAttribute('aria-pressed', String(button.dataset.look === game.currentLookId()));
-          }
+          if (lookChoice) lookChoice.value = game.currentLookId();
           paintLog();
         };
 
@@ -1543,12 +1542,10 @@ const looks = listPackages();
             paintSettings();
           });
         }
-        for (const button of lookChoices) {
-          button.addEventListener('click', () => {
-            if (button.dataset.look) game.useLook(button.dataset.look);
-            paintSettings();
-          });
-        }
+        lookChoice?.addEventListener('change', () => {
+          game.useLook(lookChoice.value);
+          paintSettings();
+        });
 
         document.getElementById('squad-open')?.addEventListener('click', (event) => {
           paintPlayers();
@@ -2087,15 +2084,40 @@ const looks = listPackages();
     cursor: pointer;
   }
 
-  /* Under the label rather than beside it, so a phone-width button does not
-     have to fit "Stylised 3D preview" on one line. */
-  .choices button .preview {
+  /* Dressed like the choice buttons around it: the same border, fill and
+     radius, with the browser's own arrow replaced so it matches on every
+     platform rather than only on the one it was checked on. */
+  .look-select {
     display: block;
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    opacity: 0.7;
+    width: 100%;
+    margin-bottom: 18px;
+    padding: 9px 36px 9px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237dd3fc' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+        no-repeat right 14px center,
+      rgba(125, 211, 252, 0.08);
+    color: #e6eef8;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+
+  .look-select:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  /* The open list is drawn by the platform, which ignores most of the above.
+     Where it does read these, the options match the panel instead of being
+     light text on the platform's own light list. */
+  .look-select option {
+    background: #0b1a2e;
+    color: #e6eef8;
   }
 
   .choices button[aria-pressed='true'] {

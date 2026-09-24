@@ -177,6 +177,9 @@ export function drawLineup(
       ],
       kit: colours.kit,
       trim: colours.trim,
+      // Watching the goal, with their backs to the camera.
+      facing: vec(0, 0, 1),
+      stature: person.height * 0.82,
     });
   }
 }

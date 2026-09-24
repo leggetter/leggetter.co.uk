@@ -23,7 +23,14 @@ import {
 } from '../../core/units.ts';
 import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
 import type { FullTime, Summary } from '../../telemetry/analyse.ts';
-import { vec, type Vec3 } from '../../core/vec3.ts';
+import { add, length, normalize, scale, sub, vec, type Vec3 } from '../../core/vec3.ts';
+import {
+  BODY,
+  scaleProportions,
+  solveBody,
+  type Side,
+  type Skeleton,
+} from './body/skeleton.ts';
 import type { SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
 import { KEEPER_KIT, teamKits, type TeamKits } from './kits.ts';
@@ -379,9 +386,26 @@ export interface Figure {
   toes: [Vec3, Vec3];
   kit: string;
   trim: string;
-  /** Glove radius in meters. Zero for bare hands. */
+  /**
+   * Glove radius in meters. Zero for bare hands.
+   *
+   * Never scaled with the body: it is the keeper's save radius, drawn, and a
+   * smaller keeper does not save less.
+   */
   gloves?: number;
   alpha?: number;
+  /** Which way the chest faces. Toward the taker (-z) if left out. */
+  facing?: Vec3;
+  /**
+   * How high the shoulders are above the feet when this person stands up
+   * straight, in meters. Sets the size of the body.
+   *
+   * A constant per person, not read off the current pose - otherwise a taker
+   * crouching over the ball would shrink instead of bending their knees.
+   * Worked out from the pose if left out, which is only right for somebody
+   * who is standing still.
+   */
+  stature?: number;
 }
 
 const LIMB = { leg: 0.13, torso: 0.28, arm: 0.12, head: 0.115 };
@@ -486,151 +510,190 @@ const wave = (clock: number, period: number, phase = 0): number =>
 const isIdle = (phase: string): boolean => phase === 'ready';
 
 /**
- * A footballer, out of six points and a handful of strokes.
+ * How far an ankle sits above the toe it rests on, for a 1.80 m body.
  *
- * Every limb used to be one round-capped line in one colour, hip to toe and
- * shoulder to hand, with a circle on top for a head. That is a stick figure
- * with thick lines, and it looked like one: no neck, no boots, legs in a
- * single colour from the waist down, and a keeper whose gloves were white
- * discs the size of the ball.
+ * `Figure` gives toes on the grass; the skeleton solves to ankles. Lifting the
+ * ankle by this much puts the boot's lower edge back on the grass once it is
+ * drawn at its thickness, instead of the whole boot sinking into the pitch.
+ */
+const ANKLE_LIFT = 0.06;
+
+/** Shoulder height above the feet of the 1.80 m body, standing up straight. */
+const STANDING_SHOULDER = ANKLE_LIFT + (BODY.thigh + BODY.shin) * 0.985 + BODY.spine;
+
+/** How big this person is next to the 1.80 m body. One answer for the bones and the line widths. */
+function figureSize(figure: Figure): number {
+  const stature = figure.stature ?? figure.shoulder.y - figure.feet.y;
+  const size = Math.min(1.4, Math.max(0.6, stature / STANDING_SHOULDER));
+  /*
+    Never smaller than full size for somebody in gloves.
+
+    A keeper's arm has to reach ARM_SPAN, because that is how far core/ lets
+    its hands get from the shoulder - content/proportions.js promises it and a
+    test holds it. Scaling the body scales the arm, and the keeper's pose is a
+    touch shorter than the 1.80 m body, so it came out at 0.70 m against 0.72
+    and every full-stretch save was drawn with a glove the arm could not reach.
+  */
+  return (figure.gloves ?? 0) > 0 ? Math.max(1, size) : size;
+}
+
+/** Chest facing when a figure does not say: toward the taker and the camera behind them. */
+const TOWARD_TAKER = vec(0, 0, -1);
+
+/**
+ * The jointed body for a figure.
  *
- * Still six points - there is no elbow or knee in `Figure` and adding them
- * would mean posing them, for a diving keeper, in three dimensions. The joints
- * here are **midpoints of the limbs that already exist**, which lie exactly on
- * the line they split. So nothing moves. What changes is that each half can be
- * a different colour, and two colours is the whole difference between a
- * sausage and a leg wearing a sock.
+ * `Figure` is what classic's poses have always produced: feet, a shoulder
+ * point, a head, two hands and two toes. This turns that into targets for the
+ * skeleton without changing any of them - **phase 2 of #72 swaps the body, not
+ * the poses** - so every keeper, taker, wall and halfway line looks the way it
+ * did, but with hips, knees and elbows.
+ *
+ * - The chest goes exactly where the pose put the shoulder point, and the
+ *   pelvis hangs a spine's length below it, along the line to the feet.
+ * - Toes stay where the pose put them. The ankle target sits a foot's length
+ *   back and a little up, so the drawn boot ends on the given toe.
+ * - A keeper's hands are kept on their targets whatever it costs the body,
+ *   because that is where saves are decided. Anybody without gloves keeps
+ *   their body where it was put and reaches as far as their arms go.
+ *
+ * Exported for the tests: the keeper's drawn gloves are checked against its
+ * simulated positions frame by frame, which needs this without a canvas.
+ */
+export function figureBody(figure: Figure): Skeleton {
+  const size = figureSize(figure);
+  const body = scaleProportions(BODY, size);
+  const facing = figure.facing ?? TOWARD_TAKER;
+
+  const spineLine = sub(figure.shoulder, figure.feet);
+  const up = length(spineLine) > 0 ? normalize(spineLine) : vec(0, 1, 0);
+  const level = normalize(vec(facing.x, 0, facing.z));
+  const toeward = length(level) > 0 ? level : vec(0, 0, 1);
+  const ankle = (toe: Vec3): Vec3 =>
+    add(sub(toe, scale(toeward, body.foot)), vec(0, ANKLE_LIFT * size, 0));
+
+  return solveBody(
+    {
+      pelvis: sub(figure.shoulder, scale(up, body.spine)),
+      chest: figure.shoulder,
+      facing,
+      head: figure.head,
+      hands: figure.hands,
+      ankles: [ankle(figure.toes[0]), ankle(figure.toes[1])],
+      keepHands: (figure.gloves ?? 0) > 0,
+    },
+    body
+  );
+}
+
+/**
+ * A footballer, with joints.
+ *
+ * Phase 2 of #72. Until this, every figure was six points joined by
+ * round-capped lines, with the knees and elbows invented as midpoints of
+ * straight limbs - which kept the kit colours in the right places but meant
+ * nothing ever bent. Now the skeleton works out real joints and this draws
+ * them: shorts on the thigh, socks on the shin, a boot, a sleeve to the elbow
+ * and a bare forearm, in the same colours as before.
+ *
+ * Drawn back to front. The side further from the camera goes first, then the
+ * torso, then the nearer side, so an arm across the body is in front of it or
+ * behind it rather than wherever the code happened to draw it.
  */
 export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
-  const f = proj.project(figure.feet);
-  const s = proj.project(figure.shoulder);
-  const hd = proj.project(figure.head);
-  if (!f || !s || !hd) return;
+  const s = figureBody(figure);
+  const size = figureSize(figure);
+  const chest = proj.project(s.chest);
+  if (!chest) return;
 
-  /**
-   * Hip, part way down the body from the shoulders to the feet.
-   *
-   * Interpolated in BOTH axes. Taking x from the shoulders and only y from the
-   * feet is invisible on an upright figure, where the two share an x, and
-   * wrong on a diving one: it put the hip up at the shoulders, so each leg had
-   * to span the whole body and the keeper looked planted and stretched no
-   * matter how well the torso was posed.
-   */
-  const hip = {
-    x: s.x + (f.x - s.x) * 0.48,
-    y: s.y + (f.y - s.y) * 0.48,
-  };
-
-  const mid = (a: { x: number; y: number }, b: { x: number; y: number }, t = 0.5) => ({
-    x: a.x + (b.x - a.x) * t,
-    y: a.y + (b.y - a.y) * t,
-  });
-
-  const line = (
-    a: { x: number; y: number },
-    b: { x: number; y: number },
-    colour: string,
-    width: number
-  ): void => {
+  const line = (a: Vec3, b: Vec3, colour: string, width: number, cap: CanvasLineCap = 'round'): void => {
+    const pa = proj.project(a);
+    const pb = proj.project(b);
+    if (!pa || !pb) return;
+    ctx.lineCap = cap;
     ctx.strokeStyle = colour;
-    ctx.lineWidth = width;
+    ctx.lineWidth = Math.max(1.5, width * size * ((pa.scale + pb.scale) / 2));
     ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
+    ctx.moveTo(pa.x, pa.y);
+    ctx.lineTo(pb.x, pb.y);
     ctx.stroke();
   };
+
+  const glove = (side: Side): void => {
+    const hand = proj.project(side.hand);
+    const wrist = proj.project(side.wrist);
+    if (!hand || !wrist || !figure.gloves) return;
+    /*
+      An oval along the forearm, not a disc: a white circle the size of the
+      ball at chest height reads as a second ball. Its size is the save radius
+      and is not scaled with the body - see `Figure.gloves`.
+    */
+    const along = Math.atan2(hand.y - wrist.y, hand.x - wrist.x);
+    const r = Math.max(3, figure.gloves * hand.scale);
+    ctx.fillStyle = COLORS.keeperGlove;
+    ctx.strokeStyle = COLORS.bootLine;
+    ctx.lineWidth = Math.max(1, r * 0.14);
+    ctx.beginPath();
+    ctx.ellipse(hand.x, hand.y, r, r * 0.66, along, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  };
+
+  const depth = (v: Vec3): number => proj.project(v)?.depth ?? 0;
+
+  /*
+    Each limb's segments far to near, by where they actually are.
+
+    A fixed order - thigh, shin, boot - is right from in front and wrong from
+    behind: the foot points away from a camera behind the taker, so the boot
+    belongs *behind* the shin, and drawn last it sat on top of the back of the
+    leg. Sorting by depth gets both cameras right, and the one behind the goal.
+  */
+  const limbs = (side: Side): void => {
+    const segments: [Vec3, Vec3, string, number][] = [
+      [side.hip, side.knee, figure.trim, LIMB.leg],
+      [side.knee, side.ankle, figure.kit, LIMB.leg * 0.82],
+      [side.ankle, side.toe, COLORS.boot, LIMB.leg * 0.95],
+      [side.shoulder, side.elbow, figure.kit, LIMB.arm],
+      [side.elbow, side.wrist, COLORS.skin, LIMB.arm * 0.86],
+      [side.wrist, side.hand, COLORS.skin, LIMB.arm * 0.8],
+    ];
+    segments
+      .map((segment) => ({ segment, far: depth(segment[0]) + depth(segment[1]) }))
+      .sort((x, y) => y.far - x.far)
+      .forEach(({ segment: [a, b, colour, width] }) => line(a, b, colour, width));
+    glove(side);
+  };
+
+  // Further from the camera first. Depth is along the view axis, so this
+  // holds for every camera, including the one behind the goal.
+  const depthOf = (side: Side): number => depth(side.shoulder) + depth(side.hip);
+  const [far, near] = depthOf(s.left) >= depthOf(s.right) ? [s.left, s.right] : [s.right, s.left];
 
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.globalAlpha = figure.alpha ?? 1;
 
-  const legW = Math.max(2, LIMB.leg * s.scale);
-  const armW = Math.max(2, LIMB.arm * s.scale);
+  limbs(far);
+  // The neck before the shirt, so its lower end tucks under the collar. Drawn
+  // after it, the bottom of the neck lay over the chest and read as a tie.
+  line(s.chest, s.head, COLORS.skin, LIMB.head * 0.62);
+  line(s.left.hip, s.right.hip, figure.trim, LIMB.leg * 1.1);
+  line(s.pelvis, s.chest, figure.kit, LIMB.torso);
+  // Square ends, stopping at the shoulder joints. Rounded, the bar ran on past
+  // them and covered where the sleeve starts, so the arm looked as if it came
+  // out of the collarbone. The sleeve's own rounded end is the shoulder.
+  line(s.left.shoulder, s.right.shoulder, figure.kit, LIMB.arm * 1.15, 'butt');
+  limbs(near);
 
-  // Shorts to the knee, socks below it, boot on the end. A kit, in other
-  // words, rather than one line in the shorts colour all the way to the grass.
-  for (const toe of figure.toes) {
-    const t = proj.project(toe);
-    if (!t) continue;
-    const knee = mid(hip, t);
-    const ankle = mid(hip, t, 0.86);
-    line(hip, knee, figure.trim, legW);
-    line(knee, ankle, figure.kit, legW * 0.82);
-    line(ankle, t, COLORS.boot, legW * 0.95);
+  const head = proj.project(s.head);
+  if (head) {
+    ctx.fillStyle = COLORS.skin;
+    ctx.beginPath();
+    ctx.arc(head.x, head.y, Math.max(3, LIMB.head * size * head.scale), 0, Math.PI * 2);
+    ctx.fill();
   }
-
-  // Torso.
-  line(hip, s, figure.kit, Math.max(4, LIMB.torso * s.scale));
-
-  /**
-   * Shoulders, as a bar across the top of the torso.
-   *
-   * `Figure` has one shoulder point, so both arms used to leave the body from
-   * the same pixel - which is what made the head look enormous and the arms
-   * look stuck on. Nothing in the pose changes: the bar is derived here, square
-   * to the torso, and each arm starts from whichever end is nearer its own
-   * hand. On a diving keeper it rotates with the body for free.
-   */
-  const spineX = s.x - hip.x;
-  const spineY = s.y - hip.y;
-  const spine = Math.hypot(spineX, spineY) || 1;
-  const halfSpan = LIMB.torso * 0.66 * s.scale;
-  const across = { x: (-spineY / spine) * halfSpan, y: (spineX / spine) * halfSpan };
-  const ends = [
-    { x: s.x + across.x, y: s.y + across.y },
-    { x: s.x - across.x, y: s.y - across.y },
-  ];
-  line(ends[0]!, ends[1]!, figure.kit, Math.max(3, LIMB.arm * s.scale * 1.15));
-
-  // A neck. Short, and the reason the head stopped looking like it was
-  // hovering half an inch above the shirt.
-  line(s, hd, COLORS.skin, Math.max(2, LIMB.head * s.scale * 0.62));
-
-  for (const hand of figure.hands) {
-    const h = proj.project(hand);
-    if (!h) continue;
-    // Out of the nearer shoulder rather than out of the middle of the chest.
-    const from =
-      Math.hypot(h.x - ends[0]!.x, h.y - ends[0]!.y) <=
-      Math.hypot(h.x - ends[1]!.x, h.y - ends[1]!.y)
-        ? ends[0]!
-        : ends[1]!;
-    const elbow = mid(from, h);
-    // Sleeve to the elbow, then forearm. Short sleeves, like a football shirt.
-    line(from, elbow, figure.kit, armW);
-    line(elbow, h, COLORS.skin, armW * 0.86);
-
-    if (figure.gloves) {
-      /**
-       * An oval along the arm, not a disc.
-       *
-       * The old one was a circle in `#f4f6f8` at up to 0.42 m across - wider
-       * than the keeper's own head and the same white as the ball - so at any
-       * distance it read as a football stuck to the hoarding. Two of them.
-       *
-       * The size is not the mistake: it is the save radius, drawn, and
-       * shrinking it would quietly stop telling the taker what they are aiming
-       * past. So it keeps its width, turns along the arm, and gets an outline.
-       * A circle reads as a ball; an oval on the end of an arm reads as a
-       * hand.
-       */
-      const along = Math.atan2(h.y - elbow.y, h.x - elbow.x);
-      const r = Math.max(3, figure.gloves * h.scale);
-      ctx.fillStyle = COLORS.keeperGlove;
-      ctx.strokeStyle = COLORS.bootLine;
-      ctx.lineWidth = Math.max(1, r * 0.14);
-      ctx.beginPath();
-      ctx.ellipse(h.x, h.y, r, r * 0.66, along, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-    }
-  }
-
-  ctx.fillStyle = COLORS.skin;
-  ctx.beginPath();
-  ctx.arc(hd.x, hd.y, Math.max(3, LIMB.head * s.scale), 0, Math.PI * 2);
-  ctx.fill();
   ctx.restore();
 }
 
@@ -654,6 +717,23 @@ export function drawKeeper(
   /** Whose goal this is. The keeper is on whichever side is not taking. */
   colours: { kit: string; trim: string } = { kit: KEEPER_KIT, trim: COLORS.keeperTrim }
 ): void {
+  drawFigure(ctx, proj, keeperFigure(keeper, reach, clock, phase, colours));
+}
+
+/**
+ * Where the keeper's body parts go, from the simulated keeper.
+ *
+ * The pose on its own, with no drawing, so the tests can run real dives
+ * through it and check the drawn gloves land where this says. It is the same
+ * pose it has always been; phase 2 of #72 only changed what draws it.
+ */
+export function keeperFigure(
+  keeper: KeeperState,
+  reach: number,
+  clock: number,
+  phase: string,
+  colours: { kit: string; trim: string } = { kit: KEEPER_KIT, trim: COLORS.keeperTrim }
+): Figure {
   const { hands, body, stance } = keeper;
 
   /**
@@ -708,9 +788,29 @@ export function drawKeeper(
   const blend = (a: Vec3, b: Vec3): Vec3 =>
     vec(a.x + (b.x - a.x) * extension, a.y + (b.y - a.y) * extension, z);
 
-  const feet = grounded(blend(stand.feet, dive.feet), 0.1, keeper.landed);
-  const shoulder = grounded(blend(stand.shoulder, dive.shoulder), 0.32, keeper.landed);
-  const head = grounded(blend(stand.head, dive.head), 0.46, keeper.landed);
+  /*
+    How the keeper comes down: on the ground, or on their feet.
+
+    core/ only lands a keeper once the shot is over, and it lands every one the
+    same way - hands pulled to the floor, whatever the dive was. The body here is
+    built from the hands, so a keeper who had only jumped straight up had its
+    hands dragged down and folded onto itself. Reported as "crumbling".
+
+    The outcome is already decided by the time anybody lands, so this is
+    animation and it is classic's to choose. How far the dive went sideways
+    decides it: a keeper who went full length finishes on the ground, one who
+    jumped more or less straight up comes back down on their feet, and the ones
+    in between finish somewhere near a crouch.
+  */
+  const sideways = clamp01((Math.abs(hands.x - stance) - 0.8) / 0.9);
+  const flat = keeper.landed * sideways;
+  const onFeet = keeper.landed * (1 - sideways);
+  const settle = (from: Vec3, to: Vec3): Vec3 =>
+    vec(from.x + (to.x - from.x) * onFeet, from.y + (to.y - from.y) * onFeet, z);
+
+  const feet = settle(grounded(blend(stand.feet, dive.feet), 0.1, flat), stand.feet);
+  const shoulder = settle(grounded(blend(stand.shoulder, dive.shoulder), 0.32, flat), stand.shoulder);
+  const head = settle(grounded(blend(stand.head, dive.head), 0.46, flat), stand.head);
 
   // Standing, the arms hang either side. Diving, both go with the ball,
   // straddling the point the save test actually uses.
@@ -721,8 +821,8 @@ export function drawKeeper(
   ];
   const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, z), vec(stance - 0.34, 0.92, z)];
   const held: [Vec3, Vec3] = [
-    grounded(reaching[0], 0.18, keeper.landed),
-    grounded(reaching[1], 0.14, keeper.landed),
+    settle(grounded(reaching[0], 0.18, flat), idle[0]),
+    settle(grounded(reaching[1], 0.14, flat), idle[1]),
   ];
 
   // Legs trail back down the dive line and scissor open as the keeper extends.
@@ -733,16 +833,25 @@ export function drawKeeper(
       z
     );
 
-  drawFigure(ctx, proj, {
+  return {
     feet,
     shoulder,
     head,
     hands: extension < 0.04 ? idle : held,
-    toes: [trail(0.14, 0.16), trail(0.3, -0.16)],
+    // Landing on their feet brings the feet back under them: a stance, not
+    // two legs still trailing from a jump that has finished.
+    toes: [
+      settle(trail(0.14, 0.16), vec(stance + 0.16, 0.04, z)),
+      settle(trail(0.3, -0.16), vec(stance - 0.16, 0.04, z)),
+    ],
     kit: colours.kit,
     trim: colours.trim,
     gloves: reach * 0.34,
-  });
+    facing: TOWARD_TAKER,
+    // The standing pose's shoulder height, held through the dive: a keeper
+    // lying flat is the same size as one standing up.
+    stature: 1.42 - 0.06,
+  };
 }
 
 /**
@@ -794,6 +903,8 @@ export function drawRestingKeeper(
     toes: [vec(x - 0.15, 0.03, z - 0.05), vec(x + 0.15, 0.03, z + 0.05)],
     kit: colours.kit,
     trim: colours.trim,
+    facing: TOWARD_TAKER,
+    stature: 1.44 - 0.06,
   });
 }
 
@@ -893,8 +1004,14 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
   };
 
   const out = 0.3 + lean * 0.2 + follow * 0.18 + Math.abs(swing) * 0.12;
+  // Hands at hip height, where arms hang. They were 22 cm below the shoulder,
+  // which drew fine as a straight line from the shoulder and folds a real arm
+  // double with the elbow pointing straight at the camera behind the taker -
+  // so from there the upper arm vanished and the forearm grew out of the
+  // shoulder. Changed in phase 2 of #72 rather than waiting for phase 3,
+  // because it looked broken rather than merely unpolished.
   const hand = (arm: -1 | 1): Vec3 =>
-    vec(shoulder.x + arm * out, shoulder.y - 0.22 + lean * 0.15 - swing * arm * 0.12, shoulder.z);
+    vec(shoulder.x + arm * out, shoulder.y - 0.5 + lean * 0.15 - swing * arm * 0.12, shoulder.z);
 
   drawFigure(ctx, proj, {
     feet,
@@ -905,6 +1022,10 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
     hands: [hand(-1), hand(1)],
     toes: [toe(-1), toe(1)],
     ...takerColours(frame),
+    facing: vec(0, 0, 1),
+    // The upright shoulder height. Crouching over the ball lowers the
+    // shoulder point, and this keeps that a bend rather than a shrink.
+    stature: 1.3 - 0.04,
     // He matters while aiming and running in. Once the ball has gone he is a
     // large figure standing between the camera and the only thing worth
     // watching, so he drops back rather than staying at full strength.
@@ -2026,6 +2147,8 @@ export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
       toes: [vec(x - 0.16, 0.03, z - 0.05), vec(x + 0.16, 0.03, z + 0.05)],
       kit: colours.kit,
       trim: colours.trim,
+      facing: TOWARD_TAKER,
+      stature: height * 0.82,
     });
   }
 }

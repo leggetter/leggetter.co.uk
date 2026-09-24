@@ -13,7 +13,7 @@
  */
 
 import { vec, type Vec3 } from '../../core/vec3.ts';
-import type { Projector } from './project.ts';
+import type { Projector } from '../toolkit/project.ts';
 import { PITCH_HALF_WIDTH, PITCH_LENGTH } from './stand.ts';
 
 type Ctx = CanvasRenderingContext2D;

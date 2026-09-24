@@ -6,16 +6,17 @@
  * hips, knees or elbows. This works out where all of those go, so a figure can
  * bend like a body instead of pivoting like a compass.
  *
- * **Pure, and deliberately kept apart from the rest of `classic`.** No canvas,
- * no drawing, nothing imported from the package around it: it takes targets in
- * world metres and returns joints in world metres. That is what lets it move
- * out into a shared toolkit when a second package needs it (phase 4 of #72)
- * without being rewritten. `body.test.ts` enforces the separation.
+ * **Pure, and part of the shared toolkit.** No canvas, no drawing, nothing
+ * imported from any package: it takes targets in world metres and returns
+ * joints in world metres. It was written inside `classic` and kept apart from
+ * the rest of it for exactly this reason, so that when the stylised package
+ * needed the same body (phase 4 of #72) it moved here unchanged. Classic draws
+ * these joints as lines and the stylised package as capsules; neither owns
+ * them. `toolkit.test.ts` enforces the separation.
  *
  * It takes *targets*, not a frame. Turning a frame into targets - where the
- * keeper's hands are mid-dive, how far into the run-up the taker is - is what
- * `drawKeeper` and `drawTaker` already do, tangled up with the drawing. Pulling
- * that out is phase 2, when `classic` starts drawing these joints.
+ * keeper's hands are mid-dive, how far into the run-up the taker is - is
+ * `../pose/`'s job.
  */
 
 import { PROPORTIONS } from '../../../content/proportions.js';

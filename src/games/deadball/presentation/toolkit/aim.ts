@@ -1,8 +1,8 @@
 /**
  * Turning a drag into a shot.
  *
- * Shared by every view, because the point of having more than one camera is to
- * compare *cameras*. Three copies of this would drift into three slightly
+ * Shared by every camera and, since phase 4 of #72, by every package that wants
+ * it, because the point of having more than one camera is to compare *cameras*. Three copies of this would drift into three slightly
  * different control schemes, and then nobody could say which angle they
  * preferred - only which one they had got used to.
  *
@@ -12,7 +12,20 @@
  */
 
 import type { ShotInput } from '../../core/types.ts';
-import type { DragGesture } from '../Presentation.ts';
+
+/**
+ * The part of a drag this reads.
+ *
+ * `DragGesture` in Presentation.ts has this shape and more, and is what every
+ * caller actually passes. Declared here rather than imported so the toolkit
+ * depends on nothing but `core/` and `content/`: a package opts into it, and it
+ * must not reach back into the contract the packages sit behind.
+ */
+export interface DragPath {
+  start: { x: number; y: number };
+  current: { x: number; y: number };
+  path: readonly { x: number; y: number }[];
+}
 
 /**
  * Drag length that means a fully committed shot, as a fraction of the smaller
@@ -64,7 +77,7 @@ export interface AimMapping {
 }
 
 export function dragToShot(
-  gesture: DragGesture,
+  gesture: DragPath,
   width: number,
   height: number,
   mapping: AimMapping = {}
@@ -100,7 +113,7 @@ export function dragToShot(
  * alone cannot tell a straight drag from a hooked one, because both can end in
  * the same place.
  */
-function hook(gesture: DragGesture): number {
+function hook(gesture: DragPath): number {
   const { start, current, path } = gesture;
   const cx = current.x - start.x;
   const cy = current.y - start.y;

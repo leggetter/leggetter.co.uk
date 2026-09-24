@@ -6,8 +6,11 @@
  * and which way it points, so `behind-taker` and `angled-behind` are the same
  * few numbers apart.
  *
- * Package-local, because projection is a package's own business: a matrix and
- * this are both correct answers to the same `CameraSpec`.
+ * In the toolkit rather than in `classic` since phase 4 of #72. Projection is
+ * still a package's own business - a matrix and this are both correct answers
+ * to the same `CameraSpec` - but the stylised package draws its HUD over the
+ * 3D scene with this, and its tests hold its matrix to this answer, so both
+ * need the one copy.
  *
  * Math.sin and Math.cos appear here and nowhere in core/. Rendering has no
  * determinism requirement: two machines may draw the same shot a pixel apart
@@ -15,15 +18,23 @@
  */
 
 import type { Vec3 } from '../../core/vec3.ts';
-import type { CameraSpec } from '../cameras.ts';
 
 /**
- * Kept as a structural alias rather than deleted: everything below needs is a
- * position, an orientation and a frame, and taking the whole `CameraSpec`
- * would mean a projector that knows about mirroring and draw order, which are
- * not its business.
+ * Where a camera is and what it has to keep in shot.
+ *
+ * The part of a `CameraSpec` (in ../cameras.ts) a projection needs, spelled out
+ * here rather than picked from it so the toolkit imports nothing outside
+ * itself, `core/` and `content/`. Everything else a spec carries - mirroring,
+ * draw order - is not a projector's business. Every `CameraSpec` is one of
+ * these.
  */
-export type Camera = Pick<CameraSpec, 'position' | 'yaw' | 'pitch' | 'fov' | 'frame'>;
+export interface Camera {
+  readonly position: Vec3;
+  readonly yaw: number;
+  readonly pitch: number;
+  readonly fov: number;
+  readonly frame: { halfWidth: number; halfHeight: number; depth: number };
+}
 
 export interface Projected {
   x: number;

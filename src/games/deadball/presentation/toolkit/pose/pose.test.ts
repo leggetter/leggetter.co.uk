@@ -1,55 +1,13 @@
 /**
- * pose/ stays pure: no drawing, no canvas, nothing from draw.ts.
- *
- * The rule from #72 for phase 3: poses and pose-derivation may live in their
- * own module inside `classic`, if that helps testing, but must not import the
- * drawing code. That is what lets a test run 37,800 frames of dives, or every
- * millisecond of a kick, without a canvas - and what keeps the "what is this
- * figure doing" layer extractable when a second package needs it.
+ * The timing tools the poses are built from. Whether pose/ stays pure - no
+ * drawing, no canvas, nothing from any package - is ../toolkit.test.ts's job
+ * now, for the whole toolkit at once.
  */
 
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
 import { sampleKeys, springKnock, springTo } from './motion.ts';
-
-describe('the pose module stands apart from the drawing', () => {
-  const here = new URL('.', import.meta.url);
-  const sources = readdirSync(here)
-    .filter((name) => name.endsWith('.ts') && !name.endsWith('.test.ts'))
-    .map((name) => ({ name, code: readFileSync(new URL(name, here), 'utf8') }));
-  const stripped = (code: string): string => code.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
-
-  test('there are source files to check', () => {
-    assert.ok(sources.length >= 3, `only found ${sources.length} files in pose/`);
-  });
-
-  test('it imports only from itself, body/, core/ and content/', () => {
-    for (const { name, code } of sources) {
-      for (const match of stripped(code).matchAll(/from\s+'([^']+)'/g)) {
-        const from = match[1]!;
-        assert.ok(
-          from.startsWith('./') ||
-            from.startsWith('../body/') ||
-            from.startsWith('../../../core/') ||
-            from.startsWith('../../../content/'),
-          `${name} imports ${from} - pose/ must not depend on the drawing`
-        );
-      }
-    }
-  });
-
-  test('it never touches a canvas or the page', () => {
-    for (const { name, code } of sources) {
-      assert.doesNotMatch(
-        stripped(code),
-        /\b(document|window|CanvasRenderingContext2D|HTMLCanvasElement|requestAnimationFrame|Projector)\b/,
-        `${name} reaches for the browser`
-      );
-    }
-  });
-});
 
 describe('timing', () => {
   const keys = [

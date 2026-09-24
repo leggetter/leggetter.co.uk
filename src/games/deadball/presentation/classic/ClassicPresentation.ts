@@ -22,7 +22,7 @@ import { createSynth, type Synth } from '../sounds/synth.ts';
 import { withOverrides } from '../sounds/Sounds.ts';
 import type { Mood, SoundSet } from '../sounds/Sounds.ts';
 import { DEFAULT_SKY_ID, SKIES } from '../../content/skies.js';
-import { dragToShot } from './aim.ts';
+import { dragToShot } from '../toolkit/aim.ts';
 import type { SkyPalette } from './sky.ts';
 import {
   buildAtlas,
@@ -38,7 +38,7 @@ import {
 import { createOverrides } from './sounds.ts';
 import { buildLineup, drawLineup } from './lineup.ts';
 import { awayTaking, drawRestingKeeper, kitsFor, restingKeeperColours } from './draw.ts';
-import { createProjector, type Projector } from './project.ts';
+import { createProjector, type Projector } from '../toolkit/project.ts';
 import { standBehind } from '../cameras.ts';
 import { penaltySpot } from '../../core/setpiece.ts';
 import type { Vec3 } from '../../core/vec3.ts';

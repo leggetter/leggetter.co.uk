@@ -6,11 +6,12 @@
  * with the drawing, which meant the only way to see whether a kick put the
  * boot on the ball was to play one and squint. They live here now, in a
  * module that imports nothing from draw.ts and never touches a canvas, so the
- * tests can run a whole kick through them and measure it. `pose.test.ts`
- * enforces the separation, the same way body.test.ts does for body/.
+ * tests can run a whole kick through them and measure it. `toolkit.test.ts`
+ * enforces the separation.
  *
- * `classic` still draws every figure through one function, `drawFigure`, and
- * that function still starts from `poseBody` below.
+ * Shared since phase 4: `classic` draws every figure through `drawFigure`, the
+ * stylised package through a rig of capsules, and both start from `poseBody`
+ * below, so the two cannot disagree about where anybody's knee is.
  */
 
 import { add, length, normalize, scale, sub, vec, type Vec3 } from '../../../core/vec3.ts';

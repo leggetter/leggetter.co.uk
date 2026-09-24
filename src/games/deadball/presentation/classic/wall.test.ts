@@ -17,8 +17,8 @@ import type { FrameState, Player } from '../../core/types.ts';
 import { distance, dot, normalize, sub, vec, type Vec3 } from '../../core/vec3.ts';
 import { AIRTIME, buildWall, JUMP_DELAY, wallPoseAt } from '../../core/wall.ts';
 import { JUMPING_WALL } from '../../content/poses.js';
-import type { Side, Skeleton } from './body/skeleton.ts';
-import { BOOT_RADIUS, poseSize } from './pose/figure.ts';
+import type { Side, Skeleton } from '../toolkit/body/skeleton.ts';
+import { BOOT_RADIUS, poseSize } from '../toolkit/pose/figure.ts';
 import { figureBody, wallFigures } from './draw.ts';
 
 const origin = vec(-8.5, 0.11, -17);

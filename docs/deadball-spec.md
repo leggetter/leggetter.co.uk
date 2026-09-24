@@ -158,20 +158,22 @@ src/games/deadball/
       Sounds.ts               # an event in, a noise out
       synth.ts                # generated sound. Knows AudioContext.
       silent.ts               # no-op, for tests and for the mute toggle
-    classic/                  # today's look. The only place a ctx exists.
+    toolkit/                  # shared by packages that opt in (#72 phase 4).
+                              #   Imports only itself, core/ and content/,
+                              #   never a package; toolkit.test.ts holds it
+      body/                   # the jointed skeleton and its IK
+      pose/                   # where each figure's body goes, in world
+                              #   metres: the kick, the keeper, the wall
+      project.ts              # CameraSpec -> screen, the hand-rolled way
+      aim.ts                  # drag -> ShotInput. Every package's, unchanged
+      kits.ts                 # who wears which strip, this frame
+    classic/                  # today's look, in canvas2d
       ClassicPresentation.ts  # one implementation, told which camera it is on
       draw.ts                 # pitch, goal, net, figures, ball, HUD, full time
       scene.ts                # draw order, which is depth
-      project.ts              # this package's camera maths
-      aim.ts                  # drag -> ShotInput, under this projection
       stand.ts                # terracing, hoardings, crowd (Phase 3.5)
       lineup.ts               # the other twenty, on the halfway line
       sounds.ts               # this package's overrides and its samples
-      body/                   # the jointed skeleton and its IK. Pure: imports
-                              #   nothing from the rest of classic (#72)
-      pose/                   # what each figure is doing, in world metres:
-                              #   the kick, the keeper, the wall. Pure too,
-                              #   and never imports draw.ts (#72 phase 3)
     pixel/                    # later
   input/
     drag.ts                   # Pointer Events -> DragGesture

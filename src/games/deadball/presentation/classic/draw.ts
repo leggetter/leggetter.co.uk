@@ -24,7 +24,7 @@ import {
 import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
 import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { add, length, normalize, scale, sub, vec, type Vec3 } from '../../core/vec3.ts';
-import type { Side } from './body/skeleton.ts';
+import type { Side } from '../toolkit/body/skeleton.ts';
 import {
   BREATH_PERIOD,
   LIMB,
@@ -34,14 +34,22 @@ import {
   TOWARD_TAKER,
   wave,
   type Figure,
-} from './pose/figure.ts';
-import { keeperPose } from './pose/keeper.ts';
-import { takerPose } from './pose/kick.ts';
-import { wallPoses } from './pose/wall.ts';
+} from '../toolkit/pose/figure.ts';
+import { keeperPose } from '../toolkit/pose/keeper.ts';
+import { takerPose } from '../toolkit/pose/kick.ts';
+import { wallPoses } from '../toolkit/pose/wall.ts';
 import type { SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
-import { KEEPER_KIT, teamKits, type TeamKits } from './kits.ts';
-import type { Projector } from './project.ts';
+import {
+  awayTaking,
+  keeperColours,
+  KEEPER_KIT,
+  kitsFor,
+  restingKeeperColours,
+  takerColours,
+  wallColours,
+} from '../toolkit/kits.ts';
+import type { Projector } from '../toolkit/project.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;
 
@@ -367,7 +375,7 @@ export function drawGoalFrame(ctx: Ctx, proj: Projector, z = 0): void {
  * Poses are worked out in pose/, which is pure and never imports this file, so
  * a test can run a whole kick through them without a canvas.
  */
-export type { Figure } from './pose/figure.ts';
+export type { Figure } from '../toolkit/pose/figure.ts';
 
 /**
  * Below this width the HUD is on a phone and has to be told so.
@@ -718,66 +726,12 @@ export function takerFigure(frame: FrameState, standOff: number): Figure {
 }
 
 /**
- * The four strips this frame, settings and all.
- *
- * One call site for the derivation, so the taker, the two keepers and the
- * halfway line cannot disagree about who is wearing what.
+ * Who is wearing what this frame. Worked out in the toolkit since phase 4 of
+ * #72, because the stylised package dresses the same people and the two must
+ * never disagree about whose shirt is whose; re-exported under the names the
+ * rest of this package and its tests have always used.
  */
-export const kitsFor = (frame: FrameState): TeamKits =>
-  teamKits(frame.player.colors.kit, frame.player.colors.trim, frame.kits);
-
-/**
- * What the figure on the spot is wearing.
- *
- * The away side is side 1, so on their turn the taker wears the shirt the far
- * half of the halfway line is already wearing. One colour means *them*,
- * wherever they happen to be standing.
- */
-export function takerColours(frame: FrameState): { kit: string; trim: string } {
-  const kits = kitsFor(frame);
-  return awayTaking(frame) ? kits.other : kits.own;
-}
-
-/**
- * What the figure in the goal is wearing.
- *
- * The keeper is on whichever side is not taking, so the strips swap over when
- * the away side's turn comes round: you go in goal, and you go in goal in your
- * own side's keeper strip. Without the swap the keeper stayed yellow while the
- * computer ran up in yellow too, and both figures on the screen were the
- * opposition.
- *
- * A keeper strip rather than the side's outfield one, since the halfway line
- * started putting a keeper and their own ten in the same frame. See
- * `KEEPER_KIT`.
- */
-export function keeperColours(frame: FrameState): { kit: string; trim: string } {
-  const kits = kitsFor(frame);
-  return awayTaking(frame) ? kits.ownKeeper : kits.otherKeeper;
-}
-
-/**
- * What the keeper who is *not* working is wearing.
- *
- * The other one: whoever is taking this penalty has a keeper with nothing to
- * do, and they are the figure standing beside the goal. So on your turn it is
- * yours waiting and theirs in goal, and on theirs it is the other way round.
- */
-export function restingKeeperColours(frame: FrameState): { kit: string; trim: string } {
-  const kits = kitsFor(frame);
-  return awayTaking(frame) ? kits.otherKeeper : kits.ownKeeper;
-}
-
-/**
- * Whether the away side is the one taking this penalty.
- *
- * Side 1 is the away team in both two-sided modes: the computer in `versus`,
- * and the second person in a duel. Solo has no side 1. Keeping it one rule
- * rather than a `versus` special case means the shirt somebody is wearing and
- * the end that rises for them cannot disagree.
- */
-export const awayTaking = (frame: Pick<FrameState, 'mode' | 'taker'>): boolean =>
-  frame.mode !== 'solo' && frame.taker === 1;
+export { awayTaking, keeperColours, kitsFor, restingKeeperColours, takerColours, wallColours };
 
 const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
 
@@ -1813,16 +1767,6 @@ export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
 export function wallFigures(frame: FrameState): Figure[] {
   const colours = wallColours(frame);
   return wallPoses(frame).map((pose) => ({ ...pose, kit: colours.kit, trim: colours.trim }));
-}
-
-/**
- * What the wall is wearing: the side that is not taking it.
- *
- * The same strip as the keeper's outfield team, because that is who they are.
- */
-function wallColours(frame: FrameState): { kit: string; trim: string } {
-  const kits = teamKits(frame.player.colors.kit, frame.player.colors.trim, frame.kits);
-  return awayTaking(frame) ? kits.own : kits.other;
 }
 
 /**

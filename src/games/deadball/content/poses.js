@@ -4,7 +4,7 @@
  * Phase 3 of #72. Like `shots.js`, this is meant to be edited: change a
  * number, refresh, take five penalties and see whether it looks better.
  * Nothing here can change an outcome. It is read only by the jointed figure
- * in presentation/classic/pose/, and a package that draws sprites would have
+ * in presentation/toolkit/pose/, and a package that draws sprites would have
  * a sprite sheet where this file is.
  *
  * **The kick.** Positions are `[out, up, forward]` in metres, measured from

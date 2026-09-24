@@ -55,7 +55,7 @@ export interface KickInput {
    * How far to the side of the ball the taker waits, in metres.
    *
    * The view's call, because it depends on how much screen there is - see
-   * `sidewaysRoom` in draw.ts.
+   * `sidewaysRoom` in classic/draw.ts.
    */
   standOff: number;
 }

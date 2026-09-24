@@ -574,6 +574,18 @@ const views = listCameras();
           <b>Players</b>.
         </p>
 
+        <h3>7 &middot; Watch it again, frame by frame</h3>
+        <p>
+          After a shot, press <kbd>F</kbd> to step back through it one frame at
+          a time, from the run-up to the celebration. <kbd>&larr;</kbd>
+          <kbd>&rarr;</kbd> step a frame, <kbd>C</kbd> jumps to the boot on the
+          ball, and <kbd>F</kbd> again closes it.
+        </p>
+        <p class="aside">
+          Keyboard only for now, so not on a phone. It replays the last shot,
+          whoever took it.
+        </p>
+
         <div id="howto-actions">
           <button type="button" id="howto-close">Got it</button>
         </div>
@@ -581,12 +593,13 @@ const views = listCameras();
     </dialog>
 
     {/*
-      The last shot, frame by frame. Hidden for now: press F after a shot.
+      The last shot, frame by frame: press F after a shot.
 
-      Nothing links to it and nothing on the pitch says it is there. It came
-      out of the filmstrips used to check the new bodies, and watching a shot
-      back one frame at a time turned out to be worth having in the game.
-      Whether it earns a button is a question for after people have used it.
+      Documented at the end of "How to take a shot", and nowhere on the pitch.
+      It came out of the filmstrips used to check the new bodies, and watching
+      a shot back one frame at a time turned out to be worth having in the
+      game. Whether it earns a button - which is what a phone would need - is
+      a question for after people have used it.
     */}
     <dialog id="film" aria-labelledby="film-heading">
       <div id="film-body" class="panel">
@@ -2117,6 +2130,20 @@ const views = listCameras();
 
   .howto-table td {
     color: rgba(230, 238, 248, 0.72);
+  }
+
+  #howto-body kbd {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0 5px;
+    border: 1px solid rgba(125, 211, 252, 0.4);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+    color: #e6eef8;
   }
 
   #howto-actions {

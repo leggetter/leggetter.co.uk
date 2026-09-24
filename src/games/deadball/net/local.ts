@@ -22,9 +22,8 @@
  * is better to meet it here than in production.
  */
 
-import { tuningFingerprint } from '../core/tuning.ts';
 import { handle, openRoom, type Room } from './room.ts';
-import { OFFLINE_AFTER_MS, PING_EVERY_MS } from './Transport.ts';
+import { wireVersion, OFFLINE_AFTER_MS, PING_EVERY_MS } from './Transport.ts';
 import type {
   Connection,
   Inbound,
@@ -245,7 +244,7 @@ export function createLocalTransport(
       const transport = makeTransport(
         channel,
         token,
-        { kind: 'join', token, tuning: tuningFingerprint(), team },
+        { kind: 'join', token, tuning: wireVersion(), team },
         true,
         ref,
         now
@@ -258,7 +257,7 @@ export function createLocalTransport(
       return makeTransport(
         channel,
         token,
-        { kind: 'join', token, tuning: tuningFingerprint(), team },
+        { kind: 'join', token, tuning: wireVersion(), team },
         false,
         null,
         now

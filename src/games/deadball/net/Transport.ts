@@ -24,6 +24,34 @@
 
 import type { Dive, Outcome, Player, ShotInput } from '../core/types.ts';
 import type { Discipline } from '../core/setpiece.ts';
+import type { Kick } from '../core/kick.ts';
+
+import { tuningFingerprint } from '../core/tuning.ts';
+
+/**
+ * The shape of the messages. Bump it whenever a message changes shape.
+ *
+ * 2: the \`shot\` message carries the whole kick - seed, shot number,
+ * discipline, the taker and keeper themselves - so both devices fly the room's
+ * version of it rather than their own.
+ */
+export const PROTOCOL = 2;
+
+/**
+ * What a client and a room must agree on before they can play: the physics,
+ * and the message shapes.
+ *
+ * The join check used to compare the physics fingerprint alone, which covers a
+ * stale bundle whose numbers differ but not one whose *messages* differ. The
+ * shot message changed shape without the physics changing, so an old page
+ * would have joined a new room and quietly gone back to disagreeing with it,
+ * and a new page would have joined an old room and read fields that did not
+ * exist. Folding the protocol into the same string refuses both, in both
+ * directions, with the existing "one of you needs to refresh" - including an
+ * old room, which knows nothing about protocols but will not match a string it
+ * has never seen.
+ */
+export const wireVersion = (): string => `${tuningFingerprint()}/p${PROTOCOL}`;
 
 /** Which side of the tie somebody is. The host is always 0. */
 export type Side = 0 | 1;
@@ -135,15 +163,26 @@ export type Inbound =
        */
       dived: boolean;
     }
-  | {
+  /**
+   * A shot, resolved, with everything needed to replay it.
+   *
+   * The whole `Kick` rather than the input and a seed: kick number,
+   * discipline, the taker's attributes, the keeper and where they stood. It
+   * used to carry less, and each client filled the gaps from its own state -
+   * its own keeper, its own discipline setting, its own squad - so the same
+   * shot flew differently on each screen. A client replays this and nothing
+   * else. See core/kick.ts.
+   *
+   * The dive travels here and nowhere earlier. This is the moment it stops
+   * being sealed.
+   */
+  | ({
       kind: 'shot';
-      input: ShotInput;
+      /** The squad id the taker named, kept for the log. `player` is who. */
       taker: string;
-      seed: number;
-      keeperStartX: number;
-      dive: Dive | null;
+      /** The room's verdict. What both screens show, whatever they worked out. */
       outcome: Outcome;
-    }
+    } & Kick)
   | { kind: 'error'; reason: string; fatal: boolean };
 
 /** How a room is set up. Fixed when the id is minted and never after. */

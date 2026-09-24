@@ -3,7 +3,12 @@
 // sitemap, and linked from nowhere. See src/lib/hidden.mjs, which is what
 // astro.config.mjs and scripts/verify-urls.mjs both read.
 import Fullscreen from '../../layouts/Fullscreen.astro';
-import { DEFAULT_CAMERA, listCameras } from '../../games/deadball/presentation/registry.ts';
+import {
+  DEFAULT_CAMERA,
+  DEFAULT_PACKAGE,
+  listCameras,
+  listPackages,
+} from '../../games/deadball/presentation/registry.ts';
 import { DEFAULT_SKY_ID, SKIES } from '../../games/deadball/content/skies.js';
 import { DISCIPLINES } from '../../games/deadball/core/setpiece.ts';
 import { SWEEP_SWEET_ZONE } from '../../games/deadball/core/units.ts';
@@ -40,6 +45,7 @@ const physics = tuningFingerprint();
 // browser defaults - which is why the selected one looked like the others.
 // Rendering them also means the switcher is there before the game starts.
 const views = listCameras();
+const looks = listPackages();
 ---
 
 <Fullscreen
@@ -603,6 +609,23 @@ const views = listCameras();
             SKIES.map(({ id, label }) => (
               <button type="button" data-sky={id} aria-pressed={String(id === DEFAULT_SKY_ID)}>
                 {label}
+              </button>
+            ))
+          }
+        </div>
+
+        {/*
+          How it is drawn, as opposed to where you stand. A preview is labelled
+          as one on its button, because it is not finished and says so, and it
+          is only downloaded once somebody presses it.
+        */}
+        <h3>Look</h3>
+        <div class="choices" id="look-choices">
+          {
+            looks.map(({ id, label, preview }) => (
+              <button type="button" data-look={id} aria-pressed={String(id === DEFAULT_PACKAGE)}>
+                {label}
+                {preview && <span class="preview">preview</span>}
               </button>
             ))
           }
@@ -1440,6 +1463,7 @@ const views = listCameras();
         });
 
         const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
+        const lookChoices = [...document.querySelectorAll<HTMLButtonElement>('#look-choices button')];
         const logDownload = document.getElementById('log-download') as HTMLButtonElement | null;
         const logClear = document.getElementById('log-clear') as HTMLButtonElement | null;
 
@@ -1479,6 +1503,9 @@ const views = listCameras();
           for (const button of skyChoices) {
             button.setAttribute('aria-pressed', String(button.dataset.sky === game.currentSkyId()));
           }
+          for (const button of lookChoices) {
+            button.setAttribute('aria-pressed', String(button.dataset.look === game.currentLookId()));
+          }
           paintLog();
         };
 
@@ -1513,6 +1540,12 @@ const views = listCameras();
         for (const button of skyChoices) {
           button.addEventListener('click', () => {
             if (button.dataset.sky) game.useSky(button.dataset.sky);
+            paintSettings();
+          });
+        }
+        for (const button of lookChoices) {
+          button.addEventListener('click', () => {
+            if (button.dataset.look) game.useLook(button.dataset.look);
             paintSettings();
           });
         }
@@ -2052,6 +2085,17 @@ const views = listCameras();
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+  }
+
+  /* Under the label rather than beside it, so a phone-width button does not
+     have to fit "Stylised 3D preview" on one line. */
+  .choices button .preview {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.7;
   }
 
   .choices button[aria-pressed='true'] {

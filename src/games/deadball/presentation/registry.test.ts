@@ -93,4 +93,15 @@ describe('the package list', () => {
     assert.equal(resolvePackageId('?look=hand-drawn', null), DEFAULT_PACKAGE);
     assert.equal(createPackage('hand-drawn').id, DEFAULT_PACKAGE);
   });
+
+  test('the 3D look is there to ask for, marked as a preview, and never the default', () => {
+    const stylised = listPackages().find((p) => p.id === 'stylised');
+    assert.ok(stylised, 'stylised is not listed');
+    assert.equal(stylised.preview, true);
+    assert.equal(listPackages().find((p) => p.id === 'classic')?.preview, false);
+    assert.notEqual(DEFAULT_PACKAGE, 'stylised');
+    assert.equal(resolvePackageId('?look=stylised', null), 'stylised');
+    assert.equal(resolvePackageId('', 'stylised'), 'stylised', 'a stored choice is kept');
+    assert.equal(resolvePackageId('?look=classic', 'stylised'), 'classic', 'and the URL still wins');
+  });
 });

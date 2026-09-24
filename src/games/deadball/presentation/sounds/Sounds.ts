@@ -46,3 +46,17 @@ export function withOverrides(base: SoundSet, overrides: Partial<SoundSet>): Sou
     play: overrides.play ? overrides.play.bind(overrides) : base.play.bind(base),
   };
 }
+
+/**
+ * What the crowd is doing, given what the game is doing.
+ *
+ * Shared with the samples in `recorded.ts`, because the bed is tuned per mood
+ * and two packages that disagreed about when the ground holds its breath would
+ * sound like two different grounds. A package calls `bed` when this changes,
+ * not every frame.
+ */
+export function moodOf(phase: string): Mood {
+  if (phase === 'flight') return 'flight';
+  if (phase === 'ready' || phase === 'runup') return 'waiting';
+  return 'idle';
+}

@@ -154,9 +154,12 @@ src/games/deadball/
     Presentation.ts           # what a presentation package implements
     cameras.ts                # where you may stand. Data, shared by all of them
     registry.ts               # id -> package
-    sounds/                   # the default set. Any package may override it.
-      Sounds.ts               # an event in, a noise out
+    lazy.ts                   # a package fetched only once it is picked
+    sounds/                   # shared sound, opt-in. Any package may override it.
+      Sounds.ts               # an event in, a noise out; moodOf, the one rule
       synth.ts                # generated sound. Knows AudioContext.
+      recorded.ts             # the six CC0 samples over the synth. Classic's
+                              #   until #72 phase 4; both packages' now
       silent.ts               # no-op, for tests and for the mute toggle
     toolkit/                  # shared by packages that opt in (#72 phase 4).
                               #   Imports only itself, core/ and content/,
@@ -176,7 +179,15 @@ src/games/deadball/
       scene.ts                # draw order, which is depth
       stand.ts                # terracing, hoardings, crowd (Phase 3.5)
       lineup.ts               # the other twenty, on the halfway line
-      sounds.ts               # this package's overrides and its samples
+    stylised/                 # the same game in three.js. A preview, #72 phase 4
+      StylisedPresentation.ts # draws its own WebGL canvas, copies it onto the
+                              #   game's, and puts classic's HUD over it
+      camera.ts               # CameraSpec -> three camera; the dive raycast
+      rig.ts                  # a capsule per bone, from the toolkit's skeleton
+      pitch.ts                # grass painted in code, goals, hoardings
+      stadium.ts              # sky, stands, a GPU-animated crowd, floodlights
+      quality.ts              # two tiers and when to drop to the lower
+      hud.ts                  # the one import from classic, the 2D overlays
     pixel/                    # later
   input/
     drag.ts                   # Pointer Events -> DragGesture
@@ -485,17 +496,65 @@ nothing about sound still gets the synthesised one for free.
 that `Game.ts` hands to the active package. That has been the boundary since
 Phase 1; packages give it a name and a plural.
 
-The one thing worth stating because it is tempting to get wrong: **packages do
-not share presentation code with each other.** No common `crowd.ts` telling both
-of them where person 412 is and how high, because that call - once per person
-per frame - is exactly the shape a WebGL crowd exists to avoid, and it would
-force the two packages to agree about the one decision they most need to make
-differently. Canvas2d wants a few hundred people it can blit; WebGL wants twenty
-thousand it never touches individually.
+This section used to say **packages do not share presentation code with each
+other**, and the reason still holds for the crowd: no common `crowd.ts` telling
+two packages where person 412 is and how high, because that call - once per
+person per frame - is exactly the shape a WebGL crowd exists to avoid. Canvas2d
+wants a few thousand people it can blit; WebGL wants twenty thousand it never
+touches individually. Two packages drawing crowds differently is two crowds,
+while two packages computing an outcome differently is a bug. Only one of those
+is worth an abstraction.
 
-Duplication is the right answer here and the asymmetry is the reason: two
-packages drawing crowds differently is two crowds, while two packages computing
-an outcome differently is a bug. Only one of those is worth an abstraction.
+What the second package changed is the rest of the sentence. Some things two
+packages need to agree on exactly, and those are now shared, as **libraries a
+package opts into, never as layers every package is pushed through**:
+
+- **`toolkit/`**: the jointed body, the poses, what each figure is doing, the
+  drag mapping, the projector and who wears which strip. It imports only
+  itself, `core/` and `content/`, and a test holds it to that. A pixel package
+  would take `doing/` and nothing else.
+- **`sounds/`**: the synth, the recorded samples and the moods. Classic and
+  the stylised package both take all of it, so the two sound exactly the same.
+
+Nothing moves into either until a second package actually uses it (#72's
+rule), which is why the skeleton was written inside classic first. Packages
+still do not import each other, with one exception while the stylised package
+is a preview: it borrows classic's 2D HUD through a single file,
+`stylised/hud.ts`. That is the next thing to extract, not a pattern.
+
+#### The stylised package
+
+The second package, and the one #64 asked for: it changes the rendering
+technology, not just the look. three.js, capsule people coloured from the
+chosen kits, a pitch painted in code with mowing stripes and a worn goalmouth,
+image-based light generated from three's `RoomEnvironment` (no HDRI), soft
+shadows from one high key light so the ball's shadow reads as its height, and
+floodlights whose glare is additive sprites rather than a bloom pass. No model
+files, textures or downloads of any kind: everything is built from code.
+
+Three decisions worth knowing before changing it:
+
+- **It is only downloaded when chosen.** The registry reaches it through
+  `import()` and `lazy.ts`, so classic players never fetch three.js;
+  `bundle.test.ts` walks the page's static imports to keep it that way. The
+  stand-in draws a holding frame while the chunk arrives and falls back to
+  classic if it cannot start (a failed download, or no WebGL).
+- **It draws into a canvas of its own and copies it across.** The game takes
+  a 2D context from its canvas before it knows which package it has, and a
+  canvas with a 2D context cannot give out a WebGL one. Copying costs a GPU
+  texture copy per frame and changes nothing in the `Presentation` contract.
+  It also means the package works on a canvas that is not in the page, which
+  is what the frame-by-frame viewer does with a second copy.
+- **Its camera is held to classic's projector.** The same `CameraSpec` has to
+  show the same picture in both, or comparing them is comparing lenses; a test
+  checks every landmark to a hundredth of a pixel, the dive raycast against
+  classic's `toPlane`, and every drag against classic's `aimFromDrag`.
+
+It is budgeted for a mid-range phone in two tiers: high (2x pixel ratio,
+shadow map, glare, the full crowd) and low (1x, a disc under the ball instead
+of a shadow map, no glare, a third of the crowd). It starts high and drops once
+if the median frame gap over its first couple of seconds is over 20 ms;
+`?quality=` pins either.
 
 ### What else a package could be
 

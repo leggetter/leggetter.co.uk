@@ -59,6 +59,23 @@ export interface Projector {
   readonly height: number;
 }
 
+/**
+ * Focal length in pixels: the tightest of what the field of view allows and
+ * what keeps the framed rectangle on screen in each axis. Smallest wins,
+ * because a smaller focal length is a wider view.
+ *
+ * Exported because it is the framing rule, and a package projecting with a
+ * matrix instead of with this has to arrive at the same lens or the same
+ * camera will show two different pictures.
+ */
+export function focalLength(camera: Camera, width: number, height: number): number {
+  return Math.min(
+    height / 2 / Math.tan(camera.fov / 2),
+    ((width / 2) * camera.frame.depth) / camera.frame.halfWidth,
+    ((height / 2) * camera.frame.depth) / camera.frame.halfHeight
+  );
+}
+
 export function createProjector(camera: Camera, width: number, height: number): Projector {
   const cosYaw = Math.cos(camera.yaw);
   const sinYaw = Math.sin(camera.yaw);
@@ -68,16 +85,7 @@ export function createProjector(camera: Camera, width: number, height: number): 
   const halfW = width / 2;
   const halfH = height / 2;
 
-  /**
-   * Focal length in pixels: the tightest of what the field of view allows and
-   * what keeps the framed rectangle on screen in each axis. Smallest wins,
-   * because a smaller focal length is a wider view.
-   */
-  const focal = Math.min(
-    halfH / Math.tan(camera.fov / 2),
-    (halfW * camera.frame.depth) / camera.frame.halfWidth,
-    (halfH * camera.frame.depth) / camera.frame.halfHeight
-  );
+  const focal = focalLength(camera, width, height);
 
   /** World point into camera space: translate, then yaw, then pitch. */
   const toCamera = (point: Vec3) => {

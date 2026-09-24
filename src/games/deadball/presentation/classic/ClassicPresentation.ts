@@ -19,7 +19,8 @@ import type {
   PresentationContext,
 } from '../Presentation.ts';
 import { createSynth, type Synth } from '../sounds/synth.ts';
-import { withOverrides } from '../sounds/Sounds.ts';
+import { moodOf, withOverrides } from '../sounds/Sounds.ts';
+import { recordedSounds } from '../sounds/recorded.ts';
 import type { Mood, SoundSet } from '../sounds/Sounds.ts';
 import { DEFAULT_SKY_ID, SKIES } from '../../content/skies.js';
 import { dragToShot } from '../toolkit/aim.ts';
@@ -35,7 +36,6 @@ import {
   type Person,
   type Reaction,
 } from './stand.ts';
-import { createOverrides } from './sounds.ts';
 import { buildLineup, drawLineup } from './lineup.ts';
 import { awayTaking, drawRestingKeeper, kitsFor, restingKeeperColours } from './draw.ts';
 import { createProjector, type Projector } from '../toolkit/project.ts';
@@ -50,14 +50,15 @@ export class ClassicPresentation implements Presentation {
 
   private ctx!: CanvasRenderingContext2D;
   private camera: CameraSpec | null = null;
-  // The default set with this package's overrides layered over it. Classic
+  // The default set with the recorded samples layered over it (shared from
+  // ../sounds/recorded.ts, so the stylised package sounds the same). Classic
   // replaces the cheer, the crowd bed and the net with samples and inherits
   // the rest, which is the case worth having work: owning part of the sound
   // should not mean reinventing all of it. The overrides are built around the
   // synth rather than beside it, so anything they cannot play - a file that
   // has not arrived, or never will - falls through to what was always there.
   private readonly synth: Synth = createSynth();
-  private readonly sound: SoundSet = withOverrides(this.synth, createOverrides(this.synth));
+  private readonly sound: SoundSet = withOverrides(this.synth, recordedSounds(this.synth));
   private mood: Mood | null = null;
 
   // Built once. The positions never change; only the offsets do.
@@ -261,11 +262,4 @@ export class ClassicPresentation implements Presentation {
 function skyFor(id: string): SkyPalette {
   const found = (SKIES as SkyPalette[]).find((s) => s.id === id);
   return (found ?? (SKIES as SkyPalette[])[0]) as SkyPalette;
-}
-
-/** What the crowd is doing, given what the game is doing. */
-function moodOf(phase: string): Mood {
-  if (phase === 'flight') return 'flight';
-  if (phase === 'ready' || phase === 'runup') return 'waiting';
-  return 'idle';
 }

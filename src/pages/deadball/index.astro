@@ -2191,7 +2191,7 @@ const views = listCameras();
 
   #film-stage {
     margin: 0;
-    min-height: 0;
+    flex: none;
   }
 
   #film-stage[hidden],
@@ -2203,7 +2203,8 @@ const views = listCameras();
   #film-still {
     display: block;
     width: 100%;
-    max-height: 58vh;
+    /* What is left of the screen after the heading, controls and strip. */
+    max-height: calc(100vh - 290px);
     object-fit: contain;
     border-radius: 8px;
     background: #000;
@@ -2256,13 +2257,17 @@ const views = listCameras();
   }
 
   #film-strip {
+    flex: none;
     display: flex;
     gap: 4px;
     overflow-x: auto;
     padding-bottom: 4px;
   }
 
-  #film-strip button {
+  /* Global because the script builds these, and Astro only scopes styles to
+     elements in the markup: scoped, not one of these rules reached a thumbnail
+     and each drew at the full 900px of its still. */
+  #film-strip :global(button) {
     flex: 0 0 auto;
     padding: 0;
     border: 2px solid transparent;
@@ -2271,15 +2276,15 @@ const views = listCameras();
     cursor: pointer;
   }
 
-  #film-strip button.contact {
+  #film-strip :global(button.contact) {
     border-color: rgba(243, 201, 105, 0.7);
   }
 
-  #film-strip button[aria-current] {
+  #film-strip :global(button[aria-current]) {
     border-color: #7dd3fc;
   }
 
-  #film-strip img {
+  #film-strip :global(img) {
     display: block;
     width: 96px;
     height: auto;

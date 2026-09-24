@@ -36,7 +36,7 @@ export interface DevelopOptions {
   /** The game canvas's size in CSS pixels, so the replay is framed the same. */
   width: number;
   height: number;
-  /** Stills are no wider than this, in pixels. */
+  /** Stills are no wider than this, in device pixels. */
   maxWidth?: number;
   onProgress?: (done: number, total: number) => void;
 }
@@ -59,7 +59,9 @@ const breathe = (): Promise<void> => new Promise((resolve) => setTimeout(resolve
 
 export async function develop(take: Take, options: DevelopOptions): Promise<Still[]> {
   const { width, height } = options;
-  const scale = Math.min(1, (options.maxWidth ?? 960) / width) * Math.min(2, window.devicePixelRatio || 1);
+  // Pixels, not CSS pixels: on a Retina screen the old sum made every still
+  // 1,800px wide and encoding them was most of the wait.
+  const scale = Math.min((options.maxWidth ?? 960) / width, window.devicePixelRatio || 1);
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(width * scale);
   canvas.height = Math.round(height * scale);

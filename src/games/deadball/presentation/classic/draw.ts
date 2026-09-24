@@ -37,11 +37,11 @@ import {
 } from './pose/figure.ts';
 import { keeperPose } from './pose/keeper.ts';
 import { takerPose } from './pose/kick.ts';
+import { wallPoses } from './pose/wall.ts';
 import type { SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
 import { KEEPER_KIT, teamKits, type TeamKits } from './kits.ts';
 import type { Projector } from './project.ts';
-import { CROUCH, wallPoseAt } from '../../core/wall.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;
 
@@ -1800,70 +1800,19 @@ export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
 /**
  * The wall's figures, back to front, in the pose the simulation says.
  *
- * **A wall that is going to jump crouches while you aim**, knees bent and set
- * to spring, and one that is not stands up straight. That is the cue the whole
- * jumping wall rests on (#65): you can read it before you shoot, so hitting it
- * low and hard under a jumping wall is a decision rather than a gamble. Once
- * the ball is struck they go up - feet off the ground and knees drawn up -
- * and come back down, from the same `wallPoseAt` the hit test reads, so the
- * gap you see is the gap the ball meets.
- *
- * The crouch is the same depth the hit test uses (`CROUCH`, from
- * `content/walls.js`), so if it does not read at thirty metres on a phone that
- * is the number to change. Proper animation is a later job.
+ * **A wall that is going to jump is set to spring while you aim** - a deep
+ * squat, knees out, arms swung back - and one that is not stands up straight.
+ * That is the cue the whole jumping wall rests on (#65): you can read it
+ * before you shoot, so hitting it low and hard under a jumping wall is a
+ * decision rather than a gamble. Once the ball is struck they go up and come
+ * back down, from the same `wallPoseAt` the hit test reads, so the gap you see
+ * is the gap the ball meets. The poses are pose/wall.ts's.
  *
  * Separate from the drawing so a test can check the pose without a canvas.
  */
 export function wallFigures(frame: FrameState): Figure[] {
-  const people = frame.wall.people;
-  if (people.length === 0) return [];
-
   const colours = wallColours(frame);
-  const pose = wallPoseAt(frame.wall, frame.sinceStrike);
-
-  // Furthest from the goal first. They stand on an arc, so depth is distance
-  // from the ball rather than z.
-  const order = [...people.keys()].sort((a, b) => {
-    const da = Math.hypot(people[a]!.at.x - frame.spot.x, people[a]!.at.z - frame.spot.z);
-    const db = Math.hypot(people[b]!.at.x - frame.spot.x, people[b]!.at.z - frame.spot.z);
-    return db - da;
-  });
-
-  return order.map((index) => {
-    const person = people[index]!;
-    const { x, z } = person.at;
-
-    // Braced rather than idling. A wall is a row of people who have been told
-    // where to stand and are about to be hit by a ball, and a gentle sway
-    // reads as a queue. What little movement there is, is a flinch.
-    const brace = Math.sin(frame.clock * 0.7 + index * 1.9) * 0.012;
-    const height = 1.78 + ((index * 37) % 11) / 100;
-    const stature = height * 0.82;
-
-    // Set to spring: the shoulders drop and the skeleton bends the knees to
-    // keep the feet where they are, because `stature` does not change.
-    const sink = pose.crouch * CROUCH * frame.wall.height;
-    const lift = pose.lift;
-    const feetY = lift + pose.tuck;
-    const shoulderY = lift + stature - sink + brace;
-
-    return {
-      feet: vec(x, feetY, z),
-      shoulder: vec(x, shoulderY, z),
-      head: vec(x, shoulderY + 0.24, z),
-      // Arms down and crossed in front, which is what a wall does and what
-      // makes it read as a wall rather than as ten-yards-away spectators.
-      hands: [
-        vec(x - 0.1, shoulderY - 0.52, z - 0.14),
-        vec(x + 0.1, shoulderY - 0.52, z - 0.14),
-      ],
-      toes: [vec(x - 0.16, feetY + 0.03, z - 0.05), vec(x + 0.16, feetY + 0.03, z + 0.05)],
-      kit: colours.kit,
-      trim: colours.trim,
-      facing: TOWARD_TAKER,
-      stature,
-    };
-  });
+  return wallPoses(frame).map((pose) => ({ ...pose, kit: colours.kit, trim: colours.trim }));
 }
 
 /**

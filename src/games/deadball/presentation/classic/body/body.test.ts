@@ -135,6 +135,36 @@ describe('a jointed body', () => {
     }
   });
 
+  test('keepHands carries the body to a hand it cannot reach, and stretches nothing', () => {
+    // Out of the left arm's reach, but close enough to the other hand that a
+    // body can have both: two arms and the shoulders span 1.88 m at most.
+    const far: BodyTargets = { ...standing, hands: [vec(-1.1, 1.3, 0.2), standing.hands[1]] };
+    const left = solveBody(far);
+    assert.equal(left.reached.leftHand, false, 'out of reach without keepHands');
+    assert.ok(Math.abs(left.chest.x) < 1e-9, 'moved without keepHands');
+
+    const carried = solveBody({ ...far, keepHands: true });
+    assert.ok(carried.reached.leftHand && carried.reached.rightHand);
+    assert.ok(distance(carried.left.hand, far.hands[0]) < 1e-3);
+    assert.ok(carried.chest.x < -0.1, 'the body did not move toward the hand');
+    for (const [name, a, b, length] of bones(carried)) {
+      assert.ok(close(distance(a, b), length), `${name} stretched while being carried`);
+    }
+  });
+
+  test('hands pair by what each arm can reach before by what is nearest', () => {
+    // Both targets off to the left, one of them almost on the left shoulder.
+    // The shorter total distance hands that one to the left arm, which cannot
+    // fold that tight; the other way round, both arms reach. Found by search
+    // rather than drawn, after two hand-built attempts turned out to be cases
+    // no pairing could reach.
+    const s = solveBody({
+      ...standing,
+      hands: [vec(-0.5, 1.0, 0.1), vec(-1 / 3, 1.4, 0.25)],
+    });
+    assert.ok(s.reached.leftHand && s.reached.rightHand, JSON.stringify(s.reached));
+  });
+
   test('the same targets always give the same body', () => {
     assert.deepEqual(solveBody(standing), solveBody(standing));
   });

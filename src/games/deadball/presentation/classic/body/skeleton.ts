@@ -85,6 +85,19 @@ export function cleanProportions(raw: unknown): Proportions {
 /** The proportions everybody is drawn with. */
 export const BODY: Proportions = cleanProportions(PROPORTIONS);
 
+/**
+ * The same body, bigger or smaller.
+ *
+ * Every length scales together, so a 1.60 m player is a 1.80 m one shrunk
+ * rather than one with short legs. Anything that must not scale - a keeper's
+ * glove is the save radius, not a body part - is the caller's to leave alone.
+ */
+export function scaleProportions(body: Proportions, factor: number): Proportions {
+  const scaled = { ...body };
+  for (const key of Object.keys(body) as (keyof Proportions)[]) scaled[key] = body[key] * factor;
+  return scaled;
+}
+
 /** Where a body should end up. Every point is in world metres. */
 export interface BodyTargets {
   /** The middle of the hips. The body hangs off this. */
@@ -110,6 +123,16 @@ export interface BodyTargets {
   ankles: readonly [Vec3, Vec3];
   /** Which way the head sits from the chest. Straight on up the spine if left out. */
   head?: Vec3;
+  /**
+   * The hands must land on their targets, even if the body has to move.
+   *
+   * For a keeper, whose hands are where saves are decided. Normally the body
+   * stays put and a hand out of reach is drawn at full stretch toward its
+   * target; with this set, the whole body is carried toward the hand instead.
+   * It is the rule `core/keeper.ts` already states for ARM_SPAN - "an arm is
+   * an arm; the body covers whatever the arm does not" - applied to drawing.
+   */
+  keepHands?: boolean;
 }
 
 /** One side of a body. */
@@ -148,11 +171,33 @@ const UP = vec(0, 1, 0);
 /**
  * Split two targets between a left and a right anchor.
  *
- * Whichever pairing is shorter in total wins, so crossed-over input comes out
- * uncrossed. Ties go to the order given.
+ * **Reachable first, nearest second.** The pairing that leaves the limbs
+ * least out of reach wins, and only when that is a tie does the shorter total
+ * distance decide - which is what uncrosses crossed-over input.
+ *
+ * Nearest-only was the first version and it was wrong in a way that only
+ * showed across real dives. Early in a dive a keeper's glove can sit almost on
+ * one shoulder, closer than an arm can fold; nearest-only gave that shoulder
+ * that glove anyway, which pushed the other glove out of the other arm's
+ * reach, when swapping them had both comfortably in range. With the body being
+ * carried toward whichever glove was missed, the pairing then flipped on every
+ * pass and never settled.
  */
-function pairUp(targets: readonly [Vec3, Vec3], left: Vec3, right: Vec3): [Vec3, Vec3] {
+function pairUp(
+  targets: readonly [Vec3, Vec3],
+  left: Vec3,
+  right: Vec3,
+  closest: number,
+  furthest: number
+): [Vec3, Vec3] {
   const [a, b] = targets;
+  const outOfReach = (target: Vec3, anchor: Vec3): number => {
+    const d = distance(target, anchor);
+    return Math.max(0, d - furthest) + Math.max(0, closest - d);
+  };
+  const missAsGiven = outOfReach(a, left) + outOfReach(b, right);
+  const missSwapped = outOfReach(a, right) + outOfReach(b, left);
+  if (Math.abs(missAsGiven - missSwapped) > 1e-9) return missSwapped < missAsGiven ? [b, a] : [a, b];
   const asGiven = distance(a, left) + distance(b, right);
   const swapped = distance(a, right) + distance(b, left);
   return swapped < asGiven ? [b, a] : [a, b];
@@ -160,6 +205,45 @@ function pairUp(targets: readonly [Vec3, Vec3], left: Vec3, right: Vec3): [Vec3,
 
 /** Solve the whole body. Same targets in, same joints out, every time. */
 export function solveBody(targets: BodyTargets, body: Proportions = BODY): Skeleton {
+  let { skeleton: solved, handTargets } = solveInPlace(targets, body);
+  if (!targets.keepHands) return solved;
+
+  // Carry the body toward whichever hand is furthest short, and solve again.
+  // A few passes is plenty: after the first, both hands are usually in reach,
+  // and a second only happens when they pull in different directions.
+  let pelvis = targets.pelvis;
+  let chest = targets.chest;
+  for (let pass = 0; pass < 6; pass++) {
+    if (solved.reached.leftHand && solved.reached.rightHand) break;
+    // Each hand chases the target the solve gave it. Guessing from which
+    // target a drawn hand is nearest to looked equivalent and was not: when
+    // both hands fell short toward the same glove, both chose it, the other
+    // glove was never chased, and the body was dragged half a metre off
+    // course. Caught by running every frame of 105 real dives.
+    let gap: Vec3 | null = null;
+    for (const [drawn, target] of [
+      [solved.left.hand, handTargets[0]],
+      [solved.right.hand, handTargets[1]],
+    ] as const) {
+      const short = sub(target, drawn);
+      if (!gap || length(short) > length(gap)) gap = short;
+    }
+    if (!gap || length(gap) === 0) break;
+    // A centimetre past exactly, so the arm ends up just short of locked
+    // rather than balanced on the edge of reaching.
+    const carry = add(gap, scale(normalize(gap), 0.01));
+    pelvis = add(pelvis, carry);
+    chest = add(chest, carry);
+    ({ skeleton: solved, handTargets } = solveInPlace({ ...targets, pelvis, chest }, body));
+  }
+  return solved;
+}
+
+/** One solve, with the body exactly where it was put, and which hand target went to which side. */
+function solveInPlace(
+  targets: BodyTargets,
+  body: Proportions
+): { skeleton: Skeleton; handTargets: [Vec3, Vec3] } {
   // The body's own frame: up the spine, forward out of the chest, and right.
   const spineLine = sub(targets.chest, targets.pelvis);
   const up = length(spineLine) > 0 ? normalize(spineLine) : UP;
@@ -190,8 +274,14 @@ export function solveBody(targets: BodyTargets, body: Proportions = BODY): Skele
     right: add(pelvis, scale(right, body.hipWidth / 2)),
   };
 
-  const [leftHandTarget, rightHandTarget] = pairUp(targets.hands, shoulders.left, shoulders.right);
-  const [leftAnkleTarget, rightAnkleTarget] = pairUp(targets.ankles, hips.left, hips.right);
+  const armOut = body.upperArm + body.forearm + body.hand;
+  const armIn = Math.abs(body.upperArm - body.forearm - body.hand);
+  const [leftHandTarget, rightHandTarget] = pairUp(
+    targets.hands, shoulders.left, shoulders.right, armIn, armOut
+  );
+  const [leftAnkleTarget, rightAnkleTarget] = pairUp(
+    targets.ankles, hips.left, hips.right, Math.abs(body.thigh - body.shin), body.thigh + body.shin
+  );
 
   // Toes point along the ground in the direction the body faces. A body lying
   // flat still has feet, and they still point somewhere sensible.
@@ -204,7 +294,7 @@ export function solveBody(targets: BodyTargets, body: Proportions = BODY): Skele
     const hip = sign < 0 ? hips.left : hips.right;
 
     // Elbows fold back, out and a little down; knees fold forward.
-    const elbowPole = add(add(scale(forward, -1), scale(outward, 0.6)), scale(up, -0.4));
+    const elbowPole = add(add(scale(forward, -1), scale(outward, 0.25)), scale(up, -0.4));
     const arm = twoBone(shoulder, handTarget, body.upperArm, body.forearm + body.hand, elbowPole);
     const leg = twoBone(hip, ankleTarget, body.thigh, body.shin, forward);
 
@@ -232,16 +322,19 @@ export function solveBody(targets: BodyTargets, body: Proportions = BODY): Skele
   const rightSide = side(1, rightHandTarget, rightAnkleTarget);
 
   return {
-    pelvis,
-    chest,
-    head,
-    left: left.joints,
-    right: rightSide.joints,
-    reached: {
-      leftHand: left.handReached,
-      rightHand: rightSide.handReached,
-      leftFoot: left.footReached,
-      rightFoot: rightSide.footReached,
+    skeleton: {
+      pelvis,
+      chest,
+      head,
+      left: left.joints,
+      right: rightSide.joints,
+      reached: {
+        leftHand: left.handReached,
+        rightHand: rightSide.handReached,
+        leftFoot: left.footReached,
+        rightFoot: rightSide.footReached,
+      },
     },
+    handTargets: [leftHandTarget, rightHandTarget],
   };
 }

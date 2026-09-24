@@ -30,7 +30,13 @@ export interface Still {
   url: string;
   /** Seconds from the boot meeting the ball: negative in the run-up. */
   fromStrike: number | null;
-  /** The frame the boot met the ball on. */
+  /**
+   * The last frame before the ball moved: the boot on the ball.
+   *
+   * Not the frame the `boot` event arrives with. That frame is drawn after the
+   * simulation has stepped past the strike, so the ball has already left the
+   * boot in it - found stepping through a real penalty.
+   */
   contact: boolean;
 }
 
@@ -52,6 +58,12 @@ export function strikeClock(take: Take): number | null {
     if (frame.sinceStrike > 0) return frame.clock - frame.sinceStrike;
   }
   return null;
+}
+
+/** Which frame shows the boot on the ball, or -1 if nobody has struck it. See `Still.contact`. */
+export function contactFrame(take: Take): number {
+  const struck = take.events.findIndex((events) => events.some((event) => event.kind === 'boot'));
+  return struck < 0 ? -1 : Math.max(0, struck - 1);
 }
 
 const toBlob = (canvas: HTMLCanvasElement): Promise<Blob> =>
@@ -99,12 +111,13 @@ export async function develop(take: Take, options: DevelopOptions): Promise<Stil
     presentation.destroy();
   }
   const blobs = await Promise.all(pending);
+  const contact = contactFrame(take);
   return blobs.map((blob, i) => {
     const frame = take.frames[i]!;
     return {
       url: URL.createObjectURL(blob),
       fromStrike: struck === null ? null : frame.clock - struck,
-      contact: (take.events[i] ?? []).some((event) => event.kind === 'boot'),
+      contact: i === contact,
     };
   });
 }

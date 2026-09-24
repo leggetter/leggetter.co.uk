@@ -100,3 +100,23 @@ describe('recording the last shot', () => {
     assert.equal((recorder.last()!.frames[0]!.kits as Record<string, string>).home, '#c00');
   });
 });
+
+describe('which frame is contact', () => {
+  test('the frame before the boot event, when the ball has not yet moved', async () => {
+    // develop.ts imports nothing from the browser at module level, so this runs in node.
+    const { contactFrame } = await import('./develop.ts');
+    const recorder = createRecorder();
+    shoot(recorder);
+    const take = recorder.last()!;
+    const struck = take.events.findIndex((e) => e.some((x) => x.kind === 'boot'));
+    assert.equal(contactFrame(take), struck - 1);
+    assert.equal(take.frames[contactFrame(take)]!.phase, 'runup');
+  });
+
+  test('none, before anybody has struck the ball', async () => {
+    const { contactFrame } = await import('./develop.ts');
+    const recorder = createRecorder();
+    recorder.offer(frame('runup', 0), []);
+    assert.equal(contactFrame(recorder.last()!), -1);
+  });
+});

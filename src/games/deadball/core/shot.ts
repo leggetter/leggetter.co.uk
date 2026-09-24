@@ -22,6 +22,7 @@ import {
   TIMING_PACE_LOSS,
   TIMING_PULL,
   TIMING_SPREAD,
+  TIMING_TELL,
 } from './units.ts';
 import type { Player, Shot, ShotInput } from './types.ts';
 import type { Rng } from './rng.ts';
@@ -62,8 +63,15 @@ const POWER_SIGMA = 0.28;
 /** Extra sigma under full pressure, before composure offsets it. */
 const PRESSURE_SIGMA = 0.4;
 
-/** Extra sigma from the worst possible contact, whoever is taking it. */
-const TIMING_SIGMA = 0.7;
+/**
+ * Extra sigma from the worst possible contact, whoever is taking it.
+ *
+ * Raised from 0.7 alongside `TIMING_TELL`. Against a computer keeper the spray
+ * no longer disguises the shot, because a bad contact is readable; against a
+ * person in goal, who reads nothing, missing the target is the only thing a
+ * scuff can cost, so there has to be enough of it to feel.
+ */
+const TIMING_SIGMA = 0.9;
 
 /** Standard deviation of Rng.nextBell, which is four uniforms recentered. */
 const BELL_SD = 0.2887;
@@ -162,9 +170,10 @@ export function resolveShot(
 
   const scatter = (): number => (rng.nextBell() / BELL_SD) * spread;
 
-  // A scuff squirts back toward the middle of the goal and stays low. This is
-  // the real cost of bad timing: not that the ball goes somewhere random, but
-  // that it stops finding the corners, where the goals are.
+  // A scuff squirts back toward the middle of the goal and stays low, so it
+  // stops finding the corners. On its own that was never a cost - a ball
+  // pulled away from the corner the keeper read is pulled away from the keeper
+  // too - and what makes it one is that the keeper can see it. See `tell`.
   const centred = 1 - mistimed * TIMING_CENTRE_PULL;
 
   // It also drags in a consistent direction, so releasing early pulls it left
@@ -231,17 +240,35 @@ export function resolveShot(
   // is a balloon or a daisy-cutter rather than a shape.
   const liftSpin = (clamp(input.lift + style.dip, 0, 1) * 2 - 1) * MAX_LIFT_SPIN;
 
+  /*
+    How much of a bad contact the keeper can see. Zero for a clean strike, so
+    a clean strike is untouched by any of this - same numbers, same draws.
+  */
+  const tell = Math.min(1, mistimed * TIMING_TELL);
+
   return {
     origin,
     velocity,
     spin: vec(liftSpin, sideSpin, 0),
-    // Deliberately the INTENDED target, not where the ball actually went. A
-    // keeper reads the run-up and the plant foot, so what they get is where
-    // you were trying to put it. Every source of error after this point -
-    // accuracy, nerves, a bad contact - moves the ball away from what they
-    // read. When the keeper read the struck direction instead, mistiming was
-    // invisible to them: the ball moved and they simply followed it.
-    aimPoint: { x: intendedX, y: intendedY },
+    /*
+      For a clean strike, deliberately the INTENDED target and not where the
+      ball actually went. A keeper reads the run-up and the plant foot, so what
+      they get is where you were trying to put it, and accuracy and nerves move
+      the ball away from what they read. When the keeper read the struck
+      direction for every shot, mistiming was invisible to them: the ball
+      moved and they simply followed it.
+
+      A bad contact is the exception, and in proportion to how bad. It is the
+      one error a keeper can see coming, so they read the line it was actually
+      struck on rather than the one it was meant for. Without this, mistiming
+      was a disguise: the ball went somewhere nobody had read, the keeper
+      saved less, and the timing bar cost nothing on a penalty.
+    */
+    aimPoint: {
+      x: intendedX + (targetX - intendedX) * tell,
+      y: intendedY + (targetY - intendedY) * tell,
+    },
+    tell,
   };
 }
 

@@ -251,8 +251,10 @@ late and it pushes right. That is the difference between a mistake a player can
 correct and a game that occasionally robs them.
 
 A bad contact also drags the ball back toward the middle of the goal and takes
-pace off it. That, rather than the scatter, is what actually punishes a scuff:
-it stops finding the corners, where the goals are.
+pace off it. This paragraph used to say that was what punished a scuff, and
+measuring said it did not: a ball pulled away from the corner the keeper read
+is pulled away from the keeper too. What punishes a scuff now is that **the
+keeper can see it** - see [A scuff the keeper can read](#a-scuff-the-keeper-can-read).
 
 Timing ignores the footballer's attributes entirely. It is the person holding
 the mouse, not the player on the pitch, so an accuracy-100 striker still gets
@@ -1495,7 +1497,11 @@ The deadzone is now proportional to the drag - a long drag wanders further in ab
 
 ### A wall that jumps
 
-**Proposed, not built.** The idea is that the wall has a chance to jump, so
+**Built, as readable rather than random** - see [How the jumping wall
+reads](#how-the-jumping-wall-reads) below for what shipped. The proposal as it
+was written first:
+
+The idea is that the wall has a chance to jump, so
 `driven` - low and hard, under the wall rather than over it - becomes a real
 choice rather than a label.
 
@@ -1522,6 +1528,62 @@ Worth knowing before anybody builds it: **no free kick has ever been taken in
 a two-device game**, and nobody has used `knuckle` at all. Two of Phase 8's
 features have no evidence either way, which makes this hard to tune against
 anything but opinion.
+
+#### How the jumping wall reads
+
+**Decided with the kick, and shown before the strike.** `setPieceFor` sets
+`wallJumps` from its own stream off the seed and the round, so both halves of a
+round face the same wall, the room and both devices work it out without
+sending anything, and no kick that had already been played changed. A wall
+that is going to jump is **crouched while you aim**, knees bent and set to
+spring; one that is not stands up straight. Nothing about it is random at the
+moment of the strike.
+
+**A different shape at different moments.** `wallHit` now takes the time since
+the strike. A jumping wall leaves the ground just after the ball does, and at
+the top of the jump its heads are higher than a standing wall's and its feet
+are drawn up off the ground, leaving a gap underneath. The top of the jump
+lands about when a driven shot arrives, and it is coming down, or already
+down, by the time a floated one does. `wallPoseAt` is the one description of that, and both the
+hit test and classic's figures read it, so the gap you see is the gap the ball
+meets.
+
+**The standing wall had to be shorter, which cost `dip` something.** `HEIGHT`
+was 2.15 m - a jumping player - on every wall. A standing wall is now 2.02 m
+and a jumping one tops out at 2.37 m. At 1.9 m, tried first, nearly anybody
+could float it over a standing wall whatever their `dip`, so the attribute
+meant nothing on half the free kicks. At 2.02 m, averaged over both kinds of
+wall, the share of full-height finesse shots at the covered post that clear it
+is 40% at `dip` 40 and 73% at 60 from an angle, where it was 28% and 73%. The
+split is the point: against a standing wall, 68% and 92%; against a jumping one, 12%
+and 55%.
+
+**The gap is generous, deliberately.** A real driven free kick under a wall is
+struck along the ground. This ball cannot be - the flattest arc to the bottom
+of the net passes the wall 30 to 50 cm up - so a wall whose feet rose only as
+far as a real jump opened a gap that nothing went through. The feet come up by
+the rise plus a `tuck`, 0.9 m in all at the top. With 0.65 m it was still
+better to float it over a jumping wall than to drive it under.
+
+Measured, clean strikes aimed straight at the post a four-man wall covers,
+2,000 a row:
+
+| wall | driven, aimed low | finesse, aimed high |
+| --- | --- | --- |
+| before: always 2.15 m | 0% | 29% |
+| standing | 0% | 33% |
+| jumping | **30%** | 26% |
+
+So `driven` is now the right answer to one wall and the wrong answer to the
+other, and the wall tells you which before you choose. Over the whole mixed
+spread of aims, free kicks barely moved: clean finesse, driven and knuckle
+score 34%, 36% and 36%, where they scored 33% each.
+
+The numbers - how often a wall jumps, how tall, how far and how soon - are in
+`content/walls.js` and in the tuning fingerprint, because two devices on
+different copies would disagree about which kicks were blocked without anyone
+being told. The fingerprint moved to `180d3531`. The chance of a jump is 0.5,
+which is an opinion: there is still no evidence to tune any of this against.
 
 ### Shape, and paying for it with the timing bar
 
@@ -1581,12 +1643,73 @@ where the shot is strongest** - at a full-height drag it is 80% against 72%,
 where at 0.7 it is 59% against 45%. If a single correct answer comes back, that
 row is where it will be.
 
-**What this did not fix: penalties.** Timing still does not move the goal rate
+**What this did not fix: penalties.** Timing still did not move the goal rate
 there - 76%, 79%, 76% across clean to badly mistimed - because `loft` is
 switched off on a penalty by design, and the rest of the timing model converts
-saves into misses rather than into goals conceded. The bar is honest on a free
-kick and close to decorative on a penalty. That is a balance question of its
-own and is not answered here.
+saves into misses rather than into goals conceded. The bar was honest on a free
+kick and close to decorative on a penalty. Answered in the next section.
+
+### A scuff the keeper can read
+
+Issue #77, and then confirmed on people: 37 recorded kicks, clean strikes
+scoring **58%** and mistimed ones **56%**. Two-thirds of kicks were mistimed and
+it cost them nothing.
+
+**Every cost a bad contact had was error, and error is what beats a keeper.**
+The keeper reads where you *meant* to put it. Scatter, the sideways pull and
+the drag back toward the middle all move the ball away from that, so a scuff
+was a disguise: it missed more, the keeper saved less, and the two cancelled.
+Pulling harder toward the middle made it worse rather than better - tried
+first, with less scatter to go with it, and the goal rate for a badly mistimed
+kick went *up* to 79%, because the keeper had dived for the corner and the
+middle was empty.
+
+The missing half was that **a scuff is the easiest penalty there is to read.**
+The taker falls away from it, it comes off the wrong part of the boot, and it
+arrives slowly. So a shot now carries a `tell`, 0 for a clean strike and 1 for
+a plainly bad one (`mistimed * TIMING_TELL`, capped - anything 0.4 or worse is
+all of it), and the keeper gets two things from it:
+
+- **It reads the line the ball was struck on**, rather than the one it was
+  meant for, in proportion to the tell.
+- **Its read error shrinks**, by up to `TELL_READ` (65%), for a keeper reading
+  the taker and one reading the ball alike.
+
+A clean strike has a tell of 0 and is **exactly the shot it was before** - same
+numbers, same random draws, and a test says so. Nothing got harder for
+somebody who hits the green.
+
+Measured against the default keeper, 2,000 penalties a row over a spread of
+aims, powers, the whole squad and all three styles:
+
+| timing | before: goal | saved | missed | after: goal | saved | missed |
+| --- | --- | --- | --- | --- | --- | --- |
+| clean | 64% | 23% | 14% | **64%** | 23% | 14% |
+| 0.3 off | 66% | 23% | 11% | **49%** | 34% | 17% |
+| 0.6 off | 68% | 20% | 14% | **32%** | 45% | 23% |
+
+"Missed" is wide, over, post and bar together. The weakest keeper gives 72%,
+67%, 59% and the strongest 55%, 32%, 16%, which is the right way round: a
+better keeper punishes a scuff harder.
+
+**Against a person in goal it is much weaker**, and that is a limit rather
+than an oversight. A person picks a spot before the ball is struck and reads
+nothing, so the tell does not reach them. The only thing a scuff can cost
+against a person is missing the target, which is why `TIMING_SIGMA` went up
+from 0.7 to 0.9 and `TIMING_CENTRE_PULL` came down from 0.55 to 0.3. Against a
+simulated person diving at random: 75%, 70%, 65%, where it was 75%, 75%, 74%.
+Going further means making a scuff miss a third of the time, which is a coin
+rather than a cost.
+
+Free kicks go the same way. Clean strikes are identical; mistimed ones, which
+used to score slightly *more* than clean ones on the same mixed spread of aims,
+now score less - finesse 33%, 28%, 24% across clean, 0.3 and 0.6, where it was
+33%, 37%, 39%.
+
+**The tuning fingerprint moved to `b9cae871`.** A room refuses a client whose
+fingerprint differs, so a bundle from before this and one from after cannot
+play each other, which is correct: they would resolve the same kick
+differently.
 
 ### Three ways to hit it
 

@@ -14,8 +14,9 @@
  *   composure   only matters when it is the last penalty and it is all on them.
  *              Low composure players get worse when it counts.
  *   dip        free kicks only. How much they can loft it over a wall and
- *              still bring it down under the bar. Below about 40 a four-man
- *              wall cannot be cleared; above about 60 it can.
+ *              still bring it down under the bar. Below about 50 a four-man
+ *              wall that jumps is rarely cleared; from about 60 it usually
+ *              is. A wall that stands is lower and most players clear it.
  *   foot       'left' or 'right'. Changes which way the ball naturally drifts.
  *   colors     kit is the shirt, trim is the shorts and socks.
  *

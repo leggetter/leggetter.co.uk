@@ -113,6 +113,29 @@ const VERTICAL_READ_FACTOR = 0.6;
  */
 const ANTICIPATION_PENALTY = 1.45;
 
+/**
+ * How much of a keeper's misread a fully telegraphed contact takes away.
+ *
+ * A scuffed penalty is the easiest kind to read: the taker leans away from it,
+ * it comes off the wrong part of the boot, and it arrives slowly. So the
+ * shot's `tell` - 0 for a clean strike, 1 for a plainly bad one - shrinks the
+ * read error by up to this fraction, for a keeper reading the taker and for
+ * one reading the ball alike.
+ *
+ * Not all of it. A keeper who knew exactly where every scuff was going would
+ * save every one, and a mistimed penalty should be a worse penalty rather than
+ * a certain miss. Measured against the default keeper, 2,000 penalties a row
+ * over a spread of aims, powers and all three styles: clean 64%, mistimed by
+ * 0.3 49%, by 0.6 32%, where it was 64%, 66% and 68% before - the bar used to
+ * pay you for missing it.
+ *
+ * A person in goal ignores this entirely: they chose where to go before the
+ * ball was struck and read nothing. Against them a bad contact costs only in
+ * how often it misses the target, which is `TIMING_SIGMA` and
+ * `TIMING_CENTRE_PULL`.
+ */
+const TELL_READ = 0.65;
+
 /** How long it takes to come down and finish flat. */
 const LANDING_SECONDS = 0.38;
 
@@ -131,6 +154,7 @@ export const KEEPER_TUNING: readonly number[] = [
   BODY_DIVE_DROP,
   IDLE_RANGE,
   IDLE_PERIOD,
+  TELL_READ,
 ];
 
 /**
@@ -150,6 +174,8 @@ export interface KeeperPlan {
   startX: number;
   /** Where a person chose to dive, already clamped to somewhere reachable. */
   chosen: Vec3 | null;
+  /** How plainly the contact gave itself away, 0 to 1. See `TELL_READ`. */
+  tell: number;
 }
 
 export interface KeeperSim {
@@ -191,7 +217,9 @@ export function planKeeper(
    * unchanged. Picking the top corner and being right still does not save a
    * shot struck hard and low into it.
    */
-  chosen: { x: number; y: number } | null = null
+  chosen: { x: number; y: number } | null = null,
+  /** The shot's `tell`: how readable a bad contact made it. */
+  tell = 0
 ): KeeperSim {
   // Guess, anticipate, or react, in that order of the roll. Whatever is not
   // claimed by the first two is a reaction, so a profile that sets neither
@@ -228,6 +256,7 @@ export function planKeeper(
       aimPoint,
       startX,
       chosen: chosen ? reachable(chosen.x, chosen.y, startX) : null,
+      tell: clamp01(tell),
     },
   };
 }
@@ -353,7 +382,7 @@ function readShot(plan: KeeperPlan, profile: KeeperProfile, ball: BallState): Ve
   const arrival = flyToLine(ball.position, ball.velocity);
   if (!arrival) return STANDING;
 
-  const sigma = readSigma(profile, 1);
+  const sigma = readSigma(profile, 1, plan.tell);
 
   return reachable(
     arrival.x + plan.readErrorX * sigma,
@@ -371,7 +400,7 @@ function readShot(plan: KeeperPlan, profile: KeeperProfile, ball: BallState): Ve
  * contact, which is the only way to reach a corner in 450 ms.
  */
 function readAim(plan: KeeperPlan, profile: KeeperProfile): Vec3 {
-  const sigma = readSigma(profile, ANTICIPATION_PENALTY);
+  const sigma = readSigma(profile, ANTICIPATION_PENALTY, plan.tell);
   return reachable(
     plan.aimPoint.x + plan.readErrorX * sigma,
     plan.aimPoint.y + plan.readErrorY * sigma * VERTICAL_READ_FACTOR,
@@ -394,10 +423,12 @@ function reachable(x: number, y: number, stance: number): Vec3 {
 
 /**
  * How wide this keeper's read is, as a multiplier on a `nextBell` draw.
- * Divided by BELL_SD so the configured sigma is the sigma you actually get.
+ * Divided by BELL_SD so the configured sigma is the sigma you actually get,
+ * and narrowed by however plainly a bad contact gave the shot away.
  */
-function readSigma(profile: KeeperProfile, penalty: number): number {
-  return ((1 - clamp01(profile.readAccuracy)) * MAX_READ_SIGMA * penalty) / BELL_SD;
+function readSigma(profile: KeeperProfile, penalty: number, tell: number): number {
+  const blind = (1 - clamp01(profile.readAccuracy)) * MAX_READ_SIGMA * penalty;
+  return (blind * (1 - clamp01(tell) * TELL_READ)) / BELL_SD;
 }
 
 /**

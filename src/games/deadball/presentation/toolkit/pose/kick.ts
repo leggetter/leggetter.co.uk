@@ -38,6 +38,7 @@ import {
   type Pose,
 } from './figure.ts';
 import { clamp01, easeInOut, hump, progress, sampleKeys, springKnock, type Key } from './motion.ts';
+import { kickClock, keyTime, plantRunUp } from '../doing/doing.ts';
 
 /** What the kick is drawn from. All of it is on the frame already, or is the view's to decide. */
 export interface KickInput {
@@ -71,17 +72,6 @@ export const TAKER_STATURE = 1.3 - 0.04;
 
 /** How far behind the ball the taker waits. */
 const WAITING_BACK = 1.35;
-
-/**
- * Nominal seconds for the run-up, used only to space the keys before the
- * strike against the ones after it when the curve through them is drawn.
- *
- * The run-up's real length is the game's (`RUN_UP_SECONDS` in Game.ts) and
- * the keys are fractions of it, so the contact lands on the strike whatever
- * that is set to. If the two drifted apart, the only cost would be a slightly
- * different speed through the moment of contact.
- */
-const NOMINAL_RUN_UP = 0.42;
 
 type Channel =
   | 'pelvis'
@@ -133,22 +123,14 @@ export function kickKeys(raw: unknown = KICK.keys): { name: string; at: number; 
   const list = (Array.isArray(raw) ? raw : []) as RawKey[];
   const timed = list
     .map((key, index) => {
-      const at =
-        typeof key.after === 'number' && Number.isFinite(key.after)
-          ? Math.max(0, key.after)
-          : (clamp01(finite(key.runUp, 1)) - 1) * NOMINAL_RUN_UP;
+      // One clock for every key, and the same one `doing/` names moments on.
+      const at = keyTime(key);
       const values: Partial<Record<Channel, Triple>> = {};
       for (const channel of CHANNELS) if (isTriple(key[channel])) values[channel] = key[channel];
       return { name: typeof key.name === 'string' ? key.name : `key ${index}`, at, values };
     })
     .sort((a, b) => a.at - b.at);
   return timed;
-}
-
-/** When the planted foot lands, as a fraction of the run-up. Everything before it is strides. */
-function plantRunUp(keys: { name: string; at: number }[]): number {
-  const plant = keys.find((k) => k.name === 'plant') ?? keys[0];
-  return plant ? Math.max(0.05, 1 + plant.at / NOMINAL_RUN_UP) : 0.66;
 }
 
 const APPROACH = {
@@ -240,10 +222,8 @@ export function takerPose(input: KickInput): Pose {
   const start = vec(waiting.x, standingHips, waiting.z);
 
   // The keys, in world metres, with the two worked-out boots filled in.
-  const struck = input.phase === 'flight' || input.phase === 'resolved' || input.phase === 'complete';
-  const running = input.phase === 'runup';
-  const u = running ? clamp01(input.runUp) : struck ? 1 : 0;
-  const t = struck ? Math.max(0, input.sinceStrike) : (u - 1) * NOMINAL_RUN_UP;
+  // Where the kick is: the same clock `doing/` names the taker's moments on.
+  const { struck, running, runUp: u, fromStrike: t } = kickClock(input);
 
   const plantKey = KEYS.find((k) => k.name === 'plant') ?? KEYS[0]!;
   const plantPelvis = at(plantKey.values.pelvis ?? [0.36, 0.84, -0.46]);

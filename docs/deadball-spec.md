@@ -161,6 +161,9 @@ src/games/deadball/
     toolkit/                  # shared by packages that opt in (#72 phase 4).
                               #   Imports only itself, core/ and content/,
                               #   never a package; toolkit.test.ts holds it
+      doing/                  # what each figure is doing and how far
+                              #   through: "planted, contact in 0.1 s".
+                              #   For every package; never imports body/
       body/                   # the jointed skeleton and its IK
       pose/                   # where each figure's body goes, in world
                               #   metres: the kick, the keeper, the wall

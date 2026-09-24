@@ -93,6 +93,19 @@ describe('the toolkit stands on its own', () => {
     }
   });
 
+  test('doing/ stands apart from the skeleton', () => {
+    // "What is it doing" is for every package, including ones with no bodies:
+    // a pixel package picks a sprite from it. So it may not pull the skeleton
+    // in behind it; the poses build on it, not the other way round.
+    const doing = files.filter((f) => f.name.startsWith(`doing${sep}`));
+    assert.ok(doing.length >= 1, 'doing/ was not found');
+    for (const file of doing) {
+      for (const from of importsOf(file.code)) {
+        assert.doesNotMatch(from, /\/(body|pose)\//, `${file.name} imports ${from}`);
+      }
+    }
+  });
+
   test('the check can see a bad import', () => {
     // The rule above is only as good as `areaOf`, so it is checked against
     // the three mistakes it exists to catch.

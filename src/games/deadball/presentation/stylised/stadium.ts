@@ -18,6 +18,7 @@ import {
   BackSide,
   BoxGeometry,
   BufferAttribute,
+  BufferGeometry,
   CanvasTexture,
   Color,
   CylinderGeometry,
@@ -286,6 +287,43 @@ function seats(): Seat[] {
   return all;
 }
 
+/** Where an arm hangs from, and pivots from when it goes up. */
+const SHOULDER_X = 0.215;
+const SHOULDER_Y = 0.47;
+const HEAD_Y = 0.66;
+/** Above this on the head is hair. A little above the middle, so it reads as a hairline and not a hat. */
+const HAIRLINE = HEAD_Y + 0.035;
+
+/**
+ * One person in the crowd, as a single geometry: a torso, a head and two arms.
+ *
+ * It used to be two boxes, and the square heads were the first thing anybody
+ * noticed. It has to stay cheap because it is drawn up to 20,000 times: 118
+ * triangles against the boxes' 24, so 2.4 million on the high tier. A 7 by 5
+ * sphere for the head, which still reads as round from the stands; a tapered
+ * cylinder flattened front to back for the torso; a neck with no end caps,
+ * since nobody sees them; and a thin box per arm. `aPart` tells the shader which is which (0 torso, 1 head, 2 arm), so
+ * one instance can have skin, hair, a shirt and arms that go up.
+ */
+function person() {
+  const tag = <T extends BufferGeometry>(geometry: T, part: number): T => {
+    const count = geometry.getAttribute('position').count;
+    geometry.setAttribute('aPart', new BufferAttribute(new Float32Array(count).fill(part), 1));
+    return geometry;
+  };
+  const torso = new CylinderGeometry(0.19, 0.15, 0.48, 7).scale(1, 1, 0.68).translate(0, 0.24, 0);
+  const neck = new CylinderGeometry(0.05, 0.055, 0.08, 5, 1, true).translate(0, 0.52, 0);
+  const head = new SphereGeometry(0.105, 7, 5).scale(0.92, 1.05, 1).translate(0, HEAD_Y, 0);
+  const arm = (side: number) => new BoxGeometry(0.08, 0.42, 0.09).translate(side * SHOULDER_X, SHOULDER_Y - 0.2, 0);
+  return mergeGeometries([
+    tag(torso.toNonIndexed(), 0),
+    tag(neck.toNonIndexed(), 1),
+    tag(head.toNonIndexed(), 1),
+    tag(arm(-1).toNonIndexed(), 2),
+    tag(arm(1).toNonIndexed(), 2),
+  ])!;
+}
+
 function buildCrowd(own: Own, size: number, colours: CrowdColours): Crowd {
   // Shuffled with stable noise, then cut to size, so a smaller crowd is the
   // same crowd with gaps rather than one stand full and the others empty.
@@ -294,14 +332,7 @@ function buildCrowd(own: Own, size: number, colours: CrowdColours): Crowd {
     .sort((a, b) => a.order - b.order)
     .map(({ seat }) => seat);
   const count = Math.min(size, everyone.length);
-  // A torso and a head, one geometry. The shader tells them apart by height
-  // and paints the head skin-coloured, so a person is still one instance.
-  const body = own(
-    mergeGeometries([
-      new BoxGeometry(0.4, 0.5, 0.28).translate(0, 0.25, 0),
-      new BoxGeometry(0.2, 0.22, 0.2).translate(0, 0.62, 0),
-    ])!
-  );
+  const body = own(person());
 
   const phase = new Float32Array(count * 4);
   const matrix = new Matrix4();
@@ -336,16 +367,40 @@ function buildCrowd(own: Own, size: number, colours: CrowdColours): Crowd {
         float up = step(aSeat.x, uStrength * pleased);
         float t = uClock - uStart - abs(aSeat.z - uFrom) * 0.35 - aSeat.x * 0.2;
         float jump = t > 0.0 && t < 3.2 ? abs(sin(t * 6.5 + aSeat.x * 6.2831)) * (1.0 - t / 3.2) : 0.0;
-        vHead = position.y > 0.5 ? 1.0 : 0.0;
+        // Arms go up with the first jump and come down as the jumping dies
+        // away: the one gesture that reads as a goal from the far end.
+        float raise = up * (t > 0.0 && t < 3.2 ? smoothstep(0.0, 0.25, t) * (1.0 - smoothstep(2.2, 3.2, t)) : 0.0);
+        if (aPart > 1.5) {
+          float side = sign(position.x);
+          vec2 pivot = vec2(side * ${SHOULDER_X.toFixed(3)}, ${SHOULDER_Y.toFixed(3)});
+          float a = side * raise * 2.6;
+          vec2 p = transformed.xy - pivot;
+          transformed.xy = pivot + vec2(p.x * cos(a) - p.y * sin(a), p.x * sin(a) + p.y * cos(a));
+        }
+        vPart = aPart;
+        vLocalY = position.y;
+        vLook = vec2(aSeat.w, fract(aSeat.x * 7.13));
         transformed.y += up * jump * 0.42 + sin(uClock * 1.7 + aSeat.x * 40.0) * 0.015;`
       )
-      .replace('#include <common>', '#include <common>\nvarying float vHead;');
+      .replace(
+        '#include <common>',
+        '#include <common>\nattribute float aPart;\nvarying float vPart;\nvarying float vLocalY;\nvarying vec2 vLook;'
+      );
     shader.fragmentShader = shader.fragmentShader
-      .replace('#include <common>', '#include <common>\nvarying float vHead;')
+      .replace('#include <common>', '#include <common>\nvarying float vPart;\nvarying float vLocalY;\nvarying vec2 vLook;')
       .replace(
         '#include <color_fragment>',
         `#include <color_fragment>
-        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.62, 0.42, 0.31), vHead);`
+        // Skin anywhere from pale to dark, a continuous range rather than a
+        // few fixed tones, so no two neighbours are obviously the same.
+        vec3 skin = mix(vec3(0.94, 0.78, 0.66), vec3(0.33, 0.21, 0.15), vLook.x);
+        // Dark, brown, fair and grey, roughly in the proportions a crowd has.
+        vec3 hair = vLook.y < 0.45 ? vec3(0.09, 0.07, 0.06)
+          : vLook.y < 0.75 ? vec3(0.28, 0.18, 0.11)
+          : vLook.y < 0.88 ? vec3(0.70, 0.56, 0.34)
+          : vec3(0.62, 0.62, 0.64);
+        bool head = vPart > 0.5 && vPart < 1.5;
+        if (head) diffuseColor.rgb = vLocalY > ${HAIRLINE.toFixed(3)} ? hair : skin;`
       );
   };
 
@@ -354,7 +409,7 @@ function buildCrowd(own: Own, size: number, colours: CrowdColours): Crowd {
     const seat = everyone[i]!;
     matrix.makeRotationY(seat.yaw).setPosition(seat.x, seat.y, seat.z);
     mesh.setMatrixAt(i, matrix);
-    phase.set([hash(i, 3), seat.end, seat.along, 0], i * 4);
+    phase.set([hash(i, 3), seat.end, seat.along, hash(i, 11)], i * 4);
   }
   mesh.geometry = body;
   body.setAttribute('aSeat', new InstancedBufferAttribute(phase, 4));

@@ -3,7 +3,7 @@ import { describe, test } from 'node:test';
 
 import type { GameEvent } from '../core/events.ts';
 import type { FrameState, MatchPhase } from '../core/types.ts';
-import { AFTERWARDS, createRecorder, MAX_FRAMES } from './record.ts';
+import { AFTER_RESULT, createRecorder, MAX_FRAMES } from './record.ts';
 
 /** Only the fields the recorder reads. The rest is carried, never looked at. */
 const frame = (phase: MatchPhase, clock: number, shotIndex = 0): FrameState =>
@@ -35,7 +35,7 @@ describe('recording the last shot', () => {
     assert.equal(recorder.last(), null);
   });
 
-  test('every frame from the run-up to the result, then thinner afterwards', () => {
+  test('every frame from the run-up, stopping just after the shot is decided', () => {
     const recorder = createRecorder();
     shoot(recorder);
     recorder.offer(frame('ready', 9, 1), []);
@@ -43,20 +43,19 @@ describe('recording the last shot', () => {
     const phases = take.frames.map((f) => f.phase);
     assert.equal(phases.filter((p) => p === 'runup').length, 30);
     assert.equal(phases.filter((p) => p === 'flight').length, 60);
+    // Two seconds of result were offered; only AFTER_RESULT of them are kept.
     const after = take.frames.filter((f) => f.phase === 'resolved');
-    assert.ok(after.length >= 55 && after.length <= 62, `${after.length} frames after the result`);
-    for (let i = 1; i < after.length; i++) {
-      assert.ok(after[i]!.clock - after[i - 1]!.clock >= AFTERWARDS * 0.9);
-    }
+    const kept = after.at(-1)!.clock - after[0]!.clock;
+    assert.ok(kept <= AFTER_RESULT + 1e-9 && kept > AFTER_RESULT - 1 / 30, `${kept.toFixed(3)} s kept after the result`);
   });
 
-  test('no event is lost, however thin the frames get', () => {
+  test('the shot in progress stops growing once it is over, even before the next kick', () => {
+    // Pressing F during the hold after a goal must not show the celebration.
     const recorder = createRecorder();
-    const clock = shoot(recorder);
-    // A late event on a frame that would otherwise have been skipped.
-    recorder.offer(frame('resolved', clock + 1e-3), [resolved]);
-    const kinds = recorder.last()!.events.flat().map((e) => e.kind);
-    assert.deepEqual(kinds, ['boot', 'resolved', 'resolved']);
+    shoot(recorder);
+    const before = recorder.last()!.frames.length;
+    recorder.offer(frame('resolved', 99), []);
+    assert.equal(recorder.last()!.frames.length, before);
   });
 
   test('frames and events stay index for index', () => {

@@ -29,36 +29,36 @@ export interface Recorder {
   last(): Take | null;
 }
 
-/** From the run-up to the next kick being set up. */
+/** From the run-up until just after the shot is decided. See AFTER_RESULT. */
 const FILMED = new Set(['runup', 'flight', 'resolved']);
 
 /**
- * After the result, one frame in every this many seconds.
+ * How long the film runs on once the shot has been decided.
  *
- * Up to the result every rendered frame is kept. The boot is on the ball for
- * about a frame and a half at 60 Hz, and that is the frame anybody stepping
- * through is looking for. The celebration afterwards runs for seconds and
- * changes slowly, so it is thinned to save memory.
+ * The shot is decided the moment the ball crosses the line, hits the wall, or
+ * can no longer go in - that is when `resolved` fires. Stopping on that frame
+ * would cut off the ball hitting the net and the parry. Half a second shows
+ * both, and stops before the celebration, which is the game's and not the
+ * shot's. The film used to run for the whole two-second hold after a result.
  */
-export const AFTERWARDS = 1 / 30;
-
-/** Frame times jitter, and two 60 Hz frames rarely add up to exactly 1/30. */
-const SLACK = 0.9;
+export const AFTER_RESULT = 0.5;
 
 /** About ten seconds at 60 Hz, which is longer than any shot. */
 export const MAX_FRAMES = 600;
 
 export function createRecorder(): Recorder {
-  let current: { shotIndex: number; frames: FrameState[]; events: GameEvent[][] } | null = null;
+  let current: {
+    shotIndex: number;
+    frames: FrameState[];
+    events: GameEvent[][];
+    /** On the frame clock. Null until the shot has been decided. */
+    endsAt: number | null;
+  } | null = null;
   let finished: Take | null = null;
-  /** Events from frames that were not kept, so none go missing. */
-  let carried: GameEvent[] = [];
-  let lastKept = -Infinity;
 
   const finish = (): void => {
     if (current && current.frames.length > 0) finished = current;
     current = null;
-    carried = [];
   };
 
   return {
@@ -67,20 +67,16 @@ export function createRecorder(): Recorder {
       if (current && (!filmed || frame.shotIndex !== current.shotIndex)) finish();
       if (!filmed) return;
 
-      if (!current) {
-        current = { shotIndex: frame.shotIndex, frames: [], events: [] };
-        lastKept = -Infinity;
-      }
+      if (!current) current = { shotIndex: frame.shotIndex, frames: [], events: [], endsAt: null };
       if (current.frames.length >= MAX_FRAMES) return;
+      if (current.endsAt !== null && frame.clock > current.endsAt) return;
 
-      carried.push(...events);
-      if (frame.phase === 'resolved' && frame.clock - lastKept < AFTERWARDS * SLACK && carried.length === 0) return;
-
+      if (current.endsAt === null && events.some((event) => event.kind === 'resolved')) {
+        current.endsAt = frame.clock + AFTER_RESULT;
+      }
       // The match is immutable, but the kit colours are edited in place.
       current.frames.push(frame.kits ? { ...frame, kits: { ...frame.kits } } : frame);
-      current.events.push(carried);
-      carried = [];
-      lastKept = frame.clock;
+      current.events.push([...events]);
     },
 
     last() {

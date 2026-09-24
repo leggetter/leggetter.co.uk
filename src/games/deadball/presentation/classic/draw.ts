@@ -606,10 +606,11 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   const chest = proj.project(s.chest);
   if (!chest) return;
 
-  const line = (a: Vec3, b: Vec3, colour: string, width: number): void => {
+  const line = (a: Vec3, b: Vec3, colour: string, width: number, cap: CanvasLineCap = 'round'): void => {
     const pa = proj.project(a);
     const pb = proj.project(b);
     if (!pa || !pb) return;
+    ctx.lineCap = cap;
     ctx.strokeStyle = colour;
     ctx.lineWidth = Math.max(1.5, width * size * ((pa.scale + pb.scale) / 2));
     ctx.beginPath();
@@ -638,20 +639,35 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
     ctx.stroke();
   };
 
+  const depth = (v: Vec3): number => proj.project(v)?.depth ?? 0;
+
+  /*
+    Each limb's segments far to near, by where they actually are.
+
+    A fixed order - thigh, shin, boot - is right from in front and wrong from
+    behind: the foot points away from a camera behind the taker, so the boot
+    belongs *behind* the shin, and drawn last it sat on top of the back of the
+    leg. Sorting by depth gets both cameras right, and the one behind the goal.
+  */
   const limbs = (side: Side): void => {
-    line(side.hip, side.knee, figure.trim, LIMB.leg);
-    line(side.knee, side.ankle, figure.kit, LIMB.leg * 0.82);
-    line(side.ankle, side.toe, COLORS.boot, LIMB.leg * 0.95);
-    line(side.shoulder, side.elbow, figure.kit, LIMB.arm);
-    line(side.elbow, side.wrist, COLORS.skin, LIMB.arm * 0.86);
-    line(side.wrist, side.hand, COLORS.skin, LIMB.arm * 0.8);
+    const segments: [Vec3, Vec3, string, number][] = [
+      [side.hip, side.knee, figure.trim, LIMB.leg],
+      [side.knee, side.ankle, figure.kit, LIMB.leg * 0.82],
+      [side.ankle, side.toe, COLORS.boot, LIMB.leg * 0.95],
+      [side.shoulder, side.elbow, figure.kit, LIMB.arm],
+      [side.elbow, side.wrist, COLORS.skin, LIMB.arm * 0.86],
+      [side.wrist, side.hand, COLORS.skin, LIMB.arm * 0.8],
+    ];
+    segments
+      .map((segment) => ({ segment, far: depth(segment[0]) + depth(segment[1]) }))
+      .sort((x, y) => y.far - x.far)
+      .forEach(({ segment: [a, b, colour, width] }) => line(a, b, colour, width));
     glove(side);
   };
 
   // Further from the camera first. Depth is along the view axis, so this
   // holds for every camera, including the one behind the goal.
-  const depthOf = (side: Side): number =>
-    (proj.project(side.shoulder)?.depth ?? 0) + (proj.project(side.hip)?.depth ?? 0);
+  const depthOf = (side: Side): number => depth(side.shoulder) + depth(side.hip);
   const [far, near] = depthOf(s.left) >= depthOf(s.right) ? [s.left, s.right] : [s.right, s.left];
 
   ctx.save();
@@ -665,7 +681,10 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   line(s.chest, s.head, COLORS.skin, LIMB.head * 0.62);
   line(s.left.hip, s.right.hip, figure.trim, LIMB.leg * 1.1);
   line(s.pelvis, s.chest, figure.kit, LIMB.torso);
-  line(s.left.shoulder, s.right.shoulder, figure.kit, LIMB.arm * 1.15);
+  // Square ends, stopping at the shoulder joints. Rounded, the bar ran on past
+  // them and covered where the sleeve starts, so the arm looked as if it came
+  // out of the collarbone. The sleeve's own rounded end is the shoulder.
+  line(s.left.shoulder, s.right.shoulder, figure.kit, LIMB.arm * 1.15, 'butt');
   limbs(near);
 
   const head = proj.project(s.head);
@@ -960,8 +979,14 @@ export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
   };
 
   const out = 0.3 + lean * 0.2 + follow * 0.18 + Math.abs(swing) * 0.12;
+  // Hands at hip height, where arms hang. They were 22 cm below the shoulder,
+  // which drew fine as a straight line from the shoulder and folds a real arm
+  // double with the elbow pointing straight at the camera behind the taker -
+  // so from there the upper arm vanished and the forearm grew out of the
+  // shoulder. Changed in phase 2 of #72 rather than waiting for phase 3,
+  // because it looked broken rather than merely unpolished.
   const hand = (arm: -1 | 1): Vec3 =>
-    vec(shoulder.x + arm * out, shoulder.y - 0.22 + lean * 0.15 - swing * arm * 0.12, shoulder.z);
+    vec(shoulder.x + arm * out, shoulder.y - 0.5 + lean * 0.15 - swing * arm * 0.12, shoulder.z);
 
   drawFigure(ctx, proj, {
     feet,

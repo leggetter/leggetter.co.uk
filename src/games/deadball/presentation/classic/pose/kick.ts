@@ -442,9 +442,12 @@ export function takerPose(input: KickInput): Pose {
     const level = flatten(facing);
     // The hand on this side goes the opposite way to the foot on this side.
     const stride = dot(sub(ankle, pelvis), level);
-    const swing = Math.max(-0.35 * size, Math.min(0.35 * size, -APPROACH.armSwing * stride));
+    const swing = Math.max(-0.3 * size, Math.min(0.3 * size, -APPROACH.armSwing * stride));
     const out = scale(right, (foot === 'plant' ? side : -side) * 0.06 * size);
-    return add(add(add(shoulderOf(foot), vec(0, -0.46 * size, 0)), scale(level, swing)), out);
+    // Nearly the arm's full length below the shoulder, and a touch forward.
+    // Much higher and the arm has to fold, and the elbow folds back - straight
+    // at the camera behind the taker, where it reads as an arm across the back.
+    return add(add(add(shoulderOf(foot), vec(0, -0.66 * size, 0)), scale(level, swing + 0.06 * size)), out);
   };
   if (!plantHand || !kickHand) {
     const x = u / PLANT_AT;

@@ -167,6 +167,11 @@ src/games/deadball/
       stand.ts                # terracing, hoardings, crowd (Phase 3.5)
       lineup.ts               # the other twenty, on the halfway line
       sounds.ts               # this package's overrides and its samples
+      body/                   # the jointed skeleton and its IK. Pure: imports
+                              #   nothing from the rest of classic (#72)
+      pose/                   # what each figure is doing, in world metres:
+                              #   the kick, the keeper, the wall. Pure too,
+                              #   and never imports draw.ts (#72 phase 3)
     pixel/                    # later
   input/
     drag.ts                   # Pointer Events -> DragGesture
@@ -191,6 +196,8 @@ src/games/deadball/
     boards.js                 # what the hoardings say. No real people's names
     takers.js                 # the computers you have to save from
     shots.js                  # finesse, driven, knuckle, as multipliers
+    proportions.js            # bone lengths for the jointed figure
+    poses.js                  # key poses and their timing: kick, keeper, wall
     teams.js                  # squads and kits, by rating (Phase 4.5)
   Game.ts                     # wiring: input -> match -> view, the frame loop
   main.ts                     # browser entry, imported by the Astro page
@@ -1535,9 +1542,16 @@ anything but opinion.
 `wallJumps` from its own stream off the seed and the round, so both halves of a
 round face the same wall, the room and both devices work it out without
 sending anything, and no kick that had already been played changed. A wall
-that is going to jump is **crouched while you aim**, knees bent and set to
-spring; one that is not stands up straight. Nothing about it is random at the
-moment of the strike.
+that is going to jump is **set to spring while you aim** - squatting deep,
+knees out, chest over the knees and arms swung back - and one that is not
+stands up straight. Nothing about it is random at the moment of the strike.
+
+The set is drawn much deeper than the physical crouch (`CROUCH`, 14% of the
+height), because 14 cm on one wall with nothing to compare it to read as
+slightly shorter people. That is drawing only: the crouch only exists while
+the ball is still on the spot, and once they leave the ground the drawn
+shoulders and feet follow `wallPoseAt` exactly (`wall.test.ts`). The poses
+are in `content/poses.js` under `JUMPING_WALL`.
 
 **A different shape at different moments.** `wallHit` now takes the time since
 the strike. A jumping wall leaves the ground just after the ball does, and at

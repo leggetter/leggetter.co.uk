@@ -1,0 +1,188 @@
+/**
+ * How the players move: key poses, and the numbers that time them.
+ *
+ * Phase 3 of #72. Like `shots.js`, this is meant to be edited: change a
+ * number, refresh, take five penalties and see whether it looks better.
+ * Nothing here can change an outcome. It is read only by the jointed figure
+ * in presentation/classic/pose/, and a package that draws sprites would have
+ * a sprite sheet where this file is.
+ *
+ * **The kick.** Positions are `[out, up, forward]` in metres, measured from
+ * the grass under the ball, for a 1.80 m body - a smaller taker has them
+ * scaled down with the rest of them.
+ *
+ *   out       toward the side the taker runs in from, which is where the
+ *             planted foot goes. Mirrored for a left-footer, so one set of
+ *             numbers does both.
+ *   up        off the grass.
+ *   forward   toward the goal.
+ *
+ * `chest` and `head` are directions rather than positions: which way the
+ * spine leans from the hips, and which way the head sits on the neck.
+ *
+ * Each key is either `runUp` - how far through the run-up, 0 to 1, where 1 is
+ * the instant the boot meets the ball - or `after`, seconds after that. **A
+ * key leaves out whatever has not moved since the key before it**, which is
+ * how the planted foot stays planted: it is given once, in `plant`, and held
+ * exactly from there on.
+ *
+ * Two things are worked out rather than written here, because they have to be
+ * exact: where the kicking boot is at `strike` and `contact` (it is put on the
+ * ball, from `contact` below), and where it is at `plant` (still on the grass
+ * where the last stride of the run-up left it).
+ */
+
+/** @typedef {[number, number, number]} Triple */
+
+/**
+ * @typedef {{
+ *   name: string,
+ *   runUp?: number,
+ *   after?: number,
+ *   pelvis?: Triple,
+ *   chest?: Triple,
+ *   head?: Triple,
+ *   plantAnkle?: Triple,
+ *   plantToe?: Triple,
+ *   kickAnkle?: Triple,
+ *   kickToe?: Triple,
+ *   plantHand?: Triple,
+ *   kickHand?: Triple,
+ * }} KickKey
+ */
+
+export const KICK = {
+  /**
+   * The run-up, before the planted foot lands.
+   *
+   *   strides      footfalls between standing and the plant: the planted
+   *                foot's, then the kicking foot's.
+   *   lastStride   how far behind the hips at the plant the kicking foot's
+   *                last footfall is. The long last stride that loads a kick.
+   *   landsAhead   how far in front of the hips a foot lands, metres.
+   *   liftsBehind  how far behind them it leaves the grass. Between the two
+   *                it does not move at all - see `pose.test.ts`.
+   *   stepHeight   how high a foot comes up through a stride.
+   *   bob          how much the hips drop onto each footfall.
+   *   lean         how far forward the chest is thrown while running.
+   *   armSwing     arms against legs: how much of a foot's stride the
+   *                opposite hand swings through.
+   *   stance       how far apart the feet are, standing waiting.
+   */
+  approach: {
+    lastStride: 0.42,
+    landsAhead: 0.24,
+    liftsBehind: 0.28,
+    stepHeight: 0.16,
+    bob: 0.03,
+    lean: 0.22,
+    armSwing: 0.6,
+    stance: 0.3,
+  },
+
+  /**
+   * Which part of the boot meets the ball, and how the foot is turned.
+   *
+   *   yaw        degrees the toe turns out from straight at the goal. 90 is
+   *              a pure side-foot; 0 would be a toe-poke.
+   *   pitch      degrees the toe points down.
+   *   strikeAt   where along the boot, 0 the ankle and 1 the toe.
+   *   push       metres the boot travels through the ball between `strike`
+   *              and `contact`, which is how long it is seen on it.
+   */
+  contact: {
+    // Somewhere between a side-foot and the laces, which is most penalties.
+    // The boot is drawn as thick as the ball's radius, so much more pitch than
+    // this puts the toe into the grass at contact, and a test says so.
+    yaw: 45,
+    pitch: 12,
+    strikeAt: 0.62,
+    push: 0.03,
+  },
+
+  /** @type {KickKey[]} */
+  keys: [
+    {
+      // The last stride lands: planted foot beside the ball, hips still
+      // behind it and low, the arm on that side swung back.
+      name: 'plant',
+      runUp: 0.66,
+      pelvis: [0.36, 0.84, -0.46],
+      chest: [0.04, 1, 0.14],
+      head: [0, 1, 0.3],
+      plantAnkle: [0.27, 0.09, -0.08],
+      plantToe: [-0.08, 0, 1],
+      plantHand: [0.52, 0.78, -0.66],
+      kickHand: [-0.02, 0.98, -0.06],
+    },
+    {
+      // Heel up behind, knee leading. The balancing arm is on its way out.
+      name: 'backswing',
+      runUp: 0.84,
+      pelvis: [0.31, 0.82, -0.3],
+      chest: [0.1, 1, 0.04],
+      head: [0.04, 1, 0.34],
+      kickAnkle: [0.1, 0.52, -0.8],
+      kickToe: [0, -1, -0.5],
+      plantHand: [0.86, 1.08, -0.34],
+      kickHand: [-0.2, 0.88, -0.24],
+    },
+    {
+      // The boot arrives on the ball, a couple of frames early. It is placed
+      // there rather than written here - see `contact`.
+      name: 'strike',
+      runUp: 0.94,
+      pelvis: [0.28, 0.8, -0.22],
+      chest: [0.18, 1, -0.06],
+      head: [0.05, 1, 0.36],
+      plantHand: [1.02, 1.18, -0.12],
+      kickHand: [-0.2, 0.86, -0.46],
+    },
+    {
+      // Contact. Leaning away from the kicking leg with that arm out wide
+      // for balance, the other swung back against the leg.
+      name: 'contact',
+      runUp: 1,
+      pelvis: [0.27, 0.8, -0.19],
+      chest: [0.2, 1, -0.08],
+      head: [0.05, 1, 0.36],
+      plantHand: [1.05, 1.2, -0.08],
+      kickHand: [-0.2, 0.85, -0.5],
+    },
+    {
+      // Follow-through: the leg carries on up toward the goal, the hips come
+      // through over the planted foot, and the arms swap.
+      name: 'follow',
+      after: 0.14,
+      pelvis: [0.2, 0.86, 0.02],
+      chest: [0.1, 1, -0.2],
+      head: [0, 1, 0.2],
+      kickAnkle: [-0.1, 0.62, 0.56],
+      kickToe: [-0.12, 0.4, 1],
+      plantHand: [0.56, 1.02, 0.3],
+      kickHand: [-0.46, 0.92, -0.3],
+    },
+    {
+      // The kicking foot comes down in front, and the weight goes onto it.
+      name: 'land',
+      after: 0.42,
+      pelvis: [0.12, 0.86, 0.2],
+      chest: [0.02, 1, 0.08],
+      head: [0, 1, 0.12],
+      kickAnkle: [-0.08, 0.09, 0.5],
+      kickToe: [-0.04, 0, 1],
+      plantHand: [0.44, 0.64, 0.26],
+      kickHand: [-0.2, 0.64, 0.2],
+    },
+    {
+      // Stood watching it go.
+      name: 'watch',
+      after: 0.9,
+      pelvis: [0.12, 0.92, 0.18],
+      chest: [0, 1, 0],
+      head: [0, 1, 0],
+      plantHand: [0.37, 0.5, 0.22],
+      kickHand: [-0.13, 0.5, 0.22],
+    },
+  ],
+};

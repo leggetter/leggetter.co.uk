@@ -24,13 +24,19 @@ import {
 import type { FrameState, KeeperState, Outcome } from '../../core/types.ts';
 import type { FullTime, Summary } from '../../telemetry/analyse.ts';
 import { add, length, normalize, scale, sub, vec, type Vec3 } from '../../core/vec3.ts';
+import type { Side } from './body/skeleton.ts';
 import {
-  BODY,
-  scaleProportions,
-  solveBody,
-  type Side,
-  type Skeleton,
-} from './body/skeleton.ts';
+  BREATH_PERIOD,
+  LIMB,
+  poseBody,
+  poseSize,
+  SWAY_PERIOD,
+  TOWARD_TAKER,
+  wave,
+  isIdle,
+  type Figure,
+} from './pose/figure.ts';
+import { takerPose } from './pose/kick.ts';
 import type { SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
 import { KEEPER_KIT, teamKits, type TeamKits } from './kits.ts';
@@ -358,58 +364,11 @@ export function drawGoalFrame(ctx: Ctx, proj: Projector, z = 0): void {
 }
 
 /**
- * The keeper: feet, torso, head, and an arm out to the gloves.
- *
- * The body drops and leans as the dive extends, so a full-stretch save reads
- * as a dive rather than as a standing figure with a long arm. Crude, and meant
- * to be: this is the part a pixel art renderer replaces wholesale.
+ * Every figure is a `Figure` - a pose, dressed - drawn by `drawFigure` below.
+ * Poses are worked out in pose/, which is pure and never imports this file, so
+ * a test can run a whole kick through them without a canvas.
  */
-/**
- * One figure, drawn one way.
- *
- * The taker and the keeper are the same construction with different poses and
- * different kit: two legs from the hip, a torso, two arms, a head. They were
- * written separately at first and immediately drifted - different line weights,
- * different head sizes, one of them with a single arm - so they share this.
- *
- * It is also the seam the pixel art renderer replaces: swap this one function
- * and everybody on the pitch changes together.
- */
-export interface Figure {
-  /** Where the feet are planted on the ground. */
-  feet: Vec3;
-  /** Top of the torso. */
-  shoulder: Vec3;
-  head: Vec3;
-  /** Both hands. Everyone has two. */
-  hands: [Vec3, Vec3];
-  /** Both toes. */
-  toes: [Vec3, Vec3];
-  kit: string;
-  trim: string;
-  /**
-   * Glove radius in meters. Zero for bare hands.
-   *
-   * Never scaled with the body: it is the keeper's save radius, drawn, and a
-   * smaller keeper does not save less.
-   */
-  gloves?: number;
-  alpha?: number;
-  /** Which way the chest faces. Toward the taker (-z) if left out. */
-  facing?: Vec3;
-  /**
-   * How high the shoulders are above the feet when this person stands up
-   * straight, in meters. Sets the size of the body.
-   *
-   * A constant per person, not read off the current pose - otherwise a taker
-   * crouching over the ball would shrink instead of bending their knees.
-   * Worked out from the pose if left out, which is only right for somebody
-   * who is standing still.
-   */
-  stature?: number;
-}
-
-const LIMB = { leg: 0.13, torso: 0.28, arm: 0.12, head: 0.115 };
+export type { Figure } from './pose/figure.ts';
 
 /**
  * Below this width the HUD is on a phone and has to be told so.
@@ -485,107 +444,11 @@ function fitFont(
 
 
 /**
- * Standing still, breathing.
- *
- * Deliberately below the threshold of looking like an animation: a couple of
- * centimeters of chest, and a centimeter of weight shifting from one foot to
- * the other on a different period so the two never line up into an obvious
- * bob. At the taker's distance that is three or four pixels.
- *
- * Periods are in seconds. A penalty taker waiting to be told to go is keyed
- * up rather than resting, so the breathing is a little quicker than idle.
+ * The jointed body for a figure. Lives with the poses, in pose/figure.ts, and
+ * exported from here under its old name for the tests that check the keeper's
+ * gloves frame by frame.
  */
-const BREATH_PERIOD = 3.1;
-const SWAY_PERIOD = 5.3;
-
-const wave = (clock: number, period: number, phase = 0): number =>
-  Math.sin((clock / period + phase) * Math.PI * 2);
-
-/**
- * Whether anybody is standing about rather than moving.
- *
- * Only before the kick. Carrying the breathing through the follow-through left
- * the taker rising and falling while frozen in mid-air with one boot off the
- * ground, which reads as a bug rather than as somebody alive.
- */
-const isIdle = (phase: string): boolean => phase === 'ready';
-
-/**
- * How far an ankle sits above the toe it rests on, for a 1.80 m body.
- *
- * `Figure` gives toes on the grass; the skeleton solves to ankles. Lifting the
- * ankle by this much puts the boot's lower edge back on the grass once it is
- * drawn at its thickness, instead of the whole boot sinking into the pitch.
- */
-const ANKLE_LIFT = 0.06;
-
-/** Shoulder height above the feet of the 1.80 m body, standing up straight. */
-const STANDING_SHOULDER = ANKLE_LIFT + (BODY.thigh + BODY.shin) * 0.985 + BODY.spine;
-
-/** How big this person is next to the 1.80 m body. One answer for the bones and the line widths. */
-function figureSize(figure: Figure): number {
-  const stature = figure.stature ?? figure.shoulder.y - figure.feet.y;
-  const size = Math.min(1.4, Math.max(0.6, stature / STANDING_SHOULDER));
-  /*
-    Never smaller than full size for somebody in gloves.
-
-    A keeper's arm has to reach ARM_SPAN, because that is how far core/ lets
-    its hands get from the shoulder - content/proportions.js promises it and a
-    test holds it. Scaling the body scales the arm, and the keeper's pose is a
-    touch shorter than the 1.80 m body, so it came out at 0.70 m against 0.72
-    and every full-stretch save was drawn with a glove the arm could not reach.
-  */
-  return (figure.gloves ?? 0) > 0 ? Math.max(1, size) : size;
-}
-
-/** Chest facing when a figure does not say: toward the taker and the camera behind them. */
-const TOWARD_TAKER = vec(0, 0, -1);
-
-/**
- * The jointed body for a figure.
- *
- * `Figure` is what classic's poses have always produced: feet, a shoulder
- * point, a head, two hands and two toes. This turns that into targets for the
- * skeleton without changing any of them - **phase 2 of #72 swaps the body, not
- * the poses** - so every keeper, taker, wall and halfway line looks the way it
- * did, but with hips, knees and elbows.
- *
- * - The chest goes exactly where the pose put the shoulder point, and the
- *   pelvis hangs a spine's length below it, along the line to the feet.
- * - Toes stay where the pose put them. The ankle target sits a foot's length
- *   back and a little up, so the drawn boot ends on the given toe.
- * - A keeper's hands are kept on their targets whatever it costs the body,
- *   because that is where saves are decided. Anybody without gloves keeps
- *   their body where it was put and reaches as far as their arms go.
- *
- * Exported for the tests: the keeper's drawn gloves are checked against its
- * simulated positions frame by frame, which needs this without a canvas.
- */
-export function figureBody(figure: Figure): Skeleton {
-  const size = figureSize(figure);
-  const body = scaleProportions(BODY, size);
-  const facing = figure.facing ?? TOWARD_TAKER;
-
-  const spineLine = sub(figure.shoulder, figure.feet);
-  const up = length(spineLine) > 0 ? normalize(spineLine) : vec(0, 1, 0);
-  const level = normalize(vec(facing.x, 0, facing.z));
-  const toeward = length(level) > 0 ? level : vec(0, 0, 1);
-  const ankle = (toe: Vec3): Vec3 =>
-    add(sub(toe, scale(toeward, body.foot)), vec(0, ANKLE_LIFT * size, 0));
-
-  return solveBody(
-    {
-      pelvis: sub(figure.shoulder, scale(up, body.spine)),
-      chest: figure.shoulder,
-      facing,
-      head: figure.head,
-      hands: figure.hands,
-      ankles: [ankle(figure.toes[0]), ankle(figure.toes[1])],
-      keepHands: (figure.gloves ?? 0) > 0,
-    },
-    body
-  );
-}
+export const figureBody = poseBody;
 
 /**
  * A footballer, with joints.
@@ -602,8 +465,8 @@ export function figureBody(figure: Figure): Skeleton {
  * behind it rather than wherever the code happened to draw it.
  */
 export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
-  const s = figureBody(figure);
-  const size = figureSize(figure);
+  const s = poseBody(figure);
+  const size = poseSize(figure);
   const chest = proj.project(s.chest);
   if (!chest) return;
 
@@ -936,102 +799,57 @@ function grounded(point: Vec3, restingY: number, landed: number): Vec3 {
 }
 
 /**
- * The taker, running up to the ball and stopping.
+ * The taker, running up to the ball, striking it, and stopping.
  *
  * Anchored to the spot, never to the ball. Anchoring to the ball meant the
- * taker set off down the pitch with it and arrived in the net.
+ * taker set off down the pitch with it and arrived in the net. The pose is
+ * pose/kick.ts's; the only thing decided here is how far to the side they
+ * wait, because that depends on the screen.
  */
 export function drawTaker(ctx: Ctx, proj: Projector, frame: FrameState): void {
-  const spot = frame.spot;
-  /**
-   * A left-footed taker starts to the right of the ball and comes across it.
-   * Well off to one side, because the camera sits 6.5 m back and a figure over
-   * the ball comes out about twice the apparent height of the goal.
-   */
-  const side = frame.player.foot === 'left' ? 1 : -1;
+  drawFigure(ctx, proj, takerFigure(frame, takerStandOff(proj, frame.spot)));
+}
 
-  // Behind the ball means TOWARD the camera, which means bigger. A longer
-  // run-up therefore costs frame space rather than buying it, so this is kept
-  // short and the distance is spent sideways instead.
-  //
-  // How far sideways depends on how much room there is. The taker stands much
-  // nearer the camera than the goal does, so a metre costs him far more screen
-  // than it costs the goal: framing the goal to fit a phone still left him off
-  // the right-hand edge. So the offset is measured in pixels available rather
-  // than in meters, and he steps in on a narrow screen.
-  const standOff = Math.min(1.55, sidewaysRoom(proj, spot.z - 1.35, 0.75));
-  const waiting = vec(spot.x + side * standOff, 0.04, spot.z - 1.35);
-  const planted = vec(spot.x + side * Math.min(0.52, standOff), 0.04, spot.z - 0.05);
+/**
+ * How far to the side of the ball the taker waits.
+ *
+ * Behind the ball means TOWARD the camera, which means bigger. A longer
+ * run-up therefore costs frame space rather than buying it, so it is kept
+ * short and the distance is spent sideways instead.
+ *
+ * How far sideways depends on how much room there is. The taker stands much
+ * nearer the camera than the goal does, so a metre costs him far more screen
+ * than it costs the goal: framing the goal to fit a phone still left him off
+ * the right-hand edge. So the offset is measured in pixels available rather
+ * than in meters, and he steps in on a narrow screen.
+ */
+export function takerStandOff(proj: Projector, spot: Vec3): number {
+  return Math.min(1.55, sidewaysRoom(proj, spot.z - 1.35, 0.75));
+}
 
-  // 0 waiting, 1 planted next to the ball. Stays at 1 once struck, so the
-  // taker stands and watches rather than following the ball in.
-  const run = clamp01(frame.runUp);
-  // Ease out: quick off the mark, settling onto the plant foot.
-  const eased = 1 - (1 - run) * (1 - run);
-
-  const lean = frame.phase === 'ready' ? (frame.aiming?.power ?? 0) * 0.25 : 0;
-  const struck = frame.phase === 'flight' || frame.phase === 'resolved';
-  // The follow-through settles rather than holding: boot comes back down, and
-  // the taker is stood watching by the time the ball reaches the goal.
-  const follow = struck ? clamp01(1 - frame.sinceStrike / 0.55) : 0;
-  const crouch = lean * 0.2 + follow * 0.12;
-
-  // Breathing, and weight moving from foot to foot. Settles as the drag builds:
-  // they steady themselves over the ball rather than breathing harder.
-  const alive = isIdle(frame.phase) ? 1 - Math.min(1, lean * 3) : 0;
-  const breath = wave(frame.clock, BREATH_PERIOD) * 0.019 * alive;
-  const sway = wave(frame.clock, SWAY_PERIOD, 0.37) * 0.012 * alive;
-
-  const feet = vec(
-    waiting.x + (planted.x - waiting.x) * eased + sway,
-    0.04,
-    waiting.z + (planted.z - waiting.z) * eased
-  );
-  const shoulder = vec(
-    feet.x - side * (0.12 + lean * 0.2),
-    1.3 - crouch + breath,
-    feet.z - 0.08
-  );
-
-  // Three strides in 0.42 s, which is about what a penalty run-up is. On
-  // contact the kicking leg swings through; after it, they come back together.
-  const swing = frame.phase === 'runup' ? Math.sin(run * Math.PI * 3) : 0;
-
-  const toe = (leg: -1 | 1): Vec3 => {
-    const reach = 0.3 * swing * leg + (leg === side ? 0 : follow * 0.55);
-    const lift = leg === side ? 0 : follow * 0.3;
-    // Stance width, or both legs land on the same spot and read as one.
-    return vec(feet.x + leg * 0.15 - side * reach, 0.03 + lift, feet.z + reach * 0.5);
-  };
-
-  const out = 0.3 + lean * 0.2 + follow * 0.18 + Math.abs(swing) * 0.12;
-  // Hands at hip height, where arms hang. They were 22 cm below the shoulder,
-  // which drew fine as a straight line from the shoulder and folds a real arm
-  // double with the elbow pointing straight at the camera behind the taker -
-  // so from there the upper arm vanished and the forearm grew out of the
-  // shoulder. Changed in phase 2 of #72 rather than waiting for phase 3,
-  // because it looked broken rather than merely unpolished.
-  const hand = (arm: -1 | 1): Vec3 =>
-    vec(shoulder.x + arm * out, shoulder.y - 0.5 + lean * 0.15 - swing * arm * 0.12, shoulder.z);
-
-  drawFigure(ctx, proj, {
-    feet,
-    shoulder,
-    // Head rides a fraction more than the chest, which is what makes a small
-    // movement read as breathing rather than as the whole figure floating.
-    head: vec(shoulder.x - side * 0.08, shoulder.y + 0.26 + breath * 0.35, shoulder.z),
-    hands: [hand(-1), hand(1)],
-    toes: [toe(-1), toe(1)],
+/** The taker's figure: the pose from pose/kick.ts, in the taker's kit. */
+export function takerFigure(frame: FrameState, standOff: number): Figure {
+  return {
+    ...takerPose({
+      spot: frame.spot,
+      foot: frame.player.foot,
+      phase: frame.phase,
+      runUp: frame.runUp,
+      sinceStrike: frame.sinceStrike,
+      clock: frame.clock,
+      power: frame.phase === 'ready' ? (frame.aiming?.power ?? 0) : 0,
+      standOff,
+    }),
     ...takerColours(frame),
-    facing: vec(0, 0, 1),
-    // The upright shoulder height. Crouching over the ball lowers the
-    // shoulder point, and this keeps that a bend rather than a shrink.
-    stature: 1.3 - 0.04,
     // He matters while aiming and running in. Once the ball has gone he is a
     // large figure standing between the camera and the only thing worth
-    // watching, so he drops back rather than staying at full strength.
-    alpha: frame.phase === 'ready' || frame.phase === 'runup' ? 1 : 0.4,
-  });
+    // watching, so he drops back rather than staying at full strength - but
+    // not before the follow-through, which is the part worth seeing.
+    alpha:
+      frame.phase === 'ready' || frame.phase === 'runup'
+        ? 1
+        : 1 - 0.6 * Math.min(1, Math.max(0, (frame.sinceStrike - 0.25) / 0.3)),
+  };
 }
 
 /**

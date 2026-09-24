@@ -28,6 +28,7 @@ import type { KeeperState } from '../../../core/types.ts';
 import { vec, type Vec3 } from '../../../core/vec3.ts';
 import { BREATH_PERIOD, isIdle, TOWARD_TAKER, wave, type Pose } from './figure.ts';
 import { clamp01, easeInOut, hump, progress } from './motion.ts';
+import { keeperSetting, keeperThrow } from '../doing/doing.ts';
 
 /**
  * How far in front of the goal line the keeper is drawn, in meters.
@@ -61,9 +62,6 @@ const SHUFFLE = {
   step: Math.max(0.05, tuned(KEEPER?.shuffle?.step, 0.2)),
   lift: tuned(KEEPER?.shuffle?.lift, 0.05),
 };
-
-/** Standing hands-at-rest height in core/, which `thrown` is measured from. */
-const HANDS_AT_REST = 0.95;
 
 /** How far either side of the stance each foot is, standing. */
 const FOOT_LANE = 0.16;
@@ -106,30 +104,14 @@ export function keeperPose(
 ): Pose {
   const { hands, body, stance } = keeper;
 
-  /**
-   * How far the keeper has thrown itself, measured from where its hands rest
-   * when standing - and in both axes.
-   *
-   * Measuring only the lateral part called a save up and across "barely
-   * moving", so the torso stayed vertical and the keeper reached up with a
-   * long arm instead of diving. A save is a save whichever direction it is in.
-   *
-   * Zero while idling, because the hands travel with the stance, so shuffling
-   * along the line never reads as a dive.
-   */
-  const dx = hands.x - stance;
-  const dy = hands.y - HANDS_AT_REST;
-  const thrown = Math.sqrt(dx * dx + dy * dy);
-  // Committed by about 1.9 m of reach; a full stretch is further than that but
-  // the body is already flat out well before it.
-  const extension = clamp01(thrown / 1.9);
+  // How far the keeper has thrown itself, and which way: `doing/`'s answer,
+  // so the pose and the name a package gives this moment are the same number.
+  // `along` is the unit vector from the standing hands toward where they are
+  // now, and the whole body lies along it at full stretch.
+  const { extension, along } = keeperThrow(keeper);
   // The legs follow the body rather than going with it: behind early in the
   // dive, caught up by full stretch.
   const legExtension = Math.pow(extension, LEG_LAG);
-
-  // Unit vector along the dive, from the standing hands toward where they are
-  // now. The whole body lies along this at full stretch.
-  const along = thrown > 1e-4 ? { x: dx / thrown, y: dy / thrown } : { x: 0, y: 1 };
 
   // Bigger than the taker's, because the keeper is twice as far away and the
   // same two centimeters would land inside a single pixel.
@@ -140,7 +122,7 @@ export function keeperPose(
     Set: sinking at the knees as the taker runs in, and staying there until
     the dive takes over. Gone again by the time anybody has landed.
   */
-  const setting = phase === 'runup' ? easeInOut(runUp) : phase === 'flight' ? 1 : 0;
+  const setting = easeInOut(keeperSetting({ phase, runUp }));
   const set = setting * (1 - keeper.landed);
 
   const z = -KEEPER_STANDS_OFF;

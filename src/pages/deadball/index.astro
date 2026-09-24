@@ -3,7 +3,12 @@
 // sitemap, and linked from nowhere. See src/lib/hidden.mjs, which is what
 // astro.config.mjs and scripts/verify-urls.mjs both read.
 import Fullscreen from '../../layouts/Fullscreen.astro';
-import { DEFAULT_CAMERA, listCameras } from '../../games/deadball/presentation/registry.ts';
+import {
+  DEFAULT_CAMERA,
+  DEFAULT_PACKAGE,
+  listCameras,
+  listPackages,
+} from '../../games/deadball/presentation/registry.ts';
 import { DEFAULT_SKY_ID, SKIES } from '../../games/deadball/content/skies.js';
 import { DISCIPLINES } from '../../games/deadball/core/setpiece.ts';
 import { SWEEP_SWEET_ZONE } from '../../games/deadball/core/units.ts';
@@ -40,6 +45,7 @@ const physics = tuningFingerprint();
 // browser defaults - which is why the selected one looked like the others.
 // Rendering them also means the switcher is there before the game starts.
 const views = listCameras();
+const looks = listPackages();
 ---
 
 <Fullscreen
@@ -531,10 +537,11 @@ const views = listCameras();
           climbs over the wall and drops behind it.
         </p>
         <p>
-          <b>Watch the wall before you shoot.</b> If they are squatting, knees
-          out and arms swung back, they will jump as you strike it, and a low, hard shot (driven) goes
-          underneath. If they are standing up straight, nothing goes under, but
-          they are easier to float it over.
+          <b>Some walls jump as you strike it, and you can&rsquo;t tell which
+          while you aim.</b> A jumping wall leaves a gap underneath that a low,
+          hard shot (driven) goes through. A wall that stays down blocks
+          anything low, but is easier to float it over. The only clue is a quick
+          dip at the knees as you run in.
         </p>
         <p class="aside">
           Your footballer&rsquo;s <b>dip</b> is the ceiling on that, not the
@@ -651,6 +658,24 @@ const views = listCameras();
         </div>
 
         {/*
+          How it is drawn, as opposed to where you stand. A dropdown rather
+          than a row of buttons like the cameras, because there will be more
+          looks than fit across a phone - three buttons already squeezed
+          a label and "preview" onto two lines. A preview says so in its name,
+          because it is not finished, and it is only downloaded once chosen.
+        */}
+        <h3><label for="look-choice">Look</label></h3>
+        <select id="look-choice" class="look-select">
+          {
+            looks.map(({ id, label, preview }) => (
+              <option value={id} selected={id === DEFAULT_PACKAGE}>
+                {preview ? `${label} (preview)` : label}
+              </option>
+            ))
+          }
+        </select>
+
+        {/*
           The log only ever came out by pressing L, which nobody who had not
           read the docs was going to find. The key still works for anyone who
           has it in their fingers; this is the half you can discover. It sits in
@@ -702,7 +727,7 @@ const views = listCameras();
   // The derivation, so the swatches show what the pitch will actually draw
   // rather than what was stored. Five of the six are defaults most of the
   // time, and a default that has been nudged off a clash is still the answer.
-  import { teamKits } from '../../games/deadball/presentation/classic/kits';
+  import { teamKits } from '../../games/deadball/presentation/toolkit/kits';
 
   const canvas = document.getElementById('pitch');
 
@@ -1484,6 +1509,7 @@ const views = listCameras();
         });
 
         const skyChoices = [...document.querySelectorAll<HTMLButtonElement>('#sky-choices button')];
+        const lookChoice = document.getElementById('look-choice') as HTMLSelectElement | null;
         const logDownload = document.getElementById('log-download') as HTMLButtonElement | null;
         const logClear = document.getElementById('log-clear') as HTMLButtonElement | null;
 
@@ -1523,6 +1549,7 @@ const views = listCameras();
           for (const button of skyChoices) {
             button.setAttribute('aria-pressed', String(button.dataset.sky === game.currentSkyId()));
           }
+          if (lookChoice) lookChoice.value = game.currentLookId();
           paintLog();
         };
 
@@ -1560,6 +1587,10 @@ const views = listCameras();
             paintSettings();
           });
         }
+        lookChoice?.addEventListener('change', () => {
+          game.useLook(lookChoice.value);
+          paintSettings();
+        });
 
         document.getElementById('squad-open')?.addEventListener('click', (event) => {
           paintPlayers();
@@ -2401,6 +2432,42 @@ const views = listCameras();
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+  }
+
+  /* Dressed like the choice buttons around it: the same border, fill and
+     radius, with the browser's own arrow replaced so it matches on every
+     platform rather than only on the one it was checked on. */
+  .look-select {
+    display: block;
+    width: 100%;
+    margin-bottom: 18px;
+    padding: 9px 36px 9px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237dd3fc' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+        no-repeat right 14px center,
+      rgba(125, 211, 252, 0.08);
+    color: #e6eef8;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+
+  .look-select:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+  }
+
+  /* The open list is drawn by the platform, which ignores most of the above.
+     Where it does read these, the options match the panel instead of being
+     light text on the platform's own light list. */
+  .look-select option {
+    background: #0b1a2e;
+    color: #e6eef8;
   }
 
   .choices button[aria-pressed='true'] {

@@ -23,7 +23,7 @@ import type { Dive, KeeperProfile, Player } from '../../core/types.ts';
 import { PENALTY_DISTANCE } from '../../core/units.ts';
 import { distance, vec, type Vec3 } from '../../core/vec3.ts';
 import { ARM_SPAN } from '../../core/keeper.ts';
-import { BODY } from './body/skeleton.ts';
+import { BODY } from '../toolkit/body/skeleton.ts';
 import { figureBody, keeperFigure, type Figure } from './draw.ts';
 
 /** Every frame of a flight, including the landing afterwards. */

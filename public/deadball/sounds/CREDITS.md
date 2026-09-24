@@ -1,7 +1,8 @@
 # Audio credits
 
-Six samples used by the `classic` presentation package of the Dead Ball penalty
-game. The glove, the woodwork and the referee's whistle are still synthesised
+Six samples used by the Dead Ball penalty game, loaded by the shared recorded
+sound set in `src/games/deadball/presentation/sounds/recorded.ts`, which both the
+`classic` and the stylised 3D presentation packages use. The glove, the woodwork and the referee's whistle are still synthesised
 at runtime and have no source to credit.
 
 This repository is public, so committing a sample redistributes it, which is

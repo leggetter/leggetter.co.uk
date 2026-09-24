@@ -1,22 +1,24 @@
 /**
- * The wall: standing, set to spring, jumping and landing.
+ * The wall: standing, loading, jumping and landing.
  *
- * **A wall that is going to jump has to look like it from a single glance**
- * (#65). It used to crouch 14 cm - core/'s `CROUCH`, the depth the hit test
- * uses - and since you only ever see one wall at a time, with nothing beside
- * it to compare against, 14 cm lower read as "slightly shorter people".
+ * **While you aim, a wall that is going to jump looks exactly like one that
+ * is not.** It used to squat 38 cm with its arms swung back from the moment
+ * the kick was set up (#65), which made the jump a certainty to read off the
+ * screen rather than a risk to take: "It's too obvious that the wall is going
+ * to jump as their starting position is different." Now the only tell is the
+ * load for the jump, in the last part of the run-up - about a fifth of a
+ * second before the strike, which is there for anybody watching closely and
+ * too late to change the shot.
  *
- * So the set is now a pose, not a depth: a deep squat with the knees turned
- * out, hips back, chest over the knees and arms swung back ready to throw.
- * Wide and low where a standing wall is tall and narrow, which reads from
- * the default camera without anything to compare it to.
+ * **Hands stay down, crossed low in front, the whole way through.** A wall
+ * that throws its arms up is giving away a penalty for handball, and drawn
+ * that way it looked as if the ball hit their hands going over.
  *
  * **Only the drawing changed.** core/'s wall - the cylinder `wallHit` tests
  * against, `CROUCH`, the jump's rise and tuck - is untouched, and the tuning
- * fingerprint with it. The set is deeper than the physical crouch, which is
- * safe because the crouch only exists while the ball is still on the spot:
- * once they are in the air, the drawn feet and heads follow `wallPoseAt`
- * exactly, so the gap you see under a jumping wall is the gap the ball gets.
+ * fingerprint with it. Once they are in the air, the drawn feet and heads
+ * follow `wallPoseAt` exactly, so the gap you see under a jumping wall is the
+ * gap the ball gets.
  */
 
 import { JUMPING_WALL } from '../../../content/poses.js';
@@ -25,25 +27,23 @@ import { add, normalize, scale, vec, type Vec3 } from '../../../core/vec3.ts';
 import { AIRTIME, JUMP_DELAY, wallPoseAt } from '../../../core/wall.ts';
 import { BODY, scaleProportions } from '../body/skeleton.ts';
 import { ANKLE_LIFT, STANDING_SHOULDER, TOWARD_TAKER, type Pose } from './figure.ts';
-import { easeIn, easeInOut, easeOut, progress, springKnock, springTo } from './motion.ts';
+import { easeIn, easeInOut, progress, springKnock } from './motion.ts';
 
 const tuned = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 
-const SET = {
-  drop: tuned(JUMPING_WALL?.set?.drop, 0.38),
-  back: tuned(JUMPING_WALL?.set?.back, 0.14),
-  lean: tuned(JUMPING_WALL?.set?.lean, 0.6),
-  wide: tuned(JUMPING_WALL?.set?.wide, 0.07),
-  kneesOut: tuned(JUMPING_WALL?.set?.kneesOut, 0.45),
-  handsBack: tuned(JUMPING_WALL?.set?.handsBack, 0.48),
-  handsOut: tuned(JUMPING_WALL?.set?.handsOut, 0.16),
-  handsDown: tuned(JUMPING_WALL?.set?.handsDown, 0.42),
+const LOAD = {
+  from: tuned(JUMPING_WALL?.load?.from, 0.5),
+  drop: tuned(JUMPING_WALL?.load?.drop, 0.16),
+  back: tuned(JUMPING_WALL?.load?.back, 0.05),
+  lean: tuned(JUMPING_WALL?.load?.lean, 0.25),
+  kneesOut: tuned(JUMPING_WALL?.load?.kneesOut, 0.2),
 };
-const BOUNCE = tuned(JUMPING_WALL?.bounce, 0.012);
-const DIP = tuned(JUMPING_WALL?.dip, 0.05);
 const PUSH = Math.max(0.01, tuned(JUMPING_WALL?.push, 0.08));
 const ABSORB = tuned(JUMPING_WALL?.absorb, 0.18);
+
+/** The small flinch a braced wall makes. The same for a wall that will jump, or that would be the tell. */
+const braceAt = (clock: number, index: number): number => Math.sin(clock * 0.7 + index * 1.9) * 0.012;
 
 /** What the wall is drawn from. All of it is on the frame. */
 export type WallInput = Pick<FrameState, 'wall' | 'spot' | 'clock' | 'sinceStrike'> &
@@ -84,7 +84,7 @@ function standingPerson(frame: WallInput, index: number): Pose {
   // Braced rather than idling. A wall is a row of people who have been told
   // where to stand and are about to be hit by a ball, and a gentle sway
   // reads as a queue. What little movement there is, is a flinch.
-  const brace = Math.sin(frame.clock * 0.7 + index * 1.9) * 0.012;
+  const brace = braceAt(frame.clock, index);
   const stature = heightOf(index) * 0.82;
   const shoulderY = stature + brace;
   return {
@@ -125,19 +125,23 @@ const mixJoints = (a: Joints, b: Joints, k: number): Joints => ({
 /**
  * Somebody in a wall that is going to jump, at this moment.
  *
- * Four poses, blended on the frame clock:
- *
- * - **set**, from the moment the kick is set up: the deep squat. It rocks a
- *   centimetre on the balls of the feet, and dips a little further as the
- *   taker runs in - the last bit of load before the spring.
- * - **pushing**, from the strike to `push` seconds after: legs driving
- *   straight, arms throwing up.
- * - **in the air**, following `wallPoseAt` to the centimetre: bodies up by
+ * - **Aiming, and the first part of the run-up:** exactly `standingPerson`.
+ * - **Loading**, from `load.from` of the way through the run-up to the
+ *   strike: a quick dip at the knees, hips back a little, chest over.
+ * - **Pushing**, from the strike to `push` seconds after: legs driving
+ *   straight.
+ * - **In the air**, following `wallPoseAt` to the centimetre: bodies up by
  *   `lift`, feet up by `lift + tuck` with the knees drawn up to make room.
- * - **landed**, the standing pose, arriving with the knees taking the weight
- *   and springing back.
+ * - **Landed**, standing again, the knees taking the weight and springing back.
+ *
+ * The hands are crossed low in front of the hips in every one of them.
  */
 function jumpingPerson(frame: WallInput, index: number): Pose {
+  const t = Math.max(0, frame.sinceStrike);
+  const struck = t > 0 || frame.phase === 'flight' || frame.phase === 'resolved';
+  const loading = frame.phase === 'runup' ? easeIn(progress(frame.runUp ?? 0, LOAD.from, 1)) : 0;
+  if (!struck && loading <= 0) return standingPerson(frame, index);
+
   const { x, z } = frame.wall.people[index]!.at;
   const stature = heightOf(index) * 0.82;
   const size = stature / STANDING_SHOULDER;
@@ -146,11 +150,17 @@ function jumpingPerson(frame: WallInput, index: number): Pose {
   const backward = scale(forward, -1);
   const up = vec(0, 1, 0);
   const lift = ANKLE_LIFT * size;
-
-  const t = Math.max(0, frame.sinceStrike);
-  const struck = t > 0 || frame.phase === 'flight' || frame.phase === 'resolved';
   const pose = wallPoseAt(frame.wall, t);
   const landsAt = JUMP_DELAY + AIRTIME;
+
+  /**
+   * Crossed low in front of the hips: where `standingPerson` puts them,
+   * carried with the hips wherever they go.
+   */
+  const handsLow = (pelvis: Vec3): [Vec3, Vec3] => {
+    const at = (side: -1 | 1): Vec3 => add(add(pelvis, vec(side * 0.1, body.spine - 0.52, 0)), scale(forward, 0.14));
+    return [at(-1), at(1)];
+  };
 
   // Feet flat on the grass `feetY` up, `wide` either side of the middle.
   const planted = (feetY: number, wide: number): Pick<Joints, 'ankles' | 'toes'> => {
@@ -163,72 +173,58 @@ function jumpingPerson(frame: WallInput, index: number): Pose {
   };
   const upright = (shoulderY: number, feetY: number): Joints => {
     const chest = vec(x, shoulderY, z);
+    const pelvis = vec(x, shoulderY - body.spine, z);
     return {
-      pelvis: vec(x, shoulderY - body.spine, z),
+      pelvis,
       chest,
       head: add(chest, vec(0, 0.24, 0)),
-      hands: [vec(x - 0.1, shoulderY - 0.52, z - 0.14), vec(x + 0.1, shoulderY - 0.52, z - 0.14)],
+      hands: handsLow(pelvis),
       ...planted(feetY, 0.16),
       kneesOut: 0,
     };
   };
 
-  // The set: see content/poses.js for what each number moves.
-  const rock = Math.sin(frame.clock * 2 * Math.PI * 1.6 + index * 1.3) * BOUNCE;
-  const load = frame.phase === 'runup' ? DIP * easeIn(frame.runUp ?? 0) : struck ? DIP : 0;
-  const standingPelvis = stature - body.spine;
-  const setPelvis = add(
-    vec(x, standingPelvis - SET.drop * size - load + rock, z),
-    scale(backward, SET.back * size)
+  // Standing as a braced wall stands, and loaded for the jump: see
+  // content/poses.js for what each number moves.
+  const standing = upright(stature + braceAt(frame.clock, index), 0);
+  const loadedPelvis = add(
+    vec(x, stature - body.spine - LOAD.drop * size, z),
+    scale(backward, LOAD.back * size)
   );
-  const setChest = add(setPelvis, scale(normalize(add(up, scale(forward, SET.lean))), body.spine));
-  const shoulders = (chest: Vec3): [Vec3, Vec3] => [
-    add(chest, vec(-body.shoulderWidth / 2, 0, 0)),
-    add(chest, vec(body.shoulderWidth / 2, 0, 0)),
-  ];
-  const [setLeft, setRight] = shoulders(setChest);
-  const swungBack = (shoulder: Vec3, side: -1 | 1): Vec3 =>
-    add(
-      add(shoulder, vec(side * SET.handsOut * size, -SET.handsDown * size, 0)),
-      scale(backward, SET.handsBack * size)
-    );
-  const set: Joints = {
-    pelvis: setPelvis,
-    chest: setChest,
-    head: add(setChest, scale(normalize(add(up, scale(forward, 0.15))), body.neck)),
-    hands: [swungBack(setLeft, -1), swungBack(setRight, 1)],
-    ...planted(0, 0.16 + SET.wide),
-    kneesOut: SET.kneesOut,
+  const loadedChest = add(loadedPelvis, scale(normalize(add(up, scale(forward, LOAD.lean))), body.spine));
+  const loaded: Joints = {
+    pelvis: loadedPelvis,
+    chest: loadedChest,
+    head: add(loadedChest, scale(normalize(add(up, scale(forward, 0.1))), body.neck)),
+    hands: handsLow(loadedPelvis),
+    ...planted(0, 0.16),
+    kneesOut: LOAD.kneesOut,
   };
 
   let joints: Joints;
   if (!struck) {
-    joints = set;
+    joints = mixJoints(standing, loaded, loading);
   } else {
     // In the air, exactly where core/ says: shoulders up by the rise, feet up
-    // by the rise and the tuck, arms thrown up.
-    const shoulderY = pose.lift + stature;
-    const air = upright(shoulderY, pose.lift + pose.tuck);
-    const [left, right] = shoulders(air.chest);
-    const armsUp = easeOut(progress(t, 0, PUSH + 0.06));
-    const raised: [Vec3, Vec3] = [
-      add(left, vec(-0.12 * size, 0.42 * size, -0.08)),
-      add(right, vec(0.12 * size, 0.42 * size, -0.08)),
-    ];
-    // Down again for the landing, a touch late.
-    const armsDown = t > landsAt - 0.12 ? springTo(t - (landsAt - 0.12), 1.6, 0.6) : 0;
-    const armsAt = Math.max(0, Math.min(1, armsUp * (1 - armsDown)));
-    air.hands = [mix(air.hands[0], raised[0], armsAt), mix(air.hands[1], raised[1], armsAt)];
+    // by the rise and the tuck. Hands still low.
+    const air = upright(pose.lift + stature, pose.lift + pose.tuck);
 
-    // The push: from the squat to straight legs in `push` seconds, which is
+    // The push: from the load to straight legs in `push` seconds, which is
     // done before the ball could be anywhere near.
     const push = easeInOut(progress(t, 0, PUSH));
-    joints = mixJoints(set, air, push);
+    joints = mixJoints(loaded, air, push);
 
     // Landing: the knees take it, overshoot a little, and come back.
     if (t >= landsAt) {
       const give = ABSORB * size * springKnock(t - landsAt, 2.2, 0.5);
-      joints = { ...joints, pelvis: add(joints.pelvis, vec(0, -give, 0)), chest: add(joints.chest, vec(0, -give, 0)), head: add(joints.head, vec(0, -give, 0)) };
+      const down = vec(0, -give, 0);
+      joints = {
+        ...joints,
+        pelvis: add(joints.pelvis, down),
+        chest: add(joints.chest, down),
+        head: add(joints.head, down),
+        hands: [add(joints.hands[0], down), add(joints.hands[1], down)],
+      };
     }
   }
 

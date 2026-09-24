@@ -1,5 +1,12 @@
 /**
- * What `classic` wants instead of the default sounds.
+ * The recorded sounds: what `classic` wanted instead of the default synth, and
+ * since phase 4 of #72 what the stylised package plays too.
+ *
+ * Shared, and opt-in. It moved here out of classic when a second package
+ * needed to sound exactly the same, by the rule the skeleton moved by: nothing
+ * is shared until a second package uses it, and then it is a library either
+ * may take, not a layer every package is pushed through. A package that wants
+ * a different voice takes the synth alone, or overrides this in turn.
  *
  * Six samples, and the shape of the list is the point: the crowd bed, the
  * cheer, the "oooh" of a save and the groan of a miss all come off one
@@ -33,13 +40,13 @@
  */
 
 import type { GameEvent } from '../../core/events.ts';
-import type { Mood, SoundSet } from '../sounds/Sounds.ts';
-import type { AudioGraph, Synth } from '../sounds/synth.ts';
+import type { Mood, SoundSet } from './Sounds.ts';
+import type { AudioGraph, Synth } from './synth.ts';
 
 /** Served from `public/`, so these are site-root paths and not imports. */
-const DIRECTORY = '/deadball/sounds/';
+export const DIRECTORY = '/deadball/sounds/';
 
-const FILES = {
+export const FILES = {
   crowd: 'crowd.mp3',
   goal: 'goal.mp3',
   save: 'save.mp3',
@@ -107,7 +114,7 @@ interface Bed {
  * that cannot play a sample calls straight through to the sound that was
  * always there.
  */
-export function createOverrides(synth: Synth): Partial<SoundSet> {
+export function recordedSounds(synth: Synth): Partial<SoundSet> {
   const buffers = new Map<SampleName, AudioBuffer>();
   let requested = false;
   let bed: Bed | null = null;

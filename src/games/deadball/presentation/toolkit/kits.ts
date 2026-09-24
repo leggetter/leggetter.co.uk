@@ -16,7 +16,7 @@
  */
 
 import { cleanColour } from '../../core/squad.ts';
-import type { KitOverrides } from '../../core/types.ts';
+import type { FrameState, KitOverrides } from '../../core/types.ts';
 
 /**
  * The away side's colour. Named for the keeper, which it no longer only means.
@@ -258,4 +258,76 @@ function fromHsl(h: number, s: number, l: number): string {
       .toString(16)
       .padStart(2, '0');
   return `#${byte(r)}${byte(g)}${byte(b)}`;
+}
+
+/**
+ * The four strips this frame, settings and all.
+ *
+ * One call site for the derivation, so the taker, the two keepers and the
+ * halfway line cannot disagree about who is wearing what.
+ */
+export const kitsFor = (frame: FrameState): TeamKits =>
+  teamKits(frame.player.colors.kit, frame.player.colors.trim, frame.kits);
+
+/**
+ * What the figure on the spot is wearing.
+ *
+ * The away side is side 1, so on their turn the taker wears the shirt the far
+ * half of the halfway line is already wearing. One colour means *them*,
+ * wherever they happen to be standing.
+ */
+export function takerColours(frame: FrameState): { kit: string; trim: string } {
+  const kits = kitsFor(frame);
+  return awayTaking(frame) ? kits.other : kits.own;
+}
+
+/**
+ * What the figure in the goal is wearing.
+ *
+ * The keeper is on whichever side is not taking, so the strips swap over when
+ * the away side's turn comes round: you go in goal, and you go in goal in your
+ * own side's keeper strip. Without the swap the keeper stayed yellow while the
+ * computer ran up in yellow too, and both figures on the screen were the
+ * opposition.
+ *
+ * A keeper strip rather than the side's outfield one, since the halfway line
+ * started putting a keeper and their own ten in the same frame. See
+ * `KEEPER_KIT`.
+ */
+export function keeperColours(frame: FrameState): { kit: string; trim: string } {
+  const kits = kitsFor(frame);
+  return awayTaking(frame) ? kits.ownKeeper : kits.otherKeeper;
+}
+
+/**
+ * What the keeper who is *not* working is wearing.
+ *
+ * The other one: whoever is taking this penalty has a keeper with nothing to
+ * do, and they are the figure standing beside the goal. So on your turn it is
+ * yours waiting and theirs in goal, and on theirs it is the other way round.
+ */
+export function restingKeeperColours(frame: FrameState): { kit: string; trim: string } {
+  const kits = kitsFor(frame);
+  return awayTaking(frame) ? kits.otherKeeper : kits.ownKeeper;
+}
+
+/**
+ * Whether the away side is the one taking this penalty.
+ *
+ * Side 1 is the away team in both two-sided modes: the computer in `versus`,
+ * and the second person in a duel. Solo has no side 1. Keeping it one rule
+ * rather than a `versus` special case means the shirt somebody is wearing and
+ * the end that rises for them cannot disagree.
+ */
+export const awayTaking = (frame: Pick<FrameState, 'mode' | 'taker'>): boolean =>
+  frame.mode !== 'solo' && frame.taker === 1;
+
+/**
+ * What the wall is wearing: the side that is not taking it.
+ *
+ * The same strip as the keeper's outfield team, because that is who they are.
+ */
+export function wallColours(frame: FrameState): { kit: string; trim: string } {
+  const kits = kitsFor(frame);
+  return awayTaking(frame) ? kits.own : kits.other;
 }

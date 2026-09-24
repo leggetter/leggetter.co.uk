@@ -53,11 +53,11 @@ are in the middle of. A free kick
 is taken from the left, the middle or the right - it moves every time - with
 two to four of the other lot standing in a wall ten yards away. The wall lines
 up to block the near post, so you go over it, round it, under it, or you pick
-the other corner. Finesse is the one that goes over. **Watch the wall before you
-shoot**: if they are squatting, knees out and arms swung back, they are going to
-jump when you strike it, and a low driven shot goes underneath. If they are
-standing up straight, nothing
-goes under, but they are easier to go over. How often a wall jumps, and how
+the other corner. Finesse is the one that goes over. **Some walls jump when you
+strike it, and you can't tell which while you aim.** A jumping wall leaves a gap
+underneath that a low driven shot goes through; a wall that stays down blocks
+anything low but is easier to go over. The only clue is a quick dip at the knees
+as you run in, too late to change your mind. How often a wall jumps, and how
 high, is in `src/games/deadball/content/walls.js`.
 
 **Settings has a button that saves a file of every shot you have taken**, and

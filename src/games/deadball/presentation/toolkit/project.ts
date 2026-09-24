@@ -6,8 +6,11 @@
  * and which way it points, so `behind-taker` and `angled-behind` are the same
  * few numbers apart.
  *
- * Package-local, because projection is a package's own business: a matrix and
- * this are both correct answers to the same `CameraSpec`.
+ * In the toolkit rather than in `classic` since phase 4 of #72. Projection is
+ * still a package's own business - a matrix and this are both correct answers
+ * to the same `CameraSpec` - but the stylised package draws its HUD over the
+ * 3D scene with this, and its tests hold its matrix to this answer, so both
+ * need the one copy.
  *
  * Math.sin and Math.cos appear here and nowhere in core/. Rendering has no
  * determinism requirement: two machines may draw the same shot a pixel apart
@@ -15,15 +18,23 @@
  */
 
 import type { Vec3 } from '../../core/vec3.ts';
-import type { CameraSpec } from '../cameras.ts';
 
 /**
- * Kept as a structural alias rather than deleted: everything below needs is a
- * position, an orientation and a frame, and taking the whole `CameraSpec`
- * would mean a projector that knows about mirroring and draw order, which are
- * not its business.
+ * Where a camera is and what it has to keep in shot.
+ *
+ * The part of a `CameraSpec` (in ../cameras.ts) a projection needs, spelled out
+ * here rather than picked from it so the toolkit imports nothing outside
+ * itself, `core/` and `content/`. Everything else a spec carries - mirroring,
+ * draw order - is not a projector's business. Every `CameraSpec` is one of
+ * these.
  */
-export type Camera = Pick<CameraSpec, 'position' | 'yaw' | 'pitch' | 'fov' | 'frame'>;
+export interface Camera {
+  readonly position: Vec3;
+  readonly yaw: number;
+  readonly pitch: number;
+  readonly fov: number;
+  readonly frame: { halfWidth: number; halfHeight: number; depth: number };
+}
 
 export interface Projected {
   x: number;
@@ -48,6 +59,23 @@ export interface Projector {
   readonly height: number;
 }
 
+/**
+ * Focal length in pixels: the tightest of what the field of view allows and
+ * what keeps the framed rectangle on screen in each axis. Smallest wins,
+ * because a smaller focal length is a wider view.
+ *
+ * Exported because it is the framing rule, and a package projecting with a
+ * matrix instead of with this has to arrive at the same lens or the same
+ * camera will show two different pictures.
+ */
+export function focalLength(camera: Camera, width: number, height: number): number {
+  return Math.min(
+    height / 2 / Math.tan(camera.fov / 2),
+    ((width / 2) * camera.frame.depth) / camera.frame.halfWidth,
+    ((height / 2) * camera.frame.depth) / camera.frame.halfHeight
+  );
+}
+
 export function createProjector(camera: Camera, width: number, height: number): Projector {
   const cosYaw = Math.cos(camera.yaw);
   const sinYaw = Math.sin(camera.yaw);
@@ -57,16 +85,7 @@ export function createProjector(camera: Camera, width: number, height: number): 
   const halfW = width / 2;
   const halfH = height / 2;
 
-  /**
-   * Focal length in pixels: the tightest of what the field of view allows and
-   * what keeps the framed rectangle on screen in each axis. Smallest wins,
-   * because a smaller focal length is a wider view.
-   */
-  const focal = Math.min(
-    halfH / Math.tan(camera.fov / 2),
-    (halfW * camera.frame.depth) / camera.frame.halfWidth,
-    (halfH * camera.frame.depth) / camera.frame.halfHeight
-  );
+  const focal = focalLength(camera, width, height);
 
   /** World point into camera space: translate, then yaw, then pitch. */
   const toCamera = (point: Vec3) => {

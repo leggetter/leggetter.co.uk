@@ -7,18 +7,19 @@
  * tuning fingerprint includes them, so a room refuses a player whose copy is
  * different rather than letting the two of you watch different kicks.
  *
- * Some walls jump and some do not, and **you can see which before you shoot.**
- * A wall that is going to jump is crouched, knees bent, set to spring, while
- * you aim. A wall that is not stands up straight. That is the whole design: a
- * wall that jumped on a coin you could not see would be a tax on the only
- * shot that needs the gap, and the game's one rule is that you can be wrong
- * about the other side but they committed first and you could have read it.
+ * Some walls jump and some do not, and **you can't tell which while you
+ * aim.** A wall that is going to jump is drawn exactly like one that is not,
+ * with only a quick dip at the knees at the end of the run-up. It used to be
+ * crouched the whole time you aimed, which made the jump a certainty to read
+ * rather than a risk to take, so going under the wall is now a bet, as it is
+ * in a real match. How it is drawn is in content/poses.js and pose/wall.ts;
+ * nothing in this file changed with it.
  *
- * So the read is:
+ * What each wall does to the ball:
  *
- *   crouched   it is going to jump. Hit it low and hard (driven) and it goes
- *              under them as they rise. Going over is harder than usual,
- *              because a jumping wall is taller than a standing one.
+ *   jumping    hit it low and hard (driven) and it goes under them as they
+ *              rise. Going over is harder than usual, because a jumping wall
+ *              is taller than a standing one.
  *   standing   it stays down. Nothing goes under it, but it is lower to go
  *              over, so float it (finesse) or go round it.
  *
@@ -37,9 +38,9 @@
  *   standing   metres to the top of their heads, standing still. Tall people
  *              are put in walls, and they stand on their toes. Below about 2
  *              nearly anybody can float it over, whatever their `dip`.
- *   crouch     how far down they sink while set to jump, as a fraction of
- *              `standing`. Mostly a cue for you; it only matters to the ball
- *              in the moment between the strike and leaving the ground.
+ *   crouch     how far down they sink before the jump, as a fraction of
+ *              `standing`. It only matters to the ball in the moment between
+ *              the strike and leaving the ground.
  *   jump       metres the whole body rises at the top of the jump. How much
  *              taller a jumping wall is to go over.
  *   tuck       metres the feet come up beneath them on top of that, because

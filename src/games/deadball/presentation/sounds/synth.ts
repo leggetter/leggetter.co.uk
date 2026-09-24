@@ -7,10 +7,10 @@
  * a floor should have no dependencies.
  *
  * The risk was always that a synthesised crowd sounds cheap, and it got judged
- * by listening rather than by reasoning: `classic` now replaces the cheer, the
- * bed and the net with samples (see `../classic/sounds.ts`), and inherits the
- * weight and the licence paperwork along with them. Everything else it hit is
- * still made here.
+ * by listening rather than by reasoning: `classic` and the stylised package
+ * replace the cheer, the bed and the net with the samples in `recorded.ts`,
+ * and inherit the weight and the licence paperwork along with them.
+ * Everything else they hit is still made here.
  *
  * This file owns the AudioContext. Anything else that needs one asks for
  * `graph()` rather than opening a second - two contexts would be two mutes,

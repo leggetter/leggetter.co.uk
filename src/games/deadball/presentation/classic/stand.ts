@@ -32,7 +32,7 @@ import { BOARDS } from '../../content/boards.js';
 import { drawClouds, drawTrees, type SkyPalette } from './sky.ts';
 import { GOAL_WIDTH, NET_DEPTH } from '../../core/units.ts';
 import { vec, type Vec3 } from '../../core/vec3.ts';
-import type { Projector } from './project.ts';
+import type { Projector } from '../toolkit/project.ts';
 
 type Ctx = CanvasRenderingContext2D;
 

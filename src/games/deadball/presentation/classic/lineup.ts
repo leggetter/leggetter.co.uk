@@ -18,8 +18,8 @@
 
 import { vec, type Vec3 } from '../../core/vec3.ts';
 import { drawFigure } from './draw.ts';
-import type { Projector } from './project.ts';
-import type { TeamKits } from './kits.ts';
+import type { Projector } from '../toolkit/project.ts';
+import type { TeamKits } from '../toolkit/kits.ts';
 import { PITCH_LENGTH, type Reaction } from './stand.ts';
 
 /** Ten a side, which is the eleven minus whoever is taking it. */

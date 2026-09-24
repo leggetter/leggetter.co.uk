@@ -14,7 +14,7 @@
 
 import { GOAL_HEIGHT, GOAL_WIDTH, NET_DEPTH, PENALTY_DISTANCE } from '../core/units.ts';
 import { vec, type Vec3 } from '../core/vec3.ts';
-import type { Camera } from './classic/project.ts';
+import type { Camera } from './toolkit/project.ts';
 
 export interface CameraSpec {
   readonly id: string;

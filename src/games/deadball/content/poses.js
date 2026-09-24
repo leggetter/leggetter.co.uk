@@ -4,7 +4,7 @@
  * Phase 3 of #72. Like `shots.js`, this is meant to be edited: change a
  * number, refresh, take five penalties and see whether it looks better.
  * Nothing here can change an outcome. It is read only by the jointed figure
- * in presentation/classic/pose/, and a package that draws sprites would have
+ * in presentation/toolkit/pose/, and a package that draws sprites would have
  * a sprite sheet where this file is.
  *
  * **The kick.** Positions are `[out, up, forward]` in metres, measured from
@@ -233,35 +233,28 @@ export const KEEPER = {
 /**
  * A wall that is going to jump. A wall that is not stands as it always has.
  *
- * The set has to say "about to jump" on its own, from the default camera,
- * with no standing wall beside it to compare against - see pose/wall.ts. How
+ * While you aim, the two look exactly the same: a wall that visibly squats
+ * gives the jump away. The only tell is the `load` in the last part of the
+ * run-up. Hands stay crossed low in front throughout - see pose/wall.ts. How
  * high they go and how far their knees come up is core/'s, in walls.js, and
  * the drawing follows it exactly once they leave the ground; nothing here
  * changes what the ball meets.
  *
- *   set        the squat, for the 1.80 m body: how far the hips `drop` and
- *              go `back`, how far the chest leans over the knees, how much
- *              `wide`r the feet go, how far the knees turn out (0 to 1), and
- *              where the hands are swung to - back behind the hips, out to
- *              the side, and down from the shoulder.
- *   bounce     metres they rock on the balls of their feet while set.
- *   dip        metres further down they sink as the taker runs in.
+ *   load       the dip before the jump, for the 1.80 m body: when it starts,
+ *              as a fraction of the run-up (`from`), how far the hips `drop`
+ *              and go `back`, how far the chest leans over the knees, and how
+ *              far the knees turn out (0 to 1).
  *   push       seconds from the strike to straight legs.
  *   absorb     metres the knees give on landing, before springing back.
  */
 export const JUMPING_WALL = {
-  set: {
-    drop: 0.38,
-    back: 0.14,
-    lean: 0.6,
-    wide: 0.07,
-    kneesOut: 0.45,
-    handsBack: 0.48,
-    handsOut: 0.16,
-    handsDown: 0.42,
+  load: {
+    from: 0.5,
+    drop: 0.16,
+    back: 0.05,
+    lean: 0.25,
+    kneesOut: 0.2,
   },
-  bounce: 0.012,
-  dip: 0.05,
   push: 0.08,
   absorb: 0.18,
 };

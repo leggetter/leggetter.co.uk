@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
 import { PROPORTIONS } from '../../../content/proportions.js';
@@ -229,47 +228,5 @@ describe('proportions', () => {
     assert.equal(cleaned.foot, 0.3);
     assert.deepEqual(cleanProportions(undefined), DEFAULT_PROPORTIONS);
     assert.deepEqual(cleanProportions({ spine: Number.NaN, neck: 99 }), DEFAULT_PROPORTIONS);
-  });
-});
-
-describe('the body module stands on its own', () => {
-  /*
-    The rule from #72: the skeleton lives inside `classic` for now, but may
-    import nothing from the package around it. That is what makes promoting it
-    to a shared toolkit in phase 4 a move rather than a rewrite - the same
-    guarantee `core/portable.test.ts` gives `core/`, from the other end.
-  */
-  const here = new URL('.', import.meta.url);
-  const sources = readdirSync(here)
-    .filter((name) => name.endsWith('.ts') && !name.endsWith('.test.ts'))
-    .map((name) => ({ name, code: readFileSync(new URL(name, here), 'utf8') }));
-  const stripped = (code: string): string => code.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
-
-  test('there are source files to check', () => {
-    assert.ok(sources.length >= 2, `only found ${sources.length} files in body/`);
-  });
-
-  test('it imports only from itself, core/ and content/', () => {
-    for (const { name, code } of sources) {
-      for (const match of stripped(code).matchAll(/from\s+'([^']+)'/g)) {
-        const from = match[1]!;
-        assert.ok(
-          from.startsWith('./') ||
-            from.startsWith('../../../core/') ||
-            from.startsWith('../../../content/'),
-          `${name} imports ${from} - body/ must not depend on the package around it`
-        );
-      }
-    }
-  });
-
-  test('it never touches a canvas or the page', () => {
-    for (const { name, code } of sources) {
-      assert.doesNotMatch(
-        stripped(code),
-        /\b(document|window|CanvasRenderingContext2D|HTMLCanvasElement|requestAnimationFrame)\b/,
-        `${name} reaches for the browser`
-      );
-    }
   });
 });

@@ -2,7 +2,7 @@
  * How a footballer is built.
  *
  * Bone lengths in metres for somebody about 1.80 m tall, read by the jointed
- * figure in presentation/classic/body/. Like everything else in content/, this
+ * figure in presentation/toolkit/body/. Like everything else in content/, this
  * is meant to be edited: make the shins longer, refresh, and see whether it
  * reads better. Anything missing or nonsensical falls back to the value here.
  *
@@ -24,7 +24,7 @@
  * that would show a save being made by an empty glove. A test holds the line.
  */
 
-/** @typedef {import('../presentation/classic/body/skeleton.ts').Proportions} Proportions */
+/** @typedef {import('../presentation/toolkit/body/skeleton.ts').Proportions} Proportions */
 
 /** @type {Proportions} */
 export const PROPORTIONS = {

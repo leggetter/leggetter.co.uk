@@ -201,6 +201,12 @@ export interface Game {
   /** Swap the camera at runtime. Phase 2 hangs a control off this. */
   useView(id: string): void;
   currentViewId(): string;
+  /**
+   * Swap the presentation package at runtime: `classic`, or the stylised 3D
+   * preview. Remembered, like the camera, though `?look=` still wins on load.
+   */
+  useLook(id: string): void;
+  currentLookId(): string;
   setMuted(muted: boolean): void;
   isMuted(): boolean;
   /** Day, dusk or night. Remembered, like the camera. */
@@ -317,8 +323,9 @@ export async function startGame(options: GameOptions): Promise<Game> {
   // A camera is where you stand and a package is how it looks, so they are
   // resolved separately and neither knows about the other.
   let camera: CameraSpec = cameraFor(resolveCameraId(search, settings.viewId ?? null));
-  const packageId = resolvePackageId(search, settings.packageId ?? null);
-  const presentation: Presentation = createPackage(packageId);
+  let lookId: string = resolvePackageId(search, settings.packageId ?? null);
+  // `let` since looks can be swapped at runtime; see `useLook`.
+  let presentation: Presentation = createPackage(lookId);
   presentation.mount({ canvas, ctx });
   const recorder = createRecorder();
 
@@ -1284,6 +1291,25 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     currentViewId: () => camera.id,
 
+    useLook(id: string): void {
+      // A package change, unlike a camera change, is a whole new renderer: the
+      // old one is torn down - its sound, and for the stylised package its
+      // WebGL context - and the new one is told everything the old one knew.
+      const next = resolvePackageId(`?look=${encodeURIComponent(id)}`, null);
+      if (next === lookId) return;
+      const old = presentation;
+      lookId = next;
+      presentation = createPackage(next);
+      presentation.mount({ canvas, ctx });
+      presentation.setMuted(muted);
+      presentation.setSky(skyId);
+      presentation.configure(camera, width, height);
+      old.destroy();
+      remember({ packageId: next });
+    },
+
+    currentLookId: () => lookId,
+
     useSky(id: string): void {
       skyId = id;
       presentation.setSky(id);
@@ -1366,7 +1392,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
       const take = recorder.last();
       if (!take) return null;
       return develop(take, {
-        make: () => createPackage(packageId),
+        // Whichever look is on screen now, so the replay matches it.
+        make: () => createPackage(lookId),
         camera,
         sky: skyId,
         width,

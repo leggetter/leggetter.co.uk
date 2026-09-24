@@ -20,12 +20,29 @@
  * can ever change the result of a shot. If a package needs a change under
  * `core/`, this boundary was drawn in the wrong place.
  *
- * Packages deliberately share no presentation code with each other. Not even
- * the crowd: an interface answering "where is person 412 and how high" is a
- * call per person per frame, which is precisely the shape a WebGL crowd exists
- * to avoid. Two packages drawing crowds differently is two crowds; two
- * packages computing an outcome differently is a bug, and only one of those is
- * worth an abstraction.
+ * Packages do share code, but only as libraries a package opts into, never
+ * as layers every package is pushed through:
+ *
+ * - `toolkit/` - the jointed body, the poses, what each figure is doing, the
+ *   drag mapping, who wears which strip. A pixel package would never touch
+ *   the skeleton, and nothing makes it.
+ * - `sounds/` - the synth, and the recorded samples and moods layered over it.
+ *   Classic and the stylised package both take all of it, so they sound
+ *   exactly the same; a package wanting its own voice takes less, or
+ *   overrides it.
+ *
+ * Nothing goes into either until a second package actually uses it (#72).
+ *
+ * Packages do not import each other, with one exception while `stylised` is a
+ * preview: it borrows classic's 2D scoreboard and overlays through a single
+ * file, `stylised/hud.ts`, which a test holds to exactly that. Moving the HUD
+ * into a library of its own is the next extraction, not a pattern.
+ *
+ * Not the crowd, though: an interface answering "where is person 412 and how
+ * high" is a call per person per frame, which is precisely the shape a WebGL
+ * crowd exists to avoid. Two packages drawing crowds differently is two
+ * crowds; two packages computing an outcome differently is a bug, and only one
+ * of those is worth an abstraction.
  */
 
 import type { GameEvent } from '../core/events.ts';

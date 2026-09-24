@@ -14,7 +14,7 @@
 import type { FrameState } from '../../core/types.ts';
 import { shadeGrass, type SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
-import type { Projector } from './project.ts';
+import type { Projector } from '../toolkit/project.ts';
 import {
   drawAim,
   drawAway,

@@ -17,8 +17,16 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
 import { SQUAD } from '../../content/players.js';
-import { awayTaking, keeperColours, restingKeeperColours, takerColours } from './draw.ts';
-import { KEEPER_KIT, OTHER_KEEPER_KIT, OWN_KEEPER_KIT, teamKits } from './kits.ts';
+import {
+  awayTaking,
+  KEEPER_KIT,
+  keeperColours,
+  OTHER_KEEPER_KIT,
+  OWN_KEEPER_KIT,
+  restingKeeperColours,
+  takerColours,
+  teamKits,
+} from './kits.ts';
 
 /** Perceived lightness, for judging whether two colours are tellable apart. */
 function luma(hex: string): number {

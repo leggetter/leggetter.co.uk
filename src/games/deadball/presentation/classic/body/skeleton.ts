@@ -124,6 +124,33 @@ export interface BodyTargets {
   /** Which way the head sits from the chest. Straight on up the spine if left out. */
   head?: Vec3;
   /**
+   * Which way each boot points: a point the toe aims at, one per ankle and
+   * paired with it.
+   *
+   * Left out, a boot lies flat along the ground in the direction the body
+   * faces, which is right for somebody standing and wrong for a kick. A boot
+   * swinging through a ball points down and turns out, a trailing foot points
+   * back, and a foot pushing off the grass has its heel up. Phase 3 of #72.
+   */
+  toes?: readonly [Vec3, Vec3];
+  /**
+   * The hands and ankles are `[left, right]` exactly as given, with no pairing.
+   *
+   * Pairing by reach is right for a keeper, whose hands are two points either
+   * of which could be either glove. It is wrong for a kick: the kicking foot
+   * swings past the standing one, and a pairing that swapped the legs over as
+   * it did would draw the planted foot leaving the ground.
+   */
+  sided?: boolean;
+  /**
+   * How far the knees turn out, 0 straight ahead and 1 about 45 degrees.
+   *
+   * A deep squat with the knees straight ahead is foreshortened to nothing
+   * from in front; turned out, it is the wide, low shape anybody reads as
+   * "about to jump". Only the bend direction changes, not where the feet go.
+   */
+  kneesOut?: number;
+  /**
    * The hands must land on their targets, even if the body has to move.
    *
    * For a keeper, whose hands are where saves are decided. Normally the body
@@ -276,38 +303,54 @@ function solveInPlace(
 
   const armOut = body.upperArm + body.forearm + body.hand;
   const armIn = Math.abs(body.upperArm - body.forearm - body.hand);
-  const [leftHandTarget, rightHandTarget] = pairUp(
-    targets.hands, shoulders.left, shoulders.right, armIn, armOut
-  );
-  const [leftAnkleTarget, rightAnkleTarget] = pairUp(
-    targets.ankles, hips.left, hips.right, Math.abs(body.thigh - body.shin), body.thigh + body.shin
-  );
+  const [leftHandTarget, rightHandTarget] = targets.sided
+    ? [targets.hands[0], targets.hands[1]]
+    : pairUp(targets.hands, shoulders.left, shoulders.right, armIn, armOut);
+  const [leftAnkleTarget, rightAnkleTarget] = targets.sided
+    ? [targets.ankles[0], targets.ankles[1]]
+    : pairUp(
+        targets.ankles, hips.left, hips.right, Math.abs(body.thigh - body.shin), body.thigh + body.shin
+      );
+  // A toe goes with its ankle, whichever side the pairing gave that ankle to.
+  const toeTargets = targets.toes
+    ? leftAnkleTarget === targets.ankles[0]
+      ? [targets.toes[0], targets.toes[1]]
+      : [targets.toes[1], targets.toes[0]]
+    : null;
 
   // Toes point along the ground in the direction the body faces. A body lying
   // flat still has feet, and they still point somewhere sensible.
   const level = normalize(vec(forward.x, 0, forward.z));
   const toeward = length(level) > 0 ? level : forward;
+  const turnOut = Math.min(1, Math.max(0, targets.kneesOut ?? 0));
 
-  const side = (sign: -1 | 1, handTarget: Vec3, ankleTarget: Vec3) => {
+  const side = (sign: -1 | 1, handTarget: Vec3, ankleTarget: Vec3, toeTarget: Vec3 | null) => {
     const outward = scale(right, sign);
     const shoulder = sign < 0 ? shoulders.left : shoulders.right;
     const hip = sign < 0 ? hips.left : hips.right;
 
-    // Elbows fold back, out and a little down; knees fold forward.
+    // Elbows fold back, out and a little down; knees fold forward, and out as
+    // far as `kneesOut` turns them.
     const elbowPole = add(add(scale(forward, -1), scale(outward, 0.25)), scale(up, -0.4));
+    const kneePole = add(forward, scale(outward, turnOut));
     const arm = twoBone(shoulder, handTarget, body.upperArm, body.forearm + body.hand, elbowPole);
-    const leg = twoBone(hip, ankleTarget, body.thigh, body.shin, forward);
+    const leg = twoBone(hip, ankleTarget, body.thigh, body.shin, kneePole);
 
     // The hand continues the forearm, so the wrist sits a hand's length back
     // from the end of the chain along the same line.
     const wrist = sub(arm.end, scale(normalize(sub(arm.end, arm.mid)), body.hand));
+
+    // From where the ankle actually ended up, so a boot keeps its length and
+    // its direction even when the leg fell short of the target.
+    const pointed = toeTarget ? normalize(sub(toeTarget, leg.end)) : null;
+    const toeDirection = pointed && length(pointed) > 0 ? pointed : toeward;
 
     return {
       joints: {
         hip,
         knee: leg.mid,
         ankle: leg.end,
-        toe: add(leg.end, scale(toeward, body.foot)),
+        toe: add(leg.end, scale(toeDirection, body.foot)),
         shoulder,
         elbow: arm.mid,
         wrist,
@@ -318,8 +361,8 @@ function solveInPlace(
     };
   };
 
-  const left = side(-1, leftHandTarget, leftAnkleTarget);
-  const rightSide = side(1, rightHandTarget, rightAnkleTarget);
+  const left = side(-1, leftHandTarget, leftAnkleTarget, toeTargets?.[0] ?? null);
+  const rightSide = side(1, rightHandTarget, rightAnkleTarget, toeTargets?.[1] ?? null);
 
   return {
     skeleton: {

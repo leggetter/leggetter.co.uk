@@ -165,6 +165,36 @@ describe('a jointed body', () => {
     assert.ok(s.reached.leftHand && s.reached.rightHand, JSON.stringify(s.reached));
   });
 
+  test('sided targets are taken as given, even when the pairing would swap them', () => {
+    // A kicking foot swinging past the standing one. Paired by reach, the
+    // legs would cross over and the planted foot would change legs.
+    const crossed: BodyTargets = { ...standing, ankles: [vec(0.14, 0.3, 0.4), vec(-0.1, 0.08, 0)] };
+    const paired = solveBody(crossed);
+    const sided = solveBody({ ...crossed, sided: true });
+    assert.ok(distance(paired.left.ankle, crossed.ankles[1]) < 1e-9, 'the pairing did not swap them');
+    assert.ok(distance(sided.left.ankle, crossed.ankles[0]) < 1e-9);
+    assert.ok(distance(sided.right.ankle, crossed.ankles[1]) < 1e-9);
+  });
+
+  test('a boot points where it is told, at its own length, and goes with its ankle', () => {
+    const toes: [Vec3, Vec3] = [vec(-0.12, -0.5, 0.3), vec(0.12, 0.08, -1)];
+    const s = solveBody({ ...standing, toes });
+    assert.ok(close(distance(s.left.ankle, s.left.toe), BODY.foot));
+    assert.ok(s.left.toe.y < s.left.ankle.y - 0.05, 'the left toe is not pointing down');
+    assert.ok(s.right.toe.z < s.right.ankle.z - 0.2, 'the right toe is not pointing back');
+    // Given the other way round, the toes follow their ankles to the other side.
+    const swapped = solveBody({ ...standing, ankles: [standing.ankles[1], standing.ankles[0]], toes: [toes[1], toes[0]] });
+    assert.ok(swapped.left.toe.y < swapped.left.ankle.y - 0.05, 'a toe was left on the wrong foot');
+  });
+
+  test('kneesOut turns the knees out without moving the feet', () => {
+    const squat: BodyTargets = { ...standing, pelvis: vec(0, 0.6, -0.1), chest: vec(0, 1.1, 0) };
+    const ahead = solveBody(squat);
+    const out = solveBody({ ...squat, kneesOut: 1 });
+    assert.ok(out.left.knee.x < ahead.left.knee.x - 0.05 && out.right.knee.x > ahead.right.knee.x + 0.05);
+    assert.ok(distance(out.left.ankle, ahead.left.ankle) < 1e-9);
+  });
+
   test('the same targets always give the same body', () => {
     assert.deepEqual(solveBody(standing), solveBody(standing));
   });

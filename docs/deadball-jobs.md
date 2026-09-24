@@ -54,8 +54,9 @@ is taken from the left, the middle or the right - it moves every time - with
 two to four of the other lot standing in a wall ten yards away. The wall lines
 up to block the near post, so you go over it, round it, under it, or you pick
 the other corner. Finesse is the one that goes over. **Watch the wall before you
-shoot**: if they are crouched, they are going to jump when you strike it, and
-a low driven shot goes underneath. If they are standing up straight, nothing
+shoot**: if they are squatting, knees out and arms swung back, they are going to
+jump when you strike it, and a low driven shot goes underneath. If they are
+standing up straight, nothing
 goes under, but they are easier to go over. How often a wall jumps, and how
 high, is in `src/games/deadball/content/walls.js`.
 

@@ -52,8 +52,12 @@ penalties, free kicks, or both - and asks first if it is about to end a shootout
 are in the middle of. A free kick
 is taken from the left, the middle or the right - it moves every time - with
 two to four of the other lot standing in a wall ten yards away. The wall lines
-up to block the near post, so you go over it, round it, or you pick the other
-corner. Finesse is the one that goes over.
+up to block the near post, so you go over it, round it, under it, or you pick
+the other corner. Finesse is the one that goes over. **Watch the wall before you
+shoot**: if they are crouched, they are going to jump when you strike it, and
+a low driven shot goes underneath. If they are standing up straight, nothing
+goes under, but they are easier to go over. How often a wall jumps, and how
+high, is in `src/games/deadball/content/walls.js`.
 
 **Settings has a button that saves a file of every shot you have taken**, and
 it tells you how many are in there before you press it.
@@ -163,7 +167,7 @@ get **375 points to spread across the five of them** - not 500:
 | `accuracy` | How close it goes to where you aimed. Below about 60 the ball starts wandering off on its own. |
 | `curve` | How much bend they get when you hook the drag. |
 | `composure` | Only matters on the last penalty, when it is all on them. Low composure players get worse when it counts. |
-| `dip` | Free kicks only. How much they can loft it over a wall and still bring it down under the bar. Below about 40 a four-man wall cannot be cleared at all; above about 60 it can. |
+| `dip` | Free kicks only. How much they can loft it over a wall and still bring it down under the bar. Below about 50 a four-man wall that jumps is rarely cleared; from about 60 it usually is. A wall that stands is lower, and most players clear it. |
 | `foot` | `'left'` or `'right'`. Changes which way the ball naturally drifts. |
 | `colors` | `kit` is the shirt, `trim` is the shorts and socks. Any web colour. |
 

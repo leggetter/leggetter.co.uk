@@ -20,6 +20,7 @@ import {
   penaltySpot,
   setPieceFor,
   spotOrder,
+  wallJumpsFor,
   SPOT_IDS,
   WALL_DISTANCE,
   type Discipline,
@@ -27,7 +28,7 @@ import {
 import { resolveShot } from './shot.ts';
 import type { KeeperProfile, Player } from './types.ts';
 import { GOAL_WIDTH } from './units.ts';
-import { buildWall, HEIGHT, wallHit } from './wall.ts';
+import { AIRTIME, buildWall, JUMP_DELAY, STANDING, wallBand, wallHit, wallPoseAt } from './wall.ts';
 import { distance, vec } from './vec3.ts';
 
 import { KEEPERS } from '../content/keepers.js';
@@ -192,7 +193,14 @@ describe('the wall', () => {
 
 describe('getting past it', () => {
   const piece = setPieceFor(31337, 0, 'freekicks');
-  const wall = buildWall({ ...piece, wallCount: 4, covering: -1, origin: vec(-8.5, 0.11, -17) });
+  // Standing, so these are about the wall's shape rather than its jump.
+  const wall = buildWall({
+    ...piece,
+    wallCount: 4,
+    covering: -1,
+    origin: vec(-8.5, 0.11, -17),
+    wallJumps: false,
+  });
 
   test('a ball at head height is charged down', () => {
     const person = wall.people[0]!;
@@ -203,7 +211,7 @@ describe('getting past it', () => {
 
   test('a ball over the top is not', () => {
     const person = wall.people[0]!;
-    const over = HEIGHT + 0.6;
+    const over = STANDING + 0.6;
     assert.equal(
       wallHit(vec(person.at.x - 1, over, person.at.z - 1), vec(person.at.x + 0.3, over, person.at.z + 0.3), wall),
       false
@@ -338,13 +346,20 @@ describe('both sides get the same kick', () => {
 
 describe('who can go over it, and who chooses to', () => {
   const origin = vec(-8.5, 0.11, -17);
-  const piece = { ...setPieceFor(31337, 0, 'freekicks'), wallCount: 4, covering: -1 as const, origin };
+  const piece = {
+    ...setPieceFor(31337, 0, 'freekicks'),
+    wallCount: 4,
+    covering: -1 as const,
+    origin,
+    wallJumps: false,
+  };
   const wall = buildWall(piece);
   const keeper = KEEPERS[0] as KeeperProfile;
   const specialist: Player = { ...(SQUAD[0] as Player), accuracy: 100, dip: 85 };
   const lowDip: Player = { ...specialist, dip: 35 };
 
-  const fly = (taker: Player, height: number) => {
+  const fly = (taker: Player, height: number, jumps = false) => {
+    const against = jumps ? buildWall({ ...piece, wallJumps: true }) : wall;
     const shot = resolveShot(
       {
         aim: { x: piece.covering * 0.8, y: height },
@@ -358,13 +373,19 @@ describe('who can go over it, and who chooses to', () => {
       createRng(1),
       { origin: piece.origin, loft: Math.max(0, Math.min(1, taker.dip / 100)) }
     );
-    let flight = createFlight(shot, keeper, createRng(2), 0, null, NO_EVENTS, wall);
+    let flight = createFlight(shot, keeper, createRng(2), 0, null, NO_EVENTS, against);
     for (let i = 0; i < 900 && !flight.outcome; i++) flight = advance(flight, 1 / 120, NO_EVENTS);
     return flight.outcome;
   };
 
-  test('a low-dip footballer cannot clear a four-man wall even with a full-height drag', () => {
-    assert.equal(fly(lowDip, 1), 'blocked');
+  test('a low-dip footballer cannot clear a jumping four-man wall even with a full-height drag', () => {
+    // Against the wall at its tallest. A standing wall is lower, and clearing
+    // it is exactly what the next test says it should be.
+    assert.equal(fly(lowDip, 1, true), 'blocked');
+  });
+
+  test('but can clear the same wall standing, which is the point of reading it', () => {
+    assert.notEqual(fly(lowDip, 1, false), 'blocked');
   });
 
   test('a specialist can when the drag is high and the contact is clean', () => {
@@ -373,5 +394,98 @@ describe('who can go over it, and who chooses to', () => {
 
   test('a high-dip footballer aimed low stays under the wall', () => {
     assert.equal(fly(specialist, 0), 'blocked');
+  });
+});
+
+describe('a wall that jumps', () => {
+  // Issue #65. Readable rather than random: decided with the kick, shown
+  // before the strike, and a different shape at different moments after it.
+  const origin = vec(-8.5, 0.11, -17);
+  const base = { ...setPieceFor(31337, 0, 'freekicks'), wallCount: 4, covering: -1 as const, origin };
+  const standing = buildWall({ ...base, wallJumps: false });
+  const jumping = buildWall({ ...base, wallJumps: true });
+  const top = JUMP_DELAY + AIRTIME / 2;
+
+  test('is decided by the seed and the round, the same every time', () => {
+    // The room and both devices each work this out for themselves. If it
+    // depended on anything but the seed and the round they would disagree
+    // about which free kicks were blocked, and nobody would be told.
+    for (const seed of [1, 2, 31337, 424242]) {
+      for (let round = 0; round < 20; round++) {
+        assert.equal(wallJumpsFor(seed, round), wallJumpsFor(seed, round));
+      }
+      for (let i = 0; i < 20; i++) {
+        assert.equal(
+          setPieceFor(seed, i, 'freekicks', true).wallJumps,
+          setPieceFor(seed, i, 'freekicks', true).wallJumps
+        );
+      }
+    }
+  });
+
+  test('is the same wall for both halves of a round', () => {
+    for (const seed of [11, 33, 31337]) {
+      for (let i = 0; i < 16; i += 2) {
+        assert.equal(
+          setPieceFor(seed, i, 'freekicks', true).wallJumps,
+          setPieceFor(seed, i + 1, 'freekicks', true).wallJumps,
+          `seed ${seed}, round ${i / 2}`
+        );
+      }
+    }
+  });
+
+  test('sometimes does and sometimes does not', () => {
+    // A wall that always jumps is one you shoot under every time.
+    const jumps = Array.from({ length: 200 }, (_, i) => wallJumpsFor(99, i)).filter(Boolean).length;
+    assert.ok(jumps > 60 && jumps < 140, `${jumps} of 200 jumped`);
+  });
+
+  test('never on a penalty, which has no wall', () => {
+    assert.equal(penaltySpot().wallJumps, false);
+    assert.equal(buildWall(penaltySpot()).jumps, false);
+  });
+
+  test('shows what it is going to do before the ball is struck', () => {
+    // The whole design. A taker has to be able to see it, so it is in the
+    // pose at time zero - which is what the view draws while you aim.
+    assert.equal(wallPoseAt(jumping, 0).crouch, 1, 'a jumping wall is not crouched and set');
+    assert.equal(wallPoseAt(standing, 0).crouch, 0, 'a standing wall is crouched');
+    assert.equal(wallPoseAt(jumping, 0).lift, 0, 'a wall left the ground before the kick');
+  });
+
+  test('is a different shape at different moments', () => {
+    const before = wallBand(jumping, 0);
+    const peak = wallBand(jumping, top);
+    const after = wallBand(jumping, JUMP_DELAY + AIRTIME + 0.1);
+    assert.equal(before.bottom, 0);
+    assert.ok(peak.bottom > 0.6, `the gap at the top is only ${peak.bottom.toFixed(2)} m`);
+    assert.ok(peak.top > wallBand(standing, top).top, 'a jumping wall is not taller at the top');
+    assert.deepEqual(after, wallBand(standing, 0), 'it did not come back down');
+
+    // And the hit test reads it: the same low ball through the same person.
+    const person = jumping.people[0]!;
+    const from = vec(person.at.x, 0.3, person.at.z - 0.5);
+    const to = vec(person.at.x, 0.3, person.at.z + 0.5);
+    assert.equal(wallHit(from, to, jumping, 0), true, 'crouched, it should stop a low ball');
+    assert.equal(wallHit(from, to, jumping, top), false, 'at the top, a low ball should go under');
+    assert.equal(wallHit(from, to, standing, top), true, 'a standing wall has no gap');
+  });
+
+  test('lets a low driven shot under that a standing wall blocks', () => {
+    // The reason for any of this: `driven` becomes a read rather than a label.
+    const shoot = (wall: typeof standing) => {
+      const shot = resolveShot(
+        { aim: { x: -0.8, y: 0 }, power: 1, curve: 0, lift: 0.5, timing: 0, style: 'driven' },
+        { ...(SQUAD[0] as Player), accuracy: 100 },
+        createRng(1),
+        { origin, loft: 0.5 }
+      );
+      let flight = createFlight(shot, KEEPERS[0] as KeeperProfile, createRng(2), 0, null, NO_EVENTS, wall);
+      for (let i = 0; i < 900 && !flight.outcome; i++) flight = advance(flight, 1 / 120, NO_EVENTS);
+      return flight.outcome;
+    };
+    assert.equal(shoot(standing), 'blocked');
+    assert.notEqual(shoot(jumping), 'blocked');
   });
 });

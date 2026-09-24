@@ -11,6 +11,7 @@
  * replayable and what will let two devices agree without sending any of it.
  */
 
+import { WALL } from '../content/walls.js';
 import { createRng, shotSeed } from './rng.ts';
 import type { Vec3 } from './vec3.ts';
 import { vec } from './vec3.ts';
@@ -64,6 +65,28 @@ export const WALL_DISTANCE = 9.15;
 export const MIN_WALL = 2;
 export const MAX_WALL = 4;
 
+/**
+ * How often a wall jumps, from `content/walls.js`.
+ *
+ * Here rather than in `wall.ts` because it is decided with the rest of the
+ * kick, and `wall.ts` already imports this file.
+ */
+const chance = (WALL as { chance?: unknown } | undefined)?.chance;
+export const JUMP_CHANCE =
+  typeof chance === 'number' && Number.isFinite(chance) ? Math.max(0, Math.min(1, chance)) : 0.5;
+
+/**
+ * Whether the wall jumps on this round.
+ *
+ * Its own stream, off the seed and the round, rather than one more draw from
+ * the stream that picks the wall's size and the post it covers - so adding it
+ * moved nothing else about any kick that had already been played. Never the
+ * clock and never `Math.random`: the room and both devices work this out for
+ * themselves and have to get the same answer without being told.
+ */
+export const wallJumpsFor = (seed: number, round: number): boolean =>
+  createRng(shotSeed(seed, round * 53 + 11)).next() < JUMP_CHANCE;
+
 export interface SetPiece {
   /** A penalty is a free kick with the wall, the angle and the distance all
    *  turned off, so it is the same shape of thing rather than a special case. */
@@ -82,6 +105,14 @@ export interface SetPiece {
    * something real about this particular kick.
    */
   covering: -1 | 1;
+  /**
+   * Whether the wall jumps when the ball is struck.
+   *
+   * Decided here, with everything else about the kick, so it is known - and
+   * shown, as a crouched wall - before anybody shoots. See `content/walls.js`
+   * for why readable rather than random.
+   */
+  wallJumps: boolean;
 }
 
 /** The penalty spot, as a set piece. No wall, straight on. */
@@ -91,6 +122,7 @@ export const penaltySpot = (): SetPiece => ({
   origin: vec(0, BALL_RADIUS, -PENALTY_DISTANCE),
   wallCount: 0,
   covering: 1,
+  wallJumps: false,
 });
 
 /**
@@ -177,6 +209,8 @@ export function setPieceFor(
     origin: vec(place.x, BALL_RADIUS, place.z),
     wallCount,
     covering,
+    // Per round, like the rest, so both halves of a pair face the same wall.
+    wallJumps: wallJumpsFor(seed, round),
   };
 }
 

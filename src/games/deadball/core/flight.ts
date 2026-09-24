@@ -26,7 +26,7 @@ import type { BallState, KeeperProfile, Outcome, Shot } from './types.ts';
 import { addScaled, dot, length, lerp, scale, vec, ZERO, type Vec3 } from './vec3.ts';
 
 /** No wall, which is what a penalty has. Frozen so it can be shared. */
-const EMPTY_WALL: Wall = Object.freeze({ people: [], height: 0, radius: 0 }) as Wall;
+const EMPTY_WALL: Wall = Object.freeze({ people: [], height: 0, radius: 0, jumps: false }) as Wall;
 
 export interface Flight {
   ball: BallState;
@@ -165,7 +165,9 @@ export function advance(flight: Flight, dt: number, events: EventSink): Flight {
   // The wall first, because it is the nearest thing there is. A ball that hits
   // it never reaches the woodwork or the line, so testing those first would
   // occasionally judge a shot that had already been charged down.
-  if (wallHit(before.position, ball.position, flight.wall)) {
+  // Judged against where the wall is at this moment, because a jumping one
+  // is not the same shape from one step to the next.
+  if (wallHit(before.position, ball.position, flight.wall, elapsed)) {
     events.emit({ kind: 'boot', at: elapsed, force: forceOf(length(before.velocity)) * 0.5 });
     events.emit({ kind: 'resolved', at: elapsed, outcome: 'blocked' });
     return {

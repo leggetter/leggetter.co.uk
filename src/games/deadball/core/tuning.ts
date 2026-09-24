@@ -49,11 +49,12 @@ import {
 } from './units.ts';
 import { AIM_TUNING } from './shot.ts';
 import { KEEPER_TUNING } from './keeper.ts';
+import { WALL_TUNING } from './wall.ts';
 
 /**
  * Everything that changes what a given input does.
  *
- * Constants that live outside these three modules are not covered, which is a
+ * Constants that live outside these modules are not covered, which is a
  * reason for anything tuning-relevant to live in one of them.
  */
 const TUNED: readonly number[] = [
@@ -88,6 +89,10 @@ const TUNED: readonly number[] = [
   FLIGHT_TIMEOUT,
   ...AIM_TUNING,
   ...KEEPER_TUNING,
+  // The wall's shape and its jump, which `content/walls.js` invites people
+  // to edit. Two devices on different copies would disagree about which free
+  // kicks were blocked without ever noticing, so they are in here too.
+  ...WALL_TUNING,
 ];
 
 /** FNV-1a over the constants, as eight hex characters. */

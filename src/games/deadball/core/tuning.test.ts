@@ -22,7 +22,7 @@ describe('tuning fingerprint', () => {
     // and you meant to retune: update it, and know that every shot logged
     // before now replays under different physics. If you did not mean to
     // retune, something moved that should not have.
-    assert.equal(tuningFingerprint(), 'b9cae871', 'the physics changed');
+    assert.equal(tuningFingerprint(), '180d3531', 'the physics changed');
   });
 
   test('notices a constant moving', () => {

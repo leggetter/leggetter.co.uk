@@ -1497,7 +1497,11 @@ The deadzone is now proportional to the drag - a long drag wanders further in ab
 
 ### A wall that jumps
 
-**Proposed, not built.** The idea is that the wall has a chance to jump, so
+**Built, as readable rather than random** - see [How the jumping wall
+reads](#how-the-jumping-wall-reads) below for what shipped. The proposal as it
+was written first:
+
+The idea is that the wall has a chance to jump, so
 `driven` - low and hard, under the wall rather than over it - becomes a real
 choice rather than a label.
 
@@ -1524,6 +1528,62 @@ Worth knowing before anybody builds it: **no free kick has ever been taken in
 a two-device game**, and nobody has used `knuckle` at all. Two of Phase 8's
 features have no evidence either way, which makes this hard to tune against
 anything but opinion.
+
+#### How the jumping wall reads
+
+**Decided with the kick, and shown before the strike.** `setPieceFor` sets
+`wallJumps` from its own stream off the seed and the round, so both halves of a
+round face the same wall, the room and both devices work it out without
+sending anything, and no kick that had already been played changed. A wall
+that is going to jump is **crouched while you aim**, knees bent and set to
+spring; one that is not stands up straight. Nothing about it is random at the
+moment of the strike.
+
+**A different shape at different moments.** `wallHit` now takes the time since
+the strike. A jumping wall leaves the ground just after the ball does, and at
+the top of the jump its heads are higher than a standing wall's and its feet
+are drawn up off the ground, leaving a gap underneath. The top of the jump
+lands about when a driven shot arrives, and it is coming down, or already
+down, by the time a floated one does. `wallPoseAt` is the one description of that, and both the
+hit test and classic's figures read it, so the gap you see is the gap the ball
+meets.
+
+**The standing wall had to be shorter, which cost `dip` something.** `HEIGHT`
+was 2.15 m - a jumping player - on every wall. A standing wall is now 2.02 m
+and a jumping one tops out at 2.37 m. At 1.9 m, tried first, nearly anybody
+could float it over a standing wall whatever their `dip`, so the attribute
+meant nothing on half the free kicks. At 2.02 m, averaged over both kinds of
+wall, the share of full-height finesse shots at the covered post that clear it
+is 40% at `dip` 40 and 73% at 60 from an angle, where it was 28% and 73%. The
+split is the point: against a standing wall, 68% and 92%; against a jumping one, 12%
+and 55%.
+
+**The gap is generous, deliberately.** A real driven free kick under a wall is
+struck along the ground. This ball cannot be - the flattest arc to the bottom
+of the net passes the wall 30 to 50 cm up - so a wall whose feet rose only as
+far as a real jump opened a gap that nothing went through. The feet come up by
+the rise plus a `tuck`, 0.9 m in all at the top. With 0.65 m it was still
+better to float it over a jumping wall than to drive it under.
+
+Measured, clean strikes aimed straight at the post a four-man wall covers,
+2,000 a row:
+
+| wall | driven, aimed low | finesse, aimed high |
+| --- | --- | --- |
+| before: always 2.15 m | 0% | 29% |
+| standing | 0% | 33% |
+| jumping | **30%** | 26% |
+
+So `driven` is now the right answer to one wall and the wrong answer to the
+other, and the wall tells you which before you choose. Over the whole mixed
+spread of aims, free kicks barely moved: clean finesse, driven and knuckle
+score 34%, 36% and 36%, where they scored 33% each.
+
+The numbers - how often a wall jumps, how tall, how far and how soon - are in
+`content/walls.js` and in the tuning fingerprint, because two devices on
+different copies would disagree about which kicks were blocked without anyone
+being told. The fingerprint moved to `180d3531`. The chance of a jump is 0.5,
+which is an opinion: there is still no evidence to tune any of this against.
 
 ### Shape, and paying for it with the timing bar
 

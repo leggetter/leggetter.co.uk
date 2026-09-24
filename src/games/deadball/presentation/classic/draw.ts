@@ -36,6 +36,7 @@ import { PITCH_LENGTH } from './stand.ts';
 import { KEEPER_KIT, teamKits, type TeamKits } from './kits.ts';
 import type { Projector } from './project.ts';
 import { ARM_SPAN } from '../../core/keeper.ts';
+import { CROUCH, wallPoseAt } from '../../core/wall.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;
 
@@ -2110,10 +2111,32 @@ export { COLORS };
  * other way round, which is the same rule the rest of the scene follows.
  */
 export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
+  for (const figure of wallFigures(frame)) drawFigure(ctx, proj, figure);
+}
+
+/**
+ * The wall's figures, back to front, in the pose the simulation says.
+ *
+ * **A wall that is going to jump crouches while you aim**, knees bent and set
+ * to spring, and one that is not stands up straight. That is the cue the whole
+ * jumping wall rests on (#65): you can read it before you shoot, so hitting it
+ * low and hard under a jumping wall is a decision rather than a gamble. Once
+ * the ball is struck they go up - feet off the ground and knees drawn up -
+ * and come back down, from the same `wallPoseAt` the hit test reads, so the
+ * gap you see is the gap the ball meets.
+ *
+ * The crouch is the same depth the hit test uses (`CROUCH`, from
+ * `content/walls.js`), so if it does not read at thirty metres on a phone that
+ * is the number to change. Proper animation is a later job.
+ *
+ * Separate from the drawing so a test can check the pose without a canvas.
+ */
+export function wallFigures(frame: FrameState): Figure[] {
   const people = frame.wall.people;
-  if (people.length === 0) return;
+  if (people.length === 0) return [];
 
   const colours = wallColours(frame);
+  const pose = wallPoseAt(frame.wall, frame.sinceStrike);
 
   // Furthest from the goal first. They stand on an arc, so depth is distance
   // from the ball rather than z.
@@ -2123,7 +2146,7 @@ export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
     return db - da;
   });
 
-  for (const index of order) {
+  return order.map((index) => {
     const person = people[index]!;
     const { x, z } = person.at;
 
@@ -2132,10 +2155,17 @@ export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
     // reads as a queue. What little movement there is, is a flinch.
     const brace = Math.sin(frame.clock * 0.7 + index * 1.9) * 0.012;
     const height = 1.78 + ((index * 37) % 11) / 100;
-    const shoulderY = height * 0.82 + brace;
+    const stature = height * 0.82;
 
-    drawFigure(ctx, proj, {
-      feet: vec(x, 0, z),
+    // Set to spring: the shoulders drop and the skeleton bends the knees to
+    // keep the feet where they are, because `stature` does not change.
+    const sink = pose.crouch * CROUCH * frame.wall.height;
+    const lift = pose.lift;
+    const feetY = lift + pose.tuck;
+    const shoulderY = lift + stature - sink + brace;
+
+    return {
+      feet: vec(x, feetY, z),
       shoulder: vec(x, shoulderY, z),
       head: vec(x, shoulderY + 0.24, z),
       // Arms down and crossed in front, which is what a wall does and what
@@ -2144,13 +2174,13 @@ export function drawWall(ctx: Ctx, proj: Projector, frame: FrameState): void {
         vec(x - 0.1, shoulderY - 0.52, z - 0.14),
         vec(x + 0.1, shoulderY - 0.52, z - 0.14),
       ],
-      toes: [vec(x - 0.16, 0.03, z - 0.05), vec(x + 0.16, 0.03, z + 0.05)],
+      toes: [vec(x - 0.16, feetY + 0.03, z - 0.05), vec(x + 0.16, feetY + 0.03, z + 0.05)],
       kit: colours.kit,
       trim: colours.trim,
       facing: TOWARD_TAKER,
-      stature: height * 0.82,
-    });
-  }
+      stature,
+    };
+  });
 }
 
 /**

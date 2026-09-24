@@ -570,13 +570,55 @@ const views = listCameras();
         </table>
         <p class="aside">
           Five attributes and 375 points between them, so a squad is four
-          choices rather than one best player. Change yours under
-          <b>Players</b>.
+          choices rather than one best player. Change yours under <b>Players</b>.
+        </p>
+
+        <h3>7 &middot; Watch it again, frame by frame</h3>
+        <p>
+          After a shot, press <kbd>F</kbd> to step back through it one frame at
+          a time, from the run-up until just after it's decided. <kbd>&larr;</kbd>
+          <kbd>&rarr;</kbd> step a frame, <kbd>C</kbd> jumps to the boot on the
+          ball, and <kbd>F</kbd> again closes it.
+        </p>
+        <p class="aside">
+          Keyboard only for now, so not on a phone. It replays the last shot,
+          whoever took it.
         </p>
 
         <div id="howto-actions">
           <button type="button" id="howto-close">Got it</button>
         </div>
+      </div>
+    </dialog>
+
+    {/*
+      The last shot, frame by frame: press F after a shot.
+
+      Documented at the end of "How to take a shot", and nowhere on the pitch.
+      It came out of the filmstrips used to check the new bodies, and watching
+      a shot back one frame at a time turned out to be worth having in the
+      game. Whether it earns a button - which is what a phone would need - is
+      a question for after people have used it.
+    */}
+    <dialog id="film" aria-labelledby="film-heading">
+      <div id="film-body" class="panel">
+        <div id="film-top">
+          <h2 id="film-heading">Last shot, frame by frame</h2>
+          <button type="button" id="film-close" aria-label="Close">&times;</button>
+        </div>
+        <p id="film-status" aria-live="polite"></p>
+        <figure id="film-stage" hidden>
+          <img id="film-still" alt="" />
+          <figcaption id="film-caption"></figcaption>
+        </figure>
+        <div id="film-controls" hidden>
+          <button type="button" id="film-prev" aria-label="Previous frame">&lsaquo;</button>
+          <input type="range" id="film-scrub" min="0" max="0" value="0" aria-label="Frame" />
+          <button type="button" id="film-next" aria-label="Next frame">&rsaquo;</button>
+          <button type="button" id="film-contact">Contact</button>
+        </div>
+        <p id="film-keys" hidden>&larr; &rarr; to step, Home and End for the ends, C for the moment of contact.</p>
+        <div id="film-strip"></div>
       </div>
     </dialog>
 
@@ -647,6 +689,8 @@ const views = listCameras();
   import { createRemoteTransport } from '../../games/deadball/net/remote';
   import { forgetRoom, linkTo, roomFrom } from '../../games/deadball/net/link';
   import type { TeamOnTheWire, Transport } from '../../games/deadball/net/Transport';
+  import { discard, type Still } from '../../games/deadball/film/develop';
+  import { isTyping } from '../../games/deadball/input/typing';
   import { renderSVG } from 'uqr';
   // The derivation, so the swatches show what the pitch will actually draw
   // rather than what was stored. Five of the six are defaults most of the
@@ -1541,6 +1585,141 @@ const views = listCameras();
           .getElementById('settings-close')
           ?.addEventListener('click', () => settings?.close());
 
+        // --- The last shot, frame by frame ------------------------------------
+        const film = document.getElementById('film') as HTMLDialogElement | null;
+        const filmStatus = document.getElementById('film-status')!;
+        const filmStage = document.getElementById('film-stage')!;
+        const filmStill = document.getElementById('film-still') as HTMLImageElement;
+        const filmCaption = document.getElementById('film-caption')!;
+        const filmControls = document.getElementById('film-controls')!;
+        const filmKeys = document.getElementById('film-keys')!;
+        const filmScrub = document.getElementById('film-scrub') as HTMLInputElement;
+        const filmStrip = document.getElementById('film-strip')!;
+        let stills: Still[] = [];
+        let showing = 0;
+        /** Bumped on every open and close, so a slow develop cannot land in a closed dialog. */
+        let reel = 0;
+
+        const timeLabel = (still: Still): string => {
+          if (still.contact) return 'boot on ball';
+          if (still.fromStrike === null) return '';
+          const t = still.fromStrike;
+          return `${t < 0 ? '\u2212' : '+'}${Math.abs(t).toFixed(3)} s`;
+        };
+
+        const show = (index: number): void => {
+          if (stills.length === 0) return;
+          showing = Math.max(0, Math.min(stills.length - 1, index));
+          const still = stills[showing]!;
+          filmStill.src = still.url;
+          filmCaption.textContent = `Frame ${showing + 1} of ${stills.length}  \u00b7  ${timeLabel(still)}`;
+          filmScrub.value = String(showing);
+          filmStrip.querySelector('[aria-current]')?.removeAttribute('aria-current');
+          const thumb = filmStrip.children[showing] as HTMLElement | undefined;
+          thumb?.setAttribute('aria-current', 'true');
+          thumb?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        };
+
+        const clearFilm = (): void => {
+          discard(stills);
+          stills = [];
+          filmStrip.replaceChildren();
+          filmStill.removeAttribute('src');
+          filmStage.hidden = filmControls.hidden = filmKeys.hidden = true;
+        };
+
+        const openFilm = async (): Promise<void> => {
+          if (!film || film.open) return;
+          const mine = ++reel;
+          clearFilm();
+          filmStatus.textContent = 'Developing\u2026';
+          film.showModal();
+          const developed = await game
+            .developLastShot((done, total) => {
+              if (mine === reel) filmStatus.textContent = `Developing\u2026 ${done} of ${total}`;
+            })
+            .catch((error) => {
+              console.error('[deadball] could not develop the last shot', error);
+              return [];
+            });
+          if (mine !== reel) {
+            discard(developed ?? []);
+            return;
+          }
+          if (!developed || developed.length === 0) {
+            filmStatus.textContent = 'Take a shot first, then press F.';
+            return;
+          }
+          stills = developed;
+          filmStatus.textContent = '';
+          filmStrip.replaceChildren(
+            ...stills.map((still, index) => {
+              const thumb = document.createElement('button');
+              thumb.type = 'button';
+              thumb.className = still.contact ? 'contact' : '';
+              thumb.setAttribute('aria-label', `Frame ${index + 1}, ${timeLabel(still)}`);
+              const img = document.createElement('img');
+              img.src = still.url;
+              img.alt = '';
+              img.loading = 'lazy';
+              thumb.append(img);
+              thumb.addEventListener('click', () => show(index));
+              return thumb;
+            })
+          );
+          filmScrub.max = String(stills.length - 1);
+          filmStage.hidden = filmControls.hidden = filmKeys.hidden = false;
+          const contact = stills.findIndex((still) => still.contact);
+          (document.getElementById('film-contact') as HTMLButtonElement).disabled = contact < 0;
+          show(Math.max(0, contact));
+        };
+
+        const toContact = (): void => {
+          const contact = stills.findIndex((still) => still.contact);
+          if (contact >= 0) show(contact);
+        };
+
+        film?.addEventListener('close', () => {
+          reel++;
+          clearFilm();
+        });
+        document.getElementById('film-close')?.addEventListener('click', () => film?.close());
+        document.getElementById('film-prev')?.addEventListener('click', () => show(showing - 1));
+        document.getElementById('film-next')?.addEventListener('click', () => show(showing + 1));
+        document.getElementById('film-contact')?.addEventListener('click', toContact);
+        filmScrub.addEventListener('input', () => show(Number(filmScrub.value)));
+
+        document.addEventListener('keydown', (event) => {
+          // First, before any key is looked at: a letter typed into a name is
+          // a name. The old L-for-the-log shortcut skipped this.
+          if (isTyping(event)) return;
+          if (event.metaKey || event.ctrlKey || event.altKey) return;
+          if (film?.open) {
+            // The range input handles its own arrows; handling them here too
+            // would step two frames at a time.
+            if (event.target === filmScrub && event.key.startsWith('Arrow')) return;
+            const to: Record<string, () => void> = {
+              ArrowLeft: () => show(showing - 1),
+              ArrowRight: () => show(showing + 1),
+              Home: () => show(0),
+              End: () => show(stills.length - 1),
+              c: toContact,
+              f: () => film.close(),
+            };
+            const action = to[event.key.length === 1 ? event.key.toLowerCase() : event.key];
+            if (action) {
+              event.preventDefault();
+              action();
+            }
+            return;
+          }
+          // Not over another dialog.
+          if (event.key.toLowerCase() !== 'f' || event.repeat) return;
+          if (document.querySelector('dialog[open]')) return;
+          event.preventDefault();
+          void openFilm();
+        });
+
         paintSettings();
         paintPlayers();
         paintSkills();
@@ -1952,6 +2131,20 @@ const views = listCameras();
     color: rgba(230, 238, 248, 0.72);
   }
 
+  #howto-body kbd {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0 5px;
+    border: 1px solid rgba(125, 211, 252, 0.4);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+    color: #e6eef8;
+  }
+
   #howto-actions {
     margin-top: 18px;
   }
@@ -1966,6 +2159,162 @@ const views = listCameras();
     font: inherit;
     font-weight: 600;
     cursor: pointer;
+  }
+
+  #film {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    max-width: none;
+    max-height: none;
+  }
+
+  #film::backdrop {
+    background: rgba(2, 8, 20, 0.92);
+  }
+
+  #film-body {
+    width: min(980px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  #film-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  #film-top h2 {
+    margin: 0;
+  }
+
+  #film-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.4);
+    background: none;
+    color: inherit;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  #film-status {
+    margin: 0;
+    color: rgba(230, 238, 248, 0.72);
+  }
+
+  #film-status:empty {
+    display: none;
+  }
+
+  #film-stage {
+    margin: 0;
+    flex: none;
+  }
+
+  #film-stage[hidden],
+  #film-controls[hidden],
+  #film-keys[hidden] {
+    display: none;
+  }
+
+  #film-still {
+    display: block;
+    width: 100%;
+    /* What is left of the screen after the heading, controls and strip. */
+    max-height: calc(100vh - 290px);
+    object-fit: contain;
+    border-radius: 8px;
+    background: #000;
+  }
+
+  #film-caption {
+    margin-top: 6px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: rgba(230, 238, 248, 0.86);
+  }
+
+  #film-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #film-controls input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #film-controls button {
+    min-width: 36px;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.4);
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  #film-controls #film-contact {
+    font-size: 13px;
+  }
+
+  #film-controls button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  #film-keys {
+    margin: 0;
+    font-size: 12px;
+    color: rgba(230, 238, 248, 0.5);
+  }
+
+  #film-strip {
+    flex: none;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  /* Global because the script builds these, and Astro only scopes styles to
+     elements in the markup: scoped, not one of these rules reached a thumbnail
+     and each drew at the full 900px of its still. */
+  #film-strip :global(button) {
+    flex: 0 0 auto;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    background: none;
+    cursor: pointer;
+  }
+
+  #film-strip :global(button.contact) {
+    border-color: rgba(243, 201, 105, 0.7);
+  }
+
+  #film-strip :global(button[aria-current]) {
+    border-color: #7dd3fc;
+  }
+
+  #film-strip :global(img) {
+    display: block;
+    width: 96px;
+    height: auto;
+    border-radius: 2px;
   }
 
   #build-stamp {

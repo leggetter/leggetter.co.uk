@@ -246,6 +246,37 @@ describe('arms that balance the legs', () => {
   });
 });
 
+describe('weight', () => {
+  test('when the hips stop at the plant, the chest carries on and comes back', () => {
+    const plantAt = KICK.keys.find((k) => k.name === 'plant')?.runUp ?? 0.66;
+    for (const foot of feet) {
+      const lean = (u: number): number => {
+        const { body } = at({ foot, runUp: u });
+        return body.chest.z - body.pelvis.z;
+      };
+      // The keyed lean eases one way; the carry pushes it the other, then lets go.
+      const carried = Math.max(...[0.02, 0.04, 0.06, 0.08].map((d) => lean(plantAt + d) - lean(plantAt)));
+      assert.ok(carried > 0.02, `${foot}: the chest only carried ${(carried * 100).toFixed(1)} cm`);
+    }
+  });
+
+  test('after the kick the body dips as the foot comes down, and settles still', () => {
+    for (const foot of feet) {
+      const hips = (t: number): number => at({ foot, phase: 'resolved', runUp: 1, sinceStrike: t }).body.pelvis.y;
+      const settled = hips(3);
+      // The keys alone never take the hips below the \`land\` key's height:
+      // the curve through them does not overshoot. Anything lower is the
+      // knees giving.
+      const land = KICK.keys.find((k) => k.name === 'land')!;
+      const keyed = (land.pelvis?.[1] ?? 0) * at({ foot }).size;
+      let lowest = Infinity;
+      for (let t = 0.3; t < 1; t += 0.01) lowest = Math.min(lowest, hips(t));
+      assert.ok(lowest < keyed - 0.02, `${foot}: no give as the weight arrives`);
+      assert.ok(Math.abs(hips(2.5) - settled) < 1e-3, `${foot}: still moving 2.5 s after the kick`);
+    }
+  });
+});
+
 describe('the content file', () => {
   test('every key is on the clock in order, with nothing falling back', () => {
     const keys = kickKeys();

@@ -169,6 +169,14 @@ const CONTACT = {
   push: finite(KICK.contact?.push, 0.03),
 };
 
+/** Secondary motion: what lags, overshoots and settles. See content/poses.js. */
+const SECONDARY = {
+  gather: finite(KICK.secondary?.gather, 0.035),
+  carry: finite(KICK.secondary?.carry, 0.18),
+  settle: finite(KICK.secondary?.settle, 0.045),
+  arms: finite(KICK.secondary?.arms, 0.07),
+};
+
 const KEYS = kickKeys();
 const PLANT_AT = plantRunUp(KEYS);
 
@@ -351,7 +359,11 @@ export function takerPose(input: KickInput): Pose {
     // Hips: along the run, dropping onto each footfall.
     const hips = add(vec(start.x, 0, start.z), scale(path, s));
     const planted = [plantSteps, kickSteps].reduce((sum, steps) => sum + footing(steps, s), 0);
-    const height = start.y + (plantPelvis.y - start.y) * easeInOut(s) - APPROACH.bob * size * Math.min(1, planted);
+    // Anticipation: before the first stride the knees load, a few centimetres
+    // down and back, so the run starts from a push rather than from nowhere.
+    const gather = SECONDARY.gather * size * hump(progress(u, 0, 0.14));
+    const height =
+      start.y + (plantPelvis.y - start.y) * easeInOut(s) - APPROACH.bob * size * Math.min(1, planted) - gather;
     pelvis = vec(hips.x, height, hips.z);
     // Thrown forward while running, into the plant key's lean by the end.
     const plantChest = toward(plantKey.values.chest ?? [0, 1, 0.1]);
@@ -378,8 +390,23 @@ export function takerPose(input: KickInput): Pose {
     */
     const landKey = KEYS.find((k) => k.name === 'land');
     if (struck && landKey) {
-      pelvis = add(pelvis, vec(0, -0.045 * size * springKnock(t - landKey.at + 0.06, 2.2, 0.45), 0));
+      const landed = t - landKey.at + 0.06;
+      pelvis = add(pelvis, vec(0, -SECONDARY.settle * size * springKnock(landed, 2.2, 0.45), 0));
+      // The arms arrive a beat after the body and swing past where they stop.
+      const swing = SECONDARY.arms * size * springKnock(landed - 0.05, 1.8, 0.35);
+      plantHand = add(plantHand, vec(0, 0, swing));
+      kickHand = add(kickHand, vec(0, 0, -swing));
     }
+
+    /*
+      The weight carrying on over the planted foot. The hips stop at the
+      plant; the chest, head and arms are still going, so they tip forward
+      past the keyed lean and come back. A knock from the moment of the plant,
+      on the same clock as everything else.
+    */
+    const carry = SECONDARY.carry * springKnock(t - plantKey.at, 3.2, 0.4);
+    chestDir = normalize(add(chestDir, vec(0, 0, carry)));
+    headDir = normalize(add(headDir, vec(0, 0, carry * 1.4)));
   }
 
   // Waiting: breathing, weight shifting, and leaning in as the drag builds.

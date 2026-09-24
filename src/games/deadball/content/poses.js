@@ -100,6 +100,23 @@ export const KICK = {
     push: 0.03,
   },
 
+  /**
+   * What lags, overshoots and settles, on damped springs from the moment it
+   * is set off - so the same frame always draws the same body.
+   *
+   *   gather   metres the knees load before the first stride.
+   *   carry    how far the chest tips on past its lean when the hips stop
+   *            at the plant, before coming back.
+   *   settle   metres the knees give as the kicking foot comes down.
+   *   arms     metres the arms swing past where they stop, after that.
+   */
+  secondary: {
+    gather: 0.035,
+    carry: 0.18,
+    settle: 0.045,
+    arms: 0.07,
+  },
+
   /** @type {KickKey[]} */
   keys: [
     {

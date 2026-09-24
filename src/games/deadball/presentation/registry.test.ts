@@ -95,13 +95,13 @@ describe('the package list', () => {
   });
 
   test('the 3D look is there to ask for, marked as a preview, and never the default', () => {
-    const stylised = listPackages().find((p) => p.id === 'stylised');
+    const stylised = listPackages().find((p) => p.id === '3d');
     assert.ok(stylised, 'stylised is not listed');
     assert.equal(stylised.preview, true);
     assert.equal(listPackages().find((p) => p.id === 'classic')?.preview, false);
-    assert.notEqual(DEFAULT_PACKAGE, 'stylised');
-    assert.equal(resolvePackageId('?look=stylised', null), 'stylised');
-    assert.equal(resolvePackageId('', 'stylised'), 'stylised', 'a stored choice is kept');
-    assert.equal(resolvePackageId('?look=classic', 'stylised'), 'classic', 'and the URL still wins');
+    assert.notEqual(DEFAULT_PACKAGE, '3d');
+    assert.equal(resolvePackageId('?look=3d', null), '3d');
+    assert.equal(resolvePackageId('', '3d'), '3d', 'a stored choice is kept');
+    assert.equal(resolvePackageId('?look=classic', '3d'), 'classic', 'and the URL still wins');
   });
 });

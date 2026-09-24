@@ -23,19 +23,19 @@ export interface PackageEntry {
 const classic: PresentationFactory = () => new ClassicPresentation();
 
 /**
- * `stylised` is the one entry that is not imported here: see lazy.ts. The
+ * `3d` is the one entry that is not imported here: see lazy.ts. The
  * dynamic import below is the only way anything reaches it, and a test walks
  * the page's static imports to make sure it stays that way - one ordinary
  * import of it anywhere and every classic player downloads three.js.
  */
 export const PACKAGES: Record<string, PackageEntry> = {
   classic: { label: 'Classic', make: classic },
-  stylised: {
-    label: 'Stylised 3D',
+  '3d': {
+    label: '3D',
     preview: true,
     make: lazyPackage({
-      id: 'stylised',
-      label: 'Stylised 3D',
+      id: '3d',
+      label: '3D',
       load: async () => {
         const { StylisedPresentation } = await import('./stylised/StylisedPresentation.ts');
         return () => new StylisedPresentation();

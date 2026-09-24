@@ -140,7 +140,10 @@ export interface Stadium {
 
 export function buildStadium(own: Own, crowdSize: number, crowdColours: CrowdColours): Stadium {
   const group = new Group();
-  const concrete = own(new MeshStandardMaterial({ color: '#8b9096', roughness: 0.95 }));
+  // Darker than bare concrete really is. Lit by the floodlights at the front
+  // of a stand it came out close to white, as a pale band under the crowd.
+  const concrete = own(new MeshStandardMaterial({ color: '#5a6068', roughness: 0.95 }));
+  const frontWall = own(new MeshStandardMaterial({ color: '#23282f', roughness: 0.9 }));
   const steel = own(new MeshStandardMaterial({ color: '#3b4450', roughness: 0.6, metalness: 0.3 }));
   const roofLights = own(
     new MeshStandardMaterial({ color: '#20252c', emissive: '#fff4de', emissiveIntensity: 0, roughness: 0.5 })
@@ -162,6 +165,18 @@ export function buildStadium(own: Own, crowdSize: number, crowdColours: CrowdCol
     terrace.scale.set(stand.length, 0.6, slope);
     terrace.receiveShadow = true;
     group.add(terrace);
+
+    // A wall along the front, as every ground has, up to the chests of the
+    // first row. Without it the first 1.2 m of sloped slab showed between the
+    // hoardings and the crowd as a white gap.
+    const front = new Mesh(box, frontWall);
+    const [fx, , fz] = at(0, 0, 0.15);
+    const height = FIRST_ROW_Y + 0.45;
+    front.position.set(fx, height / 2, fz);
+    front.rotation.y = yaw;
+    front.scale.set(stand.length, height, 0.3);
+    front.receiveShadow = true;
+    group.add(front);
 
     // The back wall and a roof over the back two thirds.
     const wall = new Mesh(box, concrete);
@@ -259,6 +274,10 @@ export interface Crowd {
   limit(n: number): void;
 }
 
+/** How far back from the front wall the first row sits, and how high. */
+const FIRST_ROW = 0.8;
+const FIRST_ROW_Y = 0.8 + ((13 - 0.8) * FIRST_ROW) / 24;
+
 /** Everyone who could be in the ground, before the budget decides how many are. */
 interface Seat {
   x: number;
@@ -276,7 +295,7 @@ function seats(): Seat[] {
     const { at } = standFrame(stand);
     const yaw = Math.atan2(stand.back[0], stand.back[1]);
     // A seat is half a metre wide and a row is 0.8 m deep, as in a real ground.
-    for (let back = 1.2; back < stand.depth - 0.6; back += 0.8) {
+    for (let back = FIRST_ROW; back < stand.depth - 0.6; back += 0.8) {
       const y = 0.8 + ((stand.rise - 0.8) * back) / stand.depth;
       for (let a = -stand.length / 2 + 0.5; a < stand.length / 2 - 0.5; a += 0.5) {
         const [x, , z] = at(a, 0, back);

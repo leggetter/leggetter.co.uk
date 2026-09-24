@@ -7,7 +7,7 @@
  * turns drags into shots with the same mapping, and poses its people with the
  * same toolkit as classic. What it does not share is how any of it is drawn.
  *
- * **A preview.** Opt-in only (`?look=stylised`, or Settings), never the
+ * **A preview.** Opt-in only (`?look=3d`, or Settings), never the
  * default, and only ever downloaded by somebody who picked it - see lazy.ts.
  *
  * How a frame is made:
@@ -113,8 +113,8 @@ function takerStandOff(proj: Projector, spot: Vec3): number {
 }
 
 export class StylisedPresentation implements Presentation {
-  readonly id = 'stylised';
-  readonly label = 'Stylised 3D';
+  readonly id = '3d';
+  readonly label = '3D';
 
   // Exactly classic's sound: the synth with the same recorded samples over
   // it, from the shared set in ../sounds/. Nothing is fetched and no

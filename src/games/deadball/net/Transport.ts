@@ -24,6 +24,7 @@
 
 import type { Dive, Outcome, Player, ShotInput } from '../core/types.ts';
 import type { Discipline } from '../core/setpiece.ts';
+import type { Kick } from '../core/kick.ts';
 
 /** Which side of the tie somebody is. The host is always 0. */
 export type Side = 0 | 1;
@@ -135,15 +136,26 @@ export type Inbound =
        */
       dived: boolean;
     }
-  | {
+  /**
+   * A shot, resolved, with everything needed to replay it.
+   *
+   * The whole `Kick` rather than the input and a seed: kick number,
+   * discipline, the taker's attributes, the keeper and where they stood. It
+   * used to carry less, and each client filled the gaps from its own state -
+   * its own keeper, its own discipline setting, its own squad - so the same
+   * shot flew differently on each screen. A client replays this and nothing
+   * else. See core/kick.ts.
+   *
+   * The dive travels here and nowhere earlier. This is the moment it stops
+   * being sealed.
+   */
+  | ({
       kind: 'shot';
-      input: ShotInput;
+      /** The squad id the taker named, kept for the log. `player` is who. */
       taker: string;
-      seed: number;
-      keeperStartX: number;
-      dive: Dive | null;
+      /** The room's verdict. What both screens show, whatever they worked out. */
       outcome: Outcome;
-    }
+    } & Kick)
   | { kind: 'error'; reason: string; fatal: boolean };
 
 /** How a room is set up. Fixed when the id is minted and never after. */

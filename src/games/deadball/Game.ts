@@ -46,15 +46,10 @@ import { defaultStyleId, nextStyle, styleFor, STYLES } from './core/styles.ts';
 /** 0..1 from a 0..100 attribute. */
 const unit = (v: number): number => Math.max(0, Math.min(1, v / 100));
 
-/**
- * How much less the aim strays on a free kick.
- *
- * The aim sigmas were tuned against a penalty: eleven metres, an open goal and
- * nothing in the way. The same numbers from twenty metres, with four people
- * across the half of the goal you want, read as a ball that goes wherever it
- * likes - which is exactly how it was reported.
- */
-const FREE_KICK_AIM_EASE = 0.62;
+// How much less the aim strays on a free kick. Shared with the room, which
+// resolves a remote free kick with the same number; see core/kick.ts.
+import { FREE_KICK_AIM_EASE } from './core/kick.ts';
+import { replayShot, strikeReplay, verdict, type Replay } from './net/replay.ts';
 import { idleDrift, planKeeper } from './core/keeper.ts';
 import {
   inSuddenDeath,
@@ -409,26 +404,44 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
   /** Seconds into the run-up, and the shot waiting at the end of it. */
   let runUp = 0;
-  let pending: { shot: Shot; keeperStartX: number; dive: Dive | null } | null = null;
+  /**
+   * `replay` is set for a shot the room resolved, and when it is, the flight
+   * is built from it and from nothing else on this device. See net/replay.ts.
+   */
+  let pending: {
+    shot: Shot;
+    keeperStartX: number;
+    dive: Dive | null;
+    replay: Replay | null;
+  } | null = null;
   // Kept past the strike, because `pending` is cleared there and the shot is
   // not logged until the ball has finished.
   let struckDive: Dive | null = null;
+  let struckReplay: Replay | null = null;
 
   /** Seconds the keeper has been waiting on the line for this penalty. */
   let settling = 0;
 
-  /** Keeper on the line, shuffling, before a shot is struck. */
+  /**
+   * Keeper on the line, shuffling, before a shot is struck.
+   *
+   * Not in a room. The room simulates a keeper standing still in the middle -
+   * it has no clock of its own to shuffle by - so a shuffle drawn here would
+   * snap back to the centre at the strike, which looks like the keeper moving
+   * the wrong way just as the ball is hit. Standing still is what the flight
+   * will start from, so it is what is drawn.
+   */
   const idleKeeper = () =>
     planKeeper(
       keeper,
       createRng(shotSeed(match.seed, match.shotIndex)),
       { x: 0, y: 1 },
-      idleDrift(settling, match.seed + match.shotIndex)
+      link ? 0 : idleDrift(settling, match.seed + match.shotIndex)
     );
-  let keeperSim = idleKeeper();
-
   let discipline: Discipline = cleanDiscipline(settings.discipline);
+  // Declared before the first `idleKeeper()`, which reads it.
   let link: Link | null = null;
+  let keeperSim = idleKeeper();
   /** The other side is connected. Told by the room, not guessed at here. */
   let together = true;
 
@@ -489,25 +502,49 @@ export async function startGame(options: GameOptions): Promise<Game> {
   /**
    * What the room says, applied here.
    *
-   * Two kinds of message matter. A `shot` is set up exactly as a local one is
-   * and animated by the machinery that already exists - from the room's seed,
-   * so both clients watch the same flight rather than each watching their own.
-   * A `state` is the truth about the match, adopted whenever there is nothing
-   * mid-air to interrupt.
+   * Two kinds of message matter. A `shot` is animated by the machinery that
+   * already exists, from the kick the room sends and from nothing on this
+   * device, so both clients watch the room's flight rather than each watching
+   * their own. A `state` is the truth about the match, adopted whenever there
+   * is nothing mid-air to interrupt.
    */
   function follow(message: Inbound): void {
     if (!link) return;
 
     if (message.kind === 'shot') {
-      const piece = setPieceFor(message.seed, match.shotIndex, discipline, true);
-      const taker =
-        (message.taker === player.id ? player : squadOf(message.taker)) ?? player;
-      const shot = resolveShot(message.input, taker, createRng(shotSeed(message.seed, match.shotIndex)), {
-        origin: piece.origin,
-        loft: piece.penalty ? 0 : unit(taker.dip),
-        aimEase: piece.penalty ? 1 : FREE_KICK_AIM_EASE,
+      /*
+        The kick as the room resolved it, whole.
+
+        This used to rebuild the shot here from this device's own discipline
+        setting, its own `match.shotIndex` (which lags a NEXT until the next
+        poll), its own squad (which does not have the other side's taker in
+        it), and then fly it at its own keeper from wherever the shuffle had
+        got to. Every one of those can differ between two devices, so a
+        two-person playtest watched the same kick go in on one screen and hit
+        the wall on the other. Now this device's beliefs are handed over only
+        so a disagreement can say which of them was wrong.
+      */
+      const replay = replayShot(message, {
+        seed: match.seed,
+        shotIndex: match.shotIndex,
+        discipline,
+        keeper,
+        squad,
+        player,
+        keeperX: keeperSim.state.hands.x,
       });
-      pending = { shot, keeperStartX: keeperSim.state.hands.x, dive: message.dive };
+      // The pitch the ball is struck from is the room's, not whatever this
+      // device set up for the kick it thought was next.
+      piece = replay.struck.piece;
+      wall = replay.struck.wall;
+      ballPosition = piece.origin;
+      lastInput = replay.kick.input;
+      pending = {
+        shot: replay.struck.shot,
+        keeperStartX: replay.kick.keeperStartX,
+        dive: replay.kick.dive,
+        replay,
+      };
       runUp = 0;
       match = reduce(match, { type: 'TAKE_SHOT' });
       return;
@@ -586,6 +623,20 @@ export async function startGame(options: GameOptions): Promise<Game> {
       flight mid-ball.
     */
     const newKick = theirs.shotIndex !== match.shotIndex;
+    /*
+      Or the same kick number of a different match.
+
+      On connecting, this device starts a placeholder match from its own clock
+      and its own discipline setting, and the room's first state is kick 0 as
+      well - so `newKick` was false and the first kick was drawn from the
+      placeholder: a free-kick spot off this device's seed, or a penalty spot
+      when the room was playing free kicks. The taker aimed at that picture
+      while the room resolved another, and when the shot message then moved the
+      ball to the room's spot it looked like it came "from basically off to the
+      left" - the likeliest reading of that report, though not a proven one.
+    */
+    const newPitch =
+      newKick || theirs.seed !== match.seed || theirs.discipline !== match.discipline;
     // Adopted BEFORE the reset, because `setUpKick` reads `match.shotIndex` to
     // work out which free-kick spot this is. Resetting first set the pitch up
     // for the kick that had just finished.
@@ -597,13 +648,12 @@ export async function startGame(options: GameOptions): Promise<Game> {
       runUp = 0;
       settling = 0;
       choosing = null;
+    }
+    if (newPitch) {
       keeperSim = idleKeeper();
       setUpKick();
     }
   }
-
-  /** Somebody on this device's squad, by id. */
-  const squadOf = (id: string): Player | undefined => squad.find((p) => p.id === id);
 
   /** Everything a shootout starts from. */
   const resetMatch = (mode: MatchMode): void => {
@@ -633,7 +683,17 @@ export async function startGame(options: GameOptions): Promise<Game> {
   const setUpKick = (): void => {
     // Two sides means kicks come in pairs, and both halves of a pair face the
     // same one. See `setPieceFor`.
-    piece = setPieceFor(match.seed, match.shotIndex, discipline, match.mode !== 'solo');
+    //
+    // In a room, the room's discipline, which arrives on its match. This
+    // device's own setting is whatever it last played, and a guest who last
+    // played penalties was shown a penalty spot for every kick of a free-kick
+    // room until the shot message moved the ball.
+    piece = setPieceFor(
+      match.seed,
+      match.shotIndex,
+      link ? match.discipline : discipline,
+      match.mode !== 'solo'
+    );
     wall = buildWall(piece);
     ballPosition = piece.origin;
   };
@@ -650,7 +710,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
       ? flight.ball
       : { position: ballPosition, velocity: { x: 0, y: 0, z: 0 }, spin: { x: 0, y: 0, z: 0 } },
     keeper: flight ? flight.keeper.state : keeperSim.state,
-    keeperProfile: keeper,
+    // The flight's, once there is one: in a room that is the room's keeper.
+    keeperProfile: flight ? flight.profile : keeper,
     player,
     elapsed: flight?.elapsed ?? 0,
     spot: piece.origin,
@@ -761,7 +822,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
       });
       return;
     }
-    pending = { shot, keeperStartX: keeperSim.state.hands.x, dive: match.dive };
+    pending = { shot, keeperStartX: keeperSim.state.hands.x, dive: match.dive, replay: null };
     runUp = 0;
     match = reduce(match, { type: 'TAKE_SHOT' });
     aiming = null;
@@ -1040,25 +1101,31 @@ export async function startGame(options: GameOptions): Promise<Game> {
     if (pending && match.phase === 'runup') {
       runUp += STEP;
       if (runUp >= RUN_UP_SECONDS) {
-        const rng = createRng(shotSeed(match.seed, match.shotIndex));
-            // A human keeper's pick overrides the computer's read entirely.
         // The sink matters here and not only in `advance`: the boot is emitted
         // as the flight is built, so leaving it off defaulted it to NO_EVENTS
         // and silently dropped the one event that starts every shot.
-        flight = createFlight(
-          pending.shot,
-          keeper,
-          rng,
-          pending.keeperStartX,
-          pending.dive,
-          events,
-          // Captured when the flight is built rather than read from the closure
-          // as it runs: the kick is set up again the moment this one resolves,
-          // and a ball still in the air must be judged against the wall it was
-          // actually struck past.
-          wall
-        );
+        //
+        // A shot from the room is flown through the same function the room
+        // used, from the kick it sent - its keeper, its keeper seed, its wall.
+        // A local one is built here as it always has been.
+        flight = pending.replay
+          ? strikeReplay(pending.replay, events)
+          : createFlight(
+              pending.shot,
+              keeper,
+              createRng(shotSeed(match.seed, match.shotIndex)),
+              pending.keeperStartX,
+              // A human keeper's pick overrides the computer's read entirely.
+              pending.dive,
+              events,
+              // Captured when the flight is built rather than read from the
+              // closure as it runs: the kick is set up again the moment this
+              // one resolves, and a ball still in the air must be judged
+              // against the wall it was actually struck past.
+              wall
+            );
         struckDive = pending.dive;
+        struckReplay = pending.replay;
         pending = null;
         struckAt = clock;
         match = reduce(match, { type: 'STRIKE' });
@@ -1075,22 +1142,30 @@ export async function startGame(options: GameOptions): Promise<Game> {
     flight = advance(flight, STEP, events);
     trail = [...trail.slice(-(TRAIL_LENGTH - 1)), flight.ball.position];
     if (!settled && flight.outcome) {
+      // In a room, the room's verdict and never this device's, even in the
+      // one case they differ. The other player is being shown the room's, and
+      // the scoreboard is about to be replaced by the room's; a label that
+      // disagrees with both was "it looked like it went in, but it said it
+      // got blocked".
+      const outcome = struckReplay ? verdict(struckReplay, flight.outcome) : flight.outcome;
+      struckReplay = null;
       log.record({
         at: new Date().toISOString(),
         tuning,
         session,
         playerId: player.id,
-        keeperId: keeper.id,
+        keeperId: flight.profile.id,
         viewId: camera.id,
         matchSeed: match.seed,
         shotIndex: match.shotIndex,
         input: lastInput ?? { aim: { x: 0, y: 0 }, power: 0, curve: 0, lift: 0.5, timing: 0 },
-        outcome: flight.outcome,
+        outcome,
         flightSeconds: flight.elapsed,
         crossing: { x: flight.ball.position.x, y: flight.ball.position.y },
         keeperStyle: flight.keeper.plan.style,
         keeperHands: { x: flight.keeper.state.hands.x, y: flight.keeper.state.hands.y },
-        keeperEnvelope: keeper.diveSpeed * flight.elapsed + keeper.reach + BALL_RADIUS,
+        keeperEnvelope:
+          flight.profile.diveSpeed * flight.elapsed + flight.profile.reach + BALL_RADIUS,
         keeperStartX: flight.keeper.plan.startX,
         // The tap as it was made, not plan.chosen — that is already clamped to
         // what the keeper could reach, so logging it would say the same thing
@@ -1101,7 +1176,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
         takerSide: match.taker,
         viewport: { width, height },
       });
-      match = reduce(match, { type: 'RESOLVE', outcome: flight.outcome });
+      match = reduce(match, { type: 'RESOLVE', outcome });
       holdRemaining = RESOLVE_HOLD_SECONDS;
       // The ball has landed, so whatever the room said while it was in the air
       // can be applied now. Its answer wins over the one worked out here - and

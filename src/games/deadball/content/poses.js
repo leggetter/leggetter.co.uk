@@ -186,3 +186,29 @@ export const KICK = {
     },
   ],
 };
+
+/**
+ * The keeper. The dive's path is core/'s - these only dress it.
+ *
+ *   set        the crouch as the taker runs in: how far the shoulders sink,
+ *              and where the hands go - out from the middle, up off the
+ *              grass, and forward toward the ball - how much wider the feet
+ *              go, and how far the knees turn out (0 to 1) so the bend shows
+ *              from in front.
+ *   push       how far into the dive, 0 to 1, the foot on that side stays
+ *              planted before it leaves the grass.
+ *   legLag     how far the trailing leg lags the body. 1 is not at all; the
+ *              bigger it is, the later the leg catches up.
+ *   landing    a full-length dive slides on `slide` metres along the grass
+ *              and its legs bounce `bounce` metres once. A keeper landing on
+ *              their feet gives `absorb` metres at the knees.
+ *   shuffle    the steps along the line while waiting: how long a step is
+ *              and how high a foot lifts.
+ */
+export const KEEPER = {
+  set: { depth: 0.2, handsOut: 0.4, handsHeight: 0.8, handsForward: 0.22, wide: 0.06, kneesOut: 0.7 },
+  push: 0.32,
+  legLag: 1.7,
+  landing: { slide: 0.2, bounce: 0.07, absorb: 0.2 },
+  shuffle: { step: 0.2, lift: 0.05 },
+};

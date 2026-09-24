@@ -33,15 +33,14 @@ import {
   SWAY_PERIOD,
   TOWARD_TAKER,
   wave,
-  isIdle,
   type Figure,
 } from './pose/figure.ts';
+import { keeperPose } from './pose/keeper.ts';
 import { takerPose } from './pose/kick.ts';
 import type { SkyPalette } from './sky.ts';
 import { PITCH_LENGTH } from './stand.ts';
 import { KEEPER_KIT, teamKits, type TeamKits } from './kits.ts';
 import type { Projector } from './project.ts';
-import { ARM_SPAN } from '../../core/keeper.ts';
 import { CROUCH, wallPoseAt } from '../../core/wall.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;
@@ -561,16 +560,6 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   ctx.restore();
 }
 
-/**
- * How far in front of the goal line the keeper is drawn, in meters.
- *
- * Standing exactly on the line puts the keeper in the same plane as the posts,
- * so which one is in front comes down to draw order and reads as a keeper set
- * back into the woodwork. Real ones stand just off it. Drawing only: saves are
- * still decided where the ball crosses, so this moves nobody's hands.
- */
-const KEEPER_STANDS_OFF = 0.3;
-
 export function drawKeeper(
   ctx: Ctx,
   proj: Projector,
@@ -579,143 +568,28 @@ export function drawKeeper(
   clock: number,
   phase: string,
   /** Whose goal this is. The keeper is on whichever side is not taking. */
-  colours: { kit: string; trim: string } = { kit: KEEPER_KIT, trim: COLORS.keeperTrim }
+  colours: { kit: string; trim: string } = { kit: KEEPER_KIT, trim: COLORS.keeperTrim },
+  /** How far into the run-up the taker is, which is when the keeper sets. */
+  runUp = 0
 ): void {
-  drawFigure(ctx, proj, keeperFigure(keeper, reach, clock, phase, colours));
+  drawFigure(ctx, proj, keeperFigure(keeper, reach, clock, phase, colours, runUp));
 }
 
 /**
- * Where the keeper's body parts go, from the simulated keeper.
+ * The keeper's figure: the pose from pose/keeper.ts, in the keeper's kit.
  *
- * The pose on its own, with no drawing, so the tests can run real dives
- * through it and check the drawn gloves land where this says. It is the same
- * pose it has always been; phase 2 of #72 only changed what draws it.
+ * Kept here under its old name for the tests, which run real dives through it
+ * and check the drawn gloves land where it says.
  */
 export function keeperFigure(
   keeper: KeeperState,
   reach: number,
   clock: number,
   phase: string,
-  colours: { kit: string; trim: string } = { kit: KEEPER_KIT, trim: COLORS.keeperTrim }
+  colours: { kit: string; trim: string } = { kit: KEEPER_KIT, trim: COLORS.keeperTrim },
+  runUp = 0
 ): Figure {
-  const { hands, body, stance } = keeper;
-
-  /**
-   * How far the keeper has thrown itself, measured from where its hands rest
-   * when standing - and in both axes.
-   *
-   * Measuring only the lateral part called a save up and across "barely
-   * moving", so the torso stayed vertical and the keeper reached up with a
-   * long arm instead of diving. A save is a save whichever direction it is in.
-   *
-   * Zero while idling, because the hands travel with the stance, so shuffling
-   * along the line never reads as a dive.
-   */
-  const dx = hands.x - stance;
-  const dy = hands.y - 0.95;
-  const thrown = Math.sqrt(dx * dx + dy * dy);
-  // Committed by about 1.9 m of reach; a full stretch is further than that but
-  // the body is already flat out well before it.
-  const extension = clamp01(thrown / 1.9);
-
-  // Unit vector along the dive, from the standing hands toward where they are
-  // now. The whole body lies along this at full stretch.
-  const along = thrown > 1e-4 ? { x: dx / thrown, y: dy / thrown } : { x: 0, y: 1 };
-
-  // Bigger than the taker's, because the keeper is twice as far away and the
-  // same two centimeters would land inside a single pixel.
-  const alive = isIdle(phase) ? 1 - extension * 4 : 0;
-  const breath = wave(clock, BREATH_PERIOD, 0.5) * 0.032 * Math.max(0, alive);
-
-  const z = -KEEPER_STANDS_OFF;
-  const stand = {
-    feet: vec(stance, 0.06, z),
-    shoulder: vec(stance, 1.42 + breath, z),
-    head: vec(stance, 1.68 + breath * 1.3, z),
-  };
-
-  // Hip sits on the simulated body, which is one of the two volumes that
-  // decides a save, so what is drawn is roughly where the saving happens.
-  // Everything else is laid out along the dive from there: feet trailing
-  // behind and off the ground, shoulders forward, arms short.
-  // Shoulder sits exactly one arm behind the hands, so the arm is always an
-  // arm. Everything else hangs off the body, which is where the simulation
-  // says it is and is one of the two volumes that decides a save.
-  const shoulderX = hands.x - along.x * ARM_SPAN;
-  const shoulderY = hands.y - along.y * ARM_SPAN;
-  const dive = {
-    feet: vec(body.x - along.x * 0.95, Math.max(0.08, body.y - along.y * 0.95), 0),
-    shoulder: vec(shoulderX, shoulderY, 0),
-    head: vec(shoulderX + along.x * 0.2, shoulderY + along.y * 0.2 + 0.1, 0),
-  };
-
-  const blend = (a: Vec3, b: Vec3): Vec3 =>
-    vec(a.x + (b.x - a.x) * extension, a.y + (b.y - a.y) * extension, z);
-
-  /*
-    How the keeper comes down: on the ground, or on their feet.
-
-    core/ only lands a keeper once the shot is over, and it lands every one the
-    same way - hands pulled to the floor, whatever the dive was. The body here is
-    built from the hands, so a keeper who had only jumped straight up had its
-    hands dragged down and folded onto itself. Reported as "crumbling".
-
-    The outcome is already decided by the time anybody lands, so this is
-    animation and it is classic's to choose. How far the dive went sideways
-    decides it: a keeper who went full length finishes on the ground, one who
-    jumped more or less straight up comes back down on their feet, and the ones
-    in between finish somewhere near a crouch.
-  */
-  const sideways = clamp01((Math.abs(hands.x - stance) - 0.8) / 0.9);
-  const flat = keeper.landed * sideways;
-  const onFeet = keeper.landed * (1 - sideways);
-  const settle = (from: Vec3, to: Vec3): Vec3 =>
-    vec(from.x + (to.x - from.x) * onFeet, from.y + (to.y - from.y) * onFeet, z);
-
-  const feet = settle(grounded(blend(stand.feet, dive.feet), 0.1, flat), stand.feet);
-  const shoulder = settle(grounded(blend(stand.shoulder, dive.shoulder), 0.32, flat), stand.shoulder);
-  const head = settle(grounded(blend(stand.head, dive.head), 0.46, flat), stand.head);
-
-  // Standing, the arms hang either side. Diving, both go with the ball,
-  // straddling the point the save test actually uses.
-  const spread = 0.24 - extension * 0.1;
-  const reaching: [Vec3, Vec3] = [
-    vec(hands.x + spread, hands.y + 0.05, z),
-    vec(hands.x - spread * 0.7, hands.y - 0.09, z),
-  ];
-  const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, z), vec(stance - 0.34, 0.92, z)];
-  const held: [Vec3, Vec3] = [
-    settle(grounded(reaching[0], 0.18, flat), idle[0]),
-    settle(grounded(reaching[1], 0.14, flat), idle[1]),
-  ];
-
-  // Legs trail back down the dive line and scissor open as the keeper extends.
-  const trail = (k: number, spreadX: number): Vec3 =>
-    vec(
-      feet.x - along.x * extension * k + spreadX * (1 - extension),
-      Math.max(0.04, feet.y - along.y * extension * k),
-      z
-    );
-
-  return {
-    feet,
-    shoulder,
-    head,
-    hands: extension < 0.04 ? idle : held,
-    // Landing on their feet brings the feet back under them: a stance, not
-    // two legs still trailing from a jump that has finished.
-    toes: [
-      settle(trail(0.14, 0.16), vec(stance + 0.16, 0.04, z)),
-      settle(trail(0.3, -0.16), vec(stance - 0.16, 0.04, z)),
-    ],
-    kit: colours.kit,
-    trim: colours.trim,
-    gloves: reach * 0.34,
-    facing: TOWARD_TAKER,
-    // The standing pose's shoulder height, held through the dive: a keeper
-    // lying flat is the same size as one standing up.
-    stature: 1.42 - 0.06,
-  };
+  return { ...keeperPose(keeper, reach, clock, phase, runUp), kit: colours.kit, trim: colours.trim };
 }
 
 /**
@@ -788,15 +662,6 @@ function sidewaysRoom(proj: Projector, z: number, margin: number): number {
   return Math.max(0, proj.width / 2 / pixelsPerMetre - margin);
 }
 
-/**
- * Settle a point down onto the turf as the keeper lands.
- *
- * Applied to the whole figure, not just the hands. Dropping the hands alone
- * left the gloves on the grass with the body still in the air above them.
- */
-function grounded(point: Vec3, restingY: number, landed: number): Vec3 {
-  return landed <= 0 ? point : vec(point.x, point.y + (restingY - point.y) * landed, point.z);
-}
 
 /**
  * The taker, running up to the ball, striking it, and stopping.

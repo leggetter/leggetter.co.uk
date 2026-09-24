@@ -119,7 +119,8 @@ export function drawScene(
       frame.keeperProfile.reach,
       frame.clock,
       frame.phase,
-      keeperColours(frame)
+      keeperColours(frame),
+      frame.runUp
     );
     drawGoalFrame(ctx, proj);
     drawNet(ctx, proj);
@@ -136,7 +137,8 @@ export function drawScene(
       frame.keeperProfile.reach,
       frame.clock,
       frame.phase,
-      keeperColours(frame)
+      keeperColours(frame),
+      frame.runUp
     );
     drawAim(ctx, proj, frame);
     // Ten yards out: nearer than the goal, further than the person kicking it.

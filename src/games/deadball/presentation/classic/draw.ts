@@ -788,9 +788,29 @@ export function keeperFigure(
   const blend = (a: Vec3, b: Vec3): Vec3 =>
     vec(a.x + (b.x - a.x) * extension, a.y + (b.y - a.y) * extension, z);
 
-  const feet = grounded(blend(stand.feet, dive.feet), 0.1, keeper.landed);
-  const shoulder = grounded(blend(stand.shoulder, dive.shoulder), 0.32, keeper.landed);
-  const head = grounded(blend(stand.head, dive.head), 0.46, keeper.landed);
+  /*
+    How the keeper comes down: on the ground, or on their feet.
+
+    core/ only lands a keeper once the shot is over, and it lands every one the
+    same way - hands pulled to the floor, whatever the dive was. The body here is
+    built from the hands, so a keeper who had only jumped straight up had its
+    hands dragged down and folded onto itself. Reported as "crumbling".
+
+    The outcome is already decided by the time anybody lands, so this is
+    animation and it is classic's to choose. How far the dive went sideways
+    decides it: a keeper who went full length finishes on the ground, one who
+    jumped more or less straight up comes back down on their feet, and the ones
+    in between finish somewhere near a crouch.
+  */
+  const sideways = clamp01((Math.abs(hands.x - stance) - 0.8) / 0.9);
+  const flat = keeper.landed * sideways;
+  const onFeet = keeper.landed * (1 - sideways);
+  const settle = (from: Vec3, to: Vec3): Vec3 =>
+    vec(from.x + (to.x - from.x) * onFeet, from.y + (to.y - from.y) * onFeet, z);
+
+  const feet = settle(grounded(blend(stand.feet, dive.feet), 0.1, flat), stand.feet);
+  const shoulder = settle(grounded(blend(stand.shoulder, dive.shoulder), 0.32, flat), stand.shoulder);
+  const head = settle(grounded(blend(stand.head, dive.head), 0.46, flat), stand.head);
 
   // Standing, the arms hang either side. Diving, both go with the ball,
   // straddling the point the save test actually uses.
@@ -801,8 +821,8 @@ export function keeperFigure(
   ];
   const idle: [Vec3, Vec3] = [vec(stance + 0.34, 0.92, z), vec(stance - 0.34, 0.92, z)];
   const held: [Vec3, Vec3] = [
-    grounded(reaching[0], 0.18, keeper.landed),
-    grounded(reaching[1], 0.14, keeper.landed),
+    settle(grounded(reaching[0], 0.18, flat), idle[0]),
+    settle(grounded(reaching[1], 0.14, flat), idle[1]),
   ];
 
   // Legs trail back down the dive line and scissor open as the keeper extends.
@@ -818,7 +838,12 @@ export function keeperFigure(
     shoulder,
     head,
     hands: extension < 0.04 ? idle : held,
-    toes: [trail(0.14, 0.16), trail(0.3, -0.16)],
+    // Landing on their feet brings the feet back under them: a stance, not
+    // two legs still trailing from a jump that has finished.
+    toes: [
+      settle(trail(0.14, 0.16), vec(stance + 0.16, 0.04, z)),
+      settle(trail(0.3, -0.16), vec(stance - 0.16, 0.04, z)),
+    ],
     kit: colours.kit,
     trim: colours.trim,
     gloves: reach * 0.34,

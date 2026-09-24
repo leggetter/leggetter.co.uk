@@ -98,6 +98,34 @@ describe("the keeper's gloves", () => {
   });
 });
 
+describe('how a keeper lands', () => {
+  /** The last frame of a flight, once the keeper has finished coming down. */
+  const landing = (aim: { x: number; y: number }, dive: Dive) => {
+    let last = null as ReturnType<typeof keeperFigure> | null;
+    let landed = 0;
+    for (const { state, reach } of keeperFrames(aim, dive, 21)) {
+      last = keeperFigure(state, reach, 0, 'resolved');
+      landed = state.landed;
+    }
+    assert.ok(landed >= 1, 'the flight ended before the keeper had landed');
+    return figureBody(last!);
+  };
+
+  test('a keeper who jumps straight up comes down on their feet', () => {
+    // Reported as "crumbling": core/ pulls every keeper's hands to the floor
+    // once the shot is over, and the body was built from the hands, so a jump
+    // straight up folded the keeper onto itself.
+    const body = landing({ x: 0, y: 0.95 }, { x: 0.2, y: 2.3 });
+    assert.ok(body.head.y > 1.5, `head at ${body.head.y.toFixed(2)} m - not standing`);
+    for (const side of [body.left, body.right]) assert.ok(side.ankle.y < 0.2, 'a foot is off the ground');
+  });
+
+  test('a keeper who goes full length still finishes on the ground', () => {
+    const body = landing({ x: 0.95, y: 0.1 }, { x: -3.3, y: 0.3 });
+    assert.ok(body.head.y < 0.7, `head at ${body.head.y.toFixed(2)} m - should be lying down`);
+  });
+});
+
 describe('everybody else', () => {
   /** Somebody standing still, the way the wall, the halfway line and the spare keeper stand. */
   const standingFigure = (height: number): Figure => {

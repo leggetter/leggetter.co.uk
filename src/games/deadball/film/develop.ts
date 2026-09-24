@@ -9,8 +9,13 @@
  * that was on the screen.
  *
  * Kept as images rather than redrawn on demand so that stepping backwards is
- * as cheap as stepping forwards. A second of WebP stills is a few hundred KB;
- * the same second as raw pixels would be hundreds of MB on a phone.
+ * as cheap as stepping forwards. A second of JPEG stills is a few MB; the same
+ * second as raw pixels would be hundreds of MB on a phone.
+ *
+ * JPEG rather than WebP: measured on a 900px still, WebP took 35 ms to encode
+ * and JPEG 8, and encoding was nearly all of the wait. And the encodes are not
+ * awaited one by one. `toBlob` copies the pixels when it is called, so the next
+ * frame can be drawn over the canvas while the last is still being encoded.
  *
  * Silent: the copy is muted and never unlocked, so it cannot make a sound
  * even though it is handed every goal and every post.
@@ -51,7 +56,7 @@ export function strikeClock(take: Take): number | null {
 
 const toBlob = (canvas: HTMLCanvasElement): Promise<Blob> =>
   new Promise((resolve, reject) =>
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('No image'))), 'image/webp', 0.82)
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('No image'))), 'image/jpeg', 0.85)
   );
 
 /** Let the page breathe between frames, so a long shot does not freeze it. */
@@ -76,27 +81,32 @@ export async function develop(take: Take, options: DevelopOptions): Promise<Stil
   presentation.configure(options.camera, width, height);
 
   const struck = strikeClock(take);
-  const stills: Still[] = [];
+  const total = take.frames.length;
+  let encoded = 0;
+  const pending: Promise<Blob>[] = [];
   try {
-    for (let i = 0; i < take.frames.length; i++) {
-      const frame = take.frames[i]!;
-      const events = take.events[i] ?? [];
-      presentation.render(frame, events);
-      stills.push({
-        url: URL.createObjectURL(await toBlob(canvas)),
-        fromStrike: struck === null ? null : frame.clock - struck,
-        contact: events.some((event) => event.kind === 'boot'),
-      });
-      options.onProgress?.(i + 1, take.frames.length);
+    for (let i = 0; i < total; i++) {
+      presentation.render(take.frames[i]!, take.events[i] ?? []);
+      pending.push(
+        toBlob(canvas).then((blob) => {
+          options.onProgress?.(++encoded, total);
+          return blob;
+        })
+      );
       if (i % 8 === 7) await breathe();
     }
-  } catch (error) {
-    discard(stills);
-    throw error;
   } finally {
     presentation.destroy();
   }
-  return stills;
+  const blobs = await Promise.all(pending);
+  return blobs.map((blob, i) => {
+    const frame = take.frames[i]!;
+    return {
+      url: URL.createObjectURL(blob),
+      fromStrike: struck === null ? null : frame.clock - struck,
+      contact: (take.events[i] ?? []).some((event) => event.kind === 'boot'),
+    };
+  });
 }
 
 export function discard(stills: readonly Still[]): void {

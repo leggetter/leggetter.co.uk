@@ -103,6 +103,8 @@ import { cleanNames, cleanTeam, type DuelNames } from './core/names.ts';
 import { KEYS, type Settings, type Storage } from './storage/Storage.ts';
 import { createShotLog, newSessionId, type ShotLog } from './telemetry/log.ts';
 import { forMatch, summarise, summariseDuel, type FullTime } from './telemetry/analyse.ts';
+import { develop, type Still } from './film/develop.ts';
+import { createRecorder } from './film/record.ts';
 
 /** Simulation step. Fixed so a shot is reproducible; see core/rng.ts. */
 
@@ -216,6 +218,11 @@ export interface Game {
   disconnect(): void;
   connectedAs(): Side | null;
   /** A read-only look at where the match is, for the console. */
+  /**
+   * The last shot as pictures, one per frame, for watching back frame by
+   * frame. Null before anybody has shot. See film/develop.ts.
+   */
+  developLastShot(onProgress?: (done: number, total: number) => void): Promise<Still[] | null>;
   snapshot(): {
     mode: string;
     phase: string;
@@ -315,10 +322,10 @@ export async function startGame(options: GameOptions): Promise<Game> {
   // A camera is where you stand and a package is how it looks, so they are
   // resolved separately and neither knows about the other.
   let camera: CameraSpec = cameraFor(resolveCameraId(search, settings.viewId ?? null));
-  const presentation: Presentation = createPackage(
-    resolvePackageId(search, settings.packageId ?? null)
-  );
+  const packageId = resolvePackageId(search, settings.packageId ?? null);
+  const presentation: Presentation = createPackage(packageId);
   presentation.mount({ canvas, ctx });
+  const recorder = createRecorder();
 
   let muted = settings.muted ?? false;
   presentation.setMuted(muted);
@@ -1134,7 +1141,10 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     // Drained here and handed on, rather than fetched by whatever happens to
     // be looking: one list, one owner, and nothing left in it between frames.
-    presentation.render(frameState(), events.drain());
+    const shown = frameState();
+    const happened = events.drain();
+    presentation.render(shown, happened);
+    recorder.offer(shown, happened);
 
     const yours = myTurn();
     if (yours !== announcedTurn) {
@@ -1277,6 +1287,19 @@ export async function startGame(options: GameOptions): Promise<Game> {
      * the log handle in `main.ts`, and the same shape: it hands back a copy
      * and there is no way to change anything through it.
      */
+    async developLastShot(onProgress) {
+      const take = recorder.last();
+      if (!take) return null;
+      return develop(take, {
+        make: () => createPackage(packageId),
+        camera,
+        sky: skyId,
+        width,
+        height,
+        onProgress,
+      });
+    },
+
     snapshot: () => ({
       mode: match.mode,
       phase: match.phase,

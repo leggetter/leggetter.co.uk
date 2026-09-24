@@ -136,7 +136,7 @@ export function createFlight(
   events.emit({ kind: 'boot', at: 0, force: forceOf(length(shot.velocity)) });
   return {
     ball: { position: shot.origin, velocity: shot.velocity, spin: shot.spin },
-    keeper: planKeeper(profile, rng, shot.aimPoint, keeperStartX, chosenDive),
+    keeper: planKeeper(profile, rng, shot.aimPoint, keeperStartX, chosenDive, shot.tell ?? 0),
     profile,
     elapsed: 0,
     rebounds: 0,

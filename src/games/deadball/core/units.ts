@@ -123,12 +123,34 @@ export const TIMING_SCATTER = 2.2;
  * How far a bad contact drags the ball back toward the middle of the goal, as
  * a fraction of how far out it was aimed.
  *
- * This is what actually punishes a scuff. A mistimed penalty does not find the
- * top corner; it squirts toward the middle, low and slow. Whether that beats
- * the keeper depends on which way they went, which is exactly the gamble a
- * real scuffed penalty is.
+ * A mistimed penalty does not find the top corner; it squirts toward the
+ * middle, low and slow. This used to be 0.55 and was described as the thing
+ * that punished a scuff, and measuring said otherwise: pulling a ball away
+ * from the corner a keeper had read is also pulling it away from the keeper,
+ * so the bigger this was the *more* a scuff scored. What punishes a scuff now
+ * is `TIMING_TELL`. This is lower so that a bad contact can still miss, which
+ * is the cost of it against a person in goal, who does not read anything.
  */
-export const TIMING_CENTRE_PULL = 0.55;
+export const TIMING_CENTRE_PULL = 0.3;
+
+/**
+ * How quickly a bad contact gives itself away to the keeper.
+ *
+ * `mistimed * TIMING_TELL`, capped at 1, is how much of the struck line a
+ * keeper can see: at 0.4 or worse it is all of it. A clean strike tells them
+ * nothing, and is exactly the shot it was before this existed.
+ *
+ * This is the half the timing model was missing. Every other cost of a bad
+ * contact is error - the ball goes somewhere other than where it was aimed -
+ * and error is what beats a keeper who read the aim. So mistiming turned
+ * saves into misses and the two cancelled: 76%, 79%, 76% across clean to
+ * badly mistimed, and 58% against 56% measured on people. A scuff in real life
+ * is the opposite of a disguise. The taker falls away from it, the ball comes
+ * off the wrong part of the boot, and it arrives slowly enough to watch, so
+ * the keeper reads it better rather than worse. See `TELL_READ` in
+ * `core/keeper.ts` for what the keeper does with it.
+ */
+export const TIMING_TELL = 2.5;
 
 /** Pace lost to a badly struck ball, as a fraction, at the worst timing. */
 export const TIMING_PACE_LOSS = 0.18;

@@ -31,6 +31,8 @@ import {
 } from './units.ts';
 import type { KeeperProfile, Player, Shot, ShotInput } from './types.ts';
 import type { Rng } from './rng.ts';
+import { DEFAULT_KEEPER_ID, KEEPERS } from '../content/keepers.js';
+import { SQUAD } from '../content/players.js';
 
 const STEP = 1 / 120;
 
@@ -315,7 +317,8 @@ describe('release timing', () => {
   });
 
   test('a scuff drags the ball back toward the middle of the goal', () => {
-    // The actual punishment: a mistimed shot stops finding the corners.
+    // A mistimed shot stops finding the corners. On its own this is not a
+    // cost - see the next test for what is.
     const meanOffset = (timing: number) => {
       let total = 0;
       for (let seed = 1; seed <= 300; seed++) {
@@ -326,6 +329,83 @@ describe('release timing', () => {
       return total / 300;
     };
     assert.ok(meanOffset(1) < meanOffset(0) - 0.5, 'a scuff should end up more central');
+  });
+
+  test('a clean strike tells the keeper nothing', () => {
+    // The whole change to the timing bar rests on this: a perfect strike is
+    // exactly the shot it was before a bad contact became readable.
+    const shot = resolveShot(aim(0.6, 0.4), striker, createRng(3), {
+      origin: spotBall(PENALTY_DISTANCE),
+    });
+    assert.equal(shot.tell, 0);
+    const intended = resolveShot(aim(0.6, 0.4), { ...striker, accuracy: 0 }, createRng(3), {
+      origin: spotBall(PENALTY_DISTANCE),
+    });
+    // Same aim point whatever the scatter did, because the keeper reads intent.
+    assert.deepEqual(intended.aimPoint, shot.aimPoint);
+  });
+
+  test('a bad contact gives away the line it was struck on', () => {
+    // Averaged, because on one shot the read point and the crossing can be
+    // close by luck. Over many, a keeper reading a scuff reads where it went.
+    const intendedX = resolveShot(aim(0.6, 0.4), striker, createRng(1), {
+      origin: spotBall(PENALTY_DISTANCE),
+    }).aimPoint.x;
+    let fromRead = 0;
+    let fromIntent = 0;
+    for (let seed = 1; seed <= 200; seed++) {
+      const shot = resolveShot(aim(0.6, 0.4, { timing: 0.6 }), striker, createRng(seed), {
+        origin: spotBall(PENALTY_DISTANCE),
+      });
+      const t = -shot.origin.z / shot.velocity.z;
+      const went = shot.origin.x + shot.velocity.x * t;
+      fromRead += Math.abs(went - shot.aimPoint.x);
+      fromIntent += Math.abs(went - intendedX);
+    }
+    assert.ok(fromRead < fromIntent * 0.5, 'a scuff should be read near where it went');
+    const scuffed = resolveShot(aim(0.6, 0.4, { timing: 0.6 }), striker, createRng(3), {
+      origin: spotBall(PENALTY_DISTANCE),
+    });
+    assert.ok((scuffed.tell ?? 0) > 0.9, 'a badly mistimed strike is plain to see');
+  });
+
+  test('mistiming a penalty costs goals, not only accuracy', () => {
+    // Issue #77. Mistiming used to be a disguise: the ball went somewhere the
+    // keeper had not read, saves turned into misses, and the goal rate did not
+    // move - 76%, 79%, 76% in simulation, and 58% clean against 56% mistimed
+    // measured on people. Against the default keeper, over a spread of aims
+    // and the whole squad, the rate now has to fall, and fall by enough to be
+    // worth hitting the green for.
+    const keeper = KEEPERS.find((k) => k.id === DEFAULT_KEEPER_ID) as KeeperProfile;
+    const aims = [-0.75, -0.55, -0.35, 0.35, 0.55, 0.75];
+    const rate = (magnitude: number) => {
+      let goals = 0;
+      const shots = 360;
+      for (let i = 0; i < shots; i++) {
+        const player = SQUAD[i % SQUAD.length] as Player;
+        const seed = shotSeed(77, i);
+        const shot = resolveShot(
+          aim(aims[i % aims.length] as number, 0.25 + (i % 3) * 0.25, {
+            power: 0.6 + (i % 4) * 0.12,
+            timing: i % 2 === 0 ? magnitude : -magnitude,
+          }),
+          player,
+          createRng(seed),
+          { origin: spotBall(PENALTY_DISTANCE) }
+        );
+        const flight = fromLine(shot, keeper, createRng(seed ^ 0x5f3759df), idleDrift(i * 0.37, seed));
+        if (flight.outcome === 'goal') goals++;
+      }
+      return goals / shots;
+    };
+    const clean = rate(0);
+    const slightly = rate(0.3);
+    const badly = rate(0.6);
+    assert.ok(clean > slightly && slightly > badly, `not monotonic: ${clean} ${slightly} ${badly}`);
+    assert.ok(clean - slightly >= 0.08, `0.3 off costs too little: ${clean} vs ${slightly}`);
+    assert.ok(clean - badly >= 0.2, `0.6 off costs too little: ${clean} vs ${badly}`);
+    // And not by making the game harder for somebody who times it.
+    assert.ok(clean >= 0.55 && clean <= 0.85, `a clean penalty scores ${clean}`);
   });
 });
 

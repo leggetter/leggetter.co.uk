@@ -51,6 +51,15 @@ export interface Shot {
    * boot sent it on, and Magnus takes it somewhere else.
    */
   aimPoint: { x: number; y: number };
+  /**
+   * How plainly a bad contact gave itself away, 0 to 1.
+   *
+   * 0 for a clean strike, and absent means the same. A keeper reading the
+   * shot gets this much of its misread taken away - see `TELL_READ` in
+   * `core/keeper.ts` - because a scuffed ball is slow and obvious, and that
+   * is what makes mistiming cost goals rather than only accuracy.
+   */
+  tell?: number;
 }
 
 export interface BallState {

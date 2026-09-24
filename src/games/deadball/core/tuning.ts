@@ -45,6 +45,7 @@ import {
   TIMING_PULL,
   TIMING_SCATTER,
   TIMING_SPREAD,
+  TIMING_TELL,
 } from './units.ts';
 import { AIM_TUNING } from './shot.ts';
 import { KEEPER_TUNING } from './keeper.ts';
@@ -77,6 +78,7 @@ const TUNED: readonly number[] = [
   TIMING_SCATTER,
   TIMING_CENTRE_PULL,
   TIMING_PACE_LOSS,
+  TIMING_TELL,
   GROUND_RESTITUTION,
   GROUND_FRICTION,
   NET_DEPTH,

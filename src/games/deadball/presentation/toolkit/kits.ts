@@ -276,9 +276,13 @@ export const kitsFor = (frame: FrameState): TeamKits =>
  * half of the halfway line is already wearing. One colour means *them*,
  * wherever they happen to be standing.
  */
-export function takerColours(frame: FrameState): { kit: string; trim: string } {
+export function takerColours(frame: FrameState): { kit: string; trim: string; skin?: string } {
   const kits = kitsFor(frame);
-  return awayTaking(frame) ? kits.other : kits.own;
+  const strip = awayTaking(frame) ? kits.other : kits.own;
+  // The skin tone rides along with the strip, so every package that dresses
+  // the taker gets it. It used to be added in classic's takerFigure only, and
+  // the 3D look, which builds its own taker, drew everyone in the default.
+  return frame.takerSkin ? { ...strip, skin: frame.takerSkin } : strip;
 }
 
 /**

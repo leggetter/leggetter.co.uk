@@ -16,6 +16,7 @@ import type { FrameState, Player } from '../../core/types.ts';
 import { PENALTY_DISTANCE } from '../../core/units.ts';
 import { cameraFor, standBehind } from '../cameras.ts';
 import { createProjector } from '../toolkit/project.ts';
+import { takerColours } from '../toolkit/kits.ts';
 import { drawFigure, takerFigure } from './draw.ts';
 
 const spot = spotBall(PENALTY_DISTANCE);
@@ -62,6 +63,13 @@ function coloursDrawn(draw: (ctx: CanvasRenderingContext2D) => void): Set<string
 }
 
 describe("the taker's skin", () => {
+  test('comes with the strip every look dresses the taker in', () => {
+    // The 3D look builds its own taker from takerColours, not from classic's
+    // takerFigure, and drew everyone in the default until the skin moved here.
+    assert.equal(takerColours(frame('#4b2b1b')).skin, '#4b2b1b');
+    assert.equal(takerColours(frame()).skin, undefined);
+  });
+
   test('is the tone on the frame', () => {
     const figure = takerFigure(frame('#6b4027'), 1.55);
     assert.equal(figure.skin, '#6b4027');

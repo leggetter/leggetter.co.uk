@@ -716,7 +716,6 @@ export function takerFigure(frame: FrameState, standOff: number): Figure {
       standOff,
     }),
     ...takerColours(frame),
-    ...(frame.takerSkin ? { skin: frame.takerSkin } : {}),
     // He matters while aiming and running in. Once the ball has gone he is a
     // large figure standing between the camera and the only thing worth
     // watching, so he drops back rather than staying at full strength - but

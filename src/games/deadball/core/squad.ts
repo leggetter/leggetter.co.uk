@@ -14,6 +14,7 @@
  * definition of something that has to be checked before it is believed.
  */
 
+import { DEFAULT_SKIN } from '../content/skins.js';
 import type { Player } from './types.ts';
 
 /** Every skill runs 0 to 100, the convention anyone who has played a football
@@ -186,6 +187,7 @@ export function cleanPlayer(raw: unknown, id: string, custom: boolean): SquadMem
     colors: {
       kit: cleanColour(colours.kit, '#2f6fd0'),
       trim: cleanColour(colours.trim, '#f4f6f8'),
+      skin: cleanColour(colours.skin, DEFAULT_SKIN),
     },
     custom,
   };

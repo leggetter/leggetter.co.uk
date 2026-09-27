@@ -104,7 +104,7 @@ const TURNS = [6, 5, 7, 4, 8, 3, 9, 2, 10, 1, 11].map((twelfth) => twelfth / 12)
 const FALLBACK_KITS = ['#b4322e', '#2f6fd0', '#f5c400', '#2f9e44', '#8338ec', '#f2f4f5', '#141418'];
 
 /**
- * Everybody's colours, from the one the player chose and anything overridden.
+ * Everybody's colours, from your side's default strip and anything chosen in Kits.
  *
  * Four strips, and **all six pairs of them can share a screen.** Five always
  * could; the sixth - one keeper against the other - arrived with the resting
@@ -112,16 +112,15 @@ const FALLBACK_KITS = ['#b4322e', '#2f6fd0', '#f5c400', '#2f9e44', '#8338ec', '#
  * mutually distinct rather than only the pairs that obviously meet.
  *
  * They are settled in priority order, each one moved clear of everything
- * already settled: your outfield first and never moved, because it is the
- * squad player's own kit and the one thing on the pitch nobody should have
- * taken off them; then theirs, then your keeper, then theirs. A fixed second
+ * already settled: your outfield first and never moved, because it is your
+ * side's strip and the one thing on the pitch nobody should have taken off
+ * them; then theirs, then your keeper, then theirs. A fixed second
  * colour on its own would eventually be somebody's invented kit, and two teams
  * in one strip is the one thing a football picture must never be.
  */
 export function teamKits(kit: string, trim: string, chosen: KitOverrides = {}): TeamKits {
-  // The player's own kit is the fallback rather than a constant, so choosing a
-  // different footballer still changes what your side wears. The fallback is
-  // passed through exactly as written, short hex and all.
+  // `kit` and `trim` are the fallback when nothing has been chosen - OWN_KIT
+  // for the game, passed through exactly as written, short hex and all.
   const own = cleanColour(chosen.own, kit);
   const ownTrim = cleanColour(chosen.ownTrim, trim);
 
@@ -268,7 +267,7 @@ function fromHsl(h: number, s: number, l: number): string {
  */
 export const kitsFor = (frame: FrameState): TeamKits => {
   const strips = frame.strips;
-  if (!strips) return teamKits(frame.player.colors.kit, frame.player.colors.trim, frame.kits);
+  if (!strips) return teamKits(OWN_KIT, OWN_TRIM, frame.kits);
   // Each side in the strip it chose. `own` is whoever shoots first and is
   // never moved; the second is moved clear of it only if the two clash, and
   // since both devices are handed the same pair in the same order they make
@@ -284,15 +283,31 @@ export const kitsFor = (frame: FrameState): TeamKits => {
 };
 
 /**
+ * Your side's strip, until somebody chooses one in Kits.
+ *
+ * The strip belongs to the team, not to whichever footballer is taking the
+ * kicks. It used to be the chosen player's own colours, set in the player
+ * editor as well as in Kits - two places to choose one shirt, the player's
+ * one silently losing whenever Kits had been touched. Reported as "Why are
+ * there two places to choose shirt?"
+ */
+export const OWN_KIT = '#2f6fd0';
+export const OWN_TRIM = '#f4f6f8';
+
+/**
  * What the figure on the spot is wearing.
  *
  * The away side is side 1, so on their turn the taker wears the shirt the far
  * half of the halfway line is already wearing. One colour means *them*,
  * wherever they happen to be standing.
  */
-export function takerColours(frame: FrameState): { kit: string; trim: string } {
+export function takerColours(frame: FrameState): { kit: string; trim: string; skin?: string } {
   const kits = kitsFor(frame);
-  return awayTaking(frame) ? kits.other : kits.own;
+  const strip = awayTaking(frame) ? kits.other : kits.own;
+  // The skin tone rides along with the strip, so every package that dresses
+  // the taker gets it. It used to be added in classic's takerFigure only, and
+  // the 3D look, which builds its own taker, drew everyone in the default.
+  return frame.takerSkin ? { ...strip, skin: frame.takerSkin } : strip;
 }
 
 /**

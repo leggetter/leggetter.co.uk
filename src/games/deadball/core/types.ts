@@ -100,7 +100,12 @@ export interface Player {
    */
   dip: number;
   foot: 'left' | 'right';
-  colors: { kit: string; trim: string };
+  /**
+   * Shirt, shorts and socks, and skin. `skin` is optional so a player saved
+   * before it existed, or sent by a copy of the game that predates it, is
+   * still a player: it is drawn in the default tone. See content/skins.js.
+   */
+  colors: { kit: string; trim: string; skin?: string };
 }
 
 /**
@@ -328,6 +333,18 @@ export interface FrameState {
    * device's own Kits.
    */
   strips?: [{ kit: string; trim: string }, { kit: string; trim: string }];
+  /**
+   * The skin tone of whoever is taking this kick, when it is known: your own
+   * footballer, or the other side's in a room. Absent for the computer, which
+   * is drawn in the default tone.
+   */
+  takerSkin?: string;
+  /**
+   * Where the shot being aimed would cross the goal line if it were struck
+   * cleanly, curl included. See core/arrival.ts. Null when not aiming, or when
+   * it would not get there. The crosshair goes here, not where it is pointed.
+   */
+  aimLanding?: { x: number; y: number } | null;
   /**
    * What the shot log knows, computed once when the shootout ends rather than
    * every frame. Typed loosely here because core/ must not import telemetry:

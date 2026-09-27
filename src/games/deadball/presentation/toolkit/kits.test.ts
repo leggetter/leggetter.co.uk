@@ -21,8 +21,10 @@ import {
   awayTaking,
   KEEPER_KIT,
   keeperColours,
+  kitsFor,
   OTHER_KEEPER_KIT,
   OWN_KEEPER_KIT,
+  OWN_KIT,
   restingKeeperColours,
   takerColours,
   teamKits,
@@ -421,5 +423,17 @@ describe('who is celebrating', () => {
       const takerIsAway = awayTaking(f);
       assert.equal(celebrating(mode, taker, true), takerIsAway ? 'away' : 'home');
     }
+  });
+});
+
+describe('whose strip it is', () => {
+  test("the team's, not the footballer taking the kicks", () => {
+    // Picking a different player used to change your side's shirt, because
+    // the default came from the player's own colours - a second place to
+    // choose a shirt that lost to Kits whenever Kits had been touched.
+    const frame = (kit: string, trim: string) =>
+      ({ mode: 'solo', taker: 0, player: { colors: { kit, trim } }, kits: {} }) as never;
+    assert.deepEqual(kitsFor(frame('#e03131', '#1d1d1d')), kitsFor(frame('#14967f', '#f4f6f8')));
+    assert.equal(kitsFor(frame('#e03131', '#1d1d1d')).own.kit, OWN_KIT);
   });
 });

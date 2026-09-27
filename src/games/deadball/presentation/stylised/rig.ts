@@ -17,6 +17,7 @@
  * and a smaller keeper does not save less.
  */
 
+import { DEFAULT_SKIN } from '../../content/skins.js';
 import {
   CapsuleGeometry,
   Group,
@@ -34,7 +35,7 @@ import type { Side, Skeleton } from '../toolkit/body/skeleton.ts';
 import { LIMB, poseBody, poseSize, type Figure } from '../toolkit/pose/figure.ts';
 
 /** The colours classic uses for the parts that are not kit. */
-export const SKIN = '#d9a07a';
+export const SKIN = DEFAULT_SKIN;
 export const BOOT = '#1b2430';
 export const GLOVE = '#f4f6f8';
 
@@ -149,6 +150,7 @@ export class Rig {
 
     this.paint('kit', figure.kit);
     this.paint('trim', figure.trim);
+    this.paint('skin', figure.skin ?? SKIN);
     if (this.fades) {
       const alpha = figure.alpha ?? 1;
       for (const material of Object.values(this.materials)) material.opacity = alpha;

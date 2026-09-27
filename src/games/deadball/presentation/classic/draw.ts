@@ -10,6 +10,7 @@
  * belongs in screen space.
  */
 
+import { DEFAULT_SKIN } from '../../content/skins.js';
 import {
   AIM_HALF_WIDTH,
   AIM_HEIGHT,
@@ -53,8 +54,6 @@ import type { Projector } from '../toolkit/project.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;
 
-/** Roughly how far a full curl moves a penalty, in meters. See MAGNUS_FACTOR. */
-const PENALTY_FULL_CURL = 0.5;
 
 /** Half-width of the visible pitch. Beyond this is out of frame anyway. */
 const PITCH_HALF = 34;
@@ -79,7 +78,7 @@ const COLORS = {
   ballShade: '#c8ccd0',
   shadow: 'rgba(0, 0, 0, 0.3)',
   aim: 'rgba(255, 220, 90, 0.95)',
-  skin: '#d9a07a',
+  skin: DEFAULT_SKIN,
 };
 
 type Ctx = CanvasRenderingContext2D;
@@ -472,6 +471,7 @@ export const figureBody = poseBody;
  * behind it rather than wherever the code happened to draw it.
  */
 export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
+  const skin = figure.skin ?? COLORS.skin;
   const s = poseBody(figure);
   const size = poseSize(figure);
   const chest = proj.project(s.chest);
@@ -526,8 +526,8 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
       [side.knee, side.ankle, figure.kit, LIMB.leg * 0.82],
       [side.ankle, side.toe, COLORS.boot, LIMB.leg * 0.95],
       [side.shoulder, side.elbow, figure.kit, LIMB.arm],
-      [side.elbow, side.wrist, COLORS.skin, LIMB.arm * 0.86],
-      [side.wrist, side.hand, COLORS.skin, LIMB.arm * 0.8],
+      [side.elbow, side.wrist, skin, LIMB.arm * 0.86],
+      [side.wrist, side.hand, skin, LIMB.arm * 0.8],
     ];
     segments
       .map((segment) => ({ segment, far: depth(segment[0]) + depth(segment[1]) }))
@@ -549,7 +549,7 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   limbs(far);
   // The neck before the shirt, so its lower end tucks under the collar. Drawn
   // after it, the bottom of the neck lay over the chest and read as a tie.
-  line(s.chest, s.head, COLORS.skin, LIMB.head * 0.62);
+  line(s.chest, s.head, skin, LIMB.head * 0.62);
   line(s.left.hip, s.right.hip, figure.trim, LIMB.leg * 1.1);
   line(s.pelvis, s.chest, figure.kit, LIMB.torso);
   // Square ends, stopping at the shoulder joints. Rounded, the bar ran on past
@@ -560,7 +560,7 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
 
   const head = proj.project(s.head);
   if (head) {
-    ctx.fillStyle = COLORS.skin;
+    ctx.fillStyle = skin;
     ctx.beginPath();
     ctx.arc(head.x, head.y, Math.max(3, LIMB.head * size * head.scale), 0, Math.PI * 2);
     ctx.fill();
@@ -816,6 +816,43 @@ export function drawBall(ctx: Ctx, proj: Projector, position: Vec3): void {
 }
 
 /**
+ * The path the aiming guide draws: from the ball to where it will land.
+ *
+ * **It ends where the ball lands, and so does the crosshair.** `landing` is
+ * core/'s answer for a clean strike, curl included (`FrameState.aimLanding`).
+ * The guide used to be a bow of a made-up size that came back to where the
+ * shot was pointed, which bent the wrong way off the straight line - "the
+ * ball seems to bend the opposite way of the indicator arrow" - and, once
+ * that was fixed, finished beside the crosshair instead of in it: "it's
+ * possible for the dotted yellow shot line not to meet with the center of
+ * the crosshair".
+ *
+ * **It leaves the boot along the pointed line and bends onto the landing**,
+ * with the bend growing as the square of the way along, as spin does: the
+ * ball does not jink sideways off the boot. `curve.test.ts` flies real shots
+ * through core/ and holds the guide to the same side as the ball.
+ *
+ * With no landing - not aiming at anything that reaches the line - it is the
+ * straight line to where the shot is pointed.
+ */
+export function aimPath(from: Vec3, pointed: Vec3, landing: Vec3 | null, steps = 16): Vec3[] {
+  const end = landing ?? pointed;
+  const points: Vec3[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const bend = t * t;
+    points.push(
+      vec(
+        from.x + (pointed.x - from.x) * t + (end.x - pointed.x) * bend,
+        from.y + (pointed.y - from.y) * t + (end.y - pointed.y) * bend + Math.sin(Math.PI * t) * 0.25,
+        from.z + (pointed.z - from.z) * t + (end.z - pointed.z) * bend
+      )
+    );
+  }
+  return points;
+}
+
+/**
  * The aiming guide: where the shot is pointed, and how the curve will bend it.
  *
  * The bend drawn here is an illustration of the input, not a prediction from
@@ -835,25 +872,12 @@ export function drawAim(ctx: Ctx, proj: Projector, frame: FrameState): void {
   ctx.lineWidth = 2;
   ctx.globalAlpha = 0.55 + 0.45 * input.power;
 
-  const points: Vec3[] = [];
-  for (let i = 0; i <= 16; i++) {
-    const t = i / 16;
-    // Lateral bend peaks mid-flight, which is roughly what Magnus does. Scaled
-    // to the deflection the ball will actually get, so the guide is a promise
-    // rather than decoration: a fixed bow drew the same arc whatever the
-    // physics were about to do.
-    const bend = input.curve * PENALTY_FULL_CURL * t * (1 - t) * 4;
-    points.push(
-      vec(
-        from.x + (target.x - from.x) * t + bend,
-        from.y + (target.y - from.y) * t + Math.sin(Math.PI * t) * 0.25,
-        from.z + (target.z - from.z) * t
-      )
-    );
-  }
-  strokeWorld(ctx, proj, points, COLORS.aim, 2);
+  const landing = frame.aimLanding ? vec(frame.aimLanding.x, frame.aimLanding.y, 0) : null;
+  const path = aimPath(from, target, landing);
+  strokeWorld(ctx, proj, path, COLORS.aim, 2);
 
-  const reticle = proj.project(target);
+  // On the last point of the guide itself, so the two cannot come apart.
+  const reticle = proj.project(path[path.length - 1]!);
   if (reticle) {
     ctx.setLineDash([]);
     ctx.globalAlpha = 1;
@@ -879,12 +903,30 @@ export function drawAim(ctx: Ctx, proj: Projector, frame: FrameState): void {
  * at all, and the honest feedback was that it was not clear what was being
  * controlled.
  */
+/**
+ * The curl as it will look on screen: positive is to the right of the screen.
+ *
+ * `curve` is in the taker's terms, positive to the taker's right. From behind
+ * the goal the camera looks back at the taker and the taker's right is the
+ * left of the screen, so the dial and its arrow drawn straight from `curve`
+ * pointed the opposite way to the bend there. Worked out by projecting a
+ * metre to the taker's right rather than asking the camera, so it is right
+ * for any camera, including ones that do not exist yet.
+ */
+export function screenCurl(proj: Projector, ball: Vec3, curve: number): number {
+  const here = proj.project(ball);
+  const right = proj.project(vec(ball.x + 1, ball.y, ball.z));
+  const sign = here && right && right.x < here.x ? -1 : 1;
+  return curve * sign;
+}
+
 export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void {
   const input = frame.aiming;
   if (!input) return;
 
   const at = proj.project(frame.ball.position);
   if (!at) return;
+  const toward = screenCurl(proj, frame.ball.position, input.curve);
 
   const radius = Math.max(38, BALL_RADIUS * at.scale * 2.6);
   const TAU = Math.PI * 2;
@@ -943,7 +985,7 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
 
   ctx.beginPath();
   ctx.moveTo(at.x, trackY);
-  ctx.lineTo(at.x + trackHalf * Math.max(-1, Math.min(1, input.curve)), trackY);
+  ctx.lineTo(at.x + trackHalf * Math.max(-1, Math.min(1, toward)), trackY);
   ctx.strokeStyle = '#7dd3fc';
   ctx.lineWidth = 5;
   ctx.stroke();
@@ -959,7 +1001,7 @@ export function drawShotDial(ctx: Ctx, proj: Projector, frame: FrameState): void
   ctx.font = '600 10px ui-sans-serif, system-ui, -apple-system, sans-serif';
   ctx.fillStyle = Math.abs(input.curve) < 0.08 ? 'rgba(255,255,255,0.4)' : '#7dd3fc';
   ctx.fillText(
-    Math.abs(input.curve) < 0.08 ? 'STRAIGHT' : `BEND ${input.curve < 0 ? '\u25c4' : '\u25ba'}`,
+    Math.abs(input.curve) < 0.08 ? 'STRAIGHT' : `BEND ${toward < 0 ? '\u25c4' : '\u25ba'}`,
     at.x,
     trackY - 22
   );

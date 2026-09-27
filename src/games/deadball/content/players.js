@@ -18,7 +18,8 @@
  *              wall that jumps is rarely cleared; from about 60 it usually
  *              is. A wall that stands is lower and most players clear it.
  *   foot       'left' or 'right'. Changes which way the ball naturally drifts.
- *   colors     kit is the shirt, trim is the shorts and socks.
+ *   colors     kit is the shirt, trim is the shorts and socks, skin is the
+ *              skin tone, one of content/skins.js's or any colour.
  *
  * You get 375 points to spread across power, accuracy, curve, composure and
  * dip - not 500. Everybody on this list spends exactly 375, and so does anybody
@@ -42,7 +43,7 @@ export const SQUAD = [
     composure: 57,
     dip: 85,
     foot: 'left',
-    colors: { kit: '#2f6fd0', trim: '#f4f6f8' },
+    colors: { kit: '#2f6fd0', trim: '#f4f6f8', skin: '#c4865b' },
   },
   {
     id: 'okafor',
@@ -53,7 +54,7 @@ export const SQUAD = [
     composure: 96,
     dip: 65,
     foot: 'right',
-    colors: { kit: '#e03131', trim: '#1d1d1d' },
+    colors: { kit: '#e03131', trim: '#1d1d1d', skin: '#eabf9f' },
   },
   {
     id: 'lindqvist',
@@ -64,7 +65,7 @@ export const SQUAD = [
     composure: 95,
     dip: 74,
     foot: 'right',
-    colors: { kit: '#f5b301', trim: '#1b3a6b' },
+    colors: { kit: '#f5b301', trim: '#1b3a6b', skin: '#6b4027' },
   },
   {
     id: 'moreau',
@@ -75,7 +76,7 @@ export const SQUAD = [
     composure: 48,
     dip: 73,
     foot: 'left',
-    colors: { kit: '#14967f', trim: '#f4f6f8' },
+    colors: { kit: '#14967f', trim: '#f4f6f8', skin: '#a86d42' },
   },
 ];
 

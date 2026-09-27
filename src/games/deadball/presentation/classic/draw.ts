@@ -10,6 +10,7 @@
  * belongs in screen space.
  */
 
+import { DEFAULT_SKIN } from '../../content/skins.js';
 import {
   AIM_HALF_WIDTH,
   AIM_HEIGHT,
@@ -77,7 +78,7 @@ const COLORS = {
   ballShade: '#c8ccd0',
   shadow: 'rgba(0, 0, 0, 0.3)',
   aim: 'rgba(255, 220, 90, 0.95)',
-  skin: '#d9a07a',
+  skin: DEFAULT_SKIN,
 };
 
 type Ctx = CanvasRenderingContext2D;
@@ -470,6 +471,7 @@ export const figureBody = poseBody;
  * behind it rather than wherever the code happened to draw it.
  */
 export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
+  const skin = figure.skin ?? COLORS.skin;
   const s = poseBody(figure);
   const size = poseSize(figure);
   const chest = proj.project(s.chest);
@@ -524,8 +526,8 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
       [side.knee, side.ankle, figure.kit, LIMB.leg * 0.82],
       [side.ankle, side.toe, COLORS.boot, LIMB.leg * 0.95],
       [side.shoulder, side.elbow, figure.kit, LIMB.arm],
-      [side.elbow, side.wrist, COLORS.skin, LIMB.arm * 0.86],
-      [side.wrist, side.hand, COLORS.skin, LIMB.arm * 0.8],
+      [side.elbow, side.wrist, skin, LIMB.arm * 0.86],
+      [side.wrist, side.hand, skin, LIMB.arm * 0.8],
     ];
     segments
       .map((segment) => ({ segment, far: depth(segment[0]) + depth(segment[1]) }))
@@ -547,7 +549,7 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
   limbs(far);
   // The neck before the shirt, so its lower end tucks under the collar. Drawn
   // after it, the bottom of the neck lay over the chest and read as a tie.
-  line(s.chest, s.head, COLORS.skin, LIMB.head * 0.62);
+  line(s.chest, s.head, skin, LIMB.head * 0.62);
   line(s.left.hip, s.right.hip, figure.trim, LIMB.leg * 1.1);
   line(s.pelvis, s.chest, figure.kit, LIMB.torso);
   // Square ends, stopping at the shoulder joints. Rounded, the bar ran on past
@@ -558,7 +560,7 @@ export function drawFigure(ctx: Ctx, proj: Projector, figure: Figure): void {
 
   const head = proj.project(s.head);
   if (head) {
-    ctx.fillStyle = COLORS.skin;
+    ctx.fillStyle = skin;
     ctx.beginPath();
     ctx.arc(head.x, head.y, Math.max(3, LIMB.head * size * head.scale), 0, Math.PI * 2);
     ctx.fill();

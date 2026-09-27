@@ -100,7 +100,12 @@ export interface Player {
    */
   dip: number;
   foot: 'left' | 'right';
-  colors: { kit: string; trim: string };
+  /**
+   * Shirt, shorts and socks, and skin. `skin` is optional so a player saved
+   * before it existed, or sent by a copy of the game that predates it, is
+   * still a player: it is drawn in the default tone. See content/skins.js.
+   */
+  colors: { kit: string; trim: string; skin?: string };
 }
 
 /**
@@ -321,6 +326,12 @@ export interface FrameState {
   lastOutcome: Outcome | null;
   /** Live aim while a drag is in progress, for the preview. */
   aiming: ShotInput | null;
+  /**
+   * The skin tone of whoever is taking this kick, when it is known: your own
+   * footballer, or the other side's in a room. Absent for the computer, which
+   * is drawn in the default tone.
+   */
+  takerSkin?: string;
   /**
    * What the shot log knows, computed once when the shootout ends rather than
    * every frame. Typed loosely here because core/ must not import telemetry:

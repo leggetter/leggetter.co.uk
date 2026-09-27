@@ -92,6 +92,8 @@ export interface Pose {
 export interface Figure extends Pose {
   kit: string;
   trim: string;
+  /** Skin tone. Absent means the default one in content/skins.js. */
+  skin?: string;
   alpha?: number;
 }
 

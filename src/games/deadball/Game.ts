@@ -84,6 +84,7 @@ import {
   MAX_CUSTOM,
   type SquadMember,
 } from './core/squad.ts';
+import { DEFAULT_SKIN } from './content/skins.js';
 import { createEventLog } from './core/events.ts';
 import { decideShot, type TakerProfile } from './core/taker.ts';
 import {
@@ -344,6 +345,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
   // `player` is no longer a constructor argument: it changes while the game is
   // running, which is the whole point of Phase 4.
   let player: Player = playerFor(squad, settings.playerId ?? options.player?.id);
+  /** The other side's skin tone in a room, once the room has said. */
+  let opponentSkin: string | undefined;
 
   const saveCustom = (): void => {
     void storage.set(KEYS.customSquad, customOf(squad));
@@ -585,6 +588,10 @@ export async function startGame(options: GameOptions): Promise<Game> {
     const bySeat = [message.teams[0].name, message.teams[1].name] as const;
     const first = link.first;
     names = [bySeat[first] || names[0], bySeat[1 - first] || names[1]] as DuelNames;
+    // Their footballer's skin tone, for drawing them when it is their kick.
+    // Cleaned here like anything else off the wire: it goes into a fillStyle.
+    const theirs = message.teams[1 - link.side]?.squad?.[0]?.colors?.skin;
+    opponentSkin = theirs === undefined ? undefined : cleanColour(theirs, DEFAULT_SKIN);
 
     /*
       Not while the ball is on its way.
@@ -744,6 +751,16 @@ export async function startGame(options: GameOptions): Promise<Game> {
     taker: match.taker,
     keeperSide: keeperSide(match),
     remote: link !== null,
+    // The computer's taker is nobody's footballer: default tone. Without a
+    // room every kick is `myShot`, the computer's included.
+    takerSkin:
+      match.mode === 'versus' && match.taker === 1
+        ? undefined
+        : myShot()
+          ? player.colors.skin
+          : link
+            ? opponentSkin
+            : undefined,
     yourShot: myShot(),
     yourGoal: myGoal(),
     together,

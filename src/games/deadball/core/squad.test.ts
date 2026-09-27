@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
 import { SQUAD } from '../content/players.js';
+import { DEFAULT_SKIN, SKINS } from '../content/skins.js';
 import type { Player } from './types.ts';
 import {
   buildSquad,
@@ -277,5 +278,31 @@ describe('building the squad', () => {
     assert.equal(playerFor(built, SQUAD[1].id).id, SQUAD[1].id);
     assert.equal(playerFor(built, 'nobody').id, built[0].id);
     assert.equal(playerFor(built, undefined).id, built[0].id);
+  });
+});
+
+describe('skin tone', () => {
+  test('a chosen tone is kept', () => {
+    assert.equal(cleanPlayer({ colors: { skin: '#6b4027' } }, 'x', true).colors.skin, '#6b4027');
+  });
+
+  test('anything that is not a colour becomes the default, because it goes into a fillStyle', () => {
+    for (const bad of ['brown', 'url(x)', '#12', 42, null, '']) {
+      assert.equal(cleanPlayer({ colors: { skin: bad } }, 'x', true).colors.skin, DEFAULT_SKIN, String(bad));
+    }
+  });
+
+  test('a player saved before skin tones existed gets the default', () => {
+    assert.equal(cleanPlayer({ name: 'Old', colors: { kit: '#000000', trim: '#ffffff' } }, 'x', true).colors.skin, DEFAULT_SKIN);
+  });
+
+  test('every tone the editor offers is a colour the cleaning accepts', () => {
+    for (const tone of SKINS) assert.equal(cleanPlayer({ colors: { skin: tone } }, 'x', true).colors.skin, tone);
+    assert.ok(SKINS.includes(DEFAULT_SKIN));
+  });
+
+  test('the shipped squad is not all one tone', () => {
+    const tones = new Set((SQUAD as Player[]).map((p) => p.colors.skin));
+    assert.ok(tones.size > 1, 'every shipped player has the same skin');
   });
 });

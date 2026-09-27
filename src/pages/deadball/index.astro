@@ -10,6 +10,7 @@ import {
   listPackages,
 } from '../../games/deadball/presentation/registry.ts';
 import { DEFAULT_SKY_ID, SKIES } from '../../games/deadball/content/skies.js';
+import { DEFAULT_SKIN, SKINS } from '../../games/deadball/content/skins.js';
 import { DISCIPLINES } from '../../games/deadball/core/setpiece.ts';
 import { SWEEP_SWEET_ZONE } from '../../games/deadball/core/units.ts';
 import { tuningFingerprint } from '../../games/deadball/core/tuning.ts';
@@ -373,6 +374,26 @@ const looks = listPackages();
           <div class="choices" id="foot-choices">
             <button type="button" data-foot="left" aria-pressed="false">Left</button>
             <button type="button" data-foot="right" aria-pressed="true">Right</button>
+          </div>
+
+          {/*
+            Swatches rather than a colour picker, so every choice is a skin
+            tone. The list is content/skins.js, meant to be edited.
+          */}
+          <h3 id="skin-heading">Skin</h3>
+          <div id="skin-choices" role="radiogroup" aria-labelledby="skin-heading">
+            {
+              SKINS.map((tone, i) => (
+                <button
+                  type="button"
+                  role="radio"
+                  data-skin={tone}
+                  aria-checked={String(tone === DEFAULT_SKIN)}
+                  aria-label={`Skin tone ${i + 1} of ${SKINS.length}`}
+                  style={`background:${tone}`}
+                />
+              ))
+            }
           </div>
 
           <div class="kit">
@@ -1168,6 +1189,16 @@ const looks = listPackages();
           });
         }
 
+        const skinButtons = [...document.querySelectorAll<HTMLButtonElement>('#skin-choices button')];
+        let skin = DEFAULT_SKIN;
+        const pickSkin = (tone: string): void => {
+          skin = tone;
+          for (const button of skinButtons) button.setAttribute('aria-checked', String(button.dataset.skin === tone));
+        };
+        for (const button of skinButtons) {
+          button.addEventListener('click', () => pickSkin(button.dataset.skin ?? DEFAULT_SKIN));
+        }
+
         inventButton?.addEventListener('click', () => showForm(true));
         document.getElementById('player-cancel')?.addEventListener('click', () => showForm(false));
 
@@ -1183,12 +1214,13 @@ const looks = listPackages();
             composure: Number(field('skill-composure')?.value),
             dip: Number(field('skill-dip')?.value),
             foot,
-            colors: { kit: field('kit-colour')?.value, trim: field('trim-colour')?.value },
+            colors: { kit: field('kit-colour')?.value, trim: field('trim-colour')?.value, skin },
           });
           // Straight to being them, because looking at your footballer is the
           // whole reason for the form.
           if (id) game.usePlayer(id);
           if (playerForm) playerForm.reset();
+          pickSkin(DEFAULT_SKIN);
           paintSkills();
           showForm(false);
           paintPlayers();
@@ -2514,6 +2546,34 @@ const looks = listPackages();
     border-color: #7dd3fc;
     background: rgba(125, 211, 252, 0.2);
     font-weight: 600;
+  }
+
+  #skin-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  #skin-choices button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.18);
+    cursor: pointer;
+  }
+
+  /* The chosen one: a ring outside the swatch, so the tone itself is never
+     covered by the mark that says it is chosen. */
+  #skin-choices button[aria-checked='true'] {
+    border-color: #0b1a2e;
+    box-shadow: 0 0 0 2px #7dd3fc;
+  }
+
+  #skin-choices button:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 3px;
   }
 
   :global(.swatch) {

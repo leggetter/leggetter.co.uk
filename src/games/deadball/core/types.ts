@@ -327,6 +327,13 @@ export interface FrameState {
   /** Live aim while a drag is in progress, for the preview. */
   aiming: ShotInput | null;
   /**
+   * In a two-device game, the strip each side chose, in shootout order:
+   * whoever shoots first, then the other. See net/strips.ts. Absent anywhere
+   * else, and until the room has said: the sides are then dressed from this
+   * device's own Kits.
+   */
+  strips?: [{ kit: string; trim: string }, { kit: string; trim: string }];
+  /**
    * The skin tone of whoever is taking this kick, when it is known: your own
    * footballer, or the other side's in a room. Absent for the computer, which
    * is drawn in the default tone.

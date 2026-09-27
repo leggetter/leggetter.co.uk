@@ -266,8 +266,22 @@ function fromHsl(h: number, s: number, l: number): string {
  * One call site for the derivation, so the taker, the two keepers and the
  * halfway line cannot disagree about who is wearing what.
  */
-export const kitsFor = (frame: FrameState): TeamKits =>
-  teamKits(frame.player.colors.kit, frame.player.colors.trim, frame.kits);
+export const kitsFor = (frame: FrameState): TeamKits => {
+  const strips = frame.strips;
+  if (!strips) return teamKits(frame.player.colors.kit, frame.player.colors.trim, frame.kits);
+  // Each side in the strip it chose. `own` is whoever shoots first and is
+  // never moved; the second is moved clear of it only if the two clash, and
+  // since both devices are handed the same pair in the same order they make
+  // the same adjustment. The keepers still come from this device's Kits.
+  const [first, second] = strips;
+  return teamKits(first.kit, first.trim, {
+    ...frame.kits,
+    own: first.kit,
+    ownTrim: first.trim,
+    other: second.kit,
+    otherTrim: second.trim,
+  });
+};
 
 /**
  * What the figure on the spot is wearing.

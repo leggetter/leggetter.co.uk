@@ -322,6 +322,13 @@ export interface FrameState {
   /** Live aim while a drag is in progress, for the preview. */
   aiming: ShotInput | null;
   /**
+   * In a two-device game, the strip each side chose, in shootout order:
+   * whoever shoots first, then the other. See net/strips.ts. Absent anywhere
+   * else, and until the room has said: the sides are then dressed from this
+   * device's own Kits.
+   */
+  strips?: [{ kit: string; trim: string }, { kit: string; trim: string }];
+  /**
    * What the shot log knows, computed once when the shootout ends rather than
    * every frame. Typed loosely here because core/ must not import telemetry:
    * the simulation has no business knowing that a log exists.

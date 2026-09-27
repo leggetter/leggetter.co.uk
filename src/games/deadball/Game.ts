@@ -50,6 +50,7 @@ const unit = (v: number): number => Math.max(0, Math.min(1, v / 100));
 // resolves a remote free kick with the same number; see core/kick.ts.
 import { FREE_KICK_AIM_EASE } from './core/kick.ts';
 import { replayShot, strikeReplay, verdict, type Replay } from './net/replay.ts';
+import { shootoutStrips, type Strip } from './net/strips.ts';
 import { idleDrift, planKeeper } from './core/keeper.ts';
 import {
   inSuddenDeath,
@@ -344,6 +345,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
   // `player` is no longer a constructor argument: it changes while the game is
   // running, which is the whole point of Phase 4.
   let player: Player = playerFor(squad, settings.playerId ?? options.player?.id);
+  /** Both sides' own strips in a room, in shootout order, once the room has said. See net/strips.ts. */
+  let strips: [Strip, Strip] | undefined;
 
   const saveCustom = (): void => {
     void storage.set(KEYS.customSquad, customOf(squad));
@@ -585,6 +588,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
     const bySeat = [message.teams[0].name, message.teams[1].name] as const;
     const first = link.first;
     names = [bySeat[first] || names[0], bySeat[1 - first] || names[1]] as DuelNames;
+    // Each side in the strip it chose, in the same order as the names.
+    strips = shootoutStrips(message.teams, first);
 
     /*
       Not while the ball is on its way.
@@ -744,6 +749,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     taker: match.taker,
     keeperSide: keeperSide(match),
     remote: link !== null,
+    strips: link ? strips : undefined,
     yourShot: myShot(),
     yourGoal: myGoal(),
     together,
@@ -1345,6 +1351,8 @@ export async function startGame(options: GameOptions): Promise<Game> {
      */
     connect(transport: Transport, side: Side, first: Side, teams: DuelNames): void {
       link = { transport, side, first };
+      // Last room's strips must not dress this one before it has said.
+      strips = undefined;
       // Named `teams` rather than `names`: the parameter was called `names`
       // and shadowed the closure variable of the same name, so assigning to it
       // set the argument and both sides stayed Player 1 and Player 2.
@@ -1364,6 +1372,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     disconnect(): void {
       link?.transport.close();
       link = null;
+      strips = undefined;
       resetMatch('solo');
     },
 

@@ -333,6 +333,12 @@ export interface FrameState {
    */
   takerSkin?: string;
   /**
+   * Where the shot being aimed would cross the goal line if it were struck
+   * cleanly, curl included. See core/arrival.ts. Null when not aiming, or when
+   * it would not get there. The crosshair goes here, not where it is pointed.
+   */
+  aimLanding?: { x: number; y: number } | null;
+  /**
    * What the shot log knows, computed once when the shootout ends rather than
    * every frame. Typed loosely here because core/ must not import telemetry:
    * the simulation has no business knowing that a log exists.

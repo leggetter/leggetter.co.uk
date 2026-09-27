@@ -15,7 +15,8 @@ export { STEP };
 import type { Vec3 } from './core/vec3.ts';
 import { createRng, shotSeed } from './core/rng.ts';
 import { tuningFingerprint } from './core/tuning.ts';
-import { resolveShot, spotBall, sweepAt, timingFromSweep } from './core/shot.ts';
+import { resolveShot, spotBall, sweepAt, timingFromSweep, type ShotContext } from './core/shot.ts';
+import { cleanArrival } from './core/arrival.ts';
 import { advance, createFlight, type Flight } from './core/flight.ts';
 import {
   cleanDiscipline,
@@ -723,6 +724,16 @@ export async function startGame(options: GameOptions): Promise<Game> {
   const mineThisShot = (): { at: Dive; forShot: number } | null =>
     committed?.forShot === match.shotIndex ? committed : null;
 
+  /** What a shot from here, by this player, is struck with. Shared by the kick and the aiming preview. */
+  const shotContext = (): ShotContext => ({
+    origin: piece.origin,
+    // Free kicks only. `dip` decides whether this player can go over a wall
+    // at all, and the aim is eased because the sigmas were tuned against a
+    // penalty with a clear sight of an open goal from eleven metres.
+    loft: piece.penalty ? 0 : unit(player.dip),
+    aimEase: piece.penalty ? 1 : FREE_KICK_AIM_EASE,
+  });
+
   const frameState = (): FrameState => {
   const mine = mineThisShot();
   return ({
@@ -798,6 +809,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
     /** This device has picked and is waiting. Drives the wording, not the mark. */
     locked: match.phase === 'keeping' && mine !== null,
     aiming,
+    aimLanding: aiming ? cleanArrival({ ...aiming, style: styleId }, player, shotContext()) : null,
     summary,
     timingMarker: aiming ? sweepMarker : null,
   });
@@ -820,15 +832,7 @@ export async function startGame(options: GameOptions): Promise<Game> {
 
     // Pressure rises on the last penalty, which is what composure reads.
     const pressure = match.shotIndex >= match.shotsTotal - 1 ? 1 : 0;
-    const shot = resolveShot(input, player, rng, {
-      origin: piece.origin,
-      // Free kicks only. `dip` decides whether this player can go over a wall
-      // at all, and the aim is eased because the sigmas were tuned against a
-      // penalty with a clear sight of an open goal from eleven metres.
-      loft: piece.penalty ? 0 : unit(player.dip),
-      aimEase: piece.penalty ? 1 : FREE_KICK_AIM_EASE,
-      pressure,
-    });
+    const shot = resolveShot(input, player, rng, { ...shotContext(), pressure });
 
     // The shot is decided here, but the ball does not move until the taker
     // gets to it. Captured at release: wherever the shuffle had reached is

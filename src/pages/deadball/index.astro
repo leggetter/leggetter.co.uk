@@ -396,13 +396,6 @@ const looks = listPackages();
             }
           </div>
 
-          <div class="kit">
-            <label for="kit-colour">Shirt</label>
-            <input id="kit-colour" type="color" value="#2f6fd0" />
-            <label for="trim-colour">Trim</label>
-            <input id="trim-colour" type="color" value="#f4f6f8" />
-          </div>
-
           <div id="player-form-actions">
             <button type="submit">Add</button>
             <button type="button" id="player-cancel">Cancel</button>
@@ -424,14 +417,12 @@ const looks = listPackages();
           a bare default. That has caught this page three times.
 
           No values in the markup. The defaults are derived - your side from
-          whoever is taking the penalties, theirs from the away colour - and
-          writing them here would be a second copy to keep in step. The script
-          fills them in, and fills them in again when the taker changes.
+          OWN_KIT, theirs from the away colour - and writing them here would be
+          a second copy to keep in step. The script fills them in.
         */}
         <h3>Kits</h3>
-        <p id="kit-note">Four strips, all six pairs on screen at once. Two that
-          land too close together get nudged apart, and a keeper's shorts follow
-          their own shirt.</p>
+        <p id="kit-note">Your team's colours and the other team's. If two are
+          too alike to tell apart, the game adjusts one.</p>
 
         <div class="strips">
           <span></span>
@@ -749,7 +740,7 @@ const looks = listPackages();
   // The derivation, so the swatches show what the pitch will actually draw
   // rather than what was stored. Five of the six are defaults most of the
   // time, and a default that has been nudged off a clash is still the answer.
-  import { teamKits } from '../../games/deadball/presentation/toolkit/kits';
+  import { OWN_KIT, OWN_TRIM, teamKits } from '../../games/deadball/presentation/toolkit/kits';
 
   const canvas = document.getElementById('pitch');
 
@@ -1113,8 +1104,9 @@ const looks = listPackages();
               button.setAttribute('aria-pressed', String(entry.id === current));
               const swatch = document.createElement('span');
               swatch.className = 'swatch';
-              swatch.style.background = entry.colors.kit;
-              swatch.style.borderColor = entry.colors.trim;
+              // Their skin tone: the one thing about how a footballer looks
+              // that is theirs. The strip is the team's.
+              swatch.style.background = entry.colors.skin ?? DEFAULT_SKIN;
               const label = document.createElement('span');
               // textContent, not innerHTML: this name was typed into a box.
               label.textContent = entry.name;
@@ -1215,7 +1207,8 @@ const looks = listPackages();
             composure: Number(field('skill-composure')?.value),
             dip: Number(field('skill-dip')?.value),
             foot,
-            colors: { kit: field('kit-colour')?.value, trim: field('trim-colour')?.value, skin },
+            // Only the skin. The strip is the team's, chosen under Kits.
+            colors: { skin },
           });
           // Straight to being them, because looking at your footballer is the
           // whole reason for the form.
@@ -1259,9 +1252,7 @@ const looks = listPackages();
          * left alone until the gesture commits and `change` repaints the lot.
          */
         const paintKits = (except?: HTMLInputElement | null) => {
-          const chosen = game.squad().find((p) => p.id === game.currentPlayerId());
-          if (!chosen) return;
-          const kits = teamKits(chosen.colors.kit, chosen.colors.trim, game.kitOverrides());
+          const kits = teamKits(OWN_KIT, OWN_TRIM, game.kitOverrides());
           const showing = {
             own: kits.own.kit,
             ownTrim: kits.own.trim,
@@ -1380,7 +1371,9 @@ const looks = listPackages();
             // A squad rather than a player, because the intention is that every
             // kick is taken by a different one of them.
             squad: chosen ? [chosen] : [],
-            kit: { kit: chosen?.colors.kit ?? '#2f6fd0', trim: chosen?.colors.trim ?? '#f4f6f8' },
+            // The strip this side is wearing, as Kits resolves it. Nothing on
+            // the other device reads it yet.
+            kit: teamKits(OWN_KIT, OWN_TRIM, game.kitOverrides()).own,
           };
         };
 
@@ -2695,30 +2688,8 @@ const looks = listPackages();
     accent-color: #7dd3fc;
   }
 
-  .kit {
-    display: grid;
-    grid-template-columns: auto 1fr auto 1fr;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  .kit label {
-    margin: 0;
-  }
-
-  .kit input[type='color'] {
-    width: 100%;
-    height: 30px;
-    padding: 0;
-    border-radius: 7px;
-    border: 1px solid rgba(125, 211, 252, 0.3);
-    background: #061426;
-    cursor: pointer;
-  }
-
-  /* Four columns rather than the invent form's two: a row per side, and the
-     shirt, the shorts and the keeper across it. Reading down a column compares
+  /* Four columns: a row per side, and the shirt, the shorts and the keeper
+     across it. Reading down a column compares
      the two sides, which is the comparison that matters. */
   .strips {
     display: grid;

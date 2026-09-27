@@ -53,8 +53,6 @@ import type { Projector } from '../toolkit/project.ts';
 
 const HALF_GOAL = GOAL_WIDTH / 2;
 
-/** Roughly how far a full curl moves a penalty, in meters. See MAGNUS_FACTOR. */
-const PENALTY_FULL_CURL = 0.5;
 
 /** Half-width of the visible pitch. Beyond this is out of frame anyway. */
 const PITCH_HALF = 34;
@@ -816,31 +814,36 @@ export function drawBall(ctx: Ctx, proj: Projector, position: Vec3): void {
 }
 
 /**
- * The path the aiming guide draws, from the ball to where it is aimed.
+ * The path the aiming guide draws: from the ball to where it will land.
  *
- * **It bends the way the ball does.** The ball leaves the boot along the aim
- * line and the spin pushes it one way the whole flight, so the bend grows
- * with the square of the time and the ball finishes off to that side of the
- * aim - `t * t`, not a bow. The guide used to be a bow that peaked mid-flight
- * and came back to the aim point, which from behind the taker reads as a
- * ball swinging back the other way: reported as "the ball seems to bend the
- * opposite way of the indicator arrow", and it was, relative to the straight
- * line. `curve.test.ts` flies real shots through core/ and holds the two to
- * the same side.
+ * **It ends where the ball lands, and so does the crosshair.** `landing` is
+ * core/'s answer for a clean strike, curl included (`FrameState.aimLanding`).
+ * The guide used to be a bow of a made-up size that came back to where the
+ * shot was pointed, which bent the wrong way off the straight line - "the
+ * ball seems to bend the opposite way of the indicator arrow" - and, once
+ * that was fixed, finished beside the crosshair instead of in it: "it's
+ * possible for the dotted yellow shot line not to meet with the center of
+ * the crosshair".
  *
- * Scaled to the deflection a full curl gives a penalty, so the size is a
- * promise too, not decoration.
+ * **It leaves the boot along the pointed line and bends onto the landing**,
+ * with the bend growing as the square of the way along, as spin does: the
+ * ball does not jink sideways off the boot. `curve.test.ts` flies real shots
+ * through core/ and holds the guide to the same side as the ball.
+ *
+ * With no landing - not aiming at anything that reaches the line - it is the
+ * straight line to where the shot is pointed.
  */
-export function aimPath(from: Vec3, target: Vec3, curve: number, steps = 16): Vec3[] {
+export function aimPath(from: Vec3, pointed: Vec3, landing: Vec3 | null, steps = 16): Vec3[] {
+  const end = landing ?? pointed;
   const points: Vec3[] = [];
   for (let i = 0; i <= steps; i++) {
     const t = i / steps;
-    const bend = curve * PENALTY_FULL_CURL * t * t;
+    const bend = t * t;
     points.push(
       vec(
-        from.x + (target.x - from.x) * t + bend,
-        from.y + (target.y - from.y) * t + Math.sin(Math.PI * t) * 0.25,
-        from.z + (target.z - from.z) * t
+        from.x + (pointed.x - from.x) * t + (end.x - pointed.x) * bend,
+        from.y + (pointed.y - from.y) * t + (end.y - pointed.y) * bend + Math.sin(Math.PI * t) * 0.25,
+        from.z + (pointed.z - from.z) * t + (end.z - pointed.z) * bend
       )
     );
   }
@@ -867,9 +870,12 @@ export function drawAim(ctx: Ctx, proj: Projector, frame: FrameState): void {
   ctx.lineWidth = 2;
   ctx.globalAlpha = 0.55 + 0.45 * input.power;
 
-  strokeWorld(ctx, proj, aimPath(from, target, input.curve), COLORS.aim, 2);
+  const landing = frame.aimLanding ? vec(frame.aimLanding.x, frame.aimLanding.y, 0) : null;
+  const path = aimPath(from, target, landing);
+  strokeWorld(ctx, proj, path, COLORS.aim, 2);
 
-  const reticle = proj.project(target);
+  // On the last point of the guide itself, so the two cannot come apart.
+  const reticle = proj.project(path[path.length - 1]!);
   if (reticle) {
     ctx.setLineDash([]);
     ctx.globalAlpha = 1;

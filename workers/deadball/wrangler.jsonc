@@ -33,7 +33,7 @@
 
   // How fast one address may mint rooms.
   //
-  // Five a minute nominal, which is not what you actually get - the limiter is
+  // Thirty a minute nominal, which is not what you actually get - the limiter is
   // per-isolate with eventually-consistent counters and documented as
   // permissive. Both numbers below were measured against deadball-rooms-dev
   // rather than reasoned about:
@@ -42,15 +42,18 @@
   //   limit 5    burst of 300 -> 107 allowed
   //   limit 5    a person starting 6 games over 70s -> all 6 allowed
   //
-  // So five costs a real player nothing and cuts a script nearly twice as hard
-  // as twenty did. A tighter number would not buy much more: sequential
-  // requests spread across isolates and mostly slip through whatever this says.
+  // Five cut a script nearly twice as hard as twenty did, and was the number
+  // for a while. It is thirty now, because a whole school is one address: a
+  // class starting games at once is exactly the burst the limiter is good at
+  // stopping, and that is the wrong burst to stop. A script still meets a
+  // limit; it just meets a looser one. Sequential requests spread across
+  // isolates and mostly slip through whatever this says either way.
   //
   // It does not make the endpoint safe, and is not meant to. Counters are also
   // per Cloudflare location, so the same script run from two places gets two
   // allowances, and anybody spread across addresses is not counted at all.
   // What it buys is that the cheapest version of the attack stops working.
-  "ratelimits": [{ "name": "MINTING", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }],
+  "ratelimits": [{ "name": "MINTING", "namespace_id": "1001", "simple": { "limit": 30, "period": 60 } }],
 
   "observability": { "enabled": true },
 
@@ -74,7 +77,7 @@
         { "binding": "RESULTS", "dataset": "deadball_matches_dev" }
       ],
       "ratelimits": [
-        { "name": "MINTING", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } }
+        { "name": "MINTING", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } }
       ],
       "observability": { "enabled": true }
     }

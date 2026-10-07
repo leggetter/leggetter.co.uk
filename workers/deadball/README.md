@@ -213,7 +213,8 @@ turns up at runtime as an undefined.
 ## Nothing stops anyone minting rooms, so this slows them down
 
 There is no account here and no key: the room id *is* the key. So `POST /room`
-counts by address, five a minute, and answers 429 beyond that.
+counts by address, thirty a minute, and answers 429 beyond that. The page
+shows what the 429 says.
 
 **The nominal number is not what you get, so it was measured rather than
 chosen.** Cloudflare's limiter is per-location and per-isolate with
@@ -228,13 +229,18 @@ intentionally designed to not be used as an accurate accounting system".
 
 Thirty requests sent *one at a time* never tripped a limit of 20 at all - they
 spread across enough isolates that no single counter noticed. That is why the
-number ended up at five: it costs a real player nothing, and going tighter
+number was five at first: it cost one real player nothing, and going tighter
 would not buy much, because sequential requests slip through regardless.
+
+**It is thirty now, because of schools.** A whole school is one address, and a
+class starting games together is a burst - the one thing this limiter reliably
+stops. Reported from a school as the invite not appearing, which is also what a
+filter blocking `workers.dev` looks like; the page now says which it was.
 
 So read the limit as a speed bump with a number on it, not a wall. It stops one
 machine in a loop, which is the realistic version of this. It does nothing to
 anybody spread across addresses, and a limit tight enough to matter there would
-be tight enough to refuse a family.
+be tight enough to refuse a family, or a school.
 
 Two deliberate omissions:
 

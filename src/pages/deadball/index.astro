@@ -201,6 +201,7 @@ const looks = listPackages();
         <h2 id="lobby-heading">Waiting for somebody</h2>
         <p id="lobby-line"><b id="lobby-team">Your team</b> vs <span id="lobby-other">waiting…</span></p>
         <p id="lobby-kick">Penalties shootout</p>
+        <p id="lobby-error" role="alert" hidden></p>
 
         <div id="lobby-qr" aria-hidden="true"></div>
 
@@ -1012,6 +1013,13 @@ const looks = listPackages();
                 const label =
                   DISCIPLINES.find((d) => d.id === pendingKick)?.label ?? 'Penalties';
                 showLobby(id, name, label);
+              })
+              // Said, not swallowed. This used to fail in silence: the dialog
+              // closed and nothing else happened, reported as the QR code and
+              // link "not appearing".
+              .catch((error: unknown) => {
+                console.error('[deadball] could not start a two-device game', error);
+                showLobbyError(error instanceof Error ? error.message : String(error));
               });
             return;
           }
@@ -1426,8 +1434,30 @@ const looks = listPackages();
           });
         };
 
+        /** The parts of the lobby that only make sense when there is a room to share. */
+        const lobbyRoomParts = ['lobby-line', 'lobby-kick', 'lobby-qr', 'lobby-link', 'lobby-copy'];
+        const lobbyError = document.getElementById('lobby-error');
+        const lobbyCancel = document.getElementById('lobby-cancel');
+
+        /** The lobby, saying why there is no room to share. */
+        const showLobbyError = (message: string) => {
+          setLobbyText('lobby-heading', "Couldn't start a two-device game");
+          for (const part of lobbyRoomParts) document.getElementById(part)?.toggleAttribute('hidden', true);
+          document.getElementById('lobby-share')?.toggleAttribute('hidden', true);
+          if (lobbyError) {
+            lobbyError.textContent = message;
+            lobbyError.hidden = false;
+          }
+          if (lobbyCancel) lobbyCancel.textContent = 'Close';
+          if (!lobby?.open) lobby?.showModal();
+        };
+
         /** Put a room on screen: code, link, and something to point a camera at. */
         const showLobby = (id: string, team: string, kick: string) => {
+          // Back from an error, if the last attempt failed.
+          for (const part of lobbyRoomParts) document.getElementById(part)?.toggleAttribute('hidden', false);
+          if (lobbyError) lobbyError.hidden = true;
+          if (lobbyCancel) lobbyCancel.textContent = 'Cancel';
           const link = linkTo(id, new URL(window.location.href));
           setLobbyText('lobby-team', team || 'Your team');
           setLobbyText('lobby-other', 'waiting…');
@@ -3028,6 +3058,13 @@ const looks = listPackages();
   #lobby-line {
     margin: 0 0 2px;
     font-size: 15px;
+  }
+
+  #lobby-error {
+    margin: 4px 0 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #f3c969;
   }
 
   #lobby-kick {

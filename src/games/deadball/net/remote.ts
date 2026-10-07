@@ -140,6 +140,33 @@ function connect(base: string, id: string, token: string, join: Outbound): Trans
  * `base` is where the game server lives, which is a different origin from the
  * page - the site is static files and this is the one thing with a runtime.
  */
+/**
+ * Why a two-device game could not be started, in words for the person trying.
+ *
+ * Starting one used to fail in silence: the "2 players" dialog closed, the
+ * request failed, and nothing else happened. Reported from a school, where
+ * everybody shares one address (so shares the rate limit) and filters often
+ * block unfamiliar servers, as "the QR code and share link dialog isn't
+ * appearing". The two causes need different answers, so they are told apart.
+ */
+export class HostError extends Error {
+  /** No answer at all, or an answer that was no. */
+  readonly reason: 'unreachable' | 'refused';
+
+  constructor(reason: 'unreachable' | 'refused', message: string) {
+    super(message);
+    this.name = 'HostError';
+    this.reason = reason;
+  }
+}
+
+export const UNREACHABLE =
+  "Couldn't reach the game server. A school or work network, or an ad blocker, may be blocking it.";
+// An answer with no explanation in it is as likely to be a filter's block
+// page as the server, so this one says both.
+export const REFUSED =
+  "Couldn't start a game just now. Try again in a minute. If it keeps happening, the network you're on may be blocking the game server.";
+
 export function createRemoteTransport(
   base: string,
   storage: Pick<Storage, 'getItem' | 'setItem'>
@@ -153,22 +180,37 @@ export function createRemoteTransport(
   return {
     async host(settings: RoomSettings, team: TeamOnTheWire) {
       const id = mintId();
-      const made = await fetch(`${base}/room`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        // `play` says a person opened this, and it is the only thing that
-        // does. The first version left real games untagged and treated an
-        // empty tag as real - which quietly counted every room a script ever
-        // minted, because a bare curl sends no tag either. Sixty-one abandoned
-        // rooms from a rate-limit test turned up in the numbers looking
-        // exactly like sixty-one people who never finished a shootout.
-        //
-        // Inverted, so the game has to declare itself and silence means noise.
-        // Not tamper-proof and not meant to be: anybody can send `play`, and
-        // the worst they achieve is adding themselves to a graph.
-        body: JSON.stringify({ id, settings, seed: freshSeed(), tag: 'play' }),
-      });
-      if (!made.ok) throw new Error('Could not open a game.');
+      let made: Response;
+      try {
+        made = await fetch(`${base}/room`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          // `play` says a person opened this, and it is the only thing that
+          // does. The first version left real games untagged and treated an
+          // empty tag as real - which quietly counted every room a script ever
+          // minted, because a bare curl sends no tag either. Sixty-one abandoned
+          // rooms from a rate-limit test turned up in the numbers looking
+          // exactly like sixty-one people who never finished a shootout.
+          //
+          // Inverted, so the game has to declare itself and silence means noise.
+          // Not tamper-proof and not meant to be: anybody can send `play`, and
+          // the worst they achieve is adding themselves to a graph.
+          body: JSON.stringify({ id, settings, seed: freshSeed(), tag: 'play' }),
+        });
+      } catch {
+        // Never got an answer: offline, or something between here and the
+        // server dropped it. A school or office filter is the usual one.
+        throw new HostError('unreachable', UNREACHABLE);
+      }
+      if (!made.ok) {
+        // The server's own words when it gave any - the rate limit says why
+        // and when to try again, which is the whole of what a player needs.
+        const said = await made
+          .json()
+          .then((body: { error?: unknown }) => (typeof body?.error === 'string' ? body.error : null))
+          .catch(() => null);
+        throw new HostError('refused', said ?? REFUSED);
+      }
       return {
         id,
         transport: connect(base, id, token, {

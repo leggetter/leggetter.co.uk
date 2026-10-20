@@ -462,46 +462,12 @@ pre:not(.astro-code) {
   padding: var(--space-l);
 }
 
-.sidebar-card h2 {
-  margin-top: 0;
-  font-size: var(--step-1);
-}
-
 .sidebar-card .avatar {
   display: block;
   width: 9rem;
   height: 9rem;
   border-radius: 50%;
   margin: 0 auto var(--space-m);
-}
-
-.subscribe-form {
-  display: flex;
-  gap: var(--space-xs);
-}
-
-.subscribe-form input[type="email"] {
-  flex: 1;
-  min-width: 0;
-  padding: var(--space-xs) var(--space-s);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font: inherit;
-  font-size: var(--step--1);
-}
-
-.subscribe-form button {
-  padding: var(--space-xs) var(--space-m);
-  border: 0;
-  border-radius: 6px;
-  background: var(--color-accent);
-  color: var(--color-accent-contrast);
-  font: inherit;
-  font-size: var(--step--1);
-  font-weight: 600;
-  cursor: pointer;
 }
 
 /* --- Homepage ------------------------------------------------------------ */

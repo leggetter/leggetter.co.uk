@@ -39,7 +39,7 @@
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.4.1",
     "astro": "^7.2.9",
-    "markdown-it": "^15.0.1",
+    "markdown-it": "^15.0.3",
     "three": "^0.186.0",
     "uqr": "^0.1.3"
   },

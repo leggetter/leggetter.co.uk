@@ -216,6 +216,9 @@ pre {
   border-radius: 8px;
   border: 1px solid var(--color-border);
   overflow-x: auto;
+  /* Wrap long lines instead of scrolling sideways; break a long unbroken token if it must. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   line-height: 1.5;
   font-size: var(--step--1);
   margin: 0 0 var(--space-m);
@@ -727,6 +730,31 @@ pre:not(.astro-code) {
   border-radius: 0 6px 6px 0;
   font-size: var(--step--1);
   color: var(--color-text-muted);
+}
+
+/* The AI provenance note (src/components/AiProvenance.astro): a callout about the post,
+   styled like the draft notice but with a neutral border, since it isn't a warning. */
+.post-provenance {
+  margin-top: var(--space-l);
+  padding: var(--space-s) var(--space-m);
+  background: var(--color-bg-raised);
+  border-left: 3px solid var(--color-text-muted);
+  border-radius: 0 6px 6px 0;
+  font-size: var(--step--1);
+  color: var(--color-text-muted);
+}
+
+.post-provenance p {
+  margin: 0 0 var(--space-xs);
+}
+
+.post-provenance p:last-child {
+  margin-bottom: 0;
+}
+
+.post-provenance__label {
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .post-tags {

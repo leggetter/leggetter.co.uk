@@ -36,8 +36,51 @@ const SCAFFOLDING = [
   /\bstay with me\b/i,
 ];
 
+/**
+ * Vague verdicts: a sentence that sums up or judges without naming what it is about, so the
+ * reader has to reconstruct the subject ("Pitwall already had most of it."). Name the thing,
+ * or state the specific facts the verdict stands for.
+ */
+const VAGUE_QUANTITY = /\b(most|all|much|some|none|part|half|any|the rest|a lot|little) of (it|this|that|these|those|them)\b/i;
+
+/**
+ * The error tier, which the hand-written corpus never does: a short statement that ends on the
+ * pronoun ("Pitwall already had most of it."), or opens with one and passes judgement on it
+ * ("None of this was a surprise."). The corpus does use the phrase with a noun after it ("All of
+ * these terms play off each other."), so that shape is only counted, in the rate warning.
+ */
+const VAGUE_VERDICT = [
+  /\b(most|all|much|some|none|half|the rest|a lot) of (it|this|that|them)[.!]$/i,
+  /^(None|All|Most|Much) of (it|this|that) (was|is|felt|seemed|looked|sounds|turned out|came as|matters|mattered)\b/i,
+  // A hedge that adds nothing: zero in the corpus.
+  /\bfor what it('?s| is) worth\b/i,
+];
+
+/**
+ * The warning tier: openers that restate, or point at "the same idea" or "the other half" without
+ * naming it. The corpus has a handful, and each one goes on to name something concrete ("The other
+ * thing that PubSubHubbub does is define the message format."), so check the sentence does too.
+ */
+const VAGUE_OPENERS = [
+  /^(In other words|Put another way|Put simply|Simply put|In short|Put differently),/i,
+  /^(The|That|This) (same|other|whole|real) (idea|half|part|point|thing|problem|story|catch|difference)\b/i,
+];
+
+/**
+ * A neat callback: a short sentence that echoes an earlier point for effect and says nothing
+ * new ("Agents wrote this post, and they started clean too."). Zero in the hand-written corpus,
+ * whose short "too" sentences are plain additions ("The article is now available online too.").
+ */
+const CALLBACK = /,\s+(and|but|so)\s+(it|they|this|that|I|we|you|he|she)\b[^,]*\btoo[.!]$/i;
+
+/** The rate warning needs this many hits as well as the rate, so one hit in a short post doesn't trip it. */
+const VAGUE_MIN_HITS = 3;
+
 /** Main clause + comma + short withholding teaser. */
 const TEASER = /,\s+and it'?s (recent|new|worse|subtle|important|deliberate|not)\b[^.]*\./i;
+
+/** A heading that opens with a negative tells the reader what not to do. */
+const NEGATIVE_HEAD = /^(Don'?t|Do Not|Never|Avoid|Stop|No|Not|Why Not|Without|Mistakes?|Problems? With|Pitfalls?)\b/i;
 
 /** A heading that ends in a bare pronoun only resolves from its neighbour. */
 const DANGLING_HEAD = /\b(one|it|this|that|these|those|them|they)\s*[?.!]?\s*$/i;
@@ -93,6 +136,10 @@ function metrics(text) {
     // report; too many reads like a tic, and the draft that prompted this rule had
     // one every 200 words where the corpus averages one every 580.
     butInitialPer1k: per1k((text.match(/(?:^|(?<=[.!?]\s))But\s/gm) || []).length),
+    // "Most of it", "all of this", "none of this": a pronoun standing in for a thing the
+    // sentence never names. The corpus does it about 0.07 times per 1k words; the draft
+    // that prompted this rule did it 3.3 times per 1k.
+    vaguePer1k: per1k(sentences(text).filter((s) => VAGUE_QUANTITY.test(s)).length),
   };
 }
 
@@ -103,6 +150,7 @@ async function baseline() {
     const raw = await readFile(path.join(BLOG, f), 'utf8');
     if (isDraft(raw)) continue;
     const m = metrics(prose(raw));
+    m.aiAssisted = /^aiAssisted:\s*true\s*$/m.test(frontmatter(raw));
     if (m.words > 250) all.push(m);
   }
   const pick = (k) => median(all.map((m) => m[k]));
@@ -116,6 +164,13 @@ async function baseline() {
     // 88 of 136 posts open no sentence with "But", so the median is 0 and useless
     // as a comparator. The mean is the honest baseline here.
     butInitialPer1k: all.reduce((n, x) => n + x.butInitialPer1k, 0) / Math.max(all.length, 1),
+    // Most posts have no "most of it" at all, so the median is 0, and a per-post mean is
+    // skewed by short posts with one hit. Pool it instead: every hit over every word, in
+    // hand-written posts only, since AI-assisted prose is what this measure guards against.
+    vaguePer1k: (() => {
+      const hand = all.filter((x) => !x.aiAssisted);
+      return hand.reduce((n, x) => n + x.vaguePer1k * x.words, 0) / Math.max(hand.reduce((n, x) => n + x.words, 0), 1);
+    })(),
     emDashTotal: all.reduce((n, m) => n + m.emDashPer1k, 0),
   };
 }
@@ -149,6 +204,22 @@ for (const s of sentences(text)) {
     errors.push(`${target}:${n > -1 ? n + 1 : '?'}  announces a point instead of making it: "${s.slice(0, 90)}"`);
   }
 }
+// --- ERROR: vague verdicts --------------------------------------------------
+for (const s of sentences(text)) {
+  const where = () => {
+    const n = lines.findIndex((l) => l.includes(s.slice(0, 40)));
+    return n > -1 ? n + 1 : '?';
+  };
+  if ((s.split(/\s+/).length <= 9 && VAGUE_VERDICT[0].test(s)) || VAGUE_VERDICT[1].test(s)) {
+    errors.push(`${target}:${where()}  vague verdict, name what "${s.match(VAGUE_QUANTITY)[0]}" stands for: "${s.slice(0, 90)}"`);
+  } else if (s.split(/\s+/).length <= 12 && CALLBACK.test(s)) {
+    errors.push(`${target}:${where()}  neat callback that echoes a point for effect; say the specific fact instead: "${s.slice(0, 90)}"`);
+  } else if (VAGUE_VERDICT[2].test(s)) {
+    errors.push(`${target}:${where()}  a hedge that adds nothing ("for what it's worth"): "${s.slice(0, 90)}"`);
+  } else if (VAGUE_OPENERS.some((re) => re.test(s))) {
+    warns.push(`${target}:${where()}  opener that restates or points at something unnamed, so check the sentence names it: "${s.slice(0, 90)}"`);
+  }
+}
 if (TEASER.test(text)) {
   const s = sentences(text).find((x) => TEASER.test(x)) ?? '';
   errors.push(`${target}  withholding teaser clause: "${s.slice(0, 90)}"`);
@@ -160,6 +231,19 @@ lines.forEach((l, i) => {
     const t = l.replace(/^#+\s*/, '').trim();
     if (DANGLING_HEAD.test(t)) {
       errors.push(`${target}:${i + 1}  heading ends in a bare pronoun, so it only resolves from its neighbour: "${t}"`);
+    }
+    // Headings say what to do, not what not to do. None of the 180 published headings opens
+    // with a negative except one in an AI-assisted post. A heading that names the problem
+    // ("A Pointer to a 353 KB Plan") is the same fault, but only a reader can catch that one.
+    if (NEGATIVE_HEAD.test(t)) {
+      errors.push(`${target}:${i + 1}  heading says what not to do; name what to do instead: "${t}"`);
+    }
+    // A heading is read on its own, so a pronoun in it points at nothing. Hand-written headings
+    // have two (a dummy "It's" and a quoted talk title); AI-assisted ones had "Is It Working?",
+    // "While It Runs" and "After It Ships". A warning, since a quoted title can be legitimate.
+    const pronoun = t.match(/\b(it|this|that|they|them|these|those)\b/i);
+    if (pronoun && !DANGLING_HEAD.test(t)) {
+      warns.push(`${target}:${i + 1}  heading uses "${pronoun[1]}", which points at nothing when the heading is read on its own: "${t}"`);
     }
   }
 });
@@ -197,6 +281,10 @@ const drift = (label, got, want, tol, unit = '') => {
 };
 drift('median sentence length', m.medianSentence, base.medianSentence, 3, ' words');
 drift('fragments (<=6 words)', m.fragmentPct, base.fragmentPct, 6, '%');
+if (sentences(text).filter((s) => VAGUE_QUANTITY.test(s)).length >= VAGUE_MIN_HITS && m.vaguePer1k > Math.max(base.vaguePer1k * 3, 0.5)) {
+  const found = sentences(text).filter((s) => VAGUE_QUANTITY.test(s)).map((s) => `    ${s.slice(0, 90)}`);
+  warns.push(`"most of it", "all of this" and the like: ${m.vaguePer1k.toFixed(1)}/1k vs corpus ${base.vaguePer1k.toFixed(1)}/1k. Name the thing each stands for:\n${found.join('\n')}`);
+}
 if (m.youPer1k < base.youPer1k * 0.6) {
   warns.push(`reader address low: "you" ${m.youPer1k.toFixed(1)}/1k vs corpus ${base.youPer1k.toFixed(1)}/1k`);
 }
@@ -271,6 +359,25 @@ for (const para of paras) {
   // a noun or number right after the verb means the sentence names its own subject
   if (/\b(a|an|the|\d|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|twenty)\b/i.test(m[3])) continue;
   warns.push(`paragraph opens with a bare "${m[1]}", which loses its referent across the break: "${para.slice(0, 70)}..."`);
+}
+
+// 2a. Pronouns the reader has to resolve. Each must point at one named noun, and fit every
+// verb it's attached to. Measured on the hand-written corpus (118k words): a paragraph opening
+// "That's" or "This's" appears zero times; "the others" or "the rest" with no noun once; a list
+// of verbs sharing one "them" or "it" zero times. The draft that prompted this had all three:
+// "That's discounted while...", "each of the others in turn", "read, message and start them",
+// where you can't start a session that already exists.
+for (const para of paras) {
+  if (/^[#\-*|>0-9]/.test(para)) continue;
+  if (/^(That|This)['’]s\b/.test(para)) {
+    errors.push(`${target}  paragraph opens with "${para.slice(0, 6)}", which loses its referent across the break; name the thing: "${para.slice(0, 70)}..."`);
+  }
+}
+for (const s of sentences(text)) {
+  const others = s.match(/\b(the others|the rest)\b(?!\s+of\b)(?=\s*(?:[.,;:)!?]|in turn\b|instead\b|too\b|as well\b|$))/i);
+  if (others) warns.push(`"${others[0]}" with no noun, so the reader works out "other what?": "${s.slice(0, 80)}..."`);
+  const list = s.match(/\b(\w+), (\w+),? and (\w+) (them|it)\b/i);
+  if (list) warns.push(`"${list[0]}" shares one "${list[4]}" between three verbs; check each verb fits what "${list[4]}" means: "${s.slice(0, 80)}..."`);
 }
 
 // 2b. A pro-form pointing at something the reader has not met yet. Two shapes,

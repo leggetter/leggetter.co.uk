@@ -58,11 +58,70 @@ Watch for `One more thing`, `Here's the thing`, `This is where it gets`,
 followed by a short withholding clause (`..., and it's recent.`) that defers
 the fact to manufacture a beat.
 
+**Don't hand down a verdict on something you haven't named.** A sentence that
+sums up or judges with a pronoun where the subject should be makes the reader
+reconstruct what it means:
+
+> ~~Pitwall already had most of it.~~
+> Pitwall already kept its state in a plan file with handoff notes, and every
+> sub-agent started with a fresh context.
+
+Watch for `most of it`, `all of this`, `none of this`, `the same idea`, `the
+other half`, `In other words,` and `for what it's worth`. The fix is the
+specific facts the verdict stands for, or deleting it. The corpus uses phrases
+like `all of these` about 0.3 times per 1,000 words, almost always straight
+after naming the thing (`All of these terms play off each other.`). The draft
+that prompted this rule ran at 3.3. `npm run voice` errors on the shapes the
+corpus never uses: a short statement that ends on the pronoun, `None of this
+was ...` and the like, and `for what it's worth`. It warns on the other openers,
+and on a post that uses the phrases at three times the corpus rate.
+
+**State the fact, not a neat callback.** "Agents wrote this post, and they
+started clean too." echoes a theme for effect and tells the reader nothing.
+Write who did what. The corpus has zero short `..., and they ... too.`
+sentences, so `npm run voice` errors on them.
+
+**Every pronoun points at one named thing, and fits every verb it's attached
+to.** Three shapes the voice check catches:
+
+> ~~lets me read, message and start them~~ (you can't start an existing session)
+> lets me read and message those sessions, and start new ones
+>
+> ~~instead of visiting each of the others~~ (other what?)
+> instead of opening each of your sessions
+>
+> ~~That's discounted while the prompt cache is warm~~ (opening a paragraph)
+> Re-reading the history is discounted while the prompt cache is warm
+
+A paragraph opening `That's` or `This's` is an error, because the corpus does
+it zero times. `the others` or `the rest` with no noun, and a list of verbs
+sharing one `them` or `it`, are warnings, because only a reader can judge
+whether they resolve. No checker catches one pronoun with two referents in a
+sentence ("The coordinator didn't write it: it started..."), so read for it.
+The full rule is in the `phil-blog-voice` skill.
+
+**Start every section as if it's the first one read.** Readers arrive at a
+section from a deep link or a skim, so neither the heading nor the sentence
+after it can lean on an earlier section. "Side by side, the sources agree"
+fails ("which sources?"); "Anthropic, the other agent tools and the
+practitioners above agree" works. The same goes for a label the post coined
+earlier ("the split") and for a pronoun in the heading ("Is It Working?").
+`npm run voice` warns on a pronoun in a heading. The section openers need a
+reader: read each heading and its first sentence with nothing above them.
+
 **Headings must stand alone.** Readers skim, deep-link and share them, so a
 heading that only resolves from the one above it is broken. `How Would You
 Signal One?` fails; `How Do You Signal a Breaking Change?` works. A one-word
 section heading like `Design` or `Running` fails the same test from the other
 direction: it resolves from nothing at all.
+
+**Headings say what to do, not what not to do.** A reader skimming headings
+should come away with the actions. `A Pointer to a 353 KB Plan` names the
+mistake; `Keep the Restart File Small` names the fix. The same goes for a
+question heading: `Why Clear Between Tasks?` beats `Why Does a Long Session
+Cost More?`. None of the hand-written headings opens with a negative, so
+`npm run voice` errors on `Don't`, `Never`, `Avoid`, `Why Not` and the like. A
+heading that names the problem without a negative word needs a reader to catch.
 
 **Keep headings short.** Measured across 143 published h2 and h3 headings, the
 median is **4 words** and the mean 4.6. A third are one or two words. Seven-word

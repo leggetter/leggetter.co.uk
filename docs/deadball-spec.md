@@ -188,9 +188,13 @@ src/games/deadball/
       stadium.ts              # sky, stands, a GPU-animated crowd, floodlights
       quality.ts              # two tiers and when to drop to the lower
       hud.ts                  # the one import from classic, the 2D overlays
+    registry.ts               # the looks on offer, and which is chosen
+    lazy.ts                   # a stand-in while a look downloads; falls back
+                              #   to classic if it cannot load
     pixel/                    # later
   input/
     drag.ts                   # Pointer Events -> DragGesture
+    typing.ts                 # is a key press typing? Every shortcut asks
     keyboard.ts               # accessible fallback aim mode (not built)
   storage/
     Storage.ts                # the interface
@@ -202,9 +206,19 @@ src/games/deadball/
                               #   see "what gets kept" in the two-devices doc,
                               #   because a remote game is counted server-side
     analyse.ts                # what the log says, for full time and offline
+  film/                       # the last shot, frame by frame: press F (#86)
+    record.ts                 # which frames to keep, and when to stop
+    develop.ts                # replays them through a muted second copy of
+                              #   the look, off screen, into stills
   net/
     Transport.ts              # two devices: the interface and the messages
-    local.ts                  # over BroadcastChannel, two tabs (not built)
+    room.ts                   # the authoritative room, run by the worker
+    remote.ts                 # the client over HTTP polling; says why a room
+                              #   could not be made (#95)
+    local.ts                  # the same, over BroadcastChannel, two tabs
+    link.ts                   # invite links: ?g=ROOMID
+    replay.ts                 # fly the room's kick, take the room's result (#82)
+    strips.ts                 # each side's chosen strip, in shootout order (#92)
   content/                    # plain JS and JSON. The low-barrier zone.
     players.js
     keepers.js
@@ -213,6 +227,9 @@ src/games/deadball/
     takers.js                 # the computers you have to save from
     shots.js                  # finesse, driven, knuckle, as multipliers
     proportions.js            # bone lengths for the jointed figure
+    skins.js                  # skin tones a footballer can have (#91)
+    skies.js                  # day, dusk and night
+    walls.js                  # how often the wall jumps, and how high
     poses.js                  # key poses and their timing: kick, keeper, wall
     teams.js                  # squads and kits, by rating (Phase 4.5)
   Game.ts                     # wiring: input -> match -> view, the frame loop
@@ -1426,11 +1443,11 @@ Each phase ends with something playable. That is the constraint, not a nicety, b
 | **3.75** ✅ | One player against the computer, alternating. See [One player against the computer](#one-player-against-the-computer) | You get to be the keeper without needing a second person |
 | **4** ✅ | `core/squad.ts`, a player picker and a custom player editor in the settings dialog, stored per device. See [Players, and inventing one](#players-and-inventing-one) | The squad is worth editing |
 | **4.5** | Teams, and a cup run against progressively better ones. Solo climbs the same ladder against their keepers. See [Teams, and a ladder to climb](#teams-and-a-ladder-to-climb) | A reason to play the next one |
-| **5** | Replay any shot from the log, through any camera. Half built: every record already carries a tuning fingerprint | Watch that again, from behind the goal |
+| **5** | Replay any shot from the log, through any camera. Part built: every record carries a tuning fingerprint, and **F** steps through the last shot frame by frame (#86). Any shot, any camera is still open (#63) | Watch that again, from behind the goal |
 | **6** ✅ | Two devices, a game per URL, no login. A separate Worker in this repository, because this site has no server at all today - now deployed, with a second one to break, a rate limit on minting rooms, and a row per game and per kick. See [Two devices, later](#two-devices-later) and [deadball-two-devices.md](deadball-two-devices.md) | Play somebody who is not in the room |
-| **7** | A second presentation package, which is the only thing that proves the boundary. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |
+| **7** ✅ | A second presentation package, which is the only thing that proves the boundary: **3D** (#88), opt-in as a preview, on a shared toolkit for bodies, poses and sound, with jointed bodies and motion in classic first (#80, #85). Follow-ups on #72. See [What else a package could be](#what-else-a-package-could-be) | The same game, twice, looking nothing alike |
 | **8** ✅ | Free kicks: three spots, a two-to-four man wall, and the `blocked` outcome reserved since Phase 1. `dip` as a fifth attribute and `loft` to go with it, three shot styles, and a camera that stands behind the ball wherever it is. See [Free kicks](#free-kicks), [Dip](#dip-and-why-the-wall-was-unbeatable) and [Three ways to hit it](#three-ways-to-hit-it) | The curve mechanic finally matters |
-| **Later** | A keeper that reads your pattern, earning points to improve your player (see [Earning points, later](#earning-points-later)), a wall that jumps (see [A wall that jumps](#a-wall-that-jumps)), OG previews on an invite link, corners, a league season, a realistic 3D package, side-on view, a leaderboard | |
+| **Later** | A keeper that reads your pattern, earning points to improve your player (see [Earning points, later](#earning-points-later)), the keeper setting the wall (#89), goal celebrations per player (#87), OG previews on an invite link, corners, a league season, side-on view, a leaderboard. A wall that jumps shipped in #84 (see [A wall that jumps](#a-wall-that-jumps)), and a 3D package in #88 | |
 
 **Free kicks moved to Later.** They were Phase 3 on the grounds that they
 complete the shot model, which is still true and is not the same as being the
@@ -1568,7 +1585,9 @@ The deadzone is now proportional to the drag - a long drag wanders further in ab
 
 ### A wall that jumps
 
-**Built, as readable rather than random** - see [How the jumping wall
+**Built in #84, as readable rather than random, then changed in #88 so you
+can't tell while you aim** - a jumping wall only gives itself away with a dip at
+the knees during the run-up. See [How the jumping wall
 reads](#how-the-jumping-wall-reads) below for what shipped. The proposal as it
 was written first:
 

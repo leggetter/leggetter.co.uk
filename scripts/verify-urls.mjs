@@ -84,6 +84,7 @@ const expected = [
   '/sitemap-index.xml',
   '/aaarrrp/',
   '/blog/',
+  '/projects/',
   '/talks/',
   '/talks/hackference-2013/',
   '/talks/realtime-web-apps-in-the-wild.html',

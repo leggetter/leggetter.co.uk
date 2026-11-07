@@ -31,8 +31,8 @@ interface Project {
 }
 
 // Roles follow GitHub history plus what Phil confirmed: "Created" means the idea and the
-// first commits were his; "Led" means he was the main contributor and drove releases on
-// something someone else started. See the github-work-history skill in phil-skills.
+// first commits were his; "Main contributor" means the biggest share of work on something
+// someone else started. Ask before claiming more. See the github-work-history skill in phil-skills.
 const main: Project[] = [
   {
     name: 'pitwall',
@@ -58,7 +58,7 @@ const main: Project[] = [
   {
     name: 'Hookdeck CLI',
     kind: 'Hookdeck',
-    role: 'Led',
+    role: 'Main contributor',
     summary:
       "Forwards webhooks to localhost and manages Hookdeck from the terminal. I've been its main contributor since 2023, adding connection management, an MCP server and Outpost support.",
     image: { src: cliImg, alt: 'The output of hookdeck --help, listing commands including listen, gateway, connection and outpost' },
@@ -79,7 +79,7 @@ const main: Project[] = [
   {
     name: 'Hookdeck Docs',
     kind: 'Hookdeck',
-    role: 'Led',
+    role: 'Main contributor',
     summary:
       "The docs for Hookdeck's Event Gateway. I'm their biggest contributor, and lately I've focused on making them work for agents: Markdown pages, a generated CLI reference and tested examples.",
     image: { src: docsImg, alt: 'The Hookdeck Event Gateway documentation home page' },

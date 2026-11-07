@@ -1,41 +1,76 @@
 ---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import Base from '../../layouts/Base.astro';
 
-interface Link {
-  label: string;
-  href: string;
-}
+import pitwallImg from '../../assets/projects/pitwall.jpg';
+import webhookSkillsImg from '../../assets/projects/webhook-skills.png';
+import cliImg from '../../assets/projects/hookdeck-cli.png';
+import outpostImg from '../../assets/projects/outpost.jpg';
+import docsImg from '../../assets/projects/hookdeck-docs.png';
+import evalsImg from '../../assets/projects/hookdeck-evals.jpg';
+import mcpEventsImg from '../../assets/projects/mcp-events-bridge.jpg';
+import agentSkillsImg from '../../assets/projects/agent-skills.png';
+import n8nImg from '../../assets/projects/n8n.png';
+import eventDestinationsImg from '../../assets/projects/event-destinations.jpg';
+import supavlogImg from '../../assets/projects/supavlog.jpg';
+import vercelImg from '../../assets/projects/hookdeck-vercel.jpg';
+import supahooksImg from '../../assets/projects/supahooks.jpg';
+import eventCatalogImg from '../../assets/projects/eventcatalog.jpg';
+import siteImg from '../../assets/projects/leggetter-co-uk.jpg';
+
+type Kind = 'Side project' | 'Hookdeck';
 
 interface Project {
   name: string;
+  kind: Kind;
   role: string;
   summary: string;
-  links: Link[];
+  image?: { src: ImageMetadata; alt: string };
+  links: { label: string; href: string }[];
 }
 
-// Roles follow the evidence in GitHub history plus what Phil confirmed: "Created" means
-// the idea and the first commits were his; "Led" means he was the main contributor and
-// drove releases on something someone else started. See the github-work-history skill.
-const hookdeckFeatured: Project[] = [
+// Roles follow GitHub history plus what Phil confirmed: "Created" means the idea and the
+// first commits were his; "Led" means he was the main contributor and drove releases on
+// something someone else started. See the github-work-history skill in phil-skills.
+const main: Project[] = [
   {
-    name: 'Webhook Skills',
+    name: 'pitwall',
+    kind: 'Side project',
     role: 'Created',
     summary:
-      "Agent Skills that teach coding agents like Claude Code, Cursor and Copilot how to receive a specific provider's webhooks: set up the endpoint, verify the signature and handle the events. The idea was mine, and I built the skill format, the test harness, the generator and the first batch of providers. My colleague Gareth then scaled the catalogue to 813 providers, and it's picked up close to 100 stars on GitHub.",
+      "A local web UI for running lots of Claude Code sessions at once. It shows which sessions need you and why, and lets you steer them and start new ones.",
+    image: { src: pitwallImg, alt: 'pitwall listing Claude Code sessions by repo, with an open session showing its recap, to-dos and conversation' },
+    links: [
+      { label: 'GitHub', href: 'https://github.com/leggetter/pitwall' },
+      { label: 'Blog post', href: '/blog/keep-coding-agent-context-small/' },
+    ],
+  },
+  {
+    name: 'Webhook Skills',
+    kind: 'Hookdeck',
+    role: 'Created',
+    summary:
+      "Agent Skills that teach coding agents to receive a provider's webhooks. It was my idea, and I built the format, test harness, generator and first providers. Gareth then scaled it to 813.",
+    image: { src: webhookSkillsImg, alt: 'A terminal listing the webhook-skills repo: 813 skill directories, from 100ms-webhooks onwards' },
     links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/webhook-skills' }],
   },
   {
     name: 'Hookdeck CLI',
+    kind: 'Hookdeck',
     role: 'Led',
     summary:
-      "Forwards webhooks to your local machine and manages Hookdeck's Event Gateway from the terminal. I've been its main contributor since 2023, adding connection management for testing, debugging and infrastructure as code, then an MCP server and telemetry in v2, and Outpost support in v3. Some of that work was in Hookdeck's backend too, such as signing in from the CLI during onboarding.",
+      "Forwards webhooks to localhost and manages Hookdeck from the terminal. I've been its main contributor since 2023, adding connection management, an MCP server and Outpost support.",
+    image: { src: cliImg, alt: 'The output of hookdeck --help, listing commands including listen, gateway, connection and outpost' },
     links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/hookdeck-cli' }],
   },
   {
     name: 'Outpost',
+    kind: 'Hookdeck',
     role: 'DX contributor',
     summary:
-      "Hookdeck's open-source infrastructure for sending webhooks and events to your customers' endpoints, queues and streams. With over 1,000 stars on GitHub, it's the most popular project on this page. I contributed to its developer experience: the docs and docs site, the OpenAPI spec, the SDKs, a migration guide and the quickstarts (plus, along the way, GCP Pub/Sub destinations and Redis Cluster support).",
+      "Hookdeck's open-source infrastructure for sending webhooks to your customers, with over 1,000 GitHub stars. I worked on its docs, OpenAPI spec, SDKs and quickstarts.",
+    image: { src: outpostImg, alt: 'The Outpost banner: open-source outbound webhooks and event destinations infrastructure' },
     links: [
       { label: 'Website', href: 'https://hookdeck.com/outpost' },
       { label: 'GitHub', href: 'https://github.com/hookdeck/outpost' },
@@ -43,19 +78,20 @@ const hookdeckFeatured: Project[] = [
   },
   {
     name: 'Hookdeck Docs',
+    kind: 'Hookdeck',
     role: 'Led',
     summary:
-      "The documentation for Hookdeck's Event Gateway. I'm its biggest contributor, and over the past year most of that work has gone into making the docs work for agents as well as people: Markdown versions of pages, a generated CLI reference, code examples that get tested, a filter tester and an automated API changelog. The source is private, but you can read the result.",
+      "The docs for Hookdeck's Event Gateway. I'm their biggest contributor, and lately I've focused on making them work for agents: Markdown pages, a generated CLI reference and tested examples.",
+    image: { src: docsImg, alt: 'The Hookdeck Event Gateway documentation home page' },
     links: [{ label: 'Docs', href: 'https://hookdeck.com/docs' }],
   },
-];
-
-const hookdeckMore: Project[] = [
   {
     name: 'Hookdeck Evals',
+    kind: 'Hookdeck',
     role: 'Built',
     summary:
-      "A public, continuously run benchmark of how well AI coding agents build with Hookdeck, with the failures published next to the passes. I built the harness and the scenarios, and Thomas, Hookdeck's product designer, designed the results page. I've written about what I'd check before trusting anyone's evals, ours included.",
+      'A public benchmark of how well AI coding agents build with Hookdeck, failures included. I built the harness and scenarios, and Thomas, our product designer, designed the results page.',
+    image: { src: evalsImg, alt: 'The Hookdeck evals page comparing Claude Code and Codex across build, troubleshoot and recover tasks' },
     links: [
       { label: 'Results', href: 'https://hookdeck.com/evals' },
       { label: 'GitHub', href: 'https://github.com/hookdeck/evals' },
@@ -64,9 +100,11 @@ const hookdeckMore: Project[] = [
   },
   {
     name: 'MCP Events Bridge',
+    kind: 'Hookdeck',
     role: 'Created',
     summary:
-      "Turns webhooks from GitHub, Stripe, Slack, Resend or any signed source into MCP Events, so an AI agent can react to them as they happen, with Hookdeck's Event Gateway receiving and delivering them. Clients that don't support MCP Events yet can use its poll tools or the Claude Code plugin.",
+      "Turns webhooks from GitHub, Stripe, Slack and other sources into MCP Events, so AI agents can react to them as they happen. Hookdeck's Event Gateway does the delivery.",
+    image: { src: mcpEventsImg, alt: 'Claude Code using the bridge to wait for new GitHub issue comments and reporting each one as it arrives' },
     links: [
       { label: 'GitHub', href: 'https://github.com/hookdeck/mcp-events-bridge' },
       { label: 'npm', href: 'https://www.npmjs.com/package/@hookdeck/mcp-events-bridge' },
@@ -74,25 +112,29 @@ const hookdeckMore: Project[] = [
   },
   {
     name: 'Hookdeck Agent Skills',
+    kind: 'Hookdeck',
     role: 'Created',
-    summary:
-      "Agent Skills for Hookdeck's own products, Event Gateway and Outpost, so a coding agent can set them up from the CLI. It's also packaged as a Cursor Marketplace plugin.",
+    summary: "Agent Skills for Hookdeck's own products, so a coding agent can set up Event Gateway and Outpost from the CLI.",
+    image: { src: agentSkillsImg, alt: 'A terminal listing the four skills: event-gateway, hookdeck, inspect and outpost' },
     links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/agent-skills' }],
   },
 ];
 
-const hookdeckSmaller: Project[] = [
+const smaller: Project[] = [
   {
-    name: 'n8n community node for Hookdeck',
+    name: 'n8n node for Hookdeck',
+    kind: 'Hookdeck',
     role: 'Led',
-    summary: 'Triggers n8n workflows from Hookdeck events, and manages sources, destinations and connections from n8n.',
+    summary: 'Triggers n8n workflows from Hookdeck events, and manages Hookdeck from n8n.',
+    image: { src: n8nImg, alt: 'An n8n workflow triggered by a Stripe event delivered through Hookdeck' },
     links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/n8n-nodes-hookdeck' }],
   },
   {
     name: 'Event Destinations',
+    kind: 'Hookdeck',
     role: 'Contributor',
-    summary:
-      "Alexandre Bouchard's initiative for event producers to deliver to the tools their consumers already use, such as Pub/Sub, SQS, EventBridge and Kafka, as well as to webhooks.",
+    summary: "Alexandre Bouchard's initiative for event producers to deliver to the tools their consumers already use, such as Pub/Sub, SQS and Kafka.",
+    image: { src: eventDestinationsImg, alt: 'The Event Destinations initiative banner' },
     links: [
       { label: 'Website', href: 'https://eventdestinations.org' },
       { label: 'GitHub', href: 'https://github.com/hookdeck/event-destinations' },
@@ -100,171 +142,117 @@ const hookdeckSmaller: Project[] = [
   },
   {
     name: 'SupaVlog',
+    kind: 'Hookdeck',
     role: 'Created',
-    summary: 'An open-source starter kit for a vlog app, built with Supabase, Stream, Hookdeck and Next.js.',
+    summary: 'An open-source vlog app starter kit, built with Supabase, Stream, Hookdeck and Next.js.',
+    image: { src: supavlogImg, alt: 'The SupaVlog app recording a video' },
     links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/supavlog' }],
   },
   {
     name: 'Hookdeck Vercel middleware',
+    kind: 'Hookdeck',
     role: 'Co-built with JM Navarro',
-    summary: 'Authenticates, delays, filters, queues, throttles and retries webhooks and other asynchronous requests made to a Vercel app.',
+    summary: 'Queues, filters, throttles and retries webhooks made to a Vercel app.',
+    image: { src: vercelImg, alt: 'A diagram of webhooks passing through Hookdeck to a Vercel app via the middleware' },
     links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/hookdeck-vercel' }],
   },
   {
     name: 'SupaHooks',
+    kind: 'Hookdeck',
     role: 'Created',
-    summary: 'A Next.js template that uses Hookdeck as the infrastructure for sending outbound webhooks.',
+    summary: 'A Next.js template that uses Hookdeck to send outbound webhooks.',
+    image: { src: supahooksImg, alt: 'The SupaHooks app configuring outbound webhook endpoints' },
     links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/supahooks' }],
   },
   {
+    name: 'EventCatalog generator',
+    kind: 'Hookdeck',
+    role: 'Created',
+    summary: "Generates an EventCatalog from a Hookdeck project's sources, destinations and events.",
+    image: { src: eventCatalogImg, alt: 'An EventCatalog showing services and events generated from a Hookdeck project' },
+    links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/eventcatalog-generator' }],
+  },
+  {
+    name: 'leggetter.co.uk',
+    kind: 'Side project',
+    role: 'Created',
+    summary: 'This site, which I moved to Astro on Cloudflare in 2026, with 301s so that old links keep working.',
+    image: { src: siteImg, alt: 'The leggetter.co.uk home page' },
+    links: [{ label: 'GitHub', href: 'https://github.com/leggetter/leggetter.co.uk' }],
+  },
+  {
     name: 'Hookdeck quickstarts',
+    kind: 'Hookdeck',
     role: 'Created',
     summary: "The code that goes with the quickstart guides in Hookdeck's docs.",
     links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/quickstarts' }],
   },
   {
-    name: 'EventCatalog generator for Hookdeck',
-    role: 'Created',
-    summary: "Generates an EventCatalog from a Hookdeck project, with services from its sources and destinations and events from the traffic between them.",
-    links: [{ label: 'GitHub', href: 'https://github.com/hookdeck/eventcatalog-generator' }],
-  },
-];
-
-const sideFeatured: Project[] = [
-  {
-    name: 'pitwall',
-    role: 'Created',
-    summary:
-      "The pit wall for your Claude Code sessions. It's a local web UI that lists every session on your machine, wherever it was started, shows which ones need you and why, and lets you steer them and start new ones. It also has a supervisor, a Claude Code session you can ask about all the others. I use it every day, though it only runs on macOS so far.",
-    links: [
-      { label: 'GitHub', href: 'https://github.com/leggetter/pitwall' },
-      { label: 'Blog post', href: '/blog/keep-coding-agent-context-small/' },
-    ],
-  },
-];
-
-const sideSmaller: Project[] = [
-  {
-    name: 'leggetter.co.uk',
-    role: 'Created',
-    summary: 'This site. In 2026 I moved it to Astro on Cloudflare, with 301s so that old links keep working.',
-    links: [{ label: 'GitHub', href: 'https://github.com/leggetter/leggetter.co.uk' }],
-  },
-  {
     name: 'POTM',
+    kind: 'Side project',
     role: 'Created',
-    summary: 'A player of the match voting app for sports teams: share a link after the match and the squad votes, with no sign-up needed.',
+    summary: 'A player of the match voting app for sports teams, with no sign-up needed to vote.',
     links: [{ label: 'GitHub', href: 'https://github.com/leggetter/potm' }],
   },
   {
     name: 'Discourse Forum Analyzer',
+    kind: 'Side project',
     role: 'Created',
-    summary: 'A Python CLI that collects Discourse forum threads and uses Claude to group the problems people raise by type and severity.',
+    summary: 'A Python CLI that uses Claude to group the problems raised in a Discourse forum by type and severity.',
     links: [{ label: 'GitHub', href: 'https://github.com/leggetter/discourse-forum-analyzer' }],
   },
+];
+
+const sections = [
+  { title: 'Main Projects', projects: main, compact: false },
+  { title: 'Smaller Projects and Demos', projects: smaller, compact: true },
 ];
 ---
 
 <Base
   title="Projects"
-  description="Projects Phil Leggetter has built or worked on: Hookdeck's CLI, docs, Outpost, Webhook Skills and evals, plus side projects such as pitwall."
+  description="Projects Phil Leggetter has built or worked on: pitwall, Webhook Skills, Hookdeck's CLI, docs, Outpost and evals, and more."
 >
   <h1>Projects</h1>
   <p class="projects-intro">
-    These are the projects I've spent the most time on over the past few years, most of them open source. The
-    Hookdeck ones come from my role leading Developer Experience there, and the side projects are things I've
-    built for myself. Each one says what my part in it was. Older work is mostly in my <a href="/talks/">talks</a> and on the <a href="/blog/">blog</a>.
+    These are the projects I've spent the most time on over the past few years, most of them open source. Some are
+    side projects, and the rest come from my role leading Developer Experience at Hookdeck. Each one is labelled
+    with my part in it. Older work is mostly in my <a href="/talks/">talks</a> and on the <a href="/blog/">blog</a>.
   </p>
 
-  <section class="projects-section">
-    <h2>Hookdeck Projects</h2>
-    <ul class="projects-cards">
-      {
-        hookdeckFeatured.map((p) => (
-          <li class="project-card">
-            <h3>{p.name}</h3>
-            <p class="project-role">{p.role}</p>
-            <p>{p.summary}</p>
-            <p class="project-links">
-              {p.links.map(({ label, href }) => (
-                <a href={href}>{label}</a>
-              ))}
-            </p>
-          </li>
-        ))
-      }
-    </ul>
-    <ul class="projects-cards">
-      {
-        hookdeckMore.map((p) => (
-          <li class="project-card">
-            <h3>{p.name}</h3>
-            <p class="project-role">{p.role}</p>
-            <p>{p.summary}</p>
-            <p class="project-links">
-              {p.links.map(({ label, href }) => (
-                <a href={href}>{label}</a>
-              ))}
-            </p>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  <section class="projects-section">
-    <h2>Smaller Hookdeck Projects and Demos</h2>
-    <ul class="projects-list">
-      {
-        hookdeckSmaller.map((p) => (
-          <li>
-            <span class="projects-list__name">{p.name}</span>
-            <span class="project-role">{p.role}</span>
-            <span>{p.summary}</span>
-            <span class="project-links">
-              {p.links.map(({ label, href }) => (
-                <a href={href}>{label}</a>
-              ))}
-            </span>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  <section class="projects-section">
-    <h2>Side Projects</h2>
-    <ul class="projects-cards">
-      {
-        sideFeatured.map((p) => (
-          <li class="project-card">
-            <h3>{p.name}</h3>
-            <p class="project-role">{p.role}</p>
-            <p>{p.summary}</p>
-            <p class="project-links">
-              {p.links.map(({ label, href }) => (
-                <a href={href}>{label}</a>
-              ))}
-            </p>
-          </li>
-        ))
-      }
-    </ul>
-    <ul class="projects-list">
-      {
-        sideSmaller.map((p) => (
-          <li>
-            <span class="projects-list__name">{p.name}</span>
-            <span class="project-role">{p.role}</span>
-            <span>{p.summary}</span>
-            <span class="project-links">
-              {p.links.map(({ label, href }) => (
-                <a href={href}>{label}</a>
-              ))}
-            </span>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+  {
+    sections.map(({ title, projects, compact }) => (
+      <section class="projects-section">
+        <h2>{title}</h2>
+        <ul class:list={['projects-grid', { 'projects-grid--compact': compact }]}>
+          {projects.map((p) => (
+            <li class="project-card">
+              {p.image && (
+                <Image
+                  class="project-card__image"
+                  src={p.image.src}
+                  alt={p.image.alt}
+                  widths={[400, 800]}
+                  sizes="(min-width: 60rem) 24rem, 100vw"
+                />
+              )}
+              <div class="project-card__body">
+                <p class="project-labels">
+                  <span class="project-label project-label--role">{p.role}</span>
+                  <span class="project-label">{p.kind}</span>
+                </p>
+                <h3>{p.name}</h3>
+                <p>{p.summary}</p>
+                <p class="project-links">
+                  {p.links.map(({ label, href }) => (
+                    <a href={href}>{label}</a>
+                  ))}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
 </Base>
